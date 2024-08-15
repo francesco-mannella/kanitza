@@ -31,8 +31,8 @@ class EyeSimEnv(gym.Env):
         self.init_world()
         self.set_seed()
 
-        self.taskspace_xlim = np.array([0, 50])
-        self.taskspace_ylim = np.array([0, 50])
+        self.taskspace_xlim = np.array([0, 80])
+        self.taskspace_ylim = np.array([0, 80])
         self.retina_scale = np.array([50, 50])
         self.retina_size = np.array([80, 80])
         self.fovea_scale = np.array([10, 10])
@@ -119,10 +119,10 @@ class EyeSimEnv(gym.Env):
         
         x_range = self.taskspace_xlim[1] - self.taskspace_xlim[0]
         y_range = self.taskspace_ylim[1] - self.taskspace_ylim[0]
-        position = [
-            self.taskspace_xlim[0] + x_range * (0.2 + 0.6 * self.rng.rand()),
-            self.taskspace_ylim[0] + y_range * (0.2 + 0.6 * self.rng.rand()),
-        ]
+        position = np.array([
+            self.taskspace_xlim[0] + x_range * (0.4 + 0.2 * self.rng.rand()),
+            self.taskspace_ylim[0] + y_range * (0.4 + 0.2 * self.rng.rand()),
+        ])
 
         self.sim.bodies["triangle"].transform.angle = angle
         self.sim.bodies["triangle"].transform.position = position

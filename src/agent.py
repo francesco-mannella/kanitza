@@ -139,8 +139,7 @@ def gaussian_mask(shape, mean, v1, v2, angle):
 #%% AGENT CLASS
 class Agent:
     """
-    Agent that interacts with the environment and determines actions based on
-    saliency maps.
+    Agent that interacts with the environment and determines actions based on saliency maps.
     """
 
     def __init__(self, environment, sampling_threshold=0.07):
@@ -149,50 +148,54 @@ class Agent:
 
         Args:
         - environment: The environment in which the agent operates.
-        - sampling_threshold: The threshold value used in the sampling
-          function. Default is 0.14.
+        - sampling_threshold (float): The threshold value used in the sampling function. Default is 0.07.
         """
         self.environment = environment
         self.saliency_mapper = SaliencyMap()
         self.sampling_threshold = sampling_threshold
+        self.env_height, self.env_width = environment.observation_space["RETINA"].shape[:-1]
+        self.vertical_variance = 9 * self.env_height
+        self.horizontal_variance = 9 * self.env_width
+        self.attentional_mask = None
 
-    def get_action(self, observation, attentional_mask=None):
+    def set_parameters(self, params):
+        """
+        Set the parameters for the attentional mask.
+
+        Args:
+        - params (list or array-like): The parameters to set for the attentional mask.
+        """
+        params = np.clip(params, 0, 1)
+        params *= [self.env_height, self.env_width]
+        self.attentional_mask = gaussian_mask(
+            (self.env_height, self.env_width), params, 
+            self.vertical_variance, 
+            self.horizontal_variance, angle=0
+        )
+
+    def get_action(self, observation):
         """
         Determine the action to take based on the provided observation.
 
         Args:
-        - observation (dict): A dictionary representing the current state of
-          the environment.  It must contain a key 'RETINA' which provides the
-          necessary visual input data.
-                                
-        - attentional_mask (array, optional): An array with dimensions matching
-          those of the retina. Each element in the array represents the prior
-          probability of selecting the corresponding point on the retina as the
-          salient point. This array modulates the attention given to different
-          areas of the retina when choosing the next action.
+        - observation (dict): A dictionary representing the current state of the environment. 
+          Must contain a key 'RETINA' which provides the necessary visual input data.
 
         Returns:
-        - tuple: The action to take, the generated saliency map, and the
-          selected salient point.
+        - tuple: A tuple containing the action to take, the generated saliency map, and the selected salient point.
         """
-        
-
         retina_image = observation['RETINA'].mean(-1) / 255
         inverted_retina = 1 - retina_image
 
         saliency_map = self.saliency_mapper(inverted_retina)
-        if attentional_mask is None:
-            attentional_mask = np.ones_like(saliency_map)
-        saliency_map *= attentional_mask
+        if self.attentional_mask is None:
+            self.attentional_mask = np.ones_like(saliency_map)
+
+        saliency_map *= self.attentional_mask
         salient_point = sampling(saliency_map, self.sampling_threshold)
 
         normalized_action = salient_point / self.environment.retina_size
         normalized_action[1] = 1 - normalized_action[1]
-        centered_action = (
-            normalized_action - 0.5
-        ) * self.environment.retina_scale
+        centered_action = (normalized_action - 0.5) * self.environment.retina_scale
 
         return centered_action, saliency_map, salient_point
-
-
-

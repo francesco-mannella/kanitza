@@ -225,10 +225,6 @@ class TestPlotter:
         self.xlim = xlim if xlim is not None else env.taskspace_xlim
         self.ylim = ylim if ylim is not None else env.taskspace_ylim
 
-        
-        if self.offline:
-            self.vm = vidManager(self.fig, name="frame", duration=30)
-       
         self.ax = ax
         if ax is None:
             if figsize is None:
@@ -248,6 +244,9 @@ class TestPlotter:
 
 
     def reset(self):
+        
+        if self.offline:
+            self.vm = vidManager(self.fig, name="frame", duration=200)
 
         if self.ax is None:
             self.ax = self.fig.add_subplot(111, aspect="equal")

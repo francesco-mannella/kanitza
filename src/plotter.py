@@ -10,7 +10,7 @@ class FoveaPlotter(EyeSim.envs.Simulator.TestPlotter):
     fovea region, and salient points in an eye simulation environment.
     """
 
-    def __init__(self, env):
+    def __init__(self, env, *args, **kargs):
         """
         Initializes the FoveaPlotter with a given environment.
 
@@ -24,23 +24,30 @@ class FoveaPlotter(EyeSim.envs.Simulator.TestPlotter):
                                            gridspec_kw={'width_ratios': [1, 1, 1, 1], 
                                                         'height_ratios': [1]})
         
+        self.env_ax, self.fovea_ax, self.saliency_ax, self.filter_ax = self.axes
+
         # Initialize the saliency image plot and highlight dot
-        self.saliency_image = self.axes[0].imshow(np.zeros(env.retina_size), vmin=0, vmax=1)
-        self.attentional_mask = self.axes[3].imshow(np.zeros(env.retina_size), vmin=0, vmax=1)
-        self.highlight_dot = self.axes[0].scatter(0, 0, c='#ff5555', s=50, alpha=0.5 )
+        self.saliency_image = self.saliency_ax.imshow(np.zeros(env.retina_size), vmin=0, vmax=1)
+        self.attentional_mask = self.filter_ax.imshow(np.zeros(env.retina_size), vmin=0, vmax=1)
+        self.highlight_dot = self.saliency_ax.scatter(0, 0, c='#ff5555', s=50, alpha=0.5 )
         
         # Initialize the fovea image plot
-        self.fovea_image = self.axes[2].imshow(env.observation_space["FOVEA"].sample(), vmin=0, vmax=1)
+        self.fovea_image = self.fovea_ax.imshow(env.observation_space["FOVEA"].sample(), vmin=0, vmax=1)
         
         # Create the rectangles for retina and fovea positions
         self._initialize_patches()
 
         # Initialize TestPlotter
-        super().__init__(env, ax=self.axes[1])
+        super().__init__(env, ax=self.env_ax, *args, **kargs)
 
         # Set aspect ratio for all axes
         for ax in self.axes:
             ax.set_box_aspect(1)
+
+        self.env_ax.set_title("Visual field")
+        self.fovea_ax.set_title("Fovea")
+        self.saliency_ax.set_title("Retina\n(salience)")
+        self.filter_ax.set_title("Retina\n(attentional filter)" )
     
     def _initialize_patches(self):
         """Helper method to initialize the retina and fovea position rectangles."""
@@ -50,10 +57,10 @@ class FoveaPlotter(EyeSim.envs.Simulator.TestPlotter):
         pos = self.env.retina_sim_pos - self.env.fovea_scale / 2
         self.fovea_pos = Rectangle(pos, *self.env.fovea_scale, fill=None)
         
-        self.axes[1].add_patch(self.retina_pos)
-        self.axes[1].add_patch(self.fovea_pos)
+        self.env_ax.add_patch(self.retina_pos)
+        self.env_ax.add_patch(self.fovea_pos)
 
-    def render(self, saliency_map, salient_point, attentional_mask=None):
+    def step(self, saliency_map, salient_point, attentional_mask=None):
         """
         Renders the current state of the environment, updating the saliency map, 
         fovea image, and highlights salient points.
@@ -79,8 +86,8 @@ class FoveaPlotter(EyeSim.envs.Simulator.TestPlotter):
         self.fovea_pos.set_xy(self.env.retina_sim_pos - self.env.fovea_scale / 2)
 
         # Ensure rectangles are drawn
-        self.axes[1].add_patch(self.retina_pos)
-        self.axes[1].add_patch(self.fovea_pos)
+        self.env_ax.add_patch(self.retina_pos)
+        self.env_ax.add_patch(self.fovea_pos)
 
         # Pause to update the plot
         plt.pause(0.1)

@@ -31,6 +31,6 @@ if __name__ == '__main__':
     for time_step in range(100):
         observation, *_ = env.step(action)
         action, saliency_map, salient_point = agent.get_action(observation)
-        plotter.render(saliency_map, salient_point)
+        plotter.step(saliency_map, salient_point)
 
 
