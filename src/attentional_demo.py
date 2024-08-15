@@ -5,10 +5,12 @@ from scipy.signal import convolve2d
 from scipy.special import softmax
 import gymnasium as gym
 import EyeSim
-from agent import Agent, gaussian_mask
+from model.agent import Agent, gaussian_mask
 from plotter import FoveaPlotter
 import wandb
 
+# This code is designed for simulating and visualizing an agent’s behavior in an
+# environment, specifically focusing on its attention mechanisms
 
 #%% MAIN LOOP AND VISUALIZATION
 if __name__ == '__main__':
@@ -17,7 +19,7 @@ if __name__ == '__main__':
     wandb.init(
         project='eye-simulation',
         entity='francesco-mannella',
-        name="attentional demo",
+        name='attentional demo',
     )
 
     # Enable interactive mode and close any previously opened plots
@@ -26,16 +28,16 @@ if __name__ == '__main__':
 
     # Set up the environment and agent
     env = gym.make('EyeSim-v0')
-    penv = env.unwrapped
+    env = env.unwrapped
     env.reset()
     agent = Agent(env, sampling_threshold=0.02)
-
-    # Precompute some constants
-    action = np.zeros(env.action_space.shape)
 
     # Run the simulation for a fixed number of episodes
     for episode in range(5):
         _, info = env.reset()
+
+        # Precompute some constants
+        action = np.zeros(env.action_space.shape)
 
         # Create a plotting object for the current episode
         plotter = FoveaPlotter(env, offline=True)
@@ -63,7 +65,9 @@ if __name__ == '__main__':
         plotter.close(gif_file)
 
         # Log the gif file to Weights & Biases
-        wandb.log({"attentional_demo": wandb.Video(f'{gif_file}.gif', format='gif')})
+        wandb.log(
+            {'attentional_demo': wandb.Video(f'{gif_file}.gif', format='gif')}
+        )
 
     # Close the Weights & Biases run
     wandb.finish()

@@ -98,9 +98,12 @@ def sampling(array, precision=0.01):
     sampled_flat_index = np.random.choice(
         a=flattened_array.size, p=probabilities
     )
-    sampled_index = np.unravel_index(sampled_flat_index, array.shape, order='F')
+    sampled_index = np.unravel_index(
+        sampled_flat_index, array.shape, order='F'
+    )
 
     return sampled_index
+
 
 def gaussian_mask(shape, mean, v1, v2, angle):
     """
@@ -123,10 +126,12 @@ def gaussian_mask(shape, mean, v1, v2, angle):
     ty = np.arange(shape[1])
     tX, tY = np.meshgrid(tx, ty)
     x = np.column_stack([tX.flat, tY.flat])
-    
+
     # Compute rotated covariance matrix
     cov_matrix = np.array([[v1, 0], [0, v2]])
-    rot = np.array([[np.cos(angle), -np.sin(angle)], [np.sin(angle), np.cos(angle)]])
+    rot = np.array(
+        [[np.cos(angle), -np.sin(angle)], [np.sin(angle), np.cos(angle)]]
+    )
     rotated_cov_matrix = rot @ cov_matrix @ rot.T
 
     x_minus_mu = x - mean
@@ -153,7 +158,9 @@ class Agent:
         self.environment = environment
         self.saliency_mapper = SaliencyMap()
         self.sampling_threshold = sampling_threshold
-        self.env_height, self.env_width = environment.observation_space["RETINA"].shape[:-1]
+        self.env_height, self.env_width = environment.observation_space[
+            'RETINA'
+        ].shape[:-1]
         self.vertical_variance = 9 * self.env_height
         self.horizontal_variance = 9 * self.env_width
         self.attentional_mask = None
@@ -168,9 +175,11 @@ class Agent:
         params = np.clip(params, 0, 1)
         params *= [self.env_height, self.env_width]
         self.attentional_mask = gaussian_mask(
-            (self.env_height, self.env_width), params, 
-            self.vertical_variance, 
-            self.horizontal_variance, angle=0
+            (self.env_height, self.env_width),
+            params,
+            self.vertical_variance,
+            self.horizontal_variance,
+            angle=0,
         )
 
     def get_action(self, observation):
@@ -178,7 +187,7 @@ class Agent:
         Determine the action to take based on the provided observation.
 
         Args:
-        - observation (dict): A dictionary representing the current state of the environment. 
+        - observation (dict): A dictionary representing the current state of the environment.
           Must contain a key 'RETINA' which provides the necessary visual input data.
 
         Returns:
@@ -196,6 +205,8 @@ class Agent:
 
         normalized_action = salient_point / self.environment.retina_size
         normalized_action[1] = 1 - normalized_action[1]
-        centered_action = (normalized_action - 0.5) * self.environment.retina_scale
+        centered_action = (
+            normalized_action - 0.5
+        ) * self.environment.retina_scale
 
         return centered_action, saliency_map, salient_point
