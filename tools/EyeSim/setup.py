@@ -1,6 +1,5 @@
 from setuptools import setup
 
-
 setup(
     packages=['EyeSim'],  # same as name
     name='EyeSim',

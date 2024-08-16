@@ -1,11 +1,7 @@
 #%% IMPORTS
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.patches import Rectangle
-from scipy.signal import convolve2d
-from scipy.special import softmax
 import gymnasium as gym
-import EyeSim
 from model.agent import Agent
 from plotter import FoveaPlotter
 import wandb
