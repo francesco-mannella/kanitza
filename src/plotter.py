@@ -2,8 +2,9 @@
 from matplotlib import pyplot as plt
 from matplotlib.patches import Rectangle
 import numpy as np
-import EyeSim
 
+import EyeSim
+from EyeSim.envs.mkvideo import vidManager
 
 class FoveaPlotter(EyeSim.envs.Simulator.TestPlotter):
     """
@@ -25,7 +26,7 @@ class FoveaPlotter(EyeSim.envs.Simulator.TestPlotter):
             1,
             4,
             figsize=(10, 3),
-            gridspec_kw={'width_ratios': [1, 1, 1, 1], 'height_ratios': [1]},
+            gridspec_kw={'width_ratios': np.ones(4), 'height_ratios': [1]},
         )
 
         (
@@ -112,5 +113,98 @@ class FoveaPlotter(EyeSim.envs.Simulator.TestPlotter):
         self.env_ax.add_patch(self.retina_pos)
         self.env_ax.add_patch(self.fovea_pos)
 
-        # Pause to update the plot
-        plt.pause(0.1)
+        # Redraw the figure to show updates
+        self.fig.canvas.draw_idle()
+
+
+class MapsPlotter:
+    """
+    A class for plotting fovea and attentional maps using matplotlib.
+
+    This class initializes with a controller that provides the necessary map data
+    and sets up the figure and axis for plotting.
+    """
+
+    def __init__(self, env, controller, offline=False):
+        """
+        Initializes the MapsPlotter with the given controller and environment.
+
+        Args:
+            env (object): The simulation environment containing retina and fovea configurations.
+            controller (object): An object that contains fovea_map and attentional_map, each with weights.
+        """
+        self.controller = controller
+        self.env = env
+
+        # Setup the figure and axis for plotting.
+        self.fig, (self.fovea_map_ax, self.attentional_map_ax) = plt.subplots(
+            1, 2, figsize=(10, 3)
+        )
+
+        # Initialize imshow objects for both axes
+        fovea_map_weights = self.reshape_fovea_weights(
+            self.controller.fovea_map.weights,
+        )
+        self.fovea_map_im = self.fovea_map_ax.imshow(
+            fovea_map_weights, cmap='viridis'
+        )
+        # self.attentional_map_im = self.attentional_map_ax.imshow(
+        #     self.controller.attentional_map.weights, cmap='viridis'
+        # )
+
+        self.offline = offline
+
+    def step(self):
+        """
+        Updates the displayed fovea map with the latest weights from the controller.
+
+        This method retrieves the current fovea map weights from the controller, reshapes
+        and transposes them as needed for visualization, and updates the imshow object.
+        """
+
+        # Reshape and transpose fovea weights for correct visualization
+        fovea_map_weights = self.reshape_fovea_weights(
+            self.controller.fovea_map.weights,
+        )
+
+        # Set the updated data on the imshow object
+        self.fovea_map_im.set_data(fovea_map_weights)
+
+        # Redraw the figure to show updates
+        self.fig.canvas.draw_idle()
+
+
+    def close(self, name=None):
+        if self.offline and name is not None:
+            self.fig.savefig(name, dpi=300)
+        plt.close(self.fig)
+
+    def reshape_fovea_weights(
+        self,
+        weights,
+    ):
+        """
+        Reshapes and transposes the fovea map weights for plotting.
+
+        Args:
+            weights (torch.Tensor): The fovea map weights to be reshaped.
+
+        Returns:
+            np.ndarray: Reshaped and transposed weights ready for visualization.
+        """
+        inp_side1, inp_side2 = self.env.fovea_size.astype(int)
+        out_side1, out_side2 = np.ones(2).astype(int) * int(
+            np.sqrt(self.controller.maps_output_size)
+        )
+
+        weights = weights.cpu().detach().numpy()
+        np.save("weights", weights)
+        reshaped_weights = weights.reshape(
+            inp_side1, inp_side2, 3, out_side1, out_side2,
+        )
+        transposed_weights = reshaped_weights.transpose(3, 0, 4, 1, 2)
+        new_shape = (inp_side1 * out_side1, inp_side2 * out_side2, 3)
+
+        reshaped_transposed_weights = transposed_weights.reshape(new_shape)
+
+        return reshaped_transposed_weights

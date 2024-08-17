@@ -57,6 +57,7 @@ class RadialBasis:
             dists = self.grid - x
         elif self.dims == 2:
             if as_point:
+                index = index.reshape(-1, 2)
                 col, row = index[:, 0], index[:, 1]
             else:
                 row = index // self.side
