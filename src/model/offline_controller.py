@@ -28,10 +28,17 @@ class OfflineController:
     """
 
     def __init__(
-        self, env, input_batch_size=20000, maps_output_size=(10 * 10),
-        base_learning_rate=0.001, learning_rate_range=0.05, base_std_factor=0.5,
-        std_range=2.0, attentional_input_size=2, attentional_update_lr=0.1,
-        attentional_weights_path='attentional_weights'
+        self,
+        env,
+        input_batch_size=20000,
+        maps_output_size=(10 * 10),
+        base_learning_rate=0.001,
+        learning_rate_range=0.05,
+        base_std_factor=0.5,
+        std_range=2.0,
+        attentional_input_size=2,
+        attentional_update_lr=0.1,
+        attentional_weights_path='attentional_weights',
     ):
         """
         Initialize the OfflineController with the given environment.
@@ -51,8 +58,12 @@ class OfflineController:
         """
 
         # Initialize input batch size and map output size
-        self.input_batch_size = input_batch_size  # Batch size for input processing
-        self.maps_output_size = maps_output_size  # Size of the output map representation
+        self.input_batch_size = (
+            input_batch_size  # Batch size for input processing
+        )
+        self.maps_output_size = (
+            maps_output_size  # Size of the output map representation
+        )
         self.batch_shape = (self.input_batch_size, self.maps_output_size)
 
         # Initialize learning rate and standard deviation parameters
@@ -97,9 +108,13 @@ class OfflineController:
         self.attentional_map = TopologicalMap(
             self.attentional_input_size,
             self.maps_output_size,
-            parameters=torch.tensor(torch.load(attentional_weights_path).clone()),
+            parameters=torch.tensor(
+                torch.load(attentional_weights_path).clone()
+            ),
         )
-        self.attentional_updater = STMUpdater(self.attentional_map, attentional_update_lr)
+        self.attentional_updater = STMUpdater(
+            self.attentional_map, attentional_update_lr
+        )
 
         # Preallocate tensors for batch processing
         self.attentional_inputs = torch.zeros(
@@ -130,9 +145,11 @@ class OfflineController:
 
     def generate_attentional_input(self, num_focuses):
 
-        points = 10*torch.rand(num_focuses, 2)
+        points = 10 * torch.rand(num_focuses, 2)
 
-        attentional_inputs = self.attentional_map.backward(points, 0.5*np.sqrt(2))
+        attentional_inputs = self.attentional_map.backward(
+            points, 0.5 * np.sqrt(2)
+        )
         return attentional_inputs.cpu().detach().numpy()
 
     def store_attentional_input(self, attentional_input):
@@ -163,7 +180,6 @@ class OfflineController:
         self.attentional_point_representations[
             index
         ] += self.attentional_map.get_representation('point').reshape(-1)
-
 
         # Increment the input counter
         self.attentional_input_counter += 1
@@ -205,7 +221,6 @@ class OfflineController:
 
         positions = self.fovea_positions[: self.fovea_input_counter]
         episodes = self.fovea_episodes[: self.fovea_input_counter]
-        
 
         # Compute mask for distances within the same episode and distances vector
         same_episode_mask = episodes[:-1] == episodes[1:]
