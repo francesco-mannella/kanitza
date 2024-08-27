@@ -146,7 +146,7 @@ class MapsPlotter:
             self.controller.fovea_map.weights,
         )
         self.fovea_map_im = self.fovea_map_ax.imshow(
-            fovea_map_weights, cmap='viridis'
+            fovea_map_weights,
         )
         # self.attentional_map_im = self.attentional_map_ax.imshow(
         #     self.controller.attentional_map.weights, cmap='viridis'

@@ -37,6 +37,8 @@ class EyeSimEnv(gym.Env):
         self.retina_size = np.array([80, 80])
         self.fovea_scale = np.array([10, 10])
         self.fovea_size = np.array([16, 16])
+        self.retina_sim = None
+        self.retina_sim_pos = None
 
         # Define action and observation space
         # They must be gym.spaces objects

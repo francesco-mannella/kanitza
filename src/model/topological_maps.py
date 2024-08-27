@@ -91,8 +91,9 @@ class TopologicalMap(torch.nn.Module):
         super(TopologicalMap, self).__init__()
 
         if parameters is None:
-            self.weights = torch.nn.Parameter(torch.randn(input_size, output_size), 
-                                            requires_grad=True)
+            weights = torch.empty(input_size, output_size)
+            torch.nn.init.xavier_normal_(weights)
+            self.weights = torch.nn.Parameter(weights, requires_grad=True)
         else:
             parameters = torch.tensor(parameters).float()
             self.weights = torch.nn.Parameter(parameters, requires_grad=True)
@@ -171,7 +172,7 @@ class TopologicalMap(torch.nn.Module):
 
         if std is None: std = self.curr_std
         phi = self.radial(point, std, as_point=True)
-        output = torch.matmul(phi, self.weights.T).T
+        output = torch.matmul(phi, self.weights.T)
         return  output
 
 
@@ -199,6 +200,23 @@ def stm_loss(output, target):
     filtered = output * target
     return 0.5*filtered.mean()
 
+
+class SOMUpdater:
+
+    def __init__(self, stm, learning_rate):
+
+        self.optimizer = optim.Adam(
+            params=stm.parameters(), lr=learning_rate
+        )
+
+        self.loss = som_loss
+
+    def __call__(self, output,  learning_modulation):
+    
+        loss = learning_modulation * self.loss(output)        
+        loss.backward(retain_graph=True)
+        self.optimizer.step()
+        self.optimizer.zero_grad()
 
 class STMUpdater:
 

@@ -4,21 +4,83 @@ import matplotlib
 import matplotlib.pyplot as plt
 import gymnasium as gym
 import wandb
+import signal
+import sys
 
-matplotlib.use("agg")
+matplotlib.use('agg')
 
 from model.agent import Agent, gaussian_mask
 from plotter import FoveaPlotter, MapsPlotter
-from model.offline_controller import OfflineController 
+from model.offline_controller import OfflineController
+
+
+def signal_handler(signum, frame):
+    signal.signal(signum, signal.SIG_IGN)   # ignore additional signals
+    wandb.finish()
+    sys.exit(0)
+
+
+class Parameters:
+    def __init__(
+        self,
+        project_name='eye-simulation',
+        entity_name='francesco-mannella',
+        init_name='offline controller tester',
+        env_name='EyeSim-v0',
+        sampling_threshold=0.02,
+        episodes=20,
+        epochs=300,
+        focus_num=40,
+        focus_time=10,
+        plot_sim=False,
+        plot_maps=True,
+        plotting_epochs_interval=10,
+        maps_output_size=(10 * 10),
+        base_learning_rate=0.001,
+        learning_rate_range=0.05,
+        base_std_factor=0.5,
+        std_range=2.0,
+        attentional_input_size=2,
+        attentional_update_lr=0.1,
+        attentional_weights_path='attentional_weights',
+    ):
+        self.project_name = project_name
+        self.entity_name = entity_name
+        self.init_name = init_name
+        self.env_name = env_name
+        self.sampling_threshold = sampling_threshold
+        self.episodes = episodes
+        self.epochs = epochs
+        self.focus_num = focus_num
+        self.focus_time = focus_time
+        self.plot_sim = plot_sim
+        self.plot_maps = plot_maps
+        self.plotting_epochs_interval = plotting_epochs_interval
+        self.maps_output_size = maps_output_size
+        self.base_learning_rate = base_learning_rate
+        self.learning_rate_range = learning_rate_range
+        self.base_std_factor = base_std_factor
+        self.std_range = std_range
+        self.attentional_input_size = attentional_input_size
+        self.attentional_update_lr = attentional_update_lr
+        self.attentional_weights_path = attentional_weights_path
+
 
 # MAIN LOOP AND VISUALIZATION
 if __name__ == '__main__':
 
+    # Create an instance of Parameters with default or custom values
+    params = Parameters()
+
+    signal.signal(
+        signal.SIGINT, signal_handler
+    )   # register the signal with the signal handler first
+
     # Initialize Weights & Biases logging with project and entity names
     wandb.init(
-        project='eye-simulation',
-        entity='francesco-mannella',
-        name='offline controller tester',
+        project=params.project_name,
+        entity=params.entity_name,
+        name=params.init_name,
     )
 
     # Enable matplotlib's interactive mode and close any existing plots
@@ -26,80 +88,103 @@ if __name__ == '__main__':
     plt.close('all')
 
     # Configure the environment and agent
-    env = gym.make('EyeSim-v0')
+    env = gym.make(params.env_name)
     env = env.unwrapped
     env.reset()
-    agent = Agent(env, sampling_threshold=0.02)
-    off_control = OfflineController(env)
-    
-    # Define the number of episodes, focus points, and focus duration
-    episodes = 40
-    epochs = 30
-    focus_num = 40
-    focus_time = 10
-    plot_sim = False
-    plot_maps = True
+    agent = Agent(env, sampling_threshold=params.sampling_threshold)
+    off_control = OfflineController(
+        env,
+        maps_output_size=params.maps_output_size,
+        base_learning_rate=params.base_learning_rate,
+        learning_rate_range=params.learning_rate_range,
+        base_std_factor=params.base_std_factor,
+        std_range=params.std_range,
+        attentional_input_size=params.attentional_input_size,
+        attentional_update_lr=params.attentional_update_lr,
+        attentional_weights_path=params.attentional_weights_path,
+    )
 
-    for epoch in range(epochs):
+    for epoch in range(params.epochs):
         # Update offline controller hyperparameters based on the episode
-        comp = 1 - np.exp(-epoch/(0.1*epochs))
+        comp = 1 - np.exp(-epoch / (0.1 * params.epochs))
         off_control.set_hyperparams(comp)
-        
-        # Initialize a plotting object for the current episode
-        if plot_sim : fovea_plotter = FoveaPlotter(env, offline=True)
-        if plot_maps: maps_plotter = MapsPlotter(env, off_control, offline=True)
-        
-        # Execute the simulation for a specified number of episodes
-        for episode in range(episodes):
 
+        # Determine if the current epoch is a plotting epoch based on the interval
+        is_plotting_epoch = epoch % params.plotting_epochs_interval == 0
+        
+        # Ensure the last epoch is always a plotting epoch
+        is_plotting_epoch = is_plotting_epoch or epoch == params.epochs - 1
+
+        # Initialize a plotting object for the current epoch
+        if params.plot_maps and is_plotting_epoch:
+            maps_plotter = MapsPlotter(env, off_control, offline=True)
+
+        # Execute the simulation for a specified number of episodes
+        for episode in range(params.episodes):
+
+            is_last_episode = episode == params.episodes - 1
+
+            if params.plot_sim and is_last_episode and is_plotting_epoch:
+                fovea_plotter = FoveaPlotter(env, offline=True)
             _, info = env.reset()
 
             # Precompute an action array initialized to zeros
             action = np.zeros(env.action_space.shape)
 
-
             # Create random mean values for the Gaussian masks (attention centers)
-            attention_centers = np.random.rand(focus_num, 2)
+            attention_centers = off_control.generate_attentional_input(
+                params.focus_num
+            )
 
             for center in attention_centers:
                 # Configure agent parameters according to the current attention center
                 agent.set_parameters(center)
 
                 # Execute the steps within the focus time
-                for time_step in range(focus_time):
+                for time_step in range(params.focus_time):
                     observation, *_ = env.step(action)
-                    action, saliency_map, salient_point = agent.get_action(observation)
-                    
+                    action, saliency_map, salient_point = agent.get_action(
+                        observation
+                    )
+
                     # Update the fovea_plotter with the current saliency map and salient point
-                    if plot_sim: fovea_plotter.step(saliency_map, salient_point, agent.attentional_mask)
+                    if params.plot_sim and is_last_episode and is_plotting_epoch:
+                        fovea_plotter.step(
+                            saliency_map, salient_point, agent.attentional_mask
+                        )
 
                     # Store the current inputs in the offline controller
-                    off_control.store_fovea_input()
-                    off_control.store_attentional_input(info["position"])
-            
-            print(f"Episode: {episode}, Epoch: {epoch}")
-    
+                    off_control.store_episode_and_fovea_input(episode)
+                    off_control.store_attentional_input(info['position'])
 
+            if params.plot_sim and is_last_episode and is_plotting_epoch:
+                # Save the current episode's plot as a GIF file
+                gif_file = f'sim_{epoch:04d}'
+                fovea_plotter.close(gif_file)
+
+                # Log the generated GIF file to Weights & Biases
+                wandb.log(
+                    {
+                        f'Simulations': wandb.Video(
+                            f'{gif_file}.gif', format='gif'
+                        )
+                    }
+                )
+
+            print(f'Episode: {episode}, Epoch: {epoch}')
 
         # Update the offline controller's stored maps
         off_control.update_maps()
-        if plot_maps: 
+
+        if params.plot_maps and is_plotting_epoch:
             maps_plotter.step()
 
             # Save the current maps as a GIF file
             file = f'maps_{epoch:04d}.png'
             maps_plotter.close(file)
-            
-            # Log the generated GIF file to Weights & Biases
-            wandb.log({'Maps': wandb.Image(f'{file}')})
 
-        if plot_sim:
-            # Save the current episode's plot as a GIF file
-            gif_file = f'sim_{epoch:04d}'
-            fovea_plotter.close(gif_file)
-            
             # Log the generated GIF file to Weights & Biases
-            wandb.log({'Simulation': wandb.Video(f'{gif_file}.gif', format='gif')})
+            wandb.log({f'Maps': wandb.Image(f'{file}')})
 
     # Conclude the Weights & Biases logging session
     wandb.finish()
