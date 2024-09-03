@@ -117,7 +117,7 @@ class EyeSimEnv(gym.Env):
         
         self.sim = Sim(world_dict=self.world_dict)
 
-        angle = self.rng.rand()*np.pi 
+        angle = self.rng.rand()*2*np.pi 
         
         x_range = self.taskspace_xlim[1] - self.taskspace_xlim[0]
         y_range = self.taskspace_ylim[1] - self.taskspace_ylim[0]

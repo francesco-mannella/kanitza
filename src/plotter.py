@@ -138,7 +138,8 @@ class MapsPlotter:
 
         # Setup the figure and axis for plotting.
         self.fig, (self.fovea_map_ax, self.attentional_map_ax) = plt.subplots(
-            1, 2, figsize=(10, 3)
+            1, 2, figsize=(6, 3),
+            gridspec_kw={'width_ratios': np.ones(2), 'height_ratios': [1]},
         )
 
         # Initialize imshow objects for both axes
@@ -148,9 +149,24 @@ class MapsPlotter:
         self.fovea_map_im = self.fovea_map_ax.imshow(
             fovea_map_weights,
         )
-        # self.attentional_map_im = self.attentional_map_ax.imshow(
-        #     self.controller.attentional_map.weights, cmap='viridis'
-        # )
+    
+        # Initialize the attentional map with a red scatter plot at the origin
+        self.attentional_map_im = self.attentional_map_ax.scatter(0, 0, color="red", s=20)
+
+        # Determine the number of traces to plot
+        num_traces = 2 * int(np.sqrt(self.controller.maps_output_size))
+
+        # Create a list of black line plots for the attentional map traces
+        self.attentional_map_traces = [
+            self.attentional_map_ax.plot(0, 0, color="black")[0]
+            for _ in range(num_traces)
+        ]
+
+        # Set the x and y limits of the attentional map axis based on retina scale
+        x_lim = 0.7 * self.env.retina_scale[0]
+        y_lim = 0.7 * self.env.retina_scale[1]
+        self.attentional_map_ax.set_xlim([-x_lim, x_lim])
+        self.attentional_map_ax.set_ylim([-y_lim, y_lim])
 
         self.offline = offline
 
@@ -169,6 +185,32 @@ class MapsPlotter:
 
         # Set the updated data on the imshow object
         self.fovea_map_im.set_data(fovea_map_weights)
+
+        # Get the attentional map weights from the controller and convert them to numpy array
+        attentional_map_weights = self.controller.attentional_map.weights.clone().cpu().detach().numpy()
+
+        # Adjust the weights using the retina scale from the environment
+        retina_scale_reshaped = self.env.retina_scale.reshape(-1, 1)
+        attentional_map_weights *= retina_scale_reshaped
+        attentional_map_weights -= retina_scale_reshaped / 2
+
+        # Update the offsets of the attentional map image for display
+        self.attentional_map_im.set_offsets(attentional_map_weights.T)
+
+        # Determine the number of traces to plot
+        num_traces = int(np.sqrt(self.controller.maps_output_size))
+
+        # Reshape and transpose the weights for simplified plotting
+        attentional_map_weights = attentional_map_weights.reshape(2, num_traces, num_traces).transpose(1, 2, 0)
+
+        # Update the positional data of each trace plot
+        for p in range(num_traces):
+            curr_plot = self.attentional_map_traces[p]
+            curr_plot.set_data(*attentional_map_weights[p, :, :].T)
+
+        for p in range(num_traces, 2 * num_traces):
+            curr_plot = self.attentional_map_traces[p]
+            curr_plot.set_data(*attentional_map_weights[:, p % num_traces, :].T)
 
         # Redraw the figure to show updates
         self.fig.canvas.draw_idle()

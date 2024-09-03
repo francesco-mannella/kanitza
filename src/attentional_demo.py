@@ -31,7 +31,7 @@ if __name__ == '__main__':
 
     # Run the simulation for a fixed number of episodes
     for episode in range(5):
-        _, info = env.reset()
+        _, env_info = env.reset()
 
         # Precompute some constants
         action = np.zeros(env.action_space.shape)

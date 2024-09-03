@@ -29,7 +29,7 @@ if __name__ == '__main__':
     agent = Agent(env)
 
     for episode in range(5):
-        _, info = env.reset()
+        _, env_info = env.reset()
 
         # Create plotting objects
         plotter = FoveaPlotter(env, offline=True)

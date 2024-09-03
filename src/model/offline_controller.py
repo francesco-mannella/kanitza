@@ -34,8 +34,8 @@ class OfflineController:
         maps_output_size=(10 * 10),
         base_learning_rate=0.001,
         learning_rate_range=0.05,
-        base_std_factor=0.5,
         std_range=2.0,
+        goal_discount=0.05,
         attentional_input_size=2,
         attentional_update_lr=0.1,
         attentional_weights_path='attentional_weights',
@@ -50,8 +50,8 @@ class OfflineController:
             maps_output_size (int): Size of the output map representation.
             base_learning_rate (float): The base learning rate.
             learning_rate_range (float): The range for the learning rate.
-            base_std_factor (float): Base factor for standard deviation calculation.
             std_range (float): The range for the standard deviation.
+            goal_discount (float): dicount factor for the decay of goal attentional mask
             attentional_input_size (int): Size of the attentional input.
             attentional_update_lr (float): Learning rate for attentional updating.
             attentional_weights_path (str): Path to the attentional weights.
@@ -69,8 +69,9 @@ class OfflineController:
         # Initialize learning rate and standard deviation parameters
         self.base_learning_rate = base_learning_rate
         self.learning_rate_range = learning_rate_range
-        self.base_std = base_std_factor * np.sqrt(2)
+        self.base_std = 0.5 * np.sqrt(2)
         self.std_range = std_range
+        self.goal_discount = goal_discount
 
         self.set_hyperparams(0)
 
@@ -108,9 +109,7 @@ class OfflineController:
         self.attentional_map = TopologicalMap(
             self.attentional_input_size,
             self.maps_output_size,
-            parameters=torch.tensor(
-                torch.load(attentional_weights_path).clone()
-            ),
+            parameters=torch.load(attentional_weights_path).clone().cpu().detach().numpy(),
         )
         self.attentional_updater = STMUpdater(
             self.attentional_map, attentional_update_lr
@@ -124,6 +123,11 @@ class OfflineController:
         self.attentional_point_representations = torch.zeros(
             (self.input_batch_size, 2)
         )
+
+        self.attentional_output_competences = torch.zeros(
+                (input_batch_size, 1)
+        )
+        self.attentional_output_counter = torch.ones(maps_output_size)
 
         # Initialize counter for attentional inputs
         self.attentional_input_counter = 0
@@ -150,7 +154,26 @@ class OfflineController:
         attentional_inputs = self.attentional_map.backward(
             points, 0.5 * np.sqrt(2)
         )
+        self.attentional_map(attentional_inputs, 1)
+        phis = self.attentional_map.phi
+        self.attentional_output_counter *= torch.prod((1 - phis*self.goal_discount), axis=0) 
+        
         return attentional_inputs.cpu().detach().numpy()
+
+    def store_timestep(self, data):
+        """
+        Stores input data for the current timestep.
+
+        Parameters:
+        data (dict): A dictionary containing:
+            - 'episode': Episodic input data to be stored in the off-control module.
+            - 'position': Attentional input data representing the position to be stored in the off-control module.
+
+        Returns:
+        None
+        """
+        self.store_episode_and_fovea_input(data['episode'])
+        self.store_attentional_input(data['position'])
 
     def store_attentional_input(self, attentional_input):
         """
@@ -240,7 +263,7 @@ class OfflineController:
             )
             distances = torch.cat([distances, torch.zeros(zero_pad_length)])
 
-        idcs = distances > 4.0
+        idcs = (4.0  < distances) & (distances < 8.0) 
 
         # Slicing the tensor to only include relevant fovea outputs
         inputs = self.fovea_inputs[idcs]
@@ -249,7 +272,7 @@ class OfflineController:
 
         np.save('inputs', inputs.cpu().detach().numpy())
         # Updating the fovea map using the extracted outputs
-        self.fovea_updater(fovea_outputs, targets, self.learning_rate)
+        self.fovea_updater(fovea_outputs, targets*self.attentional_output_counter, self.learning_rate)
 
         self.update_counter = getattr(self, 'update_counter', 0)
         np.save(f'inputs_{self.update_counter:03d}', inputs)

@@ -126,6 +126,7 @@ class TopologicalMap(torch.nn.Module):
         phi = self.radial(self.bmu, std)
         self.curr_std = std
         self.norms = norms
+        self.phi = phi
 
         return norms2*phi
 

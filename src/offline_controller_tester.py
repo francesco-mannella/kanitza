@@ -28,18 +28,19 @@ class Parameters:
         init_name='offline controller tester',
         env_name='EyeSim-v0',
         sampling_threshold=0.02,
-        episodes=20,
-        epochs=300,
-        focus_num=40,
+        episodes=2,
+        epochs=600,
+        decay_epoch_prop=0.2,
+        focus_num=60,
         focus_time=10,
         plot_sim=False,
         plot_maps=True,
-        plotting_epochs_interval=10,
+        plotting_epochs_interval=2,
         maps_output_size=(10 * 10),
         base_learning_rate=0.001,
-        learning_rate_range=0.05,
-        base_std_factor=0.5,
-        std_range=2.0,
+        learning_rate_range=0.1,
+        std_range=5.0,
+        goal_discount=0.01,
         attentional_input_size=2,
         attentional_update_lr=0.1,
         attentional_weights_path='attentional_weights',
@@ -51,6 +52,7 @@ class Parameters:
         self.sampling_threshold = sampling_threshold
         self.episodes = episodes
         self.epochs = epochs
+        self.decay_epoch_prop = decay_epoch_prop
         self.focus_num = focus_num
         self.focus_time = focus_time
         self.plot_sim = plot_sim
@@ -59,12 +61,13 @@ class Parameters:
         self.maps_output_size = maps_output_size
         self.base_learning_rate = base_learning_rate
         self.learning_rate_range = learning_rate_range
-        self.base_std_factor = base_std_factor
         self.std_range = std_range
+        self.goal_discount = goal_discount
         self.attentional_input_size = attentional_input_size
         self.attentional_update_lr = attentional_update_lr
         self.attentional_weights_path = attentional_weights_path
 
+# %%
 
 # MAIN LOOP AND VISUALIZATION
 if __name__ == '__main__':
@@ -97,8 +100,8 @@ if __name__ == '__main__':
         maps_output_size=params.maps_output_size,
         base_learning_rate=params.base_learning_rate,
         learning_rate_range=params.learning_rate_range,
-        base_std_factor=params.base_std_factor,
         std_range=params.std_range,
+        goal_discount=params.goal_discount,
         attentional_input_size=params.attentional_input_size,
         attentional_update_lr=params.attentional_update_lr,
         attentional_weights_path=params.attentional_weights_path,
@@ -106,7 +109,7 @@ if __name__ == '__main__':
 
     for epoch in range(params.epochs):
         # Update offline controller hyperparameters based on the episode
-        comp = 1 - np.exp(-epoch / (0.1 * params.epochs))
+        comp = 1 - np.exp(-epoch / (params.decay_epoch_prop * params.epochs))
         off_control.set_hyperparams(comp)
 
         # Determine if the current epoch is a plotting epoch based on the interval
@@ -126,7 +129,8 @@ if __name__ == '__main__':
 
             if params.plot_sim and is_last_episode and is_plotting_epoch:
                 fovea_plotter = FoveaPlotter(env, offline=True)
-            _, info = env.reset()
+            
+            _, env_info = env.reset()
 
             # Precompute an action array initialized to zeros
             action = np.zeros(env.action_space.shape)
@@ -153,9 +157,9 @@ if __name__ == '__main__':
                             saliency_map, salient_point, agent.attentional_mask
                         )
 
-                    # Store the current inputs in the offline controller
-                    off_control.store_episode_and_fovea_input(episode)
-                    off_control.store_attentional_input(info['position'])
+                    # Store the current data
+                    data = {'episode': episode, "position": env_info['position']}
+                    off_control.store_timestep(data)
 
             if params.plot_sim and is_last_episode and is_plotting_epoch:
                 # Save the current episode's plot as a GIF file
@@ -165,10 +169,11 @@ if __name__ == '__main__':
                 # Log the generated GIF file to Weights & Biases
                 wandb.log(
                     {
-                        f'Simulations': wandb.Video(
+                        'Simulations': wandb.Video(
                             f'{gif_file}.gif', format='gif'
-                        )
-                    }
+                        ),
+                    },
+                    step=epoch,
                 )
 
             print(f'Episode: {episode}, Epoch: {epoch}')
@@ -184,7 +189,7 @@ if __name__ == '__main__':
             maps_plotter.close(file)
 
             # Log the generated GIF file to Weights & Biases
-            wandb.log({f'Maps': wandb.Image(f'{file}')})
+            wandb.log({f'Maps': wandb.Image(f'{file}')}, step=epoch)
 
     # Conclude the Weights & Biases logging session
     wandb.finish()
