@@ -29,7 +29,10 @@ class OfflineController:
     def set_hyperparams(self, competence):
         pass
 
-    def update(self):
+    def update_maps(self):
+        pass
+    
+    def update_predicts(self):
         pass
 
 

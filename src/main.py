@@ -74,9 +74,7 @@ if __name__ == "__main__":
 
     agent = Agent(env, sampling_threshold=params.sampling_threshold)
 
-    off_control = OfflineController(
-        env,
-    )
+    off_control = OfflineController(env)
 
     for epoch in range(params.epochs):
         # Update offline controller hyperparameters based on the episode
