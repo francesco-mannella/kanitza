@@ -117,6 +117,34 @@ class FoveaPlotter(EyeSim.envs.Simulator.TestPlotter):
         # Redraw the figure to show updates
         self.fig.canvas.draw_idle()
 
+class FakeMapsPlotter:
+    """
+    A class for a fake mapS_plotter which does not do anything.
+    """
+    
+    def __init__(self, env, controller, offline=False):
+        """
+        Initializes the MapsPlotter with a fake implementation that doesn't perform any plotting.
+        """
+        pass
+    
+    def step(self):
+        """
+        A method that doesn't do anything. It's just a placeholder.
+        """
+        pass
+    
+    def close(self, name=None):
+        """
+        A method that doesn't save any figures or close anything, just a dummy function.
+        """
+        pass
+    
+    def reshape_fovea_weights(self, weights):
+        """
+        A method that doesn't perform any reshaping of weights and returns None.
+        """
+        return None
 
 class MapsPlotter:
     """

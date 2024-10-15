@@ -5,12 +5,12 @@ import matplotlib.pyplot as plt
 import gymnasium as gym
 import wandb
 import signal
-import sys
+import sys,os
 
 matplotlib.use("agg")
 
 from model.agent import Agent, gaussian_mask
-from plotter import FoveaPlotter, MapsPlotter
+from plotter import FoveaPlotter, FakeMapsPlotter
 from model.offline_controller import OfflineController
 
 
@@ -29,21 +29,25 @@ class Parameters:
         env_name="EyeSim-v0",
         episodes=2,
         epochs=600,
+        focus_num=10,
+        focus_time=10,
         plot_sim=False,
         plot_maps=True,
         plotting_epochs_interval=10,
+        agent_sampling_threshold = 0.02,
     ):
         self.project_name = project_name
         self.entity_name = entity_name
         self.init_name = init_name
         self.env_name = env_name
-        self.sampling_threshold = sampling_threshold
         self.episodes = episodes
         self.epochs = epochs
+        self.focus_num = focus_num
+        self.focus_time = focus_time
         self.plot_sim = plot_sim
         self.plot_maps = plot_maps
         self.plotting_epochs_interval = plotting_epochs_interval
-
+        self.agent_sampling_threshold = agent_sampling_threshold
 
 # %%
 
@@ -72,9 +76,9 @@ if __name__ == "__main__":
     env = env.unwrapped
     env.reset()
 
-    agent = Agent(env, sampling_threshold=params.sampling_threshold)
+    agent = Agent(env, sampling_threshold=params.agent_sampling_threshold)
 
-    off_control = OfflineController(env)
+    off_control = OfflineController(env, params)
 
     for epoch in range(params.epochs):
         # Update offline controller hyperparameters based on the episode
@@ -88,7 +92,7 @@ if __name__ == "__main__":
 
         # Initialize a plotting object for the current epoch
         if params.plot_maps and is_plotting_epoch:
-            maps_plotter = MapsPlotter(env, off_control, offline=True)
+            maps_plotter = FakeMapsPlotter(env, off_control, offline=True)
 
         # Execute the simulation for a specified number of episodes
         for episode in range(params.episodes):
@@ -144,9 +148,9 @@ if __name__ == "__main__":
             # Save the current maps as a GIF file
             file = f"maps_{epoch:04d}.png"
             maps_plotter.close(file)
-
-            # Log the generated GIF file to Weights & Biases
-            wandb.log({f"Maps": wandb.Image(f"{file}")}, step=epoch)
+            if os.path.exists(file):
+                # Log the generated GIF file to Weights & Biases if the file exists
+                wandb.log({f"Maps": wandb.Image(f"{file}")}, step=epoch)
 
     # Conclude the Weights & Biases logging session
     wandb.finish()
