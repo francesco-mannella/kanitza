@@ -3,6 +3,7 @@ from matplotlib import pyplot as plt
 from matplotlib.patches import Rectangle
 import numpy as np
 
+
 import EyeSim
 from EyeSim.envs.mkvideo import vidManager
 
@@ -49,7 +50,7 @@ class FoveaPlotter(EyeSim.envs.Simulator.TestPlotter):
 
         # Initialize the fovea image plot
         self.fovea_image = self.fovea_ax.imshow(
-            env.observation_space['FOVEA'].sample(), vmin=0, vmax=1
+            np.zeros_like(env.observation_space['FOVEA'].sample()), vmin=0, vmax=1
         )
 
         # Create the rectangles for retina and fovea positions
@@ -218,6 +219,7 @@ class MapsPlotter:
 
     def close(self, name=None):
         if self.offline and name is not None:
+            print(f"save {name}")
             self.fig.savefig(name, dpi=300)
         plt.close(self.fig)
 

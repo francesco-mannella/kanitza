@@ -11,6 +11,10 @@ import wandb
 
 #%% MAIN LOOP AND VISUALIZATION
 if __name__ == '__main__':
+    
+    import matplotlib
+    matplotlib.use("agg")
+
 
     # Initialize Weights & Biases logging
     wandb.init(

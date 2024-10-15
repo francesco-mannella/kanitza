@@ -6,11 +6,15 @@ from model.agent import Agent, gaussian_mask
 from plotter import FoveaPlotter
 import wandb
 
+
 # This code is designed for simulating and visualizing an agent’s behavior in an
 # environment, specifically focusing on its attention mechanisms
 
 #%% MAIN LOOP AND VISUALIZATION
 if __name__ == '__main__':
+
+    import matplotlib
+    matplotlib.use("agg")
 
     # Initialize Weights & Biases logging
     wandb.init(
