@@ -24,22 +24,33 @@ class OfflineController:
 
         """
 
+        self.competence = 0.5
+
         # Save the environment reference
         self.env = env
 
         # save parameters reference
         self.params = params
 
+
         # Init random generator with seed
         self.seed = seed if seed is not None else 0
         self.rng = np.random.RandomState(self.seed)
 
-        # Init visual map
+        # Init visual conditions  map
         input_size = np.prod(env.observation_space['FOVEA'].sample().shape)
         output_size = params.maps_output_size
-        self.visual_map = TopologicalMap(input_size, output_size)
-        self.visual_updater = STMUpdater(
-            self.visual_map, self.params.maps_learning_rate
+        self.visual_conditions_map = TopologicalMap(input_size, output_size)
+        self.visual_conditions_updater = STMUpdater(
+            self.visual_conditions_map, self.params.maps_learning_rate
+        )
+
+        # Init visual effects  map
+        input_size = np.prod(env.observation_space['FOVEA'].sample().shape)
+        output_size = params.maps_output_size
+        self.visual_effects_map = TopologicalMap(input_size, output_size)
+        self.visual_effects_updater = STMUpdater(
+            self.visual_effects_map, self.params.maps_learning_rate
         )
 
         # Init attention  map
@@ -87,6 +98,11 @@ class OfflineController:
         self.action_states *= 0
         self.attention_states *= 0
 
+        # Set hyperparameters
+        self.learnigrate_modulation = self.params.learnigrate_modulation * (1 - self.competence) 
+        self.neighborhood_modulation = self.params.neighborhood_modulation * (1 - self.competence) 
+
+
     def generate_attentional_input(self, focus_num):
 
         return self.rng.rand(focus_num, 2)
@@ -99,8 +115,9 @@ class OfflineController:
 
     def filter_salient_states(self):
 
+        # Identify indices of states where the magnitude of saccades exceeds the threshold.
         filtered_states = np.linalg.norm(self.action_states, axis=-1)
-        filtered_states = 1 * (filtered_states > 10)
+        filtered_states = 1 * (filtered_states > self.params.saccade_threshold)
         self.filtered_idcs = np.stack(np.where(filtered_states))
 
     def update_maps(self):
@@ -108,23 +125,57 @@ class OfflineController:
         idcs = self.filtered_idcs
 
         # Reshape and convert attention states to tensor
-        attention = torch.tensor(
-            self.attention_states[idcs[0], idcs[1], idcs[2]]
-        ).reshape(-1, self.params.attention_size)
+        attention_states = self.attention_states[idcs[0], idcs[1], idcs[2]]
+        attention = torch.tensor(attention_states).reshape(-1, self.params.attention_size)
 
-        # Reshape and convert visual states to tensor
-        visual = torch.tensor(
-            self.visual_states[idcs[0], idcs[1], idcs[2]]
-        ).reshape(-1, self.params.visual_size)
+        # Reshape and convert visual states to tensor 
+        visual_conditions = self.visual_states[idcs[0], idcs[1], idcs[2] - 1]
+        visual_conditions = torch.tensor(visual_conditions).reshape(-1, self.params.visual_size)
+        visual_effects = self.visual_states[idcs[0], idcs[1], idcs[2]]
+        visual_effects = torch.tensor(visual_effects).reshape(-1, self.params.visual_size)
 
+        attention_output = self.attention_map(attention, std=self.neighborhood_modulation)
+        point_attention_representations = self.attention_map.get_representation('point')
+        grid_attention_representations = self.attention_map.get_representation('grid')
+        
+        visual_conditions_output = self.visual_conditions_map(visual_conditions, std=self.neighborhood_modulation)
+        point_visual_conditions_representations = self.visual_conditions_map.get_representation('point')
+        grid_visual_conditions_representations = self.visual_conditions_map.get_representation('grid')
 
-        vision_output = self.attention_map(attention, std=1)
-        attention_output = self.attention_map(attention, std=1)
-        goals = self.attention_map.get_representation('grid')
+        visual_effects_output = self.visual_effects_map(visual_effects, std=self.neighborhood_modulation)
+        point_visual_effects_representations = self.visual_effects_map.get_representation('point')
+        grid_visual_effects_representations = self.visual_effects_map.get_representation('grid')
 
-        self.visual_updater(vision_output, goals, 0.01)
-        self.attention_updater(attention_output, goals, 0.01)
+        self.visual_conditions_updater(visual_conditions_output, grid_attention_representations, self.learnigrate_modulation)
+        self.visual_effects_updater(visual_effects_output, grid_attention_representations, self.learnigrate_modulation)
+        self.attention_updater(attention_output, grid_attention_representations, self.learnigrate_modulation)
 
+        self.representations = {
+            "pvc": point_visual_conditions_representations,  # Point Visual Conditions
+            "pve": point_visual_effects_representations,     # Point Visual Effects
+            "pa": point_attention_representations,           # Point Attention
+            "gvc": grid_visual_conditions_representations,   # Grid Visual Conditions
+            "gve": grid_visual_effects_representations,      # Grid Visual Effects
+            "ga": grid_attention_representations,            # Grid Attention
+        }
+
+        self.matches = self.compute_matches()
+
+        print(self.matches)
+
+    def compute_matches(self) :
+        
+        pve = self.representations["pve"]
+        pa = self.representations["pa"]
+        
+        # Compute the difference between the tensors
+        difference = pve - pa
+
+        # Compute the norm over the last dimension
+        matches =  1.0*(torch.norm(difference, dim=-1) < self.neighborhood_modulation)
+
+        return matches
+            
 
     def update_predicts(self):
         pass

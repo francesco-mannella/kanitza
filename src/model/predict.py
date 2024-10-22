@@ -34,9 +34,9 @@ class PredictUpdater:
 
         self.loss = nn.CrossEntropyLoss()
 
-    def __call__(self, output,  learning_modulation=1):
+    def __call__(self, output, target learning_modulation=1):
     
-        loss = learning_modulation * self.loss(output)        
+        loss = learning_modulation * self.loss(output, target)        
         loss.backward(retain_graph=True)
         self.optimizer.step()
         self.optimizer.zero_grad()

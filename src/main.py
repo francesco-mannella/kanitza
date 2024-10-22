@@ -52,6 +52,7 @@ if __name__ == "__main__":
     off_control = OfflineController(env, params, seed)
 
     for epoch in range(params.epochs):
+
         # Update offline controller hyperparameters based on the episode
         off_control.set_hyperparams()
 
@@ -127,6 +128,9 @@ if __name__ == "__main__":
 
         # Update the offline controller's stored maps
         off_control.update_maps()
+        
+        # Update the offline controller's predictions
+        off_control.update_predicts()
 
         if params.plot_maps and is_plotting_epoch:
             maps_plotter.step()
