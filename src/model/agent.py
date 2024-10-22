@@ -104,7 +104,6 @@ def sampling(array, precision=0.01):
 
     return sampled_index
 
-
 def gaussian_mask(shape, mean, v1, v2, angle):
     """
     Generate a 2D Gaussian mask with a specified shape, mean, variances,
@@ -165,20 +164,23 @@ class Agent:
         self.horizontal_variance = 9 * self.env_width
         self.attentional_mask = None
 
-    def set_parameters(self, params):
+    def set_parameters(self, coords):
         """
         Set the parameters for the attentional mask.
 
         Args:
-        - params (list or array-like): The parameters to set for the attentional mask.
+        - coords (list or array-like): The coordinates to set for the attentional mask.
         """
-        params = np.clip(params, 0, 1)
-        params *= [self.env_height, self.env_width]
+        coords = np.clip(coords, 0, 1)
+        dist_from_center = np.linalg.norm(coords - 0.5)
+        var_from_center = 1.0 / (1.0 + 0.999*np.exp(-30*(dist_from_center - 0.25))) 
+
+        coords *= [self.env_height, self.env_width]
         self.attentional_mask = gaussian_mask(
             (self.env_height, self.env_width),
-            params,
-            self.vertical_variance,
-            self.horizontal_variance,
+            coords,
+            var_from_center*self.vertical_variance,
+            var_from_center*self.horizontal_variance,
             angle=0,
         )
 
@@ -188,25 +190,38 @@ class Agent:
 
         Args:
         - observation (dict): A dictionary representing the current state of the environment.
-          Must contain a key 'RETINA' which provides the necessary visual input data.
+        Must contain a key 'RETINA' which provides the necessary visual input data.
 
         Returns:
-        - tuple: A tuple containing the action to take, the generated saliency map, and the selected salient point.
+        - tuple: A tuple containing:
+            - centered_action (np.array): The computed action to take based on the observation.
+            - saliency_map (np.array): The generated saliency map highlighting important regions.
+            - salient_point (tuple): The coordinates of the selected salient point in the retina image.
         """
+        # Extract the 'RETINA' image from the observation and normalize it
         retina_image = observation['RETINA'].mean(-1) / 255
         inverted_retina = 1 - retina_image
 
+        # Generate a saliency map from the inverted retina image
         saliency_map = self.saliency_mapper(inverted_retina)
+        
+        # If there is no attentional mask, initialize it to an array of ones
         if self.attentional_mask is None:
             self.attentional_mask = np.ones_like(saliency_map)
 
+        # Apply the attentional mask to the saliency map
         saliency_map *= self.attentional_mask
+        
+        # Sample a salient point from the saliency map based on a threshold
         salient_point = sampling(saliency_map, self.sampling_threshold)
 
+        # Normalize the salient point with respect to the retina size
         normalized_action = salient_point / self.environment.retina_size
+        
+        # Invert the y-coordinate of the normalized action
         normalized_action[1] = 1 - normalized_action[1]
-        centered_action = (
-            normalized_action - 0.5
-        ) * self.environment.retina_scale
+        
+        # Center and scale the action
+        centered_action = (normalized_action - 0.5) * self.environment.retina_scale
 
         return centered_action, saliency_map, salient_point

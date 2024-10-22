@@ -1,5 +1,4 @@
 import torch
-import torch.optim as optim
 import math
 import numpy as np
 
@@ -202,9 +201,23 @@ def stm_loss(output, target):
     return 0.5*filtered.mean()
 
 
-class SOMUpdater:
+class STMUpdater:
+    """
+    Class for updating a Supervised Topological Map (STM) model.
+    
+    Parameters:
+    stm (torch model): The STM model to be updated
+    learning_rate (float): The learning rate used by the optimizer
+    """
 
     def __init__(self, stm, learning_rate):
+        """
+        Initializes the STMUpdater object with the provided STM model and learning rate.
+
+        Args:
+        stm (torch model): The STM model to be updated
+        learning_rate (float): The learning rate used by the optimizer
+        """
 
         self.optimizer = optim.Adam(
             params=stm.parameters(), lr=learning_rate

@@ -49,7 +49,7 @@ class FoveaPlotter(EyeSim.envs.Simulator.TestPlotter):
 
         # Initialize the fovea image plot
         self.fovea_image = self.fovea_ax.imshow(
-            env.observation_space['FOVEA'].sample(), vmin=0, vmax=1
+            np.zeros_like(env.observation_space['FOVEA'].sample()), vmin=0, vmax=1
         )
 
         # Create the rectangles for retina and fovea positions

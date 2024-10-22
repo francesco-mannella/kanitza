@@ -127,7 +127,7 @@ class OfflineController:
         self.attentional_output_competences = torch.zeros(
                 (input_batch_size, 1)
         )
-        self.attentional_output_counter = torch.ones(maps_output_size)
+        self.attentional_output_counter = torch.zeros(maps_output_size)
 
         # Initialize counter for attentional inputs
         self.attentional_input_counter = 0
@@ -149,14 +149,14 @@ class OfflineController:
 
     def generate_attentional_input(self, num_focuses):
 
-        points = 10 * torch.rand(num_focuses, 2)
-
+        points = 10*torch.rand(num_focuses, 2)
         attentional_inputs = self.attentional_map.backward(
             points, 0.5 * np.sqrt(2)
         )
         self.attentional_map(attentional_inputs, 1)
-        phis = self.attentional_map.phi
-        self.attentional_output_counter *= torch.prod((1 - phis*self.goal_discount), axis=0) 
+        bmus = self.attentional_map.phi
+        bmus = (bmus == bmus.max(1)[0].reshape(-1, 1)).float()
+        self.attentional_output_counter += torch.sum(bmus, axis=0) 
         
         return attentional_inputs.cpu().detach().numpy()
 
@@ -190,7 +190,7 @@ class OfflineController:
         # Store the attentional input at the current counter index
         index = self.attentional_input_counter
 
-        self.attentional_map(torch.tensor(attentional_input), self.std)
+        self.attentional_map(torch.tensor(attentional_input), 0.5*np.sqrt(2))
 
         self.attentional_inputs[index] += attentional_input
 
@@ -253,6 +253,7 @@ class OfflineController:
         all_distances = torch.norm(consecutive_diffs, dim=1)
         all_distances[~same_episode_mask.flatten()] = -1
 
+
         # Concatenate an initial zero distance
         distances = torch.cat([torch.tensor([0]), all_distances])
 
@@ -263,19 +264,21 @@ class OfflineController:
             )
             distances = torch.cat([distances, torch.zeros(zero_pad_length)])
 
-        idcs = (4.0  < distances) & (distances < 8.0) 
+        idcs = distances > 12
 
         # Slicing the tensor to only include relevant fovea outputs
         inputs = self.fovea_inputs[idcs]
-        targets = self.attentional_grid_representations[idcs]
+        targets = self.attentional_map.radial(
+                self.attentional_point_representations[idcs],
+                self.std, as_point=True,
+                )
+        filters = self.goal_discount**self.attentional_output_counter
         fovea_outputs = self.fovea_map(inputs, self.std)
 
-        np.save('inputs', inputs.cpu().detach().numpy())
         # Updating the fovea map using the extracted outputs
-        self.fovea_updater(fovea_outputs, targets*self.attentional_output_counter, self.learning_rate)
+        self.fovea_updater(fovea_outputs, targets*filters, self.learning_rate)
 
         self.update_counter = getattr(self, 'update_counter', 0)
-        np.save(f'inputs_{self.update_counter:03d}', inputs)
         self.update_counter += 1
 
         # Reset preallocated tensors to zero in-place for memory efficiency

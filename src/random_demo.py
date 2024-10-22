@@ -28,7 +28,7 @@ if __name__ == '__main__':
     env.reset()
     agent = Agent(env)
 
-    for episode in range(5):
+    for episode in range(1):
         _, env_info = env.reset()
 
         # Create plotting objects
@@ -37,7 +37,7 @@ if __name__ == '__main__':
         # Initialize action before starting the loop
         action = np.zeros(env.action_space.shape)
 
-        for time_step in range(10):
+        for time_step in range(200):
             observation, *_ = env.step(action)
             action, saliency_map, salient_point = agent.get_action(observation)
             plotter.step(saliency_map, salient_point)
