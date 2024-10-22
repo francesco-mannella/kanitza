@@ -11,287 +11,120 @@ class OfflineController:
     OfflineController class manages the update of topological maps using
     sensory inputs from an environment.
 
-    Attributes:
-        base_learning_rate (float): Base learning rate for updates.
-        learning_rate_range (float): Range variation for the adaptive learning rate.
-        learning_rate (float): Current adaptive learning rate.
-        base_std (float): Base standard deviation for sensory input noise.
-        std_range (float): Range variation for the adaptive standard deviation.
-        std (float): Current adaptive standard deviation.
-        env: Environment providing sensory inputs.
-        fovea_map: Topological map for fovea sensory input.
-        fovea_updater: STMUpdater instance for updating the fovea map.
-        fovea_inputs (torch.Tensor): Preallocated tensor for batch of fovea inputs.
-        fovea_grid_representations (torch.Tensor): Preallocated tensor for fovea grid representations.
-        fovea_point_representations (torch.Tensor): Preallocated tensor for fovea point representations.
-        fovea_input_counter (int): Counter for tracking the number of stored fovea inputs.
     """
 
     def __init__(
         self,
         env,
-        input_batch_size=20000,
-        maps_output_size=(10 * 10),
-        base_learning_rate=0.001,
-        learning_rate_range=0.05,
-        std_range=2.0,
-        goal_discount=0.05,
-        attentional_input_size=2,
-        attentional_update_lr=0.1,
-        attentional_weights_path='attentional_weights',
+        params,
+        seed=None,
     ):
         """
         Initialize the OfflineController with the given environment.
 
-        Args:
-            env: An environment object which has an observation_space
-                 dictionary with a 'FOVEA' key.
-            input_batch_size (int): Batch size for input processing.
-            maps_output_size (int): Size of the output map representation.
-            base_learning_rate (float): The base learning rate.
-            learning_rate_range (float): The range for the learning rate.
-            std_range (float): The range for the standard deviation.
-            goal_discount (float): dicount factor for the decay of goal attentional mask
-            attentional_input_size (int): Size of the attentional input.
-            attentional_update_lr (float): Learning rate for attentional updating.
-            attentional_weights_path (str): Path to the attentional weights.
         """
-
-        # Initialize input batch size and map output size
-        self.input_batch_size = (
-            input_batch_size  # Batch size for input processing
-        )
-        self.maps_output_size = (
-            maps_output_size  # Size of the output map representation
-        )
-        self.batch_shape = (self.input_batch_size, self.maps_output_size)
-
-        # Initialize learning rate and standard deviation parameters
-        self.base_learning_rate = base_learning_rate
-        self.learning_rate_range = learning_rate_range
-        self.base_std = 0.5 * np.sqrt(2)
-        self.std_range = std_range
-        self.goal_discount = goal_discount
-
-        self.set_hyperparams(0)
 
         # Save the environment reference
         self.env = env
 
-        # Get observation space sample shape and calculate the input size
-        fovea_sample = self.env.observation_space['FOVEA'].sample()
-        self.fovea_input_size = fovea_sample.size
+        # save parameters reference
+        self.params = params
 
-        # Initialize TopologicalMap and STMUpdater
-        self.fovea_map = TopologicalMap(
-            self.fovea_input_size, self.maps_output_size
-        )
-        self.fovea_updater = STMUpdater(self.fovea_map, self.learning_rate)
+        # Init random generator with seed
+        self.seed = seed if seed is not None else 0
+        self.rng = np.random.RandomState(self.seed)
 
-        # Preallocate tensors for batch processing
-        self.fovea_inputs = torch.zeros(
-            (self.input_batch_size, self.fovea_input_size)
-        )
-        self.fovea_positions = torch.zeros((self.input_batch_size, 2))
-        self.fovea_episodes = torch.zeros((self.input_batch_size, 1))
-        self.fovea_grid_representations = torch.zeros(self.batch_shape)
-        self.fovea_point_representations = torch.zeros(
-            (self.input_batch_size, 2)
+        # Init visual map
+        input_size = np.prod(env.observation_space['FOVEA'].sample().shape)
+        output_size = params.maps_output_size
+        self.visual_map = TopologicalMap(input_size, output_size)
+        self.visual_updater = STMUpdater(
+            self.visual_map, self.params.maps_learning_rate
         )
 
-        # Initialize counter for fovea inputs
-        self.fovea_input_counter = 0
-
-        # Attentional input
-        self.attentional_input_size = attentional_input_size
-
-        # Initialize TopologicalMap and STMUpdater
-        self.attentional_map = TopologicalMap(
-            self.attentional_input_size,
-            self.maps_output_size,
-            parameters=torch.load(attentional_weights_path).clone().cpu().detach().numpy(),
-        )
-        self.attentional_updater = STMUpdater(
-            self.attentional_map, attentional_update_lr
+        # Init attention  map
+        input_size = params.attention_size
+        output_size = params.maps_output_size
+        self.attention_map = TopologicalMap(input_size, output_size)
+        self.attention_updater = STMUpdater(
+            self.attention_map, self.params.maps_learning_rate
         )
 
-        # Preallocate tensors for batch processing
-        self.attentional_inputs = torch.zeros(
-            (self.input_batch_size, self.attentional_input_size)
+        # Init Visual storage
+
+        self.params.visual_size = np.prod(self.env.observation_space['FOVEA'].sample().shape) 
+        self.visual_states = np.zeros(
+            [
+                self.params.episodes,
+                self.params.focus_num,
+                self.params.focus_time,
+                self.params.visual_size,
+            ]
         )
-        self.attentional_grid_representations = torch.zeros(self.batch_shape)
-        self.attentional_point_representations = torch.zeros(
-            (self.input_batch_size, 2)
+
+        # Init action storage
+        self.action_states = np.zeros(
+            [
+                self.params.episodes,
+                self.params.focus_num,
+                self.params.focus_time,
+                self.params.action_size,
+            ]
         )
 
-        self.attentional_output_competences = torch.zeros(
-                (input_batch_size, 1)
+        # Init attention storage
+        self.attention_states = np.zeros(
+            [
+                self.params.episodes,
+                self.params.focus_num,
+                self.params.focus_time,
+                self.params.attention_size,
+            ]
         )
-        self.attentional_output_counter = torch.zeros(maps_output_size)
 
-        # Initialize counter for attentional inputs
-        self.attentional_input_counter = 0
+    def set_hyperparams(self):
+        self.visual_states *= 0
+        self.action_states *= 0
+        self.attention_states *= 0
 
-    def set_hyperparams(self, competence):
-        """
-        Set the adaptive hyperparameters (learning rate and standard deviation)
-        based on competence.
+    def generate_attentional_input(self, focus_num):
 
-        Args:
-            competence (float): A value indicating the current competence level.
-        """
-        exp_factor = 1 - competence
+        return self.rng.rand(focus_num, 2)
 
-        self.learning_rate = (
-            self.base_learning_rate + self.learning_rate_range * exp_factor
-        )
-        self.std = self.base_std + self.std_range * exp_factor
+    def record_states(self, episode, focus, ts, state):
 
-    def generate_attentional_input(self, num_focuses):
+        self.visual_states[episode, focus, ts] = state['vision'].ravel()
+        self.action_states[episode, focus, ts] = state['action']
+        self.attention_states[episode, focus, ts] = state['attention']
 
-        points = 10*torch.rand(num_focuses, 2)
-        attentional_inputs = self.attentional_map.backward(
-            points, 0.5 * np.sqrt(2)
-        )
-        self.attentional_map(attentional_inputs, 1)
-        bmus = self.attentional_map.phi
-        bmus = (bmus == bmus.max(1)[0].reshape(-1, 1)).float()
-        self.attentional_output_counter += torch.sum(bmus, axis=0) 
-        
-        return attentional_inputs.cpu().detach().numpy()
+    def filter_salient_states(self):
 
-    def store_timestep(self, data):
-        """
-        Stores input data for the current timestep.
-
-        Parameters:
-        data (dict): A dictionary containing:
-            - 'episode': Episodic input data to be stored in the off-control module.
-            - 'position': Attentional input data representing the position to be stored in the off-control module.
-
-        Returns:
-        None
-        """
-        self.store_episode_and_fovea_input(data['episode'])
-        self.store_attentional_input(data['position'])
-
-    def store_attentional_input(self, attentional_input):
-        """
-        Stores and processes attentional input.
-
-        Args:
-            attentional_input (np.ndarray): The input coordinates in the retina.
-
-        TODO:
-            The current encoding of attentional representations is FAKE
-            and needs proper implementation.
-        """
-
-        # Store the attentional input at the current counter index
-        index = self.attentional_input_counter
-
-        self.attentional_map(torch.tensor(attentional_input), 0.5*np.sqrt(2))
-
-        self.attentional_inputs[index] += attentional_input
-
-        # Create attentional grid representation using radial function
-        self.attentional_grid_representations[
-            index
-        ] += self.attentional_map.get_representation('grid').reshape(-1)
-
-        # Store the  point representation
-        self.attentional_point_representations[
-            index
-        ] += self.attentional_map.get_representation('point').reshape(-1)
-
-        # Increment the input counter
-        self.attentional_input_counter += 1
-
-    def store_episode_and_fovea_input(self, episode):
-        """
-        Store the foveal input data and extract corresponding representations.
-
-        Args:
-            episode (int): The current episode number.
-        """
-        # Flatten and normalize the fovea input from the environment observation
-        fovea_input = self.env.observation['FOVEA'].ravel() / 255.0
-        fovea_tensor = torch.tensor(fovea_input).unsqueeze(0)
-
-        # Obtain the fovea output using the fovea map with standard deviation
-        fovea_output = self.fovea_map(fovea_tensor, self.std)
-
-        # Update the fovea datasets with the current episode data
-        index = self.fovea_input_counter
-        self.fovea_episodes[index] += episode
-        self.fovea_positions[index] += self.env.retina_sim_pos
-        self.fovea_inputs[index] += fovea_input
-        self.fovea_grid_representations[
-            index
-        ] += self.fovea_map.get_representation('grid').ravel()
-        self.fovea_point_representations[
-            index
-        ] += self.fovea_map.get_representation('point').ravel()
-
-        # Increment the input counter
-        self.fovea_input_counter += 1
+        filtered_states = np.linalg.norm(self.action_states, axis=-1)
+        filtered_states = 1 * (filtered_states > 10)
+        self.filtered_idcs = np.stack(np.where(filtered_states))
 
     def update_maps(self):
-        """
-        Update the topological maps using stored fovea inputs and reset the
-        preallocated tensors.
-        """
 
-        positions = self.fovea_positions[: self.fovea_input_counter]
-        episodes = self.fovea_episodes[: self.fovea_input_counter]
+        idcs = self.filtered_idcs
 
-        # Compute mask for distances within the same episode and distances vector
-        same_episode_mask = episodes[:-1] == episodes[1:]
+        # Reshape and convert attention states to tensor
+        attention = torch.tensor(
+            self.attention_states[idcs[0], idcs[1], idcs[2]]
+        ).reshape(-1, self.params.attention_size)
 
-        # Calculate distances for consecutive positions and handle cross-episode distances
-        consecutive_diffs = positions[1:] - positions[:-1]
-        all_distances = torch.norm(consecutive_diffs, dim=1)
-        all_distances[~same_episode_mask.flatten()] = -1
+        # Reshape and convert visual states to tensor
+        visual = torch.tensor(
+            self.visual_states[idcs[0], idcs[1], idcs[2]]
+        ).reshape(-1, self.params.visual_size)
 
 
-        # Concatenate an initial zero distance
-        distances = torch.cat([torch.tensor([0]), all_distances])
+        vision_output = self.attention_map(attention, std=1)
+        attention_output = self.attention_map(attention, std=1)
+        goals = self.attention_map.get_representation('grid')
 
-        # Add 0 distances for indices greater than self.fovea_input_counter
-        if self.fovea_input_counter < len(self.fovea_positions):
-            zero_pad_length = (
-                len(self.fovea_positions) - self.fovea_input_counter
-            )
-            distances = torch.cat([distances, torch.zeros(zero_pad_length)])
+        self.visual_updater(vision_output, goals, 0.01)
+        self.attention_updater(attention_output, goals, 0.01)
 
-        idcs = distances > 12
 
-        # Slicing the tensor to only include relevant fovea outputs
-        inputs = self.fovea_inputs[idcs]
-        targets = self.attentional_map.radial(
-                self.attentional_point_representations[idcs],
-                self.std, as_point=True,
-                )
-        filters = self.goal_discount**self.attentional_output_counter
-        fovea_outputs = self.fovea_map(inputs, self.std)
-
-        # Updating the fovea map using the extracted outputs
-        self.fovea_updater(fovea_outputs, targets*filters, self.learning_rate)
-
-        self.update_counter = getattr(self, 'update_counter', 0)
-        self.update_counter += 1
-
-        # Reset preallocated tensors to zero in-place for memory efficiency
-        for tensor in [
-            self.fovea_inputs,
-            self.fovea_positions,
-            self.fovea_episodes,
-            self.fovea_grid_representations,
-            self.fovea_point_representations,
-            self.attentional_inputs,
-            self.attentional_grid_representations,
-            self.attentional_point_representations,
-        ]:
-            tensor.zero_()
-        self.fovea_input_counter = 0
-        self.attentional_input_counter = 0
+    def update_predicts(self):
+        pass

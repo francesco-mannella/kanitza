@@ -6,14 +6,15 @@ from model.agent import Agent, gaussian_mask
 from plotter import FoveaPlotter
 import wandb
 
-import matplotlib
-matplotlib.use("agg")
 
 # This code is designed for simulating and visualizing an agent’s behavior in an
 # environment, specifically focusing on its attention mechanisms
 
 #%% MAIN LOOP AND VISUALIZATION
 if __name__ == '__main__':
+
+    import matplotlib
+    matplotlib.use("agg")
 
     # Initialize Weights & Biases logging
     wandb.init(
@@ -33,7 +34,7 @@ if __name__ == '__main__':
     agent = Agent(env, sampling_threshold=0.02)
 
     # Run the simulation for a fixed number of episodes
-    for episode in range(1):
+    for episode in range(5):
         _, env_info = env.reset()
 
         # Precompute some constants
@@ -43,7 +44,7 @@ if __name__ == '__main__':
         plotter = FoveaPlotter(env, offline=True)
 
         # Generate random means for Gaussian masks
-        attention_centers = np.random.rand(20, 2)
+        attention_centers = np.random.rand(5, 2)
 
         for center in attention_centers:
             # Set agent parameters based on the current attention center
