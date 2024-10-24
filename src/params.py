@@ -7,12 +7,12 @@ class Parameters:
         entity_name="francesco-mannella",
         init_name="offline controller tester",
         env_name="EyeSim-v0",
-        episodes=2,
-        epochs=10,
+        episodes=10,
+        epochs=1000,
         focus_num=10,
         focus_time=10,
         plot_sim=False,
-        plot_maps=False,
+        plot_maps=True,
         plotting_epochs_interval=10,
         agent_sampling_threshold=0.001,
         maps_output_size=100,
@@ -20,8 +20,10 @@ class Parameters:
         attention_size=2,
         maps_learning_rate=0.01,
         saccade_threshold=10,
-        learnigrate_modulation=0.1,
-        neighborhood_modulation=5,
+        neighborhood_modulation=10,
+        learnigrate_modulation=0.3,
+        decaying_speed=1,
+        local_decaying_speed=.5,
     ):
         self.project_name = project_name
         self.entity_name = entity_name
@@ -42,3 +44,5 @@ class Parameters:
         self.saccade_threshold = saccade_threshold
         self.learnigrate_modulation = learnigrate_modulation
         self.neighborhood_modulation = neighborhood_modulation
+        self.decaying_speed = decaying_speed
+        self.local_decaying_speed = local_decaying_speed

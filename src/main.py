@@ -10,7 +10,7 @@ import sys,os
 matplotlib.use("agg")
 
 from model.agent import Agent, gaussian_mask
-from plotter import FoveaPlotter, FakeMapsPlotter
+from plotter import FoveaPlotter, MapsPlotter
 from model.offline_controller import OfflineController
 from params import Parameters
 
@@ -19,9 +19,21 @@ def signal_handler(signum, frame):
     wandb.finish()
     sys.exit(0)
 
+class Logger:
+    def __init__(self, filename):
+        self.filename = filename
+
+    def __call__(self, number):
+        with open(self.filename, 'a') as file:
+            file.write(str(number) + '\n')
+
 
 # MAIN LOOP AND VISUALIZATION
 if __name__ == "__main__":
+
+
+    competence_log = Logger("comp")
+
     # Create an instance of Parameters with default or custom values
     params = Parameters()
 
@@ -53,8 +65,7 @@ if __name__ == "__main__":
 
     for epoch in range(params.epochs):
 
-        # Update offline controller hyperparameters based on the episode
-        off_control.set_hyperparams()
+        off_control.reset_states()
 
         # Determine if the current epoch is a plotting epoch based on the interval
         is_plotting_epoch = epoch % params.plotting_epochs_interval == 0
@@ -64,7 +75,7 @@ if __name__ == "__main__":
 
         # Initialize a plotting object for the current epoch
         if params.plot_maps and is_plotting_epoch:
-            maps_plotter = FakeMapsPlotter(env, off_control, offline=True)
+            maps_plotter = MapsPlotter(env, off_control, offline=True)
 
         # Execute the simulation for a specified number of episodes
         for episode in range(params.episodes):
@@ -123,14 +134,13 @@ if __name__ == "__main__":
 
             print(f"Episode: {episode}, Epoch: {epoch}")
 
+        competence_log(off_control.competence.detach().cpu().numpy())
+
         # Filter salient events
         off_control.filter_salient_states()
 
         # Update the offline controller's stored maps
         off_control.update_maps()
-        
-        # Update the offline controller's predictions
-        off_control.update_predicts()
 
         if params.plot_maps and is_plotting_epoch:
             maps_plotter.step()
