@@ -6,6 +6,7 @@ import gymnasium as gym
 import wandb
 import signal
 import sys,os
+import torch
 
 matplotlib.use("agg")
 
@@ -53,6 +54,8 @@ if __name__ == "__main__":
     plt.close("all")
 
     seed = 10 
+    torch.manual_seed(seed)
+
     # Configure the environment and agent
     env = gym.make(params.env_name)
     env = env.unwrapped
@@ -61,10 +64,19 @@ if __name__ == "__main__":
 
     agent = Agent(env, sampling_threshold=params.agent_sampling_threshold, seed=seed)
 
-    off_control = OfflineController(env, params, seed)
+    file_path = "off_control_store"
 
-    for epoch in range(params.epochs):
+    # Check if the offline control data file exists
+    if os.path.exists(file_path):
+        # Load the offline controller from the file if it exists
+        off_control = OfflineController.load(file_path, env, params, seed)
+    else:
+        # Initialize a new offline controller
+        off_control = OfflineController(env, params, seed)
 
+    for epoch in range(off_control.epoch, off_control.epoch + params.epochs):
+
+        off_control.epoch = epoch
         off_control.reset_states()
 
         # Determine if the current epoch is a plotting epoch based on the interval
@@ -151,6 +163,10 @@ if __name__ == "__main__":
             if os.path.exists(file):
                 # Log the generated GIF file to Weights & Biases if the file exists
                 wandb.log({f"Maps": wandb.Image(f"{file}")}, step=epoch)
+
+    
+        # Save the OfflineController state to a file at the end of the loop
+        off_control.save(file_path)
 
     # Conclude the Weights & Biases logging session
     wandb.finish()

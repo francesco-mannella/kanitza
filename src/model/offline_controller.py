@@ -24,6 +24,8 @@ class OfflineController:
 
         """
 
+        self.epoch = 0
+
         self.competence = torch.tensor(0.0)
         self.competences = torch.tensor(0.0)
         self.local_incompetence = torch.tensor(0.0)
@@ -104,20 +106,29 @@ class OfflineController:
         self.attention_states *= 0
 
     def set_hyperparams(self):
-        self.incompetence = 1 - torch.tanh(self.params.decaying_speed * self.competence)
-        self.local_incompetence = 1 - torch.tanh(self.params.local_decaying_speed * self.competences)
+        self.incompetence = 1 - torch.tanh(
+            self.params.decaying_speed * self.competence
+        )
+        self.local_incompetence = 1 - torch.tanh(
+            self.params.local_decaying_speed * self.competences
+        )
         self.local_incompetence = self.local_incompetence.reshape(-1, 1)
-        
+
         self.learnigrate_modulation = (
-            self.params.learnigrate_modulation 
-            * self.local_incompetence
-            * self.incompetence
+            self.params.learnigrate_modulation_baseline
+            + (
+                self.params.learnigrate_modulation
+                * self.local_incompetence
+                * self.incompetence
+            )
         )
         self.neighborhood_modulation = (
-            0.5 * np.sqrt(2.0)
-            + self.params.neighborhood_modulation
-            * self.incompetence
-            * self.local_incompetence
+            +self.params.neighborhood_modulation_baseline
+            + (
+                self.params.neighborhood_modulation
+                * self.incompetence
+                * self.local_incompetence
+            )
         )
         self.neighborhood_modulation = self.neighborhood_modulation.reshape(
             -1, 1
@@ -125,11 +136,19 @@ class OfflineController:
 
     def generate_attentional_input(self, focus_num):
 
-        return self.rng.rand(focus_num, 2)
+        # radius = 0.4 + 0.1 * self.rng.rand(focus_num)
+        # angle = 2 * np.pi * self.rng.rand(focus_num)
+        # attentional_input = (
+        #     np.stack([np.cos(angle), np.sin(angle)]) * radius.reshape(1, -1)
+        # ).T + 0.5
+
+        attentional_input =   self.rng.rand(focus_num, 2)
+
+        return attentional_input
 
     def record_states(self, episode, focus, ts, state):
 
-        self.visual_states[episode, focus, ts] = state['vision'].ravel()
+        self.visual_states[episode, focus, ts] = state['vision'].ravel()/255.0
         self.action_states[episode, focus, ts] = state['action']
         self.attention_states[episode, focus, ts] = state['attention']
 
@@ -163,7 +182,7 @@ class OfflineController:
         )
 
         # Run through attention mapping process with a modulation factor
-        self.attention_map(attention, std=1)
+        self.attention_map(attention, std=2)
         point_attention_representations = (
             self.attention_map.get_representation('point')
         )
@@ -172,7 +191,7 @@ class OfflineController:
         )
 
         # Run visual conditions mapping with the same modulation factor
-        self.visual_conditions_map(visual_conditions, std=1)
+        self.visual_conditions_map(visual_conditions, std=2)
         point_visual_conditions_representations = (
             self.visual_conditions_map.get_representation('point')
         )
@@ -181,7 +200,7 @@ class OfflineController:
         )
 
         # Run visual effects mapping similarly with modulation
-        self.visual_effects_map(visual_effects, std=1)
+        self.visual_effects_map(visual_effects, std=2)
         point_visual_effects_representations = (
             self.visual_effects_map.get_representation('point')
         )
@@ -249,3 +268,63 @@ class OfflineController:
         matches = torch.norm(difference, dim=-1)
 
         return matches
+
+    def save(self, file_path):
+        """
+        Serialize and save the state of the OfflineController to a file.
+        """
+        # Collect the current states to save
+        state = {
+            'epoch': self.epoch,
+            'competence': self.competence,
+            'competences': self.competences,
+            'local_incompetence': self.local_incompetence,
+            'visual_conditions_map_state_dict': self.visual_conditions_map.state_dict(),
+            'visual_conditions_updater_optimizer_state_dict': self.visual_conditions_updater.optimizer.state_dict(),
+            'visual_effects_map_state_dict': self.visual_effects_map.state_dict(),
+            'visual_effects_updater_optimizer_state_dict': self.visual_effects_updater.optimizer.state_dict(),
+            'attention_map_state_dict': self.attention_map.state_dict(),
+            'attention_updater_optimizer_state_dict': self.attention_updater.optimizer.state_dict(),
+            'rng_state': self.rng.get_state(),
+        }
+
+        # Save the state to file
+        torch.save(state, file_path)
+
+    @staticmethod
+    def load(file_path, env, params, seed=None):
+        """
+        Load and deserialize the state of the OfflineController from a file.
+        """
+        # Load the saved state
+        state = torch.load(file_path, weights_only=False)
+
+        # Initialize a new instance of OfflineController
+        offline_controller = OfflineController(env, params, seed)
+
+        # Restore the state
+        offline_controller.epoch = state['epoch'] + 1
+        offline_controller.competence = state['competence']
+        offline_controller.competences = state['competences']
+        offline_controller.local_incompetence = state['local_incompetence']
+        offline_controller.visual_conditions_map.load_state_dict(
+            state['visual_conditions_map_state_dict']
+        )
+        offline_controller.visual_conditions_updater.optimizer.load_state_dict(
+            state['visual_conditions_updater_optimizer_state_dict']
+        )
+        offline_controller.visual_effects_map.load_state_dict(
+            state['visual_effects_map_state_dict']
+        )
+        offline_controller.visual_effects_updater.optimizer.load_state_dict(
+            state['visual_effects_updater_optimizer_state_dict']
+        )
+        offline_controller.attention_map.load_state_dict(
+            state['attention_map_state_dict']
+        )
+        offline_controller.attention_updater.optimizer.load_state_dict(
+            state['attention_updater_optimizer_state_dict']
+        )
+        offline_controller.rng.set_state(state['rng_state'])
+
+        return offline_controller

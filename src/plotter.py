@@ -167,95 +167,102 @@ class MapsPlotter:
         self.env = env
         self.params = Parameters()
 
-        # Setup the figure and axis for plotting.
+        self.side = int(np.sqrt(self.params.maps_output_size))
+        fovea_size = env.fovea_size[0]
+
+        palette1 = plt.cm.Blues(np.linspace(0, 1, self.side))  # 10 shades of blue
+        palette2 = plt.cm.YlOrRd(np.linspace(0, 1, self.side))  # 10 shades of orange
+        self.palette = create_2d_palette(palette1, palette2).reshape(-1, 4)
+
+        # Setup the figure and axis for plotting
         self.fig, (self.visual_effects_map_ax, self.attention_map_ax) = plt.subplots(
             1, 2, figsize=(6, 3),
-            gridspec_kw={'width_ratios': np.ones(2), 'height_ratios': [1]},
         )
 
-        # Initialize imshow objects for both axes
-        visual_effects_map_weights = self.reshape_visual_effects_weights(
+        # Prepare grid for scatter plots
+        t = np.linspace(fovea_size*0.1, 0.94*fovea_size*self.side, self.side)
+        self.grid = np.stack([x.ravel() for x in np.meshgrid(t, t)])
+
+        # Initialize visual effects map and attention map
+        self._initialize_maps()
+
+        self.offline = offline
+
+    def _initialize_maps(self):
+        # Initialize the imshow object
+        initial_weights_shape = self.reshape_visual_effects_weights(
             self.controller.visual_effects_map.weights,
-        )
+        ).shape
         self.visual_effects_map_im = self.visual_effects_map_ax.imshow(
-            visual_effects_map_weights,
+            np.zeros(initial_weights_shape), vmin=0, vmax=1,
         )
-    
-        # Initialize the attentional map with a red scatter plot at the origin
-        self.attention_map_im = self.attention_map_ax.scatter(0, 0, color="red", s=20)
 
-        # Determine the number of traces to plot
-        num_traces = 2 * int(np.sqrt(self.params.maps_output_size))
+        self.visual_effects_map_states = self.visual_effects_map_ax.scatter(
+            *self.grid, s=10, c=self.palette
+        )
 
-        # Create a list of black line plots for the attentional map traces
+        # Initialize the attentional map and traces
+        self.attention_map_im = self.attention_map_ax.scatter(
+            0, 0, color="red", s=20, zorder=1
+        )
+        self._initialize_attention_traces()
+
+        # Set axis limits
+        self._set_axis_limits()
+
+    def _initialize_attention_traces(self):
+        num_traces = 2 * self.side
         self.attention_map_traces = [
-            self.attention_map_ax.plot(0, 0, color="black")[0]
+            self.attention_map_ax.plot(0, 0, color="black", zorder=0)[0]
             for _ in range(num_traces)
         ]
 
-        # Set the x and y limits of the attentional map axis based on retina scale
-        x_lim = 0.7 * self.env.retina_scale[0]
-        y_lim = 0.7 * self.env.retina_scale[1]
+    def _set_axis_limits(self):
+        x_lim, y_lim = 0.7 * self.env.retina_scale
         self.attention_map_ax.set_xlim([-x_lim, x_lim])
         self.attention_map_ax.set_ylim([-y_lim, y_lim])
-
-        self.offline = offline
 
     def step(self):
         """
         Updates the displayed fovea map with the latest weights from the controller.
-
-        This method retrieves the current fovea map weights from the controller, reshapes
-        and transposes them as needed for visualization, and updates the imshow object.
         """
-
-        # Reshape and transpose visual_effects weights for correct visualization
         visual_effects_map_weights = self.reshape_visual_effects_weights(
-            self.controller.visual_effects_map.weights,
+            self.controller.visual_effects_map.weights
         )
-
-        min_weight = np.min(visual_effects_map_weights)
-        max_weight = np.max(visual_effects_map_weights)
         
-        # Avoid division by zero if all weights are the same
-        if min_weight == max_weight:
-            return np.zeros_like(visual_effects_map_weights)
-            
-        normalized_weights = (visual_effects_map_weights - min_weight) / (max_weight - min_weight)
-        
+        if np.min(visual_effects_map_weights) != np.max(visual_effects_map_weights):
+            normalized_weights = self._normalize_weights(visual_effects_map_weights)
+            self.visual_effects_map_im.set_data(normalized_weights)
 
-        # Set the updated data on the imshow object
-        self.visual_effects_map_im.set_data(normalized_weights)
-
-        # Get the attentional map weights from the controller and convert them to numpy array
-        attention_map_weights = self.controller.attention_map.weights.clone().cpu().detach().numpy()
-
-        # Adjust the weights using the retina scale from the environment
-        retina_scale_reshaped = self.env.retina_scale.reshape(-1, 1)
-        attention_map_weights *= retina_scale_reshaped
-        attention_map_weights -= retina_scale_reshaped / 2
-
-        # Update the offsets of the attentional map image for display
-        self.attention_map_im.set_offsets(attention_map_weights.T)
-
-        # Determine the number of traces to plot
-        num_traces = int(np.sqrt(self.params.maps_output_size))
-
-        # Reshape and transpose the weights for simplified plotting
-        attention_map_weights = attention_map_weights.reshape(2, num_traces, num_traces).transpose(1, 2, 0)
-
-        # Update the positional data of each trace plot
-        for p in range(num_traces):
-            curr_plot = self.attention_map_traces[p]
-            curr_plot.set_data(*attention_map_weights[p, :, :].T)
-
-        for p in range(num_traces, 2 * num_traces):
-            curr_plot = self.attention_map_traces[p]
-            curr_plot.set_data(*attention_map_weights[:, p % num_traces, :].T)
+        self._update_attention_map()
 
         # Redraw the figure to show updates
         self.fig.canvas.draw_idle()
 
+    def _normalize_weights(self, weights):
+        min_weight = np.min(weights)
+        max_weight = np.max(weights)
+        return (weights - min_weight) / (max_weight - min_weight)
+
+    def _update_attention_map(self):
+        attention_map_weights = self.controller.attention_map.weights.clone().cpu().detach().numpy()
+        retina_scale_reshaped = self.env.retina_scale.reshape(-1, 1)
+        attention_map_weights *= retina_scale_reshaped
+        attention_map_weights -= retina_scale_reshaped / 2
+
+        self.attention_map_im.set_offsets(attention_map_weights.T)
+
+        reshaped_palette = self.palette.reshape(self.side, self.side, 4).transpose(1, 0, 2).reshape(-1, 4)
+        self.attention_map_im.set_color(reshaped_palette)
+
+        num_traces = self.side
+        attention_map_weights_reshaped = attention_map_weights.reshape(2, num_traces, num_traces).transpose(2, 1, 0)
+
+        for p in range(num_traces):
+            self.attention_map_traces[p].set_data(*attention_map_weights_reshaped[p, :, :].T)
+
+        for p in range(num_traces, 2 * num_traces):
+            self.attention_map_traces[p].set_data(*attention_map_weights_reshaped[:, p % num_traces, :].T)
 
     def close(self, name=None):
         if self.offline and name is not None:
@@ -263,10 +270,7 @@ class MapsPlotter:
             self.fig.savefig(name, dpi=300)
         plt.close(self.fig)
 
-    def reshape_visual_effects_weights(
-        self,
-        weights,
-    ):
+    def reshape_visual_effects_weights(self, weights):
         """
         Reshapes and transposes the fovea map weights for plotting.
 
@@ -277,18 +281,34 @@ class MapsPlotter:
             np.ndarray: Reshaped and transposed weights ready for visualization.
         """
         inp_side1, inp_side2 = self.env.fovea_size.astype(int)
-        out_side1, out_side2 = np.ones(2).astype(int) * int(
-            np.sqrt(self.params.maps_output_size)
-        )
+        out_side1 = out_side2 = self.side
 
         weights = weights.cpu().detach().numpy()
-        np.save("weights", weights)
-        reshaped_weights = weights.reshape(
-            inp_side1, inp_side2, 3, out_side1, out_side2,
-        )
+        reshaped_weights = weights.reshape(inp_side1, inp_side2, 3, out_side1, out_side2)
         transposed_weights = reshaped_weights.transpose(3, 0, 4, 1, 2)
-        new_shape = (inp_side1 * out_side1, inp_side2 * out_side2, 3)
 
-        reshaped_transposed_weights = transposed_weights.reshape(new_shape)
+        return transposed_weights.reshape(inp_side1 * out_side1, inp_side2 * out_side2, 3)
 
-        return reshaped_transposed_weights
+def create_2d_palette(palette1, palette2):
+    """
+    Create a 2D color palette from two 1D color palettes.
+    
+    Parameters:
+    - palette1: List of colors (hex strings, RGB tuples, etc.)
+    - palette2: List of colors (hex strings, RGB tuples, etc.)
+    
+    Returns:
+    - 2D array of combined colors
+    """
+
+    N = len(palette1)
+    M = len(palette2)    
+    # Create a 2D array of colors by combining the two palettes
+    combined_palette = np.zeros((N, M, 4))
+    for i in range(N):
+        for j in range(M):
+            # Mix shades from both palettes based on their indices
+            combined_palette[i, j] = (palette1[i] + palette2[j]) / 2  # Average RGB values
+            combined_palette[i, j][3] = 1  # Set alpha channel to 1 (fully opaque)
+
+    return combined_palette
