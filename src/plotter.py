@@ -38,6 +38,8 @@ class FoveaPlotter(EyeSim.envs.Simulator.TestPlotter):
             self.filter_ax,
         ) = self.axes
 
+
+
         # Initialize the saliency image plot and highlight dot
         self.saliency_image = self.saliency_ax.imshow(
             np.zeros(env.retina_size), vmin=0, vmax=1
@@ -176,12 +178,13 @@ class MapsPlotter:
 
         # Setup the figure and axis for plotting
         self.fig, (self.visual_effects_map_ax, self.attention_map_ax) = plt.subplots(
-            1, 2, figsize=(6, 3),
+            1, 3, figsize=(9, 3),
         )
+        self.vm = vidManager(self.fig, name="maps", dirname=".", duration=60) 
 
         # Prepare grid for scatter plots
         t = np.linspace(fovea_size*0.1, 0.94*fovea_size*self.side, self.side)
-        self.grid = np.stack([x.ravel() for x in np.meshgrid(t, t)])
+        self.grid = np.stack([x.ravel() for x in np.meshgrid(t[::-1], t)])
 
         # Initialize visual effects map and attention map
         self._initialize_maps()
@@ -226,23 +229,26 @@ class MapsPlotter:
         """
         Updates the displayed fovea map with the latest weights from the controller.
         """
+        self._update_visual_effects_map()
+        self._update_attention_map()
+
+        # Redraw the figure to show updates
+        self.fig.canvas.draw_idle()
+        self.vm.save_frame()
+
+    def _normalize_weights(self, weights):
+        min_weight = np.min(weights)
+        max_weight = np.max(weights)
+        return (weights - min_weight) / (max_weight - min_weight)
+
+    def _update_visual_effects_map(self):
         visual_effects_map_weights = self.reshape_visual_effects_weights(
             self.controller.visual_effects_map.weights
         )
         
         if np.min(visual_effects_map_weights) != np.max(visual_effects_map_weights):
             normalized_weights = self._normalize_weights(visual_effects_map_weights)
-            self.visual_effects_map_im.set_data(normalized_weights)
-
-        self._update_attention_map()
-
-        # Redraw the figure to show updates
-        self.fig.canvas.draw_idle()
-
-    def _normalize_weights(self, weights):
-        min_weight = np.min(weights)
-        max_weight = np.max(weights)
-        return (weights - min_weight) / (max_weight - min_weight)
+            self.visual_effects_map_im.set_data(normalized_weights[::-1])
 
     def _update_attention_map(self):
         attention_map_weights = self.controller.attention_map.weights.clone().cpu().detach().numpy()
@@ -252,11 +258,11 @@ class MapsPlotter:
 
         self.attention_map_im.set_offsets(attention_map_weights.T)
 
-        reshaped_palette = self.palette.reshape(self.side, self.side, 4).transpose(1, 0, 2).reshape(-1, 4)
+        reshaped_palette = self.palette.reshape(self.side, self.side, 4).transpose(0, 1, 2).reshape(-1, 4)
         self.attention_map_im.set_color(reshaped_palette)
 
         num_traces = self.side
-        attention_map_weights_reshaped = attention_map_weights.reshape(2, num_traces, num_traces).transpose(2, 1, 0)
+        attention_map_weights_reshaped = attention_map_weights.reshape(2, num_traces, num_traces).transpose(1, 2, 0)
 
         for p in range(num_traces):
             self.attention_map_traces[p].set_data(*attention_map_weights_reshaped[p, :, :].T)
@@ -266,8 +272,10 @@ class MapsPlotter:
 
     def close(self, name=None):
         if self.offline and name is not None:
-            print(f"save {name}")
-            self.fig.savefig(name, dpi=300)
+            print(f"save {name}.png")
+            self.fig.savefig(f'{name}.png', dpi=300)
+        print(f"save {name}.gif")
+        self.vm.mk_video(name=name)
         plt.close(self.fig)
 
     def reshape_visual_effects_weights(self, weights):
