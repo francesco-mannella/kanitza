@@ -162,6 +162,7 @@ class OfflineController:
     def update_maps(self):
 
         idcs = self.filtered_idcs
+        idcs = idcs[:, idcs[2]<= (self.params.focus_time - 1)]
 
         # Extract and reshape attention states to a tensor format suitable for neural operations
         attention_states = self.attention_states[idcs[0], idcs[1], idcs[2]]
@@ -176,7 +177,7 @@ class OfflineController:
         )
 
         # Extract and reshape visual effect states to a tensor (current time step)
-        visual_effects = self.visual_states[idcs[0], idcs[1], idcs[2]]
+        visual_effects = self.visual_states[idcs[0], idcs[1], idcs[2] + 1]
         visual_effects = torch.tensor(visual_effects).reshape(
             -1, self.params.visual_size
         )

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 seeds=1
-decay_speeds=$(seq 5.0 -1 1)
+decay_speeds='5 4'
 local_decay_speeds=$(seq 2.0 -0.5 0.5)
 CURR_DIR=$(pwd)
 EXE=$(dirname "$0" | xargs realpath | sed -e "s/scripts/src\/main.py/" ) 

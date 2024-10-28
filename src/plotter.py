@@ -152,73 +152,61 @@ class FakeMapsPlotter:
 class MapsPlotter:
     """
     A class for plotting fovea and attentional maps using matplotlib.
-
-    This class initializes with a controller that provides the necessary map data
-    and sets up the figure and axis for plotting.
     """
 
     def __init__(self, env, controller, offline=False):
         """
         Initializes the MapsPlotter with the given controller and environment.
-
-        Args:
-            env (object): The simulation environment containing retina and fovea configurations.
-            controller (object): An object that contains fovea_map and attention_map, each with weights.
         """
         self.controller = controller
         self.env = env
+        self.offline = offline
         self.params = Parameters()
 
         self.side = int(np.sqrt(self.params.maps_output_size))
-        fovea_size = env.fovea_size[0]
+        self.fovea_size = env.fovea_size[0]
+        
+        self.palette = self._create_palette()
+        
+        self.fig, (self.visual_conditions_map_ax, self.visual_effects_map_ax, self.attention_map_ax) = self._create_figure()
+        self.vm = vidManager(self.fig, name="maps", dirname=".", duration=60)
 
-        palette1 = plt.cm.Blues(np.linspace(0, 1, self.side))  # 10 shades of blue
-        palette2 = plt.cm.YlOrRd(np.linspace(0, 1, self.side))  # 10 shades of orange
-        self.palette = create_2d_palette(palette1, palette2).reshape(-1, 4)
-
-        # Setup the figure and axis for plotting
-        self.fig, (self.visual_effects_map_ax, self.attention_map_ax) = plt.subplots(
-            1, 3, figsize=(9, 3),
-        )
-        self.vm = vidManager(self.fig, name="maps", dirname=".", duration=60) 
-
-        # Prepare grid for scatter plots
-        t = np.linspace(fovea_size*0.1, 0.94*fovea_size*self.side, self.side)
-        self.grid = np.stack([x.ravel() for x in np.meshgrid(t[::-1], t)])
-
-        # Initialize visual effects map and attention map
+        self.grid = self._prepare_grid()
+        
         self._initialize_maps()
 
-        self.offline = offline
+    def _create_palette(self):
+        palette1 = plt.cm.Blues(np.linspace(0, 1, self.side))
+        palette2 = plt.cm.YlOrRd(np.linspace(0, 1, self.side))
+        return create_2d_palette(palette1, palette2).reshape(-1, 4)
+
+    def _create_figure(self):
+        return plt.subplots(1, 3, figsize=(9, 3))
+
+    def _prepare_grid(self):
+        t = np.linspace(self.fovea_size * 0.1, 0.94 * self.fovea_size * self.side, self.side)
+        return np.stack([x.ravel() for x in np.meshgrid(t, t[::-1])])
 
     def _initialize_maps(self):
-        # Initialize the imshow object
-        initial_weights_shape = self.reshape_visual_effects_weights(
-            self.controller.visual_effects_map.weights,
-        ).shape
-        self.visual_effects_map_im = self.visual_effects_map_ax.imshow(
-            np.zeros(initial_weights_shape), vmin=0, vmax=1,
-        )
-
-        self.visual_effects_map_states = self.visual_effects_map_ax.scatter(
-            *self.grid, s=10, c=self.palette
-        )
-
-        # Initialize the attentional map and traces
-        self.attention_map_im = self.attention_map_ax.scatter(
-            0, 0, color="red", s=20, zorder=1
-        )
-        self._initialize_attention_traces()
-
-        # Set axis limits
+        self._initialize_visual_conditions_map()
+        self._initialize_visual_effects_map()
+        self._initialize_attention_map_traces()
         self._set_axis_limits()
 
-    def _initialize_attention_traces(self):
+    def _initialize_visual_conditions_map(self):
+        initial_shape = self.reshape_visual_weights(self.controller.visual_conditions_map.weights).shape
+        self.visual_conditions_map_im = self.visual_conditions_map_ax.imshow(np.zeros(initial_shape), vmin=0, vmax=1)
+        self.visual_conditions_map_states = self.visual_conditions_map_ax.scatter(*self.grid, s=10, c=self.palette)
+    
+    def _initialize_visual_effects_map(self):
+        initial_shape = self.reshape_visual_weights(self.controller.visual_effects_map.weights).shape
+        self.visual_effects_map_im = self.visual_effects_map_ax.imshow(np.zeros(initial_shape), vmin=0, vmax=1)
+        self.visual_effects_map_states = self.visual_effects_map_ax.scatter(*self.grid, s=10, c=self.palette)
+
+    def _initialize_attention_map_traces(self):
+        self.attention_map_im = self.attention_map_ax.scatter(0, 0, color="red", s=20, zorder=1)
         num_traces = 2 * self.side
-        self.attention_map_traces = [
-            self.attention_map_ax.plot(0, 0, color="black", zorder=0)[0]
-            for _ in range(num_traces)
-        ]
+        self.attention_map_traces = [self.attention_map_ax.plot(0, 0, color="black", zorder=0)[0] for _ in range(num_traces)]
 
     def _set_axis_limits(self):
         x_lim, y_lim = 0.7 * self.env.retina_scale
@@ -229,64 +217,57 @@ class MapsPlotter:
         """
         Updates the displayed fovea map with the latest weights from the controller.
         """
-        self._update_visual_effects_map()
-        self._update_attention_map()
-
-        # Redraw the figure to show updates
+        self._update_maps()
         self.fig.canvas.draw_idle()
         self.vm.save_frame()
+
+    def _update_maps(self):
+        self._update_visual_conditions_map()
+        self._update_visual_effects_map()
+        self._update_attention_map_weights()
+
+    def _update_visual_conditions_map(self):
+        weights = self.reshape_visual_weights(self.controller.visual_conditions_map.weights)
+        if np.min(weights) != np.max(weights):
+            self.visual_conditions_map_im.set_data(self._normalize_weights(weights)[::-1])
+
+    def _update_visual_effects_map(self):
+        weights = self.reshape_visual_weights(self.controller.visual_effects_map.weights)
+        if np.min(weights) != np.max(weights):
+            self.visual_effects_map_im.set_data(self._normalize_weights(weights)[::-1])
+
+    def _update_attention_map_weights(self):
+        weights = self.controller.attention_map.weights.clone().cpu().detach().numpy()
+        retina_scale_reshaped = self.env.retina_scale.reshape(-1, 1)
+        weights *= retina_scale_reshaped 
+        weights -= retina_scale_reshaped / 2
+        self.attention_map_im.set_offsets(weights.T)
+
+        reshaped_palette = self.palette.reshape(self.side, self.side, 4).transpose(0, 1, 2).reshape(-1, 4)
+        self.attention_map_im.set_color(reshaped_palette)
+
+        num_traces = self.side
+        reshaped_weights = weights.reshape(2, num_traces, num_traces).transpose(1, 2, 0)
+        for p in range(num_traces):
+            self.attention_map_traces[p].set_data(*reshaped_weights[p, :, :].T)
+        for p in range(num_traces, 2 * num_traces):
+            self.attention_map_traces[p].set_data(*reshaped_weights[:, p % num_traces, :].T)
 
     def _normalize_weights(self, weights):
         min_weight = np.min(weights)
         max_weight = np.max(weights)
         return (weights - min_weight) / (max_weight - min_weight)
 
-    def _update_visual_effects_map(self):
-        visual_effects_map_weights = self.reshape_visual_effects_weights(
-            self.controller.visual_effects_map.weights
-        )
-        
-        if np.min(visual_effects_map_weights) != np.max(visual_effects_map_weights):
-            normalized_weights = self._normalize_weights(visual_effects_map_weights)
-            self.visual_effects_map_im.set_data(normalized_weights[::-1])
-
-    def _update_attention_map(self):
-        attention_map_weights = self.controller.attention_map.weights.clone().cpu().detach().numpy()
-        retina_scale_reshaped = self.env.retina_scale.reshape(-1, 1)
-        attention_map_weights *= retina_scale_reshaped
-        attention_map_weights -= retina_scale_reshaped / 2
-
-        self.attention_map_im.set_offsets(attention_map_weights.T)
-
-        reshaped_palette = self.palette.reshape(self.side, self.side, 4).transpose(0, 1, 2).reshape(-1, 4)
-        self.attention_map_im.set_color(reshaped_palette)
-
-        num_traces = self.side
-        attention_map_weights_reshaped = attention_map_weights.reshape(2, num_traces, num_traces).transpose(1, 2, 0)
-
-        for p in range(num_traces):
-            self.attention_map_traces[p].set_data(*attention_map_weights_reshaped[p, :, :].T)
-
-        for p in range(num_traces, 2 * num_traces):
-            self.attention_map_traces[p].set_data(*attention_map_weights_reshaped[:, p % num_traces, :].T)
-
     def close(self, name=None):
         if self.offline and name is not None:
-            print(f"save {name}.png")
             self.fig.savefig(f'{name}.png', dpi=300)
         print(f"save {name}.gif")
         self.vm.mk_video(name=name)
         plt.close(self.fig)
 
-    def reshape_visual_effects_weights(self, weights):
+    def reshape_visual_weights(self, weights):
         """
         Reshapes and transposes the fovea map weights for plotting.
-
-        Args:
-            weights (torch.Tensor): The fovea map weights to be reshaped.
-
-        Returns:
-            np.ndarray: Reshaped and transposed weights ready for visualization.
         """
         inp_side1, inp_side2 = self.env.fovea_size.astype(int)
         out_side1 = out_side2 = self.side
