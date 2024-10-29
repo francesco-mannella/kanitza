@@ -13,7 +13,7 @@ class Parameters:
         focus_time=10,
         plot_sim=False,
         plot_maps=True,
-        plotting_epochs_interval=1,
+        plotting_epochs_interval=50,
         agent_sampling_threshold=0.001,
         maps_output_size=100,
         action_size=2,

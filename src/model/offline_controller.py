@@ -162,7 +162,7 @@ class OfflineController:
     def update_maps(self):
 
         idcs = self.filtered_idcs
-        idcs = idcs[:, idcs[2]<= (self.params.focus_time - 1)]
+        idcs = idcs[:, idcs[2] < (self.params.focus_time - 1)]
 
         # Extract and reshape attention states to a tensor format suitable for neural operations
         attention_states = self.attention_states[idcs[0], idcs[1], idcs[2]]

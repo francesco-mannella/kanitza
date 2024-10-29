@@ -8,8 +8,6 @@ import signal
 import sys, os, re
 import torch
 
-matplotlib.use('agg')
-
 from model.agent import Agent, gaussian_mask
 from plotter import FoveaPlotter, MapsPlotter
 from model.offline_controller import OfflineController
@@ -30,45 +28,7 @@ class Logger:
         with open(self.filename, 'a') as file:
             file.write(str(number) + '\n')
 
-
-# MAIN LOOP AND VISUALIZATION
-if __name__ == '__main__':
-
-
-    import argparse
-
-    # Create the parser
-    parser = argparse.ArgumentParser()
-
-    # Add the 'seed' argument
-    parser.add_argument(
-        '--seed',
-        type=int,
-        default=0,
-        help='Set the seed for random number generation.',
-    )
-    parser.add_argument('--decaying_speed', type=float, default=None,
-                        help='Speed at which decay occurs')
-    
-    parser.add_argument('--local_decaying_speed', type=float, default=None,
-                        help='Local speed at which decay occurs')
-
-    # Parse the arguments
-    args = parser.parse_args()
-    
-    # Create an instance of Parameters with default or custom values
-    params = Parameters()
-
-    # Access the seed value
-    seed = args.seed
-
-    params.decaying_speed = args.decaying_speed if args.decaying_speed is not None else params.decaying_speed
-    params.local_decaying_speed = args.local_decaying_speed if args.local_decaying_speed is not None else params.local_decaying_speed
-    params.init_name = "sim_s_{:}_ds_{:}_lds_{:}".format(
-            re.sub("\.","",f"{seed:06d}"),
-            re.sub("\.","",f"{params.decaying_speed:010.4f}"),
-            re.sub("\.","",f"{params.local_decaying_speed:010.4f}"),
-            )
+def main():
 
     competence_log = Logger('comp')
 
@@ -77,12 +37,6 @@ if __name__ == '__main__':
         signal.SIGINT, signal_handler
     )  # register the signal with the signal handler first
 
-    # Initialize Weights & Biases logging with project and entity names
-    wandb.init(
-        project=params.project_name,
-        entity=params.entity_name,
-        name=params.init_name,
-    )
 
     # Enable matplotlib's interactive mode and close any existing plots
     plt.ion()
@@ -197,6 +151,9 @@ if __name__ == '__main__':
 
         competence_log(off_control.competence.detach().cpu().numpy())
 
+        # Log the competence metric to Weights & Biases with the current epoch
+        wandb.log({'competence': off_control.competence}, step=epoch)
+
         # Filter salient events
         off_control.filter_salient_states()
 
@@ -213,7 +170,7 @@ if __name__ == '__main__':
                 wandb.log(
                         {
                             'history': wandb.Image(f'{file}.gif'),
-                            'last':wandb.Image(f'{file}.png')
+                            'last':wandb.Image(f'{file}.png'),
                             }, 
                         step=epoch)
                 maps_plotter = MapsPlotter(env, off_control, offline=True)
@@ -224,3 +181,57 @@ if __name__ == '__main__':
     
     # Conclude the Weights & Biases logging session
     wandb.finish()
+
+
+
+if __name__ == '__main__':
+
+    matplotlib.use('agg')
+
+
+    import argparse
+
+    # Create the parser
+    parser = argparse.ArgumentParser()
+
+    # Add the 'seed' argument
+    parser.add_argument(
+        '--seed',
+        type=int,
+        default=0,
+        help='Set the seed for random number generation.',
+    )
+    parser.add_argument('--decaying_speed', type=float, default=None,
+                        help='Speed at which decay occurs')
+    
+    parser.add_argument('--local_decaying_speed', type=float, default=None,
+                        help='Local speed at which decay occurs')
+
+    # Parse the arguments
+    args = parser.parse_args()
+    
+    # Create an instance of Parameters with default or custom values
+    params = Parameters()
+
+    # Access the seed value
+    seed = args.seed
+
+    params.decaying_speed = args.decaying_speed if args.decaying_speed is not None else params.decaying_speed
+    params.local_decaying_speed = args.local_decaying_speed if args.local_decaying_speed is not None else params.local_decaying_speed
+    
+    # Ensure values are converted to strings free of dots or special characters
+    seed_str = str(seed).replace(".", "_")
+    decaying_speed_str = str(params.decaying_speed).replace(".", "_")
+    local_decaying_speed_str = str(params.local_decaying_speed).replace(".", "_")
+
+    # Include seed, decaying_speed, and decay in init_name without dots or special characters
+    params.init_name = f"sim_seed_{seed_str}_decay_{decaying_speed_str}_localdecay_{local_decaying_speed_str}"
+
+    # Initialize Weights & Biases logging with project and entity names
+    wandb.init(
+        project=params.project_name,
+        entity=params.entity_name,
+        name=params.init_name,
+    )
+
+    main()
