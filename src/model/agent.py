@@ -174,26 +174,31 @@ class Agent:
         self.horizontal_variance = 9 * self.env_width
         self.attentional_mask = None
 
-    def set_parameters(self, params):
+    def set_parameters(self, params = None):
         """
         Set the parameters for the attentional mask.
 
         Args:
         - params (list or array-like): The parameters to set for the attentional mask.
         """
-        params = np.clip(params, 0, 1)
-        
-        env_size = np.array([self.env_height, self.env_width])
-        params *= env_size
-        scale =  0.02*np.linalg.norm(params - env_size/2) 
 
-        self.attentional_mask = gaussian_mask(
-            (self.env_height, self.env_width),
-            params,
-            self.vertical_variance * scale,
-            self.horizontal_variance * scale,
-            angle=0,
-        )
+        if params is not None:
+            params = np.clip(params, 0, 1).reshape(-1)
+            
+            env_size = np.array([self.env_height, self.env_width])
+            params *= env_size
+            scale =  0.02*np.linalg.norm(params - env_size/2) 
+
+            self.attentional_mask = gaussian_mask(
+                (self.env_height, self.env_width),
+                params,
+                self.vertical_variance * scale,
+                self.horizontal_variance * scale,
+                angle=0,
+            )
+        else:
+            self.attentional_mask = np.ones([self.env_height, self.env_width])
+
 
     def get_action(self, observation):
         """
