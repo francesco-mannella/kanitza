@@ -38,8 +38,6 @@ class FoveaPlotter(EyeSim.envs.Simulator.TestPlotter):
             self.filter_ax,
         ) = self.axes
 
-
-
         # Initialize the saliency image plot and highlight dot
         self.saliency_image = self.saliency_ax.imshow(
             np.zeros(env.retina_size), vmin=0, vmax=1
@@ -172,6 +170,8 @@ class MapsPlotter:
         self.vm = vidManager(self.fig, name="maps", dirname=".", duration=60)
 
         self.grid = self._prepare_grid()
+
+        self.focus = np.ones(2)*1e6
         
         self._initialize_maps()
 
@@ -196,15 +196,24 @@ class MapsPlotter:
     def _initialize_visual_conditions_map(self):
         initial_shape = self.reshape_visual_weights(self.controller.visual_conditions_map.weights).shape
         self.visual_conditions_map_im = self.visual_conditions_map_ax.imshow(np.zeros(initial_shape), vmin=0, vmax=1)
+        side = self.fovea_size*self.side
+        self.visual_conditions_map_ax.set_xlim(0, side)
+        self.visual_conditions_map_ax.set_ylim(0, side)
         self.visual_conditions_map_states = self.visual_conditions_map_ax.scatter(*self.grid, s=10, c=self.palette)
+        self.visual_conditions_map_focus =  self.visual_conditions_map_ax.scatter(self.focus[0], self.focus[1], s=10, c="red")
     
     def _initialize_visual_effects_map(self):
         initial_shape = self.reshape_visual_weights(self.controller.visual_effects_map.weights).shape
         self.visual_effects_map_im = self.visual_effects_map_ax.imshow(np.zeros(initial_shape), vmin=0, vmax=1)
+        side = self.fovea_size*self.side
+        self.visual_effects_map_ax.set_xlim(0, side)
+        self.visual_effects_map_ax.set_ylim(0, side)
         self.visual_effects_map_states = self.visual_effects_map_ax.scatter(*self.grid, s=10, c=self.palette)
+        self.visual_effects_map_focus =  self.visual_effects_map_ax.scatter(self.focus[0], self.focus[1], s=10, c="red")
 
     def _initialize_attention_map_traces(self):
         self.attention_map_im = self.attention_map_ax.scatter(0, 0, color="red", s=20, zorder=1)
+        self.attention_map_focus =  self.attention_map_ax.scatter(self.focus[0], self.focus[1],  s=30, c="red")
         num_traces = 2 * self.side
         self.attention_map_traces = [self.attention_map_ax.plot(0, 0, color="black", zorder=0)[0] for _ in range(num_traces)]
 
@@ -213,10 +222,16 @@ class MapsPlotter:
         self.attention_map_ax.set_xlim([-x_lim, x_lim])
         self.attention_map_ax.set_ylim([-y_lim, y_lim])
 
-    def step(self):
+    def step(self, focus=None):
         """
         Updates the displayed fovea map with the latest weights from the controller.
         """
+
+        if focus is not None:
+            self.focus = focus
+        else:
+            self.focus = np.ones(2)*1e6
+
         self._update_maps()
         self.fig.canvas.draw_idle()
         self.vm.save_frame()
@@ -230,11 +245,13 @@ class MapsPlotter:
         weights = self.reshape_visual_weights(self.controller.visual_conditions_map.weights)
         if np.min(weights) != np.max(weights):
             self.visual_conditions_map_im.set_data(self._normalize_weights(weights)[::-1])
+        self.visual_conditions_map_focus.set_offsets((self.focus*0.94*self.fovea_size*self.side + 0.5))
 
     def _update_visual_effects_map(self):
         weights = self.reshape_visual_weights(self.controller.visual_effects_map.weights)
         if np.min(weights) != np.max(weights):
             self.visual_effects_map_im.set_data(self._normalize_weights(weights)[::-1])
+        self.visual_effects_map_focus.set_offsets((self.focus*0.94*self.fovea_size*self.side + 0.5))
 
     def _update_attention_map_weights(self):
         weights = self.controller.attention_map.weights.clone().cpu().detach().numpy()
@@ -252,6 +269,10 @@ class MapsPlotter:
             self.attention_map_traces[p].set_data(*reshaped_weights[p, :, :].T)
         for p in range(num_traces, 2 * num_traces):
             self.attention_map_traces[p].set_data(*reshaped_weights[:, p % num_traces, :].T)
+        try:
+            self.attention_map_focus.set_offsets(reshaped_weights[self.focus[0], self.focus[1],:])
+        except IndexError:
+            self.attention_map_focus.set_offsets(self.focus)
 
     def _normalize_weights(self, weights):
         min_weight = np.min(weights)

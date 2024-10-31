@@ -1,8 +1,12 @@
 #!/bin/bash
 
 seeds=1
-decay_speeds='5 4'
-local_decay_speeds=$(seq 2.0 -0.5 0.5)
+decay_speeds='4'
+local_decay_speeds='1.5'
+wandb=false
+# decay_speeds='5 4'
+# local_decay_speeds=$(seq 2.0 -0.5 0.5)
+wandb=false
 CURR_DIR=$(pwd)
 EXE=$(dirname "$0" | xargs realpath | sed -e "s/scripts/src\/test.py/" ) 
 
@@ -16,8 +20,10 @@ for s in $seeds; do
                     "$(printf "%.0f" $(echo "$lds * 1000" | bc))"
             )
 
-            mkdir -p $dirname
-            cd $dirname
+            mkdir -p ${dirname}_test
+            cd ${dirname}_test
+            cp ../${dirname}/off_control_store .
+            if [[ $wandb == false ]]; then wandb disabled; fi
             python $EXE --seed $s --decaying_speed $ds --local_decaying_speed $lds
             cd $CURR_DIR
         done

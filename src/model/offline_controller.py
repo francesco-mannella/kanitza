@@ -274,14 +274,10 @@ class OfflineController:
 
         condition = torch.tensor(condition.ravel().reshape(1, -1))
 
-        self.visual_effects_map(condition, 2.0)
-        eff_rep = self.visual_effects_map.get_representation()
         self.visual_conditions_map(condition, 2.0)
         cond_rep = self.visual_conditions_map.get_representation()
-        eaction = self.attention_map.backward(eff_rep, 2.0)
         action = self.attention_map.backward(cond_rep, 2.0)
-        print(eff_rep, cond_rep, eaction, action)
-        return action.cpu().detach().numpy()
+        return action.cpu().detach().numpy(), cond_rep.cpu().detach().numpy()
 
     def save(self, file_path):
         """

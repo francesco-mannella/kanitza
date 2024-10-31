@@ -13,12 +13,10 @@ from plotter import FoveaPlotter, MapsPlotter
 from model.offline_controller import OfflineController
 from params import Parameters
 
-
 def signal_handler(signum, frame):
     signal.signal(signum, signal.SIG_IGN)  # ignore additional signals
     wandb.finish()
     sys.exit(0)
-
 
 class Logger:
     def __init__(self, filename):
@@ -33,9 +31,10 @@ def test():
     competence_log = Logger('comp')
 
 
+    # register the signal with the signal handler first
     signal.signal(
         signal.SIGINT, signal_handler
-    )  # register the signal with the signal handler first
+    )  
 
 
     # Enable matplotlib's interactive mode and close any existing plots
@@ -81,8 +80,11 @@ def test():
         for episode in range(params.episodes):
             is_last_episode = episode == params.episodes - 1
 
-            if params.plot_sim  and is_plotting_epoch:
-                fovea_plotter = FoveaPlotter(env, offline=True)
+            if is_plotting_epoch:
+                if params.plot_sim == True:
+                    fovea_plotter = FoveaPlotter(env, offline=True)
+                if params.plot_maps == True:
+                    maps_plotter = MapsPlotter(env, off_control, offline=True)
 
             agent.set_parameters()
             observation, env_info = env.reset()
@@ -95,8 +97,9 @@ def test():
 
                 # Configure agent parameters according to the current attention focus
                 if time_step % 5 == 0:
-                    condition = observation['FOVEA']
-                    focus = off_control.get_action_from_condition(condition)
+                    print(time_step)
+                    condition = observation['FOVEA'].copy()
+                    focus, goal = off_control.get_action_from_condition(condition)
                     agent.set_parameters(focus)
 
                 # Main cycle
@@ -106,29 +109,44 @@ def test():
                 )
 
                 # Update the fovea_plotter with the current saliency map and salient point
-                if (
-                    params.plot_sim
-                    and is_plotting_epoch
-                ):
-                    fovea_plotter.step(
-                        saliency_map, salient_point, agent.attentional_mask
+                if is_plotting_epoch:
+                    if params.plot_sim == True:
+                        fovea_plotter.step(
+                            saliency_map, salient_point, agent.attentional_mask
+                        )
+                    if params.plot_maps == True:
+                        maps_plotter.step(goal)
+
+
+            if is_plotting_epoch:
+                if params.plot_sim:
+                    # Save the current episode's plot as a GIF file
+                    gif_file = f'sim_{episode:04d}'
+                    fovea_plotter.close(gif_file)
+
+                    # Log the generated GIF file to Weights & Biases
+                    wandb.log(
+                        {
+                            'Simulation': wandb.Video(
+                                f'{gif_file}.gif', format='gif'
+                            ),
+                        },
+                        step=episode,
                     )
+                if params.plot_maps:
+                    # Save the current episode's plot as a GIF file
+                    gif_file = f'maps_{episode:04d}'
+                    maps_plotter.close(gif_file)
 
-
-            if params.plot_sim  and is_plotting_epoch:
-                # Save the current episode's plot as a GIF file
-                gif_file = f'sim_{episode:04d}'
-                fovea_plotter.close(gif_file)
-
-                # Log the generated GIF file to Weights & Biases
-                wandb.log(
-                    {
-                        'Simulation': wandb.Video(
-                            f'{gif_file}.gif', format='gif'
-                        ),
-                    },
-                    step=episode,
-                )
+                    # Log the generated GIF file to Weights & Biases
+                    wandb.log(
+                        {
+                            'Maps': wandb.Video(
+                                f'{gif_file}.gif', format='gif'
+                            ),
+                        },
+                        step=episode,
+                    )
 
             print(f'Episode: {episode}, Epoch: {epoch}')
 
@@ -140,8 +158,7 @@ def test():
 
 if __name__ == '__main__':
 
-    matplotlib.use('agg')
-
+    matplotlib.use("agg")
 
     import argparse
 
@@ -172,7 +189,7 @@ if __name__ == '__main__':
 
     params.decaying_speed = args.decaying_speed if args.decaying_speed is not None else params.decaying_speed
     params.local_decaying_speed = args.local_decaying_speed if args.local_decaying_speed is not None else params.local_decaying_speed
-    params.plot_maps = False
+    params.plot_maps = True
     params.plot_sim = True
     params.epochs = 1
     params.plotting_epochs_interval=1
