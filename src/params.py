@@ -22,7 +22,7 @@ class Parameters:
         saccade_threshold=10,
         neighborhood_modulation=50,
         learnigrate_modulation=0.1,
-        neighborhood_modulation_baseline=0.7071,
+        neighborhood_modulation_baseline=3.0,
         learnigrate_modulation_baseline=0.02,
         decaying_speed=5,
         local_decaying_speed=1,

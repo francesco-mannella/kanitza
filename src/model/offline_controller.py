@@ -183,7 +183,7 @@ class OfflineController:
         )
 
         # Run through attention mapping process with a modulation factor
-        self.attention_map(attention, std=2)
+        self.attention_map(attention, std=self.params.neighborhood_modulation_baseline)
         point_attention_representations = (
             self.attention_map.get_representation('point')
         )
@@ -192,7 +192,7 @@ class OfflineController:
         )
 
         # Run visual conditions mapping with the same modulation factor
-        self.visual_conditions_map(visual_conditions, std=2)
+        self.visual_conditions_map(visual_conditions, std=self.params.neighborhood_modulation_baseline)
         point_visual_conditions_representations = (
             self.visual_conditions_map.get_representation('point')
         )
@@ -201,7 +201,7 @@ class OfflineController:
         )
 
         # Run visual effects mapping similarly with modulation
-        self.visual_effects_map(visual_effects, std=2)
+        self.visual_effects_map(visual_effects, std=self.params.neighborhood_modulation_baseline)
         point_visual_effects_representations = (
             self.visual_effects_map.get_representation('point')
         )
@@ -272,11 +272,11 @@ class OfflineController:
 
     def get_action_from_condition(self, condition):
 
-        condition = torch.tensor(condition.ravel().reshape(1, -1))
+        condition = torch.tensor(condition.ravel().reshape(1, -1))/255.0
 
-        self.visual_conditions_map(condition, 2.0)
+        self.visual_conditions_map(condition, self.params.neighborhood_modulation_baseline)
         cond_rep = self.visual_conditions_map.get_representation()
-        action = self.attention_map.backward(cond_rep, 2.0)
+        action = self.attention_map.backward(cond_rep, self.params.neighborhood_modulation_baseline)
         return action.cpu().detach().numpy(), cond_rep.cpu().detach().numpy()
 
     def save(self, file_path):

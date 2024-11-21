@@ -21,11 +21,11 @@ class vidManager:
                       duration, or a list or tuple to set the duration for each
                       frame separately.
         """
+        self.t = 0
         self.name = name
         self.fig = fig
         self.dirname = dirname
         self.duration = duration
-        self.clear()
         self.frames = []
 
     def clear(self):

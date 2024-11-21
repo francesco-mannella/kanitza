@@ -91,13 +91,14 @@ def test():
             action, saliency_map, salient_point = agent.get_action(
                 observation
             )
-
+            
             # Execute the steps within the focus time
             for time_step in range(params.focus_time * params.focus_num):
 
                 # Configure agent parameters according to the current attention focus
                 if time_step % 5 == 0:
                     print(time_step)
+                    
                     condition = observation['FOVEA'].copy()
                     focus, goal = off_control.get_action_from_condition(condition)
                     agent.set_parameters(focus)
@@ -192,6 +193,7 @@ if __name__ == '__main__':
     params.plot_maps = True
     params.plot_sim = True
     params.epochs = 1
+    params.focus_num = 2
     params.plotting_epochs_interval=1
     
     # Ensure values are converted to strings free of dots or special characters
