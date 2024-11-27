@@ -12,7 +12,7 @@ from importlib import resources
 
 
 def DefaultRewardFun(observation):
-    return  0 
+    return 0 
 
 def get_resource(package, module, filename, text=True):
     with resources.path(f'{package}.{module}', filename) as rp:
@@ -28,9 +28,6 @@ class EyeSimEnv(gym.Env):
 
         super(EyeSimEnv, self).__init__()
 
-        self.init_world()
-        self.set_seed()
-
         self.taskspace_xlim = np.array([0, 80])
         self.taskspace_ylim = np.array([0, 80])
         self.retina_scale = np.array([50, 50])
@@ -39,6 +36,12 @@ class EyeSimEnv(gym.Env):
         self.fovea_size = np.array([16, 16])
         self.retina_sim = None
         self.retina_sim_pos = None
+        self.world_files = [
+                "eyesim_triangle.json",
+                "eyesim_square.json",
+                ]
+        self.world = 0
+
 
         # Define action and observation space
         # They must be gym.spaces objects
@@ -59,18 +62,23 @@ class EyeSimEnv(gym.Env):
                 ),
             }
         )
+        
+        self.init_world()
+        self.set_seed()
+
 
         # Renderer parameters
         self.rendererType = TestPlotter
         self.renderer = None
         self.renderer_figsize = (3, 3)
-        
+
 
         self.reset()
 
 
-    def init_world(self):
-        self.world_file =  get_resource('EyeSim', 'models', 'eyesim.json')
+    def init_world(self, world=None):
+        if world is not None: self.world = world
+        self.world_file =  get_resource('EyeSim', 'models',self.world_files[self.world])
         self.world_dict = Sim.loadWorldJson(self.world_file)
 
     def set_seed(self, seed=None):
@@ -79,9 +87,22 @@ class EyeSimEnv(gym.Env):
             self.seed = np.frombuffer(os.urandom(4), dtype=np.uint32)[0]
         self.rng = np.random.RandomState(self.seed)
 
+    def update_position_and_rotation(self, position=None, rotation=None):
+        self.sim.move(angle=rotation, pos=position)
 
-    def step(self, action):
-        
+    def get_position_and_rotation(self):
+
+        # Get the first body from the simulation's bodies dictionary
+        first_body_name = list(self.sim.bodies.keys())[0]
+
+        # Set the angle and position of the first body
+        rotation = self.sim.bodies[first_body_name].transform.angle
+        position = np.array(self.sim.bodies[first_body_name].transform.position)
+
+        return position, rotation
+
+    def step(self, action, position=None, rotation=None):
+
         self.retina_sim_pos = self.retina_sim_pos + action
 
         x_limits = self.taskspace_xlim
@@ -89,6 +110,8 @@ class EyeSimEnv(gym.Env):
         limits = np.column_stack((x_limits, y_limits))
         self.retina_sim_pos = np.clip(self.retina_sim_pos, *limits)
         
+        self.update_position_and_rotation(position, rotation)
+
         self.sim.step()
         retina = self.retina_sim.step(self.retina_sim_pos)
         fovea_start = (self.retina_size - self.fovea_size)//2
@@ -117,17 +140,27 @@ class EyeSimEnv(gym.Env):
         
         self.sim = Sim(world_dict=self.world_dict)
 
-        angle = self.rng.rand()*2*np.pi 
-        
+
+        # Generate a random angle between 0 and 2π radians
+        angle = self.rng.rand() * 2 * np.pi 
+
+        # Calculate the range of possible x and y positions
         x_range = self.taskspace_xlim[1] - self.taskspace_xlim[0]
         y_range = self.taskspace_ylim[1] - self.taskspace_ylim[0]
+
+        # Calculate a random position within defined central band of task space
+        # Position is calculated to be between 40% to 60% of the task space range
         position = np.array([
-            self.taskspace_xlim[0] + x_range * (0.4 + 0.2 * self.rng.rand()),
-            self.taskspace_ylim[0] + y_range * (0.4 + 0.2 * self.rng.rand()),
+            self.taskspace_xlim[0] + x_range * (0.4 + 0.2 * self.rng.rand()), # Calculate x position
+            self.taskspace_ylim[0] + y_range * (0.4 + 0.2 * self.rng.rand())  # Calculate y position
         ])
 
-        self.sim.bodies["triangle"].transform.angle = angle
-        self.sim.bodies["triangle"].transform.position = position
+        # Get the first body from the simulation's bodies dictionary
+        first_body_name = list(self.sim.bodies.keys())[0]
+
+        # Set the angle and position of the first body
+        self.sim.bodies[first_body_name].transform.angle = angle
+        self.sim.bodies[first_body_name].transform.position = position
 
         self.retina_sim = VisualSensor(
             self.sim,
@@ -143,7 +176,7 @@ class EyeSimEnv(gym.Env):
         if self.renderer is not None:
             self.renderer.reset()
 
-        observation, reward, done, info  = self.step(np.zeros(2))
+        observation, reward, done, info  = self.step( np.zeros(2) )
 
         info["angle"] = angle
         info["position"] = position

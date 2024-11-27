@@ -105,17 +105,19 @@ class  Box2DSim(object):
 
         return c1 + c2
 
-    def move(self, joint_name, angle):
-        """ change the angle of a joint
+    def move(self, pos=None, angle=None):
+        """ translate ans rotate
 
         Args:
 
-            joint_name (string): the name of the joint to move
+            pos (float, float): the new translation position
             angle (float): the new angle position
 
         """
-        pid = self.joint_pids[joint_name]
-        pid.setpoint = angle
+        first = list(self.bodies.keys())[0]
+        if pos is not None:  self.bodies[first].position = pos
+        if angle is not None: self.bodies[first].angle = angle
+
 
     def step(self):
         """ A simulation step
@@ -213,7 +215,7 @@ class TestPlotter:
 
     """
 
-    def __init__(self, env, ax = None, xlim=None, ylim=None, figsize=None, offline=False):
+    def __init__(self, env, ax = None, xlim=None, ylim=None, figsize=None, offline=False, video_frame_duration=200):
         """
         Args:
             env (Box2DSim): a emulator object
@@ -222,6 +224,7 @@ class TestPlotter:
 
         self.env = env
         self.offline = offline
+        self.video_frame_duration = video_frame_duration
         self.xlim = xlim if xlim is not None else env.taskspace_xlim
         self.ylim = ylim if ylim is not None else env.taskspace_ylim
 
@@ -246,7 +249,7 @@ class TestPlotter:
     def reset(self):
         
         if self.offline:
-            self.vm = vidManager(self.fig, name="frame", duration=200)
+            self.vm = vidManager(self.fig, name="frame", duration=self.video_frame_duration)
 
         if self.ax is None:
             self.ax = self.fig.add_subplot(111, aspect="equal")

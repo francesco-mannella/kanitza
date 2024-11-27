@@ -48,7 +48,6 @@ def main():
     env = gym.make(params.env_name)
     env = env.unwrapped
     env.set_seed(seed)
-    env.reset()
 
     agent = Agent(
         env, sampling_threshold=params.agent_sampling_threshold, seed=seed
@@ -82,13 +81,17 @@ def main():
 
         # Execute the simulation for a specified number of episodes
         for episode in range(params.episodes):
+            
+            # Randomly choose the context
+            env.init_world(world=env.rng.choice([0,1]))
+            _, env_info = env.reset()
+
+
             is_last_episode = episode == params.episodes - 1
 
             if params.plot_sim and is_last_episode and is_plotting_epoch:
                 fovea_plotter = FoveaPlotter(env, offline=True)
-
-            _, env_info = env.reset()
-
+            
             # Precompute an action array initialized to zeros
             action = np.zeros(env.action_space.shape)
 
@@ -125,7 +128,7 @@ def main():
                     state = dict(
                         vision=observation['FOVEA'],
                         action=action,
-                        attention=focus,
+                        attention=np.copy(agent.params),
                     )
 
                     off_control.record_states(
@@ -218,6 +221,9 @@ if __name__ == '__main__':
 
     params.decaying_speed = args.decaying_speed if args.decaying_speed is not None else params.decaying_speed
     params.local_decaying_speed = args.local_decaying_speed if args.local_decaying_speed is not None else params.local_decaying_speed
+    # params.plot_maps = False
+    # params.plot_sim = True
+    # params.plotting_epochs_interval = 1
     
     # Ensure values are converted to strings free of dots or special characters
     seed_str = str(seed).replace(".", "_")

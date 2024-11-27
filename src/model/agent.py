@@ -151,13 +151,14 @@ class Agent:
     Agent that interacts with the environment and determines actions based on saliency maps.
     """
 
-    def __init__(self, environment, sampling_threshold=0.07, seed = None):
+    def __init__(self, environment, sampling_threshold=0.07, max_variance=3, seed = None):
         """
         Initialize the Agent with the environment and a saliency mapper.
 
         Args:
         - environment: The environment in which the agent operates.
         - sampling_threshold (float): The threshold value used in the sampling function. Default is 0.07.
+        - max_variance (float): max std of the attentional field 
         - seed (int): Seed for the random number generator
         """
         
@@ -170,9 +171,11 @@ class Agent:
         self.env_height, self.env_width = environment.observation_space[
             'RETINA'
         ].shape[:-1]
-        self.vertical_variance = 9 * self.env_height
-        self.horizontal_variance = 9 * self.env_width
+        self.vertical_variance = max_variance * self.env_height
+        self.horizontal_variance = max_variance * self.env_width
         self.attentional_mask = None
+
+        self.params = None 
 
     def set_parameters(self, params = None):
         """
@@ -183,7 +186,11 @@ class Agent:
         """
 
         if params is not None:
+
+
             params = np.clip(params, 0, 1).reshape(-1)
+            
+            self.params = np.copy(params)
             
             env_size = np.array([self.env_height, self.env_width])
             params *= env_size

@@ -141,7 +141,7 @@ class OfflineController:
         # attentional_input = (
         #     np.stack([np.cos(angle), np.sin(angle)]) * radius.reshape(1, -1)
         # ).T + 0.5
-
+        # 
         attentional_input =   self.rng.rand(focus_num, 2)
 
         return attentional_input
@@ -162,22 +162,26 @@ class OfflineController:
     def update_maps(self):
 
         idcs = self.filtered_idcs
-        idcs = idcs[:, idcs[2] < (self.params.focus_time - 1)]
+        idcs = idcs[:, (2 < idcs[2]) & (idcs[2] < (self.params.focus_time - 2))]
 
         # Extract and reshape attention states to a tensor format suitable for neural operations
-        attention_states = self.attention_states[idcs[0], idcs[1], idcs[2]]
+        preattention_states = self.attention_states[idcs[0], idcs[1], idcs[2] - 2]
+        preattention = torch.tensor(preattention_states).reshape(
+            -1, self.params.attention_size
+        )
+        attention_states = self.attention_states[idcs[0], idcs[1], idcs[2] + 2]
         attention = torch.tensor(attention_states).reshape(
             -1, self.params.attention_size
         )
-
+        
         # Extract and reshape visual condition states to a tensor (previous time step)
-        visual_conditions = self.visual_states[idcs[0], idcs[1], idcs[2] - 1]
+        visual_conditions = self.visual_states[idcs[0], idcs[1], idcs[2] - 2]
         visual_conditions = torch.tensor(visual_conditions).reshape(
             -1, self.params.visual_size
         )
 
         # Extract and reshape visual effect states to a tensor (current time step)
-        visual_effects = self.visual_states[idcs[0], idcs[1], idcs[2] + 1]
+        visual_effects = self.visual_states[idcs[0], idcs[1], idcs[2] + 2]
         visual_effects = torch.tensor(visual_effects).reshape(
             -1, self.params.visual_size
         )
@@ -275,9 +279,9 @@ class OfflineController:
         condition = torch.tensor(condition.ravel().reshape(1, -1))/255.0
 
         self.visual_conditions_map(condition, self.params.neighborhood_modulation_baseline)
-        cond_rep = self.visual_conditions_map.get_representation()
-        action = self.attention_map.backward(cond_rep, self.params.neighborhood_modulation_baseline)
-        return action.cpu().detach().numpy(), cond_rep.cpu().detach().numpy()
+        condition_representation = self.visual_conditions_map.get_representation()
+        attentional_focus = self.attention_map.backward(condition_representation, self.params.neighborhood_modulation_baseline)
+        return attentional_focus.cpu().detach().numpy(), condition_representation.cpu().detach().numpy()
 
     def save(self, file_path):
         """
