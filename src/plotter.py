@@ -1,5 +1,6 @@
 #%% IMPORTS
 from matplotlib import pyplot as plt
+import matplotlib.patches as patches
 from matplotlib.patches import Rectangle
 import numpy as np
 from params import Parameters
@@ -27,7 +28,7 @@ class FoveaPlotter(EyeSim.envs.Simulator.TestPlotter):
         self.fig, self.axes = plt.subplots(
             1,
             4,
-            figsize=(10, 3),
+            figsize=(18, 6),
             gridspec_kw={'width_ratios': np.ones(4), 'height_ratios': [1]},
         )
 
@@ -152,12 +153,15 @@ class MapsPlotter:
     A class for plotting fovea and attentional maps using matplotlib.
     """
 
-    def __init__(self, env, controller, offline=False):
+    def __init__(self, env, controller, offline=False, video_frame_duration=200):
         """
         Initializes the MapsPlotter with the given controller and environment.
         """
         self.controller = controller
         self.env = env
+        self.env_height, self.env_width = env.observation_space[
+            'RETINA'
+        ].shape[:-1]
         self.offline = offline
         self.params = Parameters()
 
@@ -167,7 +171,7 @@ class MapsPlotter:
         self.palette = self._create_palette()
         
         self.fig, (self.visual_conditions_map_ax, self.visual_effects_map_ax, self.attention_map_ax) = self._create_figure()
-        self.vm = vidManager(self.fig, name="maps", dirname=".", duration=60)
+        self.vm = vidManager(self.fig, name="maps", dirname=".", duration=video_frame_duration)
 
         self.grid = self._prepare_grid()
 
@@ -200,7 +204,17 @@ class MapsPlotter:
         self.visual_conditions_map_ax.set_xlim(0, side)
         self.visual_conditions_map_ax.set_ylim(0, side)
         self.visual_conditions_map_states = self.visual_conditions_map_ax.scatter(*self.grid, s=10, c=self.palette, zorder=1)
-        self.visual_conditions_map_focus =  self.visual_conditions_map_ax.scatter(1e100,1e100, s=30, lw=2, ec="#faa", fc="#ffa", zorder=1)
+        # Replace scatter with Rectangle for focus
+        self.visual_conditions_map_focus = patches.Rectangle(
+            (1e100, 1e100),  # Start point, off the visible figure initially
+            width=self.fovea_size,        # Width of the rectangle
+            height=self.fovea_size,       # Height of the rectangle
+            linewidth=3,
+            edgecolor="#f00",
+            facecolor="#fff0",
+            zorder=1
+        )
+        self.visual_conditions_map_ax.add_patch(self.visual_conditions_map_focus)
     
     def _initialize_visual_effects_map(self):
         initial_shape = self.reshape_visual_weights(self.controller.visual_effects_map.weights).shape
@@ -209,18 +223,29 @@ class MapsPlotter:
         self.visual_effects_map_ax.set_xlim(0, side)
         self.visual_effects_map_ax.set_ylim(0, side)
         self.visual_effects_map_states = self.visual_effects_map_ax.scatter(*self.grid, s=10, c=self.palette, zorder=1)
-        self.visual_effects_map_focus =  self.visual_effects_map_ax.scatter(1e100, 1e100, s=30, lw=2, ec="#faa", fc="#ffa" ,zorder=1)
+        self.visual_effects_map_focus = patches.Rectangle(
+            (1e100, 1e100),  # Start point, off the visible figure initially
+            width=self.fovea_size,        # Width of the rectangle
+            height=self.fovea_size,       # Height of the rectangle
+            linewidth=3,
+            edgecolor="#f00",
+            facecolor="#fff0",
+            zorder=1
+        )
+        self.visual_effects_map_ax.add_patch(self.visual_effects_map_focus)
 
     def _initialize_attention_map_traces(self):
-        self.attention_map_im = self.attention_map_ax.scatter(0, 0, color="red", s=20, zorder=1)
+        initial_shape = self.controller.attention_map.weights.shape
+        self.attention_map_im = self.attention_map_ax.scatter(*np.zeros(initial_shape), c=self.palette, s=20, zorder=1)
+        
+
         self.attention_map_focus =  self.attention_map_ax.scatter(1e100, 1e100,  s=80, ec="red", fc="#fff0", lw=2)
         num_traces = 2 * self.side
         self.attention_map_traces = [self.attention_map_ax.plot(0, 0, color="black", zorder=0)[0] for _ in range(num_traces)]
 
     def _set_axis_limits(self):
-        x_lim, y_lim = 0.7 * self.env.retina_scale
-        self.attention_map_ax.set_xlim([-x_lim, x_lim])
-        self.attention_map_ax.set_ylim([-y_lim, y_lim])
+        self.attention_map_ax.set_xlim([0, self.env_height])
+        self.attention_map_ax.set_ylim([self.env_width, 0])
 
     def step(self, focus=None):
         """
@@ -244,36 +269,45 @@ class MapsPlotter:
         if np.min(weights) != np.max(weights):
             self.visual_conditions_map_im.set_data(self._normalize_weights(weights))
         if self.focus is not None:
-            focus = self.focus.ravel()*0.94*self.fovea_size 
+            focus = self.focus.ravel() 
         else:
             focus = 1e100*np.ones(2)
-        focus = np.array([focus[0], self.fovea_size * self.side - focus[1]]) + 0.5
-        self.visual_conditions_map_focus.set_offsets(focus)
+        
+        # update position of the rectangle rectangle point
+        focus = self.fovea_size*np.array([
+            (focus[0]), 
+            (self.side - focus[1] - 1)]) 
+        self.visual_conditions_map_focus.set_xy(focus)  # adjusting to position center
+
 
     def _update_visual_effects_map(self):
         weights = self.reshape_visual_weights(self.controller.visual_effects_map.weights)
         if np.min(weights) != np.max(weights):
             self.visual_effects_map_im.set_data(self._normalize_weights(weights))
         if self.focus is not None:
-            focus = self.focus.ravel()*0.94*self.fovea_size 
+            focus = self.focus.ravel() 
         else:
             focus = 1e100*np.ones(2)
-        focus = np.array([focus[0], self.fovea_size * self.side - focus[1]]) + 0.25
-        self.visual_effects_map_focus.set_offsets(focus)
+        
+        # update position of the rectangle rectangle point
+        focus = self.fovea_size*np.array([
+            (focus[0] ), 
+            (self.side - focus[1] - 1)]) 
+        self.visual_effects_map_focus.set_xy(focus)  # adjusting to position center
 
     def _update_attention_map_weights(self):
         weights = self.controller.attention_map.weights.clone().cpu().detach().numpy()
         retina_scale_reshaped = self.env.retina_scale.reshape(-1, 1)
-        weights *= retina_scale_reshaped 
-        weights -= retina_scale_reshaped / 2
-        weights *= np.stack([1, -1]).reshape(-1, 1)
+        
+        env_size = np.array([self.env_height, self.env_width])
+        weights *= env_size.reshape(-1, 1)
+        weights = weights[::-1]
+
         self.attention_map_im.set_offsets(weights.T)
 
-        reshaped_palette = self.palette.reshape(self.side, self.side, 4).transpose(1,0, 2).reshape(-1, 4)
-        self.attention_map_im.set_color(reshaped_palette)
 
         num_traces = self.side
-        reshaped_weights = weights.reshape(2, num_traces, num_traces).transpose(2,1, 0)
+        reshaped_weights = weights.reshape(2, num_traces, num_traces).transpose(1, 2, 0)
         for p in range(num_traces):
             self.attention_map_traces[p].set_data(*reshaped_weights[p, :, :].T)
         for p in range(num_traces, 2 * num_traces):
@@ -308,10 +342,11 @@ class MapsPlotter:
 
         weights = weights.cpu().detach().numpy()
         reshaped_weights = weights.reshape(inp_side1, inp_side2, 3, out_side1, out_side2)
-        transposed_weights = reshaped_weights.transpose(4,1,3,0, 2)
+        transposed_weights = reshaped_weights.transpose(3,0,4,1, 2)
 
-        transposed_weights = transposed_weights.reshape(inp_side1 * out_side1, inp_side2 * out_side2, 3)
-        transposed_weights = transposed_weights
+        transposed_weights = transposed_weights.reshape(
+                inp_side1 * out_side1, 
+                inp_side2 * out_side2, 3)
         return transposed_weights
 
 def create_2d_palette(palette1, palette2):

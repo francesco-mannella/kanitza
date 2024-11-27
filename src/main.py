@@ -125,7 +125,7 @@ def main():
                     state = dict(
                         vision=observation['FOVEA'],
                         action=action,
-                        attention=focus,
+                        attention=np.copy(agent.params),
                     )
 
                     off_control.record_states(
