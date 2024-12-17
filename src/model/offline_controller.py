@@ -141,14 +141,16 @@ class OfflineController:
         # attentional_input = (
         #     np.stack([np.cos(angle), np.sin(angle)]) * radius.reshape(1, -1)
         # ).T + 0.5
-        # 
-        attentional_input =   self.rng.rand(focus_num, 2)
+        #
+        attentional_input = self.rng.rand(focus_num, 2)
 
         return attentional_input
 
     def record_states(self, episode, focus, ts, state):
 
-        self.visual_states[episode, focus, ts] = state['vision'].ravel()/255.0
+        self.visual_states[episode, focus, ts] = (
+            state['vision'].ravel() / 255.0
+        )
         self.action_states[episode, focus, ts] = state['action']
         self.attention_states[episode, focus, ts] = state['attention']
 
@@ -162,10 +164,14 @@ class OfflineController:
     def update_maps(self):
 
         idcs = self.filtered_idcs
-        idcs = idcs[:, (2 < idcs[2]) & (idcs[2] < (self.params.focus_time - 2))]
+        idcs = idcs[
+            :, (2 < idcs[2]) & (idcs[2] < (self.params.focus_time - 2))
+        ]
 
         # Extract and reshape attention states to a tensor format suitable for neural operations
-        preattention_states = self.attention_states[idcs[0], idcs[1], idcs[2] - 2]
+        preattention_states = self.attention_states[
+            idcs[0], idcs[1], idcs[2] - 2
+        ]
         preattention = torch.tensor(preattention_states).reshape(
             -1, self.params.attention_size
         )
@@ -173,7 +179,7 @@ class OfflineController:
         attention = torch.tensor(attention_states).reshape(
             -1, self.params.attention_size
         )
-        
+
         # Extract and reshape visual condition states to a tensor (previous time step)
         visual_conditions = self.visual_states[idcs[0], idcs[1], idcs[2] - 2]
         visual_conditions = torch.tensor(visual_conditions).reshape(
@@ -187,7 +193,9 @@ class OfflineController:
         )
 
         # Run through attention mapping process with a modulation factor
-        self.attention_map(attention, std=self.params.neighborhood_modulation_baseline)
+        self.attention_map(
+            attention, std=self.params.neighborhood_modulation_baseline
+        )
         point_attention_representations = (
             self.attention_map.get_representation('point')
         )
@@ -196,7 +204,9 @@ class OfflineController:
         )
 
         # Run visual conditions mapping with the same modulation factor
-        self.visual_conditions_map(visual_conditions, std=self.params.neighborhood_modulation_baseline)
+        self.visual_conditions_map(
+            visual_conditions, std=self.params.neighborhood_modulation_baseline
+        )
         point_visual_conditions_representations = (
             self.visual_conditions_map.get_representation('point')
         )
@@ -205,7 +215,9 @@ class OfflineController:
         )
 
         # Run visual effects mapping similarly with modulation
-        self.visual_effects_map(visual_effects, std=self.params.neighborhood_modulation_baseline)
+        self.visual_effects_map(
+            visual_effects, std=self.params.neighborhood_modulation_baseline
+        )
         point_visual_effects_representations = (
             self.visual_effects_map.get_representation('point')
         )
@@ -246,19 +258,26 @@ class OfflineController:
 
         # Reshape competences and use them to update conditions, effects, and attention
         self.visual_conditions_updater(
-            visual_conditions_output,
-            grid_attention_representations * self.learnigrate_modulation,
-            1,
+            output=visual_conditions_output,
+            std=self.visual_conditions_map.std,
+            target=grid_attention_representations,
+            learnigrate_modulation=self.learnigrate_modulation,
+            target_std=1,
         )
+
         self.visual_effects_updater(
-            visual_effects_output,
-            grid_attention_representations * self.learnigrate_modulation,
-            1,
+            output=visual_effects_output,
+            std=self.visual_effects_map.std,
+            target=grid_attention_representations,
+            learnigrate_modulation=self.learnigrate_modulation,
+            target_std=1,
         )
         self.attention_updater(
-            attention_output,
-            grid_attention_representations * self.learnigrate_modulation,
-            1,
+            output=attention_output,
+            std=self.attention_map.std,
+            target=grid_attention_representations,
+            learnigrate_modulation=self.learnigrate_modulation,
+            target_std=1,
         )
 
     def compute_matches(self):
@@ -276,12 +295,22 @@ class OfflineController:
 
     def get_action_from_condition(self, condition):
 
-        condition = torch.tensor(condition.ravel().reshape(1, -1))/255.0
+        condition = torch.tensor(condition.ravel().reshape(1, -1)) / 255.0
 
-        self.visual_conditions_map(condition, self.params.neighborhood_modulation_baseline)
-        condition_representation = self.visual_conditions_map.get_representation()
-        attentional_focus = self.attention_map.backward(condition_representation, self.params.neighborhood_modulation_baseline)
-        return attentional_focus.cpu().detach().numpy(), condition_representation.cpu().detach().numpy()
+        self.visual_conditions_map(
+            condition, self.params.neighborhood_modulation_baseline
+        )
+        condition_representation = (
+            self.visual_conditions_map.get_representation()
+        )
+        attentional_focus = self.attention_map.backward(
+            condition_representation,
+            self.params.neighborhood_modulation_baseline,
+        )
+        return (
+            attentional_focus.cpu().detach().numpy(),
+            condition_representation.cpu().detach().numpy(),
+        )
 
     def save(self, file_path):
         """
