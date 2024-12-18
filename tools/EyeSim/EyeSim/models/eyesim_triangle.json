@@ -1,0 +1,49 @@
+{
+    "gravity": {
+        "y": 0,
+        "x": 0
+    },
+    "autoClearForces": true,
+    "continuousPhysics": true,
+    "subStepping": false,
+    "warmStarting": true,
+    "body": [
+        {
+            "angle": 0.0,
+            "name": "triangle",
+            "color": [
+                0.7,
+                0.7,
+                0.7
+            ],
+            "position": {
+                "x": 15.0,
+                "y": 20.0
+            },
+            "type": 0,
+            "fixture": [
+                {
+                    "density": 0.0,
+                    "group_index": 0,
+                    "polygon": {
+                        "vertices": {
+                            "x": [
+                                0.0,
+                                19.750200000000007,
+                                10.14594000000001,
+                                0.0
+                            ],
+                            "y": [
+                                0.0,
+                                0.0,
+                                16.987480000000005,
+                                0.0
+                            ]
+                        }
+                    }
+                }
+            ]
+        }
+    ],
+    "joint": []
+}
