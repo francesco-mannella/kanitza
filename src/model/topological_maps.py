@@ -174,7 +174,11 @@ class TopologicalMap(torch.nn.Module):
         norms2 = self.forward(x)
         return self.find_bmu(norms2)
 
-    def get_representation(self, rtype='point'):
+    def spread(self, x):
+
+        self.bmu = self.find_bmu(x)
+
+    def get_representation(self, rtype='point', std=None):
         """Returns the representation of the best matching unit (BMU) based on
         the specified representation type.
 
@@ -197,7 +201,8 @@ class TopologicalMap(torch.nn.Module):
                     return torch.stack([row, col]).T.float()
 
             elif rtype == 'grid':
-                std = self.curr_std
+                if std is None:
+                    std = self.curr_std
                 phi = self.radial(self.bmu, std)
                 return phi
         else:
@@ -254,7 +259,6 @@ def som_stm_loss(
         phi = som.radial(som.bmu, std)
         som.curr_std = std
         output = 0.5 * norms2 * phi
-        return output.mean()
 
     # If tags are provided, incorporate them into the loss calculation
     else:
@@ -267,7 +271,8 @@ def som_stm_loss(
         phi_rlabels = phi * rlabels
         phi_rlabels = phi_rlabels / phi_rlabels.amax(axis=0)
         output = 0.5 * norms2 * phi_rlabels
-        return output.mean()
+
+    return output
 
 
 class SOMUpdater:
@@ -279,14 +284,16 @@ class SOMUpdater:
     learning_rate (float): The learning rate used by the optimizer
     """
 
-    def __init__(self, stm, learning_rate):
+    def __init__(self, som, learning_rate):
         """
         Initializes the STMUpdater object with the provided STM model and learning rate.
 
         Args:
-        stm (torch model): The STM model to be updated
+        som (torch model): The SOM model to be updated
         learning_rate (float): The learning rate used by the optimizer
         """
+
+        self.som = som
 
         self.optimizer = torch.optim.Adam(
             params=stm.parameters(), lr=learning_rate
@@ -294,7 +301,7 @@ class SOMUpdater:
 
         self.loss = somi_stm_loss
 
-    def __call__(self, output, std, learning_modulation):
+    def __call__(self, som, output, std, learning_modulation):
 
         loss = learning_modulation * self.loss(output, std)
         loss.backward(retain_graph=True)
@@ -303,7 +310,9 @@ class SOMUpdater:
 
 
 class STMUpdater:
-    def __init__(self, stm, learning_ratei, normalized_kernel):
+    def __init__(self, stm, learning_rate, normalized_kernel=False):
+
+        self.stm = stm
 
         self.optimizer = torch.optim.Adam(
             params=stm.parameters(), lr=learning_rate
@@ -316,13 +325,18 @@ class STMUpdater:
         self, output, std, target, learning_modulation, target_std=None
     ):
 
-        loss = learning_modulation * self.loss(
-            output,
-            std,
-            target,
-            target_std,
-            normalized_kernel=self.normalized_kernel,
-        )
+        print(learning_modulation)
+        loss = (
+           
+            self.loss(
+                self.stm,
+                output,
+                std,
+                target,
+                target_std,
+                normalized_kernel=self.normalized_kernel,
+            )
+        ).mean()
         loss.backward(retain_graph=True)
         self.optimizer.step()
         self.optimizer.zero_grad()

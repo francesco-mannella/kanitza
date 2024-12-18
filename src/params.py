@@ -7,7 +7,7 @@ class Parameters:
         entity_name="francesco-mannella",
         init_name="offline controller tester",
         env_name="EyeSim-v0",
-        episodes=20,
+        episodes=2,
         epochs=800,
         focus_num=10,
         focus_time=10,

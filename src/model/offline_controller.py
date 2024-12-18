@@ -193,36 +193,25 @@ class OfflineController:
         )
 
         # Run through attention mapping process with a modulation factor
-        self.attention_map(
-            attention, std=self.params.neighborhood_modulation_baseline
-        )
-        point_attention_representations = (
-            self.attention_map.get_representation('point')
-        )
+        self.attention_map.spread(attention)
+        point_attention_representations = self.attention_map.get_representation(rtype='point')
         grid_attention_representations = self.attention_map.get_representation(
-            'grid'
-        )
+                rtype='grid',
+                std=self.params.neighborhood_modulation_baseline,
+                )
 
         # Run visual conditions mapping with the same modulation factor
-        self.visual_conditions_map(
-            visual_conditions, std=self.params.neighborhood_modulation_baseline
+        self.visual_conditions_map.spread(visual_conditions)
+        point_visual_conditions_representations = self.visual_conditions_map.get_representation(rtype='point')
+        grid_visual_conditions_representations =  self.visual_conditions_map.get_representation(rtype='grid',
+                std=self.params.neighborhood_modulation_baseline,
         )
-        point_visual_conditions_representations = (
-            self.visual_conditions_map.get_representation('point')
-        )
-        grid_visual_conditions_representations = (
-            self.visual_conditions_map.get_representation('grid')
-        )
-
-        # Run visual effects mapping similarly with modulation
-        self.visual_effects_map(
-            visual_effects, std=self.params.neighborhood_modulation_baseline
-        )
-        point_visual_effects_representations = (
-            self.visual_effects_map.get_representation('point')
-        )
-        grid_visual_effects_representations = (
-            self.visual_effects_map.get_representation('grid')
+        
+        # Run visual effects mapping with the same modulation factor
+        self.visual_effects_map.spread(visual_effects)
+        point_visual_effects_representations = self.visual_effects_map.get_representation(rtype='point')
+        grid_visual_effects_representations =  self.visual_effects_map.get_representation(rtype='grid',
+                std=self.params.neighborhood_modulation_baseline,
         )
 
         # Store various representation types for further processing
@@ -246,37 +235,31 @@ class OfflineController:
         # Update offline controller hyperparameters based on the episodes
         self.set_hyperparams()
 
-        attention_output = self.attention_map(
-            attention, std=self.neighborhood_modulation
-        )
-        visual_conditions_output = self.visual_conditions_map(
-            visual_conditions, std=self.neighborhood_modulation
-        )
-        visual_effects_output = self.visual_effects_map(
-            visual_effects, std=self.neighborhood_modulation
-        )
+        attention_output = self.attention_map( attention )
+        visual_conditions_output = self.visual_conditions_map( visual_conditions )
+        visual_effects_output = self.visual_effects_map( visual_effects )
 
         # Reshape competences and use them to update conditions, effects, and attention
         self.visual_conditions_updater(
             output=visual_conditions_output,
-            std=self.visual_conditions_map.std,
-            target=grid_attention_representations,
-            learnigrate_modulation=self.learnigrate_modulation,
+            std=self.neighborhood_modulation,
+            target=point_attention_representations,
+            learning_modulation=self.learnigrate_modulation,
             target_std=1,
         )
 
         self.visual_effects_updater(
             output=visual_effects_output,
-            std=self.visual_effects_map.std,
-            target=grid_attention_representations,
-            learnigrate_modulation=self.learnigrate_modulation,
+            std=self.neighborhood_modulation,
+            target=point_attention_representations,
+            learning_modulation=self.learnigrate_modulation,
             target_std=1,
         )
         self.attention_updater(
             output=attention_output,
-            std=self.attention_map.std,
-            target=grid_attention_representations,
-            learnigrate_modulation=self.learnigrate_modulation,
+            std=self.neighborhood_modulation,
+            target=point_attention_representations,
+            learning_modulation=self.learnigrate_modulation,
             target_std=1,
         )
 
