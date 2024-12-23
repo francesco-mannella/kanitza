@@ -58,8 +58,9 @@ def test_frames(agent, off_control, frames):
     eff_map = off_control.visual_effects_map
     att_map = off_control.attention_map
 
-    cond_map.spread(frames)
-    reps = cond_map.get_representation(rtype='point')
+    norms = cond_map(frames)
+    reps = cond_map.get_representation(norms, rtype='point')
+
     focuses = att_map.backward(reps, std)
 
     return reps.cpu().detach().numpy(), focuses.cpu().detach().numpy()
@@ -165,4 +166,4 @@ if __name__ == '__main__':
         axes[0].clear()
         axes[0].imshow(frame)
         fig.canvas.draw()
-        plt.pause(0.05)
+        plt.pause(1)

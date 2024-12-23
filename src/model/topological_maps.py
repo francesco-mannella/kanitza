@@ -142,31 +142,6 @@ class TopologicalMap(torch.nn.Module):
 
         return norms2
 
-    """
-    def forward(self, x: torch.Tensor, std: float) -> torch.Tensor:
-
-        # Calculate the differences between each weight and input x along a new dimension
-        diffs = self.weights.unsqueeze(dim=0) - x.unsqueeze(dim=-1)
-
-        # Compute the Euclidean norms of the differences along dimension 1
-        norms = torch.norm(diffs, dim=1)
-
-        # Square the norms to obtain squared distances
-        norms2 = torch.pow(norms, 2)
-
-        # Find the index of the minimum norm (best matching unit) along dimension -1 and detach it from the computation graph
-        self.bmu = torch.argmin(norms, dim=-1).detach()
-
-        # Apply the radial function to the best matching unit with the given standard deviation
-        phi = self.radial(self.bmu, std)
-
-        self.curr_std = std
-        self.norms = norms
-        self.phi = phi
-
-        return norms2*phi
-    """
-
     def find_bmu(self, x):
         return torch.argmin(x, dim=-1).detach()
 
@@ -174,22 +149,22 @@ class TopologicalMap(torch.nn.Module):
         norms2 = self.forward(x)
         return self.find_bmu(norms2)
 
-    def spread(self, x):
-
-        self.bmu = self.find_bmu(x)
-
-    def get_representation(self, rtype='point', std=None):
+    def get_representation(self, x, rtype='point', std=None):
         """Returns the representation of the best matching unit (BMU) based on
         the specified representation type.
 
         Args:
+            x: 
             rtype (str, optional): The representation type to be returned. Valid
                 values are: "point" (default) and "grid".
+            std (float): The standard deviation of the neighborhood.
 
         Returns:
             torch.Tensor or None: The representation of the BMU. Returns
             None if the BMU is not available.
         """
+
+        self.bmu = self.find_bmu(x)
         if self.bmu is not None:
             if rtype == 'point':
                 if self.output_dims == 1:
@@ -310,7 +285,7 @@ class SOMUpdater:
 
 
 class STMUpdater:
-    def __init__(self, stm, learning_rate, normalized_kernel=False):
+    def __init__(self, stm, learning_rate, normalized_kernel=True):
 
         self.stm = stm
 
@@ -325,10 +300,7 @@ class STMUpdater:
         self, output, std, target, learning_modulation, target_std=None
     ):
 
-        print(learning_modulation)
-        loss = (
-           
-            self.loss(
+        loss = self.loss(
                 self.stm,
                 output,
                 std,
@@ -336,7 +308,8 @@ class STMUpdater:
                 target_std,
                 normalized_kernel=self.normalized_kernel,
             )
-        ).mean()
+        loss = learning_modulation * loss
+        loss = loss.mean()
         loss.backward(retain_graph=True)
         self.optimizer.step()
         self.optimizer.zero_grad()

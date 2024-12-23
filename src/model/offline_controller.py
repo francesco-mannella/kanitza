@@ -76,9 +76,7 @@ class OfflineController:
                 self.params.focus_time,
                 self.params.visual_size,
             ]
-        )
-
-        # Init action storage
+        )   # Init action storage
         self.action_states = np.zeros(
             [
                 self.params.episodes,
@@ -193,25 +191,46 @@ class OfflineController:
         )
 
         # Run through attention mapping process with a modulation factor
-        self.attention_map.spread(attention)
-        point_attention_representations = self.attention_map.get_representation(rtype='point')
+        attention_norms = self.attention_map(attention)
+        point_attention_representations = (
+            self.attention_map.get_representation(
+                attention_norms, rtype='point'
+            )
+        )
         grid_attention_representations = self.attention_map.get_representation(
-                rtype='grid',
-                std=self.params.neighborhood_modulation_baseline,
-                )
+            attention_norms,
+            rtype='grid',
+            std=self.params.neighborhood_modulation_baseline,
+        )
 
         # Run visual conditions mapping with the same modulation factor
-        self.visual_conditions_map.spread(visual_conditions)
-        point_visual_conditions_representations = self.visual_conditions_map.get_representation(rtype='point')
-        grid_visual_conditions_representations =  self.visual_conditions_map.get_representation(rtype='grid',
-                std=self.params.neighborhood_modulation_baseline,
+        visual_conditions_norms = self.visual_conditions_map(visual_conditions)
+        point_visual_conditions_representations = (
+            self.visual_conditions_map.get_representation(
+                visual_conditions_norms, rtype='point'
+            )
         )
-        
-        # Run visual effects mapping with the same modulation factor
-        self.visual_effects_map.spread(visual_effects)
-        point_visual_effects_representations = self.visual_effects_map.get_representation(rtype='point')
-        grid_visual_effects_representations =  self.visual_effects_map.get_representation(rtype='grid',
+        grid_visual_conditions_representations = (
+            self.visual_conditions_map.get_representation(
+                visual_conditions_norms,
+                rtype='grid',
                 std=self.params.neighborhood_modulation_baseline,
+            )
+        )
+
+        # Run visual effects mapping with the same modulation factor
+        visual_effects_norms = self.visual_effects_map(visual_effects)
+        point_visual_effects_representations = (
+            self.visual_effects_map.get_representation(
+                visual_effects_norms, rtype='point'
+            )
+        )
+        grid_visual_effects_representations = (
+            self.visual_effects_map.get_representation(
+                visual_effects_norms,
+                rtype='grid',
+                std=self.params.neighborhood_modulation_baseline,
+            )
         )
 
         # Store various representation types for further processing
@@ -235,9 +254,11 @@ class OfflineController:
         # Update offline controller hyperparameters based on the episodes
         self.set_hyperparams()
 
-        attention_output = self.attention_map( attention )
-        visual_conditions_output = self.visual_conditions_map( visual_conditions )
-        visual_effects_output = self.visual_effects_map( visual_effects )
+        attention_output = self.attention_map(attention)
+        visual_conditions_output = self.visual_conditions_map(
+            visual_conditions
+        )
+        visual_effects_output = self.visual_effects_map(visual_effects)
 
         # Reshape competences and use them to update conditions, effects, and attention
         self.visual_conditions_updater(
@@ -280,11 +301,13 @@ class OfflineController:
 
         condition = torch.tensor(condition.ravel().reshape(1, -1)) / 255.0
 
-        self.visual_conditions_map(
-            condition, self.params.neighborhood_modulation_baseline
-        )
+        norm = self.visual_conditions_map(condition)
         condition_representation = (
-            self.visual_conditions_map.get_representation()
+            self.visual_conditions_map.get_representation(
+                norm,
+                rtype='point',
+                std=self.params.neighborhood_modulation_baseline,
+            )
         )
         attentional_focus = self.attention_map.backward(
             condition_representation,
