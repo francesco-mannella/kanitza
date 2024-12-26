@@ -12,6 +12,7 @@ from model.agent import Agent, gaussian_mask
 from plotter import FoveaPlotter, MapsPlotter
 from model.offline_controller import OfflineController
 from params import Parameters
+from merge_gifs import merge_gifs
 
 
 def signal_handler(signum, frame):
@@ -65,6 +66,8 @@ def test():
 
     for epoch in range(off_control.epoch, off_control.epoch + params.epochs):
 
+        plotters = []
+
         off_control.epoch = epoch
         off_control.reset_states()
 
@@ -85,6 +88,7 @@ def test():
                     fovea_plotter = FoveaPlotter(env, offline=True)
                 if params.plot_maps == True:
                     maps_plotter = MapsPlotter(env, off_control, offline=True)
+            plotters.append([fovea_plotter, maps_plotter])
 
             observation, env_info = env.reset()
             condition = observation['FOVEA'].copy()
@@ -153,11 +157,20 @@ def test():
                         step=episode,
                     )
 
+                if params.plot_sim and params.plot_maps:
+                    gif_file = f'merged_test_{episode:04d}'
+                    merge_gifs(
+                            fovea_plotter.vm.frames,
+                            maps_plotter.vm.frames,
+                            gif_file,
+                            )
+
             print(f'Episode: {episode}, Epoch: {epoch}')
 
     # Conclude the Weights & Biases logging session
     wandb.finish()
 
+    return plotters
 
 if __name__ == '__main__':
 
@@ -232,4 +245,4 @@ if __name__ == '__main__':
         name=params.init_name,
     )
 
-    test()
+    mp = test()

@@ -72,6 +72,8 @@ class FoveaPlotter(EyeSim.envs.Simulator.TestPlotter):
         self.fovea_ax.set_title('Fovea')
         self.saliency_ax.set_title('Retina\n(salience)')
         self.filter_ax.set_title('Retina\n(attentional filter)')
+        self.saliency_ax.set_axis_off()
+        self.filter_ax.set_axis_off()
 
     def _initialize_patches(self):
         """Helper method to initialize the retina and fovea position rectangles."""
@@ -96,7 +98,6 @@ class FoveaPlotter(EyeSim.envs.Simulator.TestPlotter):
         salient_point (tuple): Coordinates of the salient point to highlight.
         attentiolnal_mask: the current attentional mask of salience
         """
-        super().step()
 
         # Update the saliency image and the highlight dot
         self.saliency_image.set_array(saliency_map)
@@ -121,7 +122,16 @@ class FoveaPlotter(EyeSim.envs.Simulator.TestPlotter):
 
         # Redraw the figure to show updates
         self.fig.canvas.draw_idle()
+        
+        super().step()
 
+    def close(self, name=None):
+        if self.offline and name is not None:
+            print(f'save {name}.png')
+            self.vm.fig.savefig(f'{name}.png', dpi=300)
+            print(f'save {name}.gif')
+            self.vm.mk_video(name=name, dirname=".")
+        plt.close(self.fig)
 
 class FakeMapsPlotter:
     """
@@ -197,7 +207,7 @@ class MapsPlotter:
         palette1 = plt.cm.jet(np.linspace(0.1, 0.9, self.side))
         palette2 = plt.cm.CMRmap(np.linspace(0.1, 0.9, self.side))
         if T == True:
-            return create_2d_palette(palette1, palette2)[::-1, :, :].reshape(
+            return create_2d_palette(palette1, palette2)[:, :, :].transpose(1,0,2).reshape(
                 -1, 4
             )
 
@@ -286,17 +296,17 @@ class MapsPlotter:
         y = self.env_height
         x = self.env_width
         self.attention_map_ax.set_xlim([-0.1 * y, 1.1 * y])
-        self.attention_map_ax.set_ylim([1.1 * x, -0.1 * x])
+        self.attention_map_ax.set_ylim([-0.1 * x, 1.1 * x])
 
     def step(self, focus=None):
         """
         Updates the displayed fovea map with the latest weights from the controller.
         """
-
         if focus is not None:
             self.focus = focus.ravel().astype(int)
-
+        
         self._update_maps()
+
         self.fig.canvas.draw_idle()
         self.vm.save_frame()
 
@@ -359,7 +369,7 @@ class MapsPlotter:
         num_traces = self.side
         reshaped_weights = weights.reshape(
             2, num_traces, num_traces
-        ).transpose(1, 2, 0)
+            ).transpose(2, 1, 0)[::-1, :, :]
         for p in range(num_traces):
             self.attention_map_traces[p].set_data(*reshaped_weights[p, :, :].T)
         for p in range(num_traces, 2 * num_traces):

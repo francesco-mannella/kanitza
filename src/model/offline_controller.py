@@ -254,13 +254,12 @@ class OfflineController:
         # Update offline controller hyperparameters based on the episodes
         self.set_hyperparams()
 
+        # Spread map outputs for the update graph
         attention_output = self.attention_map(attention)
-        visual_conditions_output = self.visual_conditions_map(
-            visual_conditions
-        )
+        visual_conditions_output = self.visual_conditions_map(visual_conditions)
         visual_effects_output = self.visual_effects_map(visual_effects)
 
-        # Reshape competences and use them to update conditions, effects, and attention
+        # update conditions, effects, and attention
         self.visual_conditions_updater(
             output=visual_conditions_output,
             std=self.neighborhood_modulation,

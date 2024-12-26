@@ -194,7 +194,7 @@ class Agent:
             
             env_size = np.array([self.env_height, self.env_width])
             params *= env_size
-            scale =  0.02*np.linalg.norm(params - env_size/2) 
+            scale =  0.04*np.linalg.norm(params - env_size/2) 
 
             self.attentional_mask = gaussian_mask(
                 (self.env_height, self.env_width),
