@@ -30,7 +30,7 @@ class EyeSimEnv(gym.Env):
 
         self.taskspace_xlim = np.array([0, 80])
         self.taskspace_ylim = np.array([0, 80])
-        self.retina_scale = np.array([50, 50])
+        self.retina_scale = np.array([70, 70])
         self.retina_size = np.array([80, 80])
         self.fovea_scale = np.array([10, 10])
         self.fovea_size = np.array([16, 16])

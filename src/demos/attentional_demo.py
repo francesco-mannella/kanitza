@@ -31,7 +31,7 @@ if __name__ == '__main__':
     env = gym.make('EyeSim-v0')
     env = env.unwrapped
     env.reset()
-    agent = Agent(env, sampling_threshold=0.02)
+    agent = Agent(env, sampling_threshold=0.015)
 
     # Run the simulation for a fixed number of episodes
     for episode in range(5):

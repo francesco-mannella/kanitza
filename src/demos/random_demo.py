@@ -32,7 +32,7 @@ if __name__ == '__main__':
     env.reset()
     agent = Agent(env)
 
-    for episode in range(5):
+    for episode in range(2):
         _, env_info = env.reset()
 
         # Create plotting objects
@@ -54,6 +54,18 @@ if __name__ == '__main__':
         wandb.log(
             {'random_demo': wandb.Video(f'{gif_file}.gif', format='gif')}
         )
+
+    # Plot gabor filters
+    fig, axes = plt.subplots(1, 8, figsize=(10, 3))
+    for ax, gabor in zip(axes, agent.saliency_mapper.gabor_filters):
+        ax.imshow(gabor)
+    
+    fig.savefig("gabor_filters.png", dpi=300)
+    # Log the png to Weights & Biases
+    wandb.log(
+        {'random_demo': wandb.Image(f'gabor_filters.png')}
+    )
+
 
     # Close the Weights & Biases run
     wandb.finish()

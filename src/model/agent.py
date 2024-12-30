@@ -7,7 +7,7 @@ import EyeSim
 
 
 #%% GABOR FILTER FUNCTION
-def gabor_filter(frequency, orientation, sigma, phase_offset, size):
+def gabor_filter(frequency, orientation, sigma, sigma_y=None, phase_offset=0, size=5):
     """
     Generate a Gabor filter.
 
@@ -15,12 +15,16 @@ def gabor_filter(frequency, orientation, sigma, phase_offset, size):
     - frequency (float): Spatial frequency of the harmonics.
     - orientation (float): Orientation of the Gabor filter in radians.
     - sigma (float): Standard deviation of the Gaussian envelope.
+    - sigma_y (float): Standard deviation of the Gaussian envelope in the 2nd dimension.
     - phase_offset (float): Phase offset of the sine wave.
     - size (int): Size of the filter.
 
     Returns:
     - np.ndarray: The generated Gabor filter.
     """
+
+    if sigma_y is None: sigma_y = sigma
+
     half_size = size // 2
     x_grid, y_grid = np.ogrid[
         -half_size : half_size + 1, -half_size : half_size + 1
@@ -28,7 +32,7 @@ def gabor_filter(frequency, orientation, sigma, phase_offset, size):
     rotated_x = x_grid * np.cos(orientation) + y_grid * np.sin(orientation)
     rotated_y = -x_grid * np.sin(orientation) + y_grid * np.cos(orientation)
     gabor = np.exp(
-        -(rotated_x**2 + rotated_y**2) / (2 * sigma**2)
+        -(rotated_x**2 / (2*sigma**2) + rotated_y**2 / (2*sigma_y**2)) 
     ) * np.cos(2 * np.pi * frequency * rotated_x + phase_offset)
     gabor /= np.sum(gabor)
     return gabor
@@ -43,20 +47,21 @@ class SaliencyMap:
     def __init__(self):
         filter_size = 10
         spatial_frequency = 0.1
-        gaussian_sigma = filter_size * 0.5
-        phase_offset = 0
-        orientations = np.linspace(0, 1, 5)[:-1] * np.pi
+        gaussian_sigma = 4 
+        phase_offset = 0 
+        orientations = np.linspace(0, 1, 9)[:-1] * np.pi
 
         self.gabor_filters = [
             gabor_filter(
-                spatial_frequency,
-                orientation,
-                gaussian_sigma,
-                phase_offset,
-                filter_size,
-            )
+                frequency=spatial_frequency,
+                orientation=orientation,
+                sigma=gaussian_sigma,
+                phase_offset=phase_offset,
+                size=filter_size,
+            ) 
             for orientation in orientations
         ]
+
 
     def __call__(self, input_image):
         """
@@ -76,7 +81,15 @@ class SaliencyMap:
                 convolve2d(input_image, gabor, mode='same') / 4
             )
 
-        adjusted_response = 2 * (np.clip(accumulated_response, 0.2, 1) - 0.5)
+        # Ensure that accumulated_response values are within the range [0.5, 1]
+        clipped_response = np.clip(accumulated_response, 0.5, 1)
+
+        # Shift the clipped response down by 0.5 to normalize it to the range [0, 0.5]
+        normalized_response = clipped_response - 0.5
+
+        # Double the normalized response to scale it to the range [0, 1]
+        adjusted_response = 2 * normalized_response
+
         return adjusted_response
 
 
