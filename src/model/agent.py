@@ -34,7 +34,11 @@ def gabor_filter(frequency, orientation, sigma, sigma_y=None, phase_offset=0, si
     gabor = np.exp(
         -(rotated_x**2 / (2*sigma**2) + rotated_y**2 / (2*sigma_y**2)) 
     ) * np.cos(2 * np.pi * frequency * rotated_x + phase_offset)
-    gabor /= np.sum(gabor)
+    
+    # Normalize the Gabor filter by dividing it by the sum of its non-negative elements
+    non_negative_sum = np.sum(np.maximum(gabor, 0))
+    gabor /= non_negative_sum
+
     return gabor
 
 
