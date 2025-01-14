@@ -7,7 +7,9 @@ import EyeSim
 
 
 #%% GABOR FILTER FUNCTION
-def gabor_filter(frequency, orientation, sigma, sigma_y=None, phase_offset=0, size=5):
+def gabor_filter(
+    frequency, orientation, sigma, sigma_y=None, phase_offset=0, size=5
+):
     """
     Generate a Gabor filter.
 
@@ -23,7 +25,8 @@ def gabor_filter(frequency, orientation, sigma, sigma_y=None, phase_offset=0, si
     - np.ndarray: The generated Gabor filter.
     """
 
-    if sigma_y is None: sigma_y = sigma
+    if sigma_y is None:
+        sigma_y = sigma
 
     half_size = size // 2
     x_grid, y_grid = np.ogrid[
@@ -32,9 +35,12 @@ def gabor_filter(frequency, orientation, sigma, sigma_y=None, phase_offset=0, si
     rotated_x = x_grid * np.cos(orientation) + y_grid * np.sin(orientation)
     rotated_y = -x_grid * np.sin(orientation) + y_grid * np.cos(orientation)
     gabor = np.exp(
-        -(rotated_x**2 / (2*sigma**2) + rotated_y**2 / (2*sigma_y**2)) 
+        -(
+            rotated_x**2 / (2 * sigma**2)
+            + rotated_y**2 / (2 * sigma_y**2)
+        )
     ) * np.cos(2 * np.pi * frequency * rotated_x + phase_offset)
-    
+
     # Normalize the Gabor filter by dividing it by the sum of its non-negative elements
     non_negative_sum = np.sum(np.maximum(gabor, 0))
     gabor /= non_negative_sum
@@ -51,8 +57,8 @@ class SaliencyMap:
     def __init__(self):
         filter_size = 10
         spatial_frequency = 0.1
-        gaussian_sigma = 4 
-        phase_offset = 0 
+        gaussian_sigma = 4
+        phase_offset = 0
         orientations = np.linspace(0, 1, 9)[:-1] * np.pi
 
         self.gabor_filters = [
@@ -62,10 +68,9 @@ class SaliencyMap:
                 sigma=gaussian_sigma,
                 phase_offset=phase_offset,
                 size=filter_size,
-            ) 
+            )
             for orientation in orientations
         ]
-
 
     def __call__(self, input_image):
         """
@@ -82,17 +87,14 @@ class SaliencyMap:
 
         for gabor in self.gabor_filters:
             accumulated_response += (
-                convolve2d(input_image, gabor, mode='same') / 4
+                convolve2d(input_image, gabor, mode='same') / 8
             )
 
-        # Ensure that accumulated_response values are within the range [0.5, 1]
-        clipped_response = np.clip(accumulated_response, 0.5, 1)
-
-        # Shift the clipped response down by 0.5 to normalize it to the range [0, 0.5]
-        normalized_response = clipped_response - 0.5
-
-        # Double the normalized response to scale it to the range [0, 1]
-        adjusted_response = 2 * normalized_response
+        accumulated_response /= accumulated_response.max() + 1e-4
+        clipped_response = np.clip(accumulated_response, 0.4, 1)
+        adjusted_response = (clipped_response - clipped_response.min()) / (
+            clipped_response.max() - clipped_response.min()
+        )
 
         return adjusted_response
 
@@ -116,9 +118,7 @@ def sampling(array, precision=0.01, rng=None):
 
     flattened_array = array.flatten()
     probabilities = softmax(flattened_array / precision)
-    sampled_flat_index = rng.choice(
-        a=flattened_array.size, p=probabilities
-    )
+    sampled_flat_index = rng.choice(a=flattened_array.size, p=probabilities)
     sampled_index = np.unravel_index(
         sampled_flat_index, array.shape, order='F'
     )
@@ -168,17 +168,19 @@ class Agent:
     Agent that interacts with the environment and determines actions based on saliency maps.
     """
 
-    def __init__(self, environment, sampling_threshold=0.07, max_variance=3, seed = None):
+    def __init__(
+        self, environment, sampling_threshold=0.07, max_variance=3, seed=None
+    ):
         """
         Initialize the Agent with the environment and a saliency mapper.
 
         Args:
         - environment: The environment in which the agent operates.
         - sampling_threshold (float): The threshold value used in the sampling function. Default is 0.07.
-        - max_variance (float): max std of the attentional field 
+        - max_variance (float): max std of the attentional field
         - seed (int): Seed for the random number generator
         """
-        
+
         seed = seed or 0
         self.rng = np.random.RandomState(seed)
 
@@ -192,9 +194,9 @@ class Agent:
         self.horizontal_variance = max_variance * self.env_width
         self.attentional_mask = None
 
-        self.params = None 
+        self.params = None
 
-    def set_parameters(self, params = None):
+    def set_parameters(self, params=None):
         """
         Set the parameters for the attentional mask.
 
@@ -204,14 +206,13 @@ class Agent:
 
         if params is not None:
 
-
             params = np.clip(params, 0, 1).reshape(-1)
-            
+
             self.params = np.copy(params)
-            
+
             env_size = np.array([self.env_height, self.env_width])
             params *= env_size
-            scale =  0.04*np.linalg.norm(params - env_size/2) 
+            scale = 0.04 * np.linalg.norm(params - env_size / 2)
 
             self.attentional_mask = gaussian_mask(
                 (self.env_height, self.env_width),
@@ -222,7 +223,6 @@ class Agent:
             )
         else:
             self.attentional_mask = np.ones([self.env_height, self.env_width])
-
 
     def get_action(self, observation):
         """
@@ -243,7 +243,9 @@ class Agent:
             self.attentional_mask = np.ones_like(saliency_map)
 
         saliency_map *= self.attentional_mask
-        salient_point = sampling(saliency_map, self.sampling_threshold, self.rng)
+        salient_point = sampling(
+            saliency_map, self.sampling_threshold, self.rng
+        )
 
         normalized_action = salient_point / self.environment.retina_size
         normalized_action[1] = 1 - normalized_action[1]
