@@ -1,9 +1,7 @@
 import numpy as np
 import torch
-from model.topological_maps import (
-    TopologicalMap,
-    STMUpdater,
-)
+
+from model.topological_maps import STMUpdater, TopologicalMap
 
 
 class OfflineController:
@@ -41,7 +39,7 @@ class OfflineController:
         self.rng = np.random.RandomState(self.seed)
 
         # Init visual conditions  map
-        input_size = np.prod(env.observation_space['FOVEA'].sample().shape)
+        input_size = np.prod(env.observation_space["FOVEA"].sample().shape)
         output_size = params.maps_output_size
         self.visual_conditions_map = TopologicalMap(input_size, output_size)
         self.visual_conditions_updater = STMUpdater(
@@ -49,7 +47,7 @@ class OfflineController:
         )
 
         # Init visual effects  map
-        input_size = np.prod(env.observation_space['FOVEA'].sample().shape)
+        input_size = np.prod(env.observation_space["FOVEA"].sample().shape)
         output_size = params.maps_output_size
         self.visual_effects_map = TopologicalMap(input_size, output_size)
         self.visual_effects_updater = STMUpdater(
@@ -67,21 +65,21 @@ class OfflineController:
         # Init Visual storage
 
         self.params.visual_size = np.prod(
-            self.env.observation_space['FOVEA'].sample().shape
+            self.env.observation_space["FOVEA"].sample().shape
         )
         self.visual_states = np.zeros(
             [
                 self.params.episodes,
-                self.params.focus_num,
-                self.params.focus_time,
+                self.params.saccade_num,
+                self.params.saccade_time,
                 self.params.visual_size,
             ]
-        )   # Init action storage
+        )  # Init action storage
         self.action_states = np.zeros(
             [
                 self.params.episodes,
-                self.params.focus_num,
-                self.params.focus_time,
+                self.params.saccade_num,
+                self.params.saccade_time,
                 self.params.action_size,
             ]
         )
@@ -90,8 +88,8 @@ class OfflineController:
         self.attention_states = np.zeros(
             [
                 self.params.episodes,
-                self.params.focus_num,
-                self.params.focus_time,
+                self.params.saccade_num,
+                self.params.saccade_time,
                 self.params.attention_size,
             ]
         )
@@ -132,29 +130,30 @@ class OfflineController:
             -1, 1
         )
 
-    def generate_attentional_input(self, focus_num):
+    def generate_attentional_input(self, saccade_num):
 
-        # radius = 0.4 + 0.1 * self.rng.rand(focus_num)
-        # angle = 2 * np.pi * self.rng.rand(focus_num)
+        # radius = 0.4 + 0.1 * self.rng.rand(saccade_num)
+        # angle = 2 * np.pi * self.rng.rand(saccade_num)
         # attentional_input = (
         #     np.stack([np.cos(angle), np.sin(angle)]) * radius.reshape(1, -1)
         # ).T + 0.5
         #
-        attentional_input = self.rng.rand(focus_num, 2)
+        attentional_input = self.rng.rand(saccade_num, 2)
 
         return attentional_input
 
-    def record_states(self, episode, focus, ts, state):
+    def record_states(self, episode, saccade, ts, state):
 
-        self.visual_states[episode, focus, ts] = (
-            state['vision'].ravel() / 255.0
+        self.visual_states[episode, saccade, ts] = (
+            state["vision"].ravel() / 255.0
         )
-        self.action_states[episode, focus, ts] = state['action']
-        self.attention_states[episode, focus, ts] = state['attention']
+        self.action_states[episode, saccade, ts] = state["action"]
+        self.attention_states[episode, saccade, ts] = state["attention"]
 
     def filter_salient_states(self):
 
-        # Identify indices of states where the magnitude of saccades exceeds the threshold.
+        # Identify indices of states where the magnitude of saccades exceeds
+        # the threshold.
         filtered_states = np.linalg.norm(self.action_states, axis=-1)
         filtered_states = 1 * (filtered_states > self.params.saccade_threshold)
         self.filtered_idcs = np.stack(np.where(filtered_states))
@@ -163,28 +162,25 @@ class OfflineController:
 
         idcs = self.filtered_idcs
         idcs = idcs[
-            :, (2 < idcs[2]) & (idcs[2] < (self.params.focus_time - 2))
+            :, (2 < idcs[2]) & (idcs[2] < (self.params.saccade_time - 2))
         ]
 
-        # Extract and reshape attention states to a tensor format suitable for neural operations
-        preattention_states = self.attention_states[
-            idcs[0], idcs[1], idcs[2] - 2
-        ]
-        preattention = torch.tensor(preattention_states).reshape(
-            -1, self.params.attention_size
-        )
+        # Extract and reshape attention states to a tensor format suitable for
+        # neural operations
         attention_states = self.attention_states[idcs[0], idcs[1], idcs[2] + 2]
         attention = torch.tensor(attention_states).reshape(
             -1, self.params.attention_size
         )
 
-        # Extract and reshape visual condition states to a tensor (previous time step)
+        # Extract and reshape visual condition states to a tensor (previous
+        # time step)
         visual_conditions = self.visual_states[idcs[0], idcs[1], idcs[2] - 2]
         visual_conditions = torch.tensor(visual_conditions).reshape(
             -1, self.params.visual_size
         )
 
-        # Extract and reshape visual effect states to a tensor (current time step)
+        # Extract and reshape visual effect states to a tensor (current time
+        # step)
         visual_effects = self.visual_states[idcs[0], idcs[1], idcs[2] + 2]
         visual_effects = torch.tensor(visual_effects).reshape(
             -1, self.params.visual_size
@@ -194,12 +190,12 @@ class OfflineController:
         attention_norms = self.attention_map(attention)
         point_attention_representations = (
             self.attention_map.get_representation(
-                attention_norms, rtype='point'
+                attention_norms, rtype="point"
             )
         )
         grid_attention_representations = self.attention_map.get_representation(
             attention_norms,
-            rtype='grid',
+            rtype="grid",
             std=self.params.neighborhood_modulation_baseline,
         )
 
@@ -207,13 +203,13 @@ class OfflineController:
         visual_conditions_norms = self.visual_conditions_map(visual_conditions)
         point_visual_conditions_representations = (
             self.visual_conditions_map.get_representation(
-                visual_conditions_norms, rtype='point'
+                visual_conditions_norms, rtype="point"
             )
         )
         grid_visual_conditions_representations = (
             self.visual_conditions_map.get_representation(
                 visual_conditions_norms,
-                rtype='grid',
+                rtype="grid",
                 std=self.params.neighborhood_modulation_baseline,
             )
         )
@@ -222,33 +218,49 @@ class OfflineController:
         visual_effects_norms = self.visual_effects_map(visual_effects)
         point_visual_effects_representations = (
             self.visual_effects_map.get_representation(
-                visual_effects_norms, rtype='point'
+                visual_effects_norms, rtype="point"
             )
         )
         grid_visual_effects_representations = (
             self.visual_effects_map.get_representation(
                 visual_effects_norms,
-                rtype='grid',
+                rtype="grid",
                 std=self.params.neighborhood_modulation_baseline,
             )
         )
 
-        # Store various representation types for further processing
+        # Store various representation types for further processing. The keys
+        # in the 'representations' dictionary correspond to different types of
+        # representations at two levels: point level and grid level.
+        # - 'pvc': point_visual_conditions_representations
+        #   Represents visual conditions at the point level.
+        # - 'pve': point_visual_effects_representations
+        #   Represents visual effects at the point level.
+        # - 'pa': point_attention_representations
+        #   Represents attention at the point level.
+        # - 'gvc': grid_visual_conditions_representations
+        #   Represents visual conditions at the grid level.
+        # - 'gve': grid_visual_effects_representations
+        #   Represents visual effects at the grid level.
+        # - 'ga': grid_attention_representations
+        #   Represents attention at the grid level.
         self.representations = {
-            'pvc': point_visual_conditions_representations,  # Point level: Visual Conditions
-            'pve': point_visual_effects_representations,  # Point level: Visual Effects
-            'pa': point_attention_representations,  # Point level: Attention
-            'gvc': grid_visual_conditions_representations,  # Grid level: Visual Conditions
-            'gve': grid_visual_effects_representations,  # Grid level: Visual Effects
-            'ga': grid_attention_representations,  # Grid level: Attention
+            "pvc": point_visual_conditions_representations,
+            "pve": point_visual_effects_representations,
+            "pa": point_attention_representations,
+            "gvc": grid_visual_conditions_representations,
+            "gve": grid_visual_effects_representations,
+            "ga": grid_attention_representations,
         }
 
         # Compute matching scores for current state projections
         self.matches = self.compute_matches()
 
-        # Compute competences based on matches using a Gaussian-like decay function
-        s = 3.0
-        self.competences = np.exp(-(s**-2) * self.matches**2)
+        # Compute competences based on matches using a Gaussian-like decay
+        # function
+        self.competences = np.exp(
+            -(self.params.match_std**-2) * self.matches**2
+        )
         self.competence = self.competences.mean()
 
         # Update offline controller hyperparameters based on the episodes
@@ -256,7 +268,9 @@ class OfflineController:
 
         # Spread map outputs for the update graph
         attention_output = self.attention_map(attention)
-        visual_conditions_output = self.visual_conditions_map(visual_conditions)
+        visual_conditions_output = self.visual_conditions_map(
+            visual_conditions
+        )
         visual_effects_output = self.visual_effects_map(visual_effects)
 
         # update conditions, effects, and attention
@@ -285,8 +299,8 @@ class OfflineController:
 
     def compute_matches(self):
 
-        pve = self.representations['pve']
-        pa = self.representations['pa']
+        pve = self.representations["pve"]
+        pa = self.representations["pa"]
 
         # Compute the difference between the tensors
         difference = pve - pa
@@ -304,7 +318,7 @@ class OfflineController:
         condition_representation = (
             self.visual_conditions_map.get_representation(
                 norm,
-                rtype='point',
+                rtype="point",
                 std=self.params.neighborhood_modulation_baseline,
             )
         )
@@ -323,17 +337,29 @@ class OfflineController:
         """
         # Collect the current states to save
         state = {
-            'epoch': self.epoch,
-            'competence': self.competence,
-            'competences': self.competences,
-            'local_incompetence': self.local_incompetence,
-            'visual_conditions_map_state_dict': self.visual_conditions_map.state_dict(),
-            'visual_conditions_updater_optimizer_state_dict': self.visual_conditions_updater.optimizer.state_dict(),
-            'visual_effects_map_state_dict': self.visual_effects_map.state_dict(),
-            'visual_effects_updater_optimizer_state_dict': self.visual_effects_updater.optimizer.state_dict(),
-            'attention_map_state_dict': self.attention_map.state_dict(),
-            'attention_updater_optimizer_state_dict': self.attention_updater.optimizer.state_dict(),
-            'rng_state': self.rng.get_state(),
+            "epoch": self.epoch,
+            "competence": self.competence,
+            "competences": self.competences,
+            "local_incompetence": self.local_incompetence,
+            "visual_conditions_map_state_dict": (
+                self.visual_conditions_map.state_dict()
+            ),
+            "visual_conditions_updater_optimizer_state_dict": (
+                self.visual_conditions_updater.optimizer.state_dict()
+            ),
+            "visual_effects_map_state_dict": (
+                self.visual_effects_map.state_dict()
+            ),
+            "visual_effects_updater_optimizer_state_dict": (
+                self.visual_effects_updater.optimizer.state_dict()
+            ),
+            "attention_map_state_dict": (
+                self.attention_map.state_dict()
+            ),
+            "attention_updater_optimizer_state_dict": (
+                self.attention_updater.optimizer.state_dict()
+            ),
+            "rng_state": self.rng.get_state(),
         }
 
         # Save the state to file
@@ -351,28 +377,28 @@ class OfflineController:
         offline_controller = OfflineController(env, params, seed)
 
         # Restore the state
-        offline_controller.epoch = state['epoch'] + 1
-        offline_controller.competence = state['competence']
-        offline_controller.competences = state['competences']
-        offline_controller.local_incompetence = state['local_incompetence']
+        offline_controller.epoch = state["epoch"] + 1
+        offline_controller.competence = state["competence"]
+        offline_controller.competences = state["competences"]
+        offline_controller.local_incompetence = state["local_incompetence"]
         offline_controller.visual_conditions_map.load_state_dict(
-            state['visual_conditions_map_state_dict']
+            state["visual_conditions_map_state_dict"]
         )
         offline_controller.visual_conditions_updater.optimizer.load_state_dict(
-            state['visual_conditions_updater_optimizer_state_dict']
+            state["visual_conditions_updater_optimizer_state_dict"]
         )
         offline_controller.visual_effects_map.load_state_dict(
-            state['visual_effects_map_state_dict']
+            state["visual_effects_map_state_dict"]
         )
         offline_controller.visual_effects_updater.optimizer.load_state_dict(
-            state['visual_effects_updater_optimizer_state_dict']
+            state["visual_effects_updater_optimizer_state_dict"]
         )
         offline_controller.attention_map.load_state_dict(
-            state['attention_map_state_dict']
+            state["attention_map_state_dict"]
         )
         offline_controller.attention_updater.optimizer.load_state_dict(
-            state['attention_updater_optimizer_state_dict']
+            state["attention_updater_optimizer_state_dict"]
         )
-        offline_controller.rng.set_state(state['rng_state'])
+        offline_controller.rng.set_state(state["rng_state"])
 
         return offline_controller

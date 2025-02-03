@@ -1,12 +1,10 @@
-#%% IMPORTS
+# %% IMPORTS
 import numpy as np
 from scipy.signal import convolve2d
 from scipy.special import softmax
-import gymnasium as gym
-import EyeSim
 
 
-#%% GABOR FILTER FUNCTION
+# %% GABOR FILTER FUNCTION
 def gabor_filter(
     frequency, orientation, sigma, sigma_y=None, phase_offset=0, size=5
 ):
@@ -17,7 +15,8 @@ def gabor_filter(
     - frequency (float): Spatial frequency of the harmonics.
     - orientation (float): Orientation of the Gabor filter in radians.
     - sigma (float): Standard deviation of the Gaussian envelope.
-    - sigma_y (float): Standard deviation of the Gaussian envelope in the 2nd dimension.
+    - sigma_y (float): Standard deviation of the Gaussian envelope in the 2nd
+      dimension.
     - phase_offset (float): Phase offset of the sine wave.
     - size (int): Size of the filter.
 
@@ -29,26 +28,24 @@ def gabor_filter(
         sigma_y = sigma
 
     half_size = size // 2
-    x_grid, y_grid = np.ogrid[
-        -half_size : half_size + 1, -half_size : half_size + 1
+    x_grid,   y_grid = np.ogrid[
+        -half_size : (half_size + 1), -half_size : (half_size + 1)
     ]
     rotated_x = x_grid * np.cos(orientation) + y_grid * np.sin(orientation)
     rotated_y = -x_grid * np.sin(orientation) + y_grid * np.cos(orientation)
     gabor = np.exp(
-        -(
-            rotated_x**2 / (2 * sigma**2)
-            + rotated_y**2 / (2 * sigma_y**2)
-        )
+        -(rotated_x**2 / (2 * sigma**2) + rotated_y**2 / (2 * sigma_y**2))
     ) * np.cos(2 * np.pi * frequency * rotated_x + phase_offset)
 
-    # Normalize the Gabor filter by dividing it by the sum of its non-negative elements
+    # Normalize the Gabor filter by dividing it by the sum of its non-negative
+    # elements
     non_negative_sum = np.sum(np.maximum(gabor, 0))
     gabor /= non_negative_sum
 
     return gabor
 
 
-#%% SALIENCY MAP CLASS
+# %% SALIENCY MAP CLASS
 class SaliencyMap:
     """
     Generates a saliency map using Gabor filters.
@@ -87,19 +84,24 @@ class SaliencyMap:
 
         for gabor in self.gabor_filters:
             accumulated_response += (
-                convolve2d(input_image, gabor, mode='same') / 8
+                convolve2d(input_image, gabor, mode="same") / 8
             )
 
         accumulated_response /= accumulated_response.max() + 1e-4
         clipped_response = np.clip(accumulated_response, 0.4, 1)
-        adjusted_response = (clipped_response - clipped_response.min()) / (
-            clipped_response.max() - clipped_response.min()
-        )
+
+        response_range = clipped_response.max() - clipped_response.min()
+        if response_range > 1e-30:
+            adjusted_response = (
+                clipped_response - clipped_response.min()
+            ) / response_range
+        else:
+            adjusted_response = np.zeros_like(clipped_response)
 
         return adjusted_response
 
 
-#%% SAMPLE FUNCTION
+# %% SAMPLE FUNCTION
 def sampling(array, precision=0.01, rng=None):
     """
     Sample an index from the array based on probabilities derived from softmax.
@@ -120,7 +122,7 @@ def sampling(array, precision=0.01, rng=None):
     probabilities = softmax(flattened_array / precision)
     sampled_flat_index = rng.choice(a=flattened_array.size, p=probabilities)
     sampled_index = np.unravel_index(
-        sampled_flat_index, array.shape, order='F'
+        sampled_flat_index, array.shape, order="F"
     )
 
     return sampled_index
@@ -158,14 +160,15 @@ def gaussian_mask(shape, mean, v1, v2, angle):
     x_minus_mu = x - mean
     inv_cov = np.linalg.inv(rotated_cov_matrix)
 
-    result = np.einsum('...k,kl,...l->...', x_minus_mu, inv_cov, x_minus_mu)
+    result = np.einsum("...k,kl,...l->...", x_minus_mu, inv_cov, x_minus_mu)
     return np.exp(-0.5 * result).reshape(*shape)
 
 
-#%% AGENT CLASS
+# %% AGENT CLASS
 class Agent:
     """
-    Agent that interacts with the environment and determines actions based on saliency maps.
+    Agent that interacts with the environment and determines actions based on
+    saliency maps.
     """
 
     def __init__(
@@ -176,7 +179,8 @@ class Agent:
 
         Args:
         - environment: The environment in which the agent operates.
-        - sampling_threshold (float): The threshold value used in the sampling function. Default is 0.07.
+        - sampling_threshold (float): The threshold value used in the sampling
+          function. Default is 0.07.
         - max_variance (float): max std of the attentional field
         - seed (int): Seed for the random number generator
         """
@@ -188,7 +192,7 @@ class Agent:
         self.saliency_mapper = SaliencyMap()
         self.sampling_threshold = sampling_threshold
         self.env_height, self.env_width = environment.observation_space[
-            'RETINA'
+            "RETINA"
         ].shape[:-1]
         self.vertical_variance = max_variance * self.env_height
         self.horizontal_variance = max_variance * self.env_width
@@ -201,7 +205,8 @@ class Agent:
         Set the parameters for the attentional mask.
 
         Args:
-        - params (list or array-like): The parameters to set for the attentional mask.
+        - params (list or array-like): The parameters to set for the
+          attentional mask.
         """
 
         if params is not None:
@@ -225,17 +230,17 @@ class Agent:
             self.attentional_mask = np.ones([self.env_height, self.env_width])
 
     def get_action(self, observation):
-        """
-        Determine the action to take based on the provided observation.
+        """Determine the action to take based on the provided observation.
 
         Args:
-        - observation (dict): A dictionary representing the current state of the environment.
-          Must contain a key 'RETINA' which provides the necessary visual input data.
+        - observation (dict): A dictionary representing the current state of
+          the environment.  Must contain a key 'RETINA' which provides the
+          necessary visual input data.
 
         Returns:
-        - tuple: A tuple containing the action to take, the generated saliency map, and the selected salient point.
-        """
-        retina_image = observation['RETINA'].mean(-1) / 255
+        - tuple: A tuple containing the action to take, the generated saliency
+          map, and the selected salient point."""
+        retina_image = observation["RETINA"].mean(-1) / 255
         inverted_retina = 1 - retina_image
 
         saliency_map = self.saliency_mapper(inverted_retina)

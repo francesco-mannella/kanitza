@@ -1,2 +1,1 @@
-from EyeSim.envs.EyeSim_env import EyeSimEnv 
-
+from EyeSim.envs.EyeSim_env import EyeSimEnv

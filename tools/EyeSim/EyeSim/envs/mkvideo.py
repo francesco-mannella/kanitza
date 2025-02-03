@@ -1,25 +1,32 @@
-import numpy as np
-import matplotlib.pyplot as plt
-import os
-from PIL import Image
 import glob
+import os
+
+import matplotlib.pyplot as plt
+import numpy as np
+from PIL import Image
 
 
 class vidManager:
     """
-    Collects images and make a gif video
+    Manages the creation of a GIF video from a series of images.
+
+    Attributes:
+        - fig (Figure): Matplotlib figure object to draw images from.
+        - name (str): Base name for the images. The GIF video will be saved as
+          <name>.gif.
+        - dirname (str): Directory where images and the GIF video will be
+          saved.
+        - duration (int or tuple): Display duration of each frame of the GIF,
+          in milliseconds. Use an integer for a constant duration or a
+          list/tuple for frame-specific durations.
+        - frames (list): List to store image frames.
+        - t (int): Frame counter.
     """
 
     def __init__(self, fig, name="vid", dirname="frames", duration=300):
         """
-        Args:
-            fig: matplotlib.pyplot.figure, figure object where to draw images
-            name: str, root name of the images the giv video will be <name>.gif
-            dirname: str, the name of the folder in which images and the video will be saved
-            duration: int or tuple, The display duration of each frame of the multiframe
-                      gif, in milliseconds. Pass a single integer for a constant
-                      duration, or a list or tuple to set the duration for each
-                      frame separately.
+        Initializes the VidManager with a figure, name, directory, and frame
+        duration.
         """
         self.t = 0
         self.name = name
@@ -30,70 +37,71 @@ class vidManager:
 
     def clear(self):
         """
-        Clear all stuff within the folder (create it if needed)
+        Clears all images in the specified directory. Creates the directory if
+        it does not exist.
         """
         self.t = 0
         if not os.path.exists(self.dirname):
             os.makedirs(self.dirname)
-        files = glob.glob(self.dirname + os.sep + "*.png")
-        for f in files:
-            if(os.path.isfile(f)):
+        # Remove all .png files in the directory
+        for f in glob.glob(os.path.join(self.dirname, "*.png")):
+            if os.path.isfile(f):
                 os.remove(f)
 
     def save_frame(self):
         """
-        Save a single frame as an image
+        Saves the current frame as an image from the figure canvas.
         """
-
+        # Draw canvas
         self.fig.canvas.draw()
-        
-        frame = Image.frombytes('RGB', 
-         self.fig.canvas.get_width_height(), 
-         self.fig.canvas.tostring_rgb())
 
+        # Create an image from the canvas and append to frames list
+        frame = Image.frombytes(
+            "RGB",
+            self.fig.canvas.get_width_height(),
+            self.fig.canvas.tostring_rgb(),
+        )
         self.frames.append(frame)
-
         self.t += 1
 
     def mk_video(self, name=None, dirname=None):
         """
-        Make a gif file from saved frames. the gif file will be in
-        <self.dirname>/<self.name>.gif
+        Creates a GIF file from saved frames and saves it to the specified
+        directory as <dirname>/<name>.gif.
         """
-        # Save into a GIF file that loops forever
+        name = name or self.name
+        dirname = dirname or self.dirname
 
-        if name is None:
-            name = self.name
-        if dirname is None:
-            dirname = self.dirname
-        
-        out_filename = dirname + os.sep + name + '.gif'
-        with open(out_filename, 'wb') as out_file:
-            self.frames[0].save(out_file,
-                                format='gif',
-                                append_images=self.frames[1:],
-                                save_all=True,
-                                duration=self.duration, 
-                                loop=0)
+        # Save frames to a looping GIF
+        out_filename = os.path.join(dirname, f"{name}.gif")
+        with open(out_filename, "wb") as out_file:
+            self.frames[0].save(
+                out_file,
+                format="GIF",
+                append_images=self.frames[1:],
+                save_all=True,
+                duration=self.duration,
+                loop=0,
+            )
+
 
 if __name__ == "__main__":
+    # Example usage
 
-    # USAGE
-
-    # prepare graphics
+    # Prepare graphics
     fig = plt.Figure()
     ax = fig.add_subplot(111)
     pnt = ax.scatter(0, 0, s=100, color="red")
     ax.set_xlim([0, 1])
     ax.set_ylim([0, 1])
 
-    # init video maker
-    vm = vidManager(fig, "fooname", "foodir")
+    # Initialize video manager
+    vm = VidManager(fig, "fooname", "foodir")
 
+    # Update figure and save frames
     for p in np.linspace(0, 1, 30):
-
-        # update fig
         pnt.set_offsets([p, p])
         vm.save_frame()
 
+    # Create GIF video
     vm.mk_video()

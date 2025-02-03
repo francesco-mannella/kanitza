@@ -1,11 +1,11 @@
-import torch
 import math
-import numpy as np
+
+import torch
 
 
 class DimensionalityError(Exception):
     def __str__(self):
-        return 'Dimensionality of the output must be 1D or 2D.'
+        return "Dimensionality of the output must be 1D or 2D."
 
 
 class RadialBasis:
@@ -17,7 +17,8 @@ class RadialBasis:
 
     def __init__(self, size, dims):
         """
-        This function creates a radial grid with a given size and dimensionality.
+        This function creates a radial grid with a given size and
+        dimensionality.
 
         Args:
             size (int): The size of the radial grid.
@@ -33,9 +34,9 @@ class RadialBasis:
         elif self.dims == 2:
             self.side = int(math.sqrt(self.size))
             if self.side**2 != self.size:
-                raise 'Dimensions must be equal'
+                raise "Dimensions must be equal"
             t = torch.arange(self.side)
-            meshgrids = torch.meshgrid(t, t, indexing='ij')
+            meshgrids = torch.meshgrid(t, t, indexing="ij")
             self.grid = torch.stack([x.reshape(-1) for x in meshgrids]).T
         else:
             raise DimensionalityError()
@@ -44,9 +45,11 @@ class RadialBasis:
     def __call__(self, index, std, as_point=False):
         """
         Args:
-            index (int): indicates the point at the center of the Gaussian on the flattened grid, arranged in rows.
-            std (float): The standard deviation of the function.
-            as_point (bool, optional): Whether to treat index as a point or not. Defaults to False.
+            index (int): indicates the point at the center of the Gaussian on
+                the flattened grid, arranged in rows.  std (float): The
+                standard deviation of the function.
+            as_point (bool, optional): Whether to treat index as a point or
+                not. Defaults to False.
 
         Returns:
             The result of the function call.
@@ -77,7 +80,7 @@ class RadialBasis:
             x = x.unsqueeze(dim=1)
             #print(self.grid)
             dists = torch.norm(
-                    self.grid - x, 
+                    self.grid - x,
                     dim=-1)
         """
         output = torch.exp(-0.5 * (std**-2) * dists**2)
@@ -89,8 +92,8 @@ class RadialBasis:
 class TopologicalMap(torch.nn.Module):
     """
     A neural network designed to represent a topological map. The nodes are
-    connected in a way that reflects the topology of the data, allowing the network
-    to recognize patterns and make decisions based on those patterns.
+    connected in a way that reflects the topology of the data, allowing the
+    network to recognize patterns and make decisions based on those patterns.
     """
 
     def __init__(
@@ -101,7 +104,8 @@ class TopologicalMap(torch.nn.Module):
         Args:
             input_size (int): The number of inputs for the network.
             output_size (int): The number of outputs for the network.
-            output_dims (int, optional): The number of dimensions for the output. Defaults to 2.
+            output_dims (int, optional): The number of dimensions for the
+                output. Defaults to 2.
             parameters (nparray): The array of initial weights. default is None
         """
 
@@ -149,14 +153,14 @@ class TopologicalMap(torch.nn.Module):
         norms2 = self.forward(x)
         return self.find_bmu(norms2)
 
-    def get_representation(self, x, rtype='point', std=None):
+    def get_representation(self, x, rtype="point", std=None):
         """Returns the representation of the best matching unit (BMU) based on
         the specified representation type.
 
         Args:
-            x: 
-            rtype (str, optional): The representation type to be returned. Valid
-                values are: "point" (default) and "grid".
+            x:
+            rtype (str, optional): The representation type to be returned.
+                Valid values are: "point" (default) and "grid".
             std (float): The standard deviation of the neighborhood.
 
         Returns:
@@ -166,7 +170,7 @@ class TopologicalMap(torch.nn.Module):
 
         self.bmu = self.find_bmu(x)
         if self.bmu is not None:
-            if rtype == 'point':
+            if rtype == "point":
                 if self.output_dims == 1:
                     return self.bmu.float()
 
@@ -175,7 +179,7 @@ class TopologicalMap(torch.nn.Module):
                     col = self.bmu % self.side
                     return torch.stack([row, col]).T.float()
 
-            elif rtype == 'grid':
+            elif rtype == "grid":
                 if std is None:
                     std = self.curr_std
                 phi = self.radial(self.bmu, std)
@@ -189,7 +193,8 @@ class TopologicalMap(torch.nn.Module):
 
         Args:
             point (int): The point to compute the backward pass for.
-            std (float, optional): The standard deviation to use for the backward pass. Defaults to None.
+            std (float, optional): The standard deviation to use for the
+                backward pass. Defaults to None.
 
         Returns:
             float: The result of the backward pass.
@@ -208,21 +213,22 @@ def som_stm_loss(
     """
     Compute the SOM/STM loss.
 
-    This function calculates the loss for either a Self-Organizing Map (SOM) or a
-    Supervised Topological Map (STM). When tags are not provided (indicating a
-    SOM), the loss is computed using only the input norms2 and standard deviation
-    (std). If tags are present (indicating an STM), they are included in the loss
-    calculation to account for supervised learning elements.
+    This function calculates the loss for either a Self-Organizing Map (SOM) or
+    a Supervised Topological Map (STM). When tags are not provided (indicating
+    a SOM), the loss is computed using only the input norms2 and standard
+    deviation (std). If tags are present (indicating an STM), they are included
+    in the loss calculation to account for supervised learning elements.
 
     Parameters:
-    som (object): The SOM object which contains methods to find BMU (Best Matching Unit)
-                  and compute radial values.
+    som (object): The SOM object which contains methods to find BMU (Best
+        Matching Unit) and compute radial values.
     norms2 (array-like): The squared norm of some input data.
     std (float): The standard deviation used for the radial calculation.
-    tags (array-like, optional): Labels or tags used for additional radial calculations.
-                                Default is None.
-    std_tags (float):  The standard deviation used for the additional radial calculations centered on tags.
-    normalized_kernel(bool, optional): if the kernel is normalized. Default is True.
+    tags (array-like, optional): Labels or tags used for additional radial
+        calculations.  Default is None.
+    std_tags (float):  The standard deviation used for the additional radial
+        calculations centered on tags.  normalized_kernel(bool, optional): if
+        the kernel is normalized. Default is True.
 
     Returns:
     float: The mean value of the computed loss.
@@ -261,7 +267,8 @@ class SOMUpdater:
 
     def __init__(self, som, learning_rate):
         """
-        Initializes the STMUpdater object with the provided STM model and learning rate.
+        Initializes the STMUpdater object with the provided STM model and
+        learning rate.
 
         Args:
         som (torch model): The SOM model to be updated
@@ -271,10 +278,10 @@ class SOMUpdater:
         self.som = som
 
         self.optimizer = torch.optim.Adam(
-            params=stm.parameters(), lr=learning_rate
+            params=som.parameters(), lr=learning_rate
         )
 
-        self.loss = somi_stm_loss
+        self.loss = som_stm_loss
 
     def __call__(self, som, output, std, learning_modulation):
 
@@ -301,13 +308,13 @@ class STMUpdater:
     ):
 
         loss = self.loss(
-                self.stm,
-                output,
-                std,
-                target,
-                target_std,
-                normalized_kernel=self.normalized_kernel,
-            )
+            self.stm,
+            output,
+            std,
+            target,
+            target_std,
+            normalized_kernel=self.normalized_kernel,
+        )
         loss = learning_modulation * loss
         loss = loss.mean()
         loss.backward(retain_graph=True)

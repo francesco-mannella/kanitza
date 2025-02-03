@@ -1,4 +1,3 @@
-import numpy as np
 
 class Parameters:
     def __init__(
@@ -9,8 +8,8 @@ class Parameters:
         env_name="EyeSim-v0",
         episodes=20,
         epochs=800,
-        focus_num=10,
-        focus_time=10,
+        saccade_num=10,
+        saccade_time=10,
         plot_sim=False,
         plot_maps=True,
         plotting_epochs_interval=50,
@@ -21,11 +20,12 @@ class Parameters:
         maps_learning_rate=0.1,
         saccade_threshold=14,
         neighborhood_modulation=10,
-        neighborhood_modulation_baseline=.8,
+        neighborhood_modulation_baseline=0.8,
         learnigrate_modulation=0.8,
         learnigrate_modulation_baseline=0.02,
-        decaying_speed=5,
-        local_decaying_speed=1,
+        match_std=4.0,
+        decaying_speed=5.0,
+        local_decaying_speed=1.0,
     ):
         self.project_name = project_name
         self.entity_name = entity_name
@@ -33,8 +33,8 @@ class Parameters:
         self.env_name = env_name
         self.episodes = episodes
         self.epochs = epochs
-        self.focus_num = focus_num
-        self.focus_time = focus_time
+        self.saccade_num = saccade_num
+        self.saccade_time = saccade_time
         self.plot_sim = plot_sim
         self.plot_maps = plot_maps
         self.plotting_epochs_interval = plotting_epochs_interval
@@ -47,6 +47,9 @@ class Parameters:
         self.learnigrate_modulation = learnigrate_modulation
         self.neighborhood_modulation = neighborhood_modulation
         self.learnigrate_modulation_baseline = learnigrate_modulation_baseline
-        self.neighborhood_modulation_baseline = neighborhood_modulation_baseline
+        self.neighborhood_modulation_baseline = (
+            neighborhood_modulation_baseline
+        )
+        self.match_std = match_std
         self.decaying_speed = decaying_speed
         self.local_decaying_speed = local_decaying_speed
