@@ -359,8 +359,13 @@ class MapsPlotter:
         self._update_focus(self.visual_effects_map_focus)
 
     def _update_focus(self, saccade_pointer):
-        """Update the saccade pointer position based on current saccade data."""
-        saccade = (self.saccade or 1e100 * np.ones(2)).ravel()
+        """
+        Update the saccade pointer position based on current saccade data.
+        """
+        saccade = self.saccade
+        if saccade is None:
+            saccade = 1e100 * np.ones(2)
+        saccade = saccade.ravel()
         saccade = self.fovea_size * (0.2 + np.array([saccade[1], saccade[0]]))
         saccade_pointer.set_offsets(saccade)
 
@@ -434,7 +439,7 @@ class MapsPlotter:
             .numpy()
             .reshape(inp_side1, inp_side2, 3, out_side1, out_side2)[::-1]
         )
-        transposed_weights = reshaped_weights.transpose(3, 0, 4, 1, 2).reshape(
+        transposed_weights = reshaped_weights.transpose(3, 1, 4, 0, 2).reshape(
             inp_side1 * out_side1, inp_side2 * out_side2, 3
         )
 

@@ -28,7 +28,7 @@ def gabor_filter(
         sigma_y = sigma
 
     half_size = size // 2
-    x_grid,   y_grid = np.ogrid[
+    x_grid, y_grid = np.ogrid[
         -half_size : (half_size + 1), -half_size : (half_size + 1)
     ]
     rotated_x = x_grid * np.cos(orientation) + y_grid * np.sin(orientation)
