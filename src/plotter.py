@@ -358,7 +358,7 @@ class MapsPlotter:
 
         self._update_focus(self.visual_effects_map_focus)
 
-    def _update_focus(self, focus_pointer):
+    def _update_focus(self, saccade_pointer):
         """Update the saccade pointer position based on current saccade data."""
         saccade = (self.saccade or 1e100 * np.ones(2)).ravel()
         saccade = self.fovea_size * (0.2 + np.array([saccade[1], saccade[0]]))

@@ -20,10 +20,9 @@ def signal_handler(signum, frame):
     Handle incoming signals to gracefully terminate the program.
 
     Parameters:
-    - signum: Signal number.
-    - frame: Current stack frame.
+    - signum (int): Signal number.
+    - frame (frame object): Current stack frame.
     """
-    # Ignore additional signals and ensure any cleanup via wandb
     signal.signal(signum, signal.SIG_IGN)
     wandb.finish()
     sys.exit(0)
@@ -34,13 +33,19 @@ class Logger:
     Logger class to write numbers to a file.
 
     Attributes:
-    - filename: The name of the file to which the logs are written.
+    - filename (str): The name of the file to which the logs are written.
     """
 
     def __init__(self, filename):
         self.filename = filename
 
     def __call__(self, number):
+        """
+        Log a number to the file.
+
+        Parameters:
+        - number (float): The number to log.
+        """
         with open(self.filename, "a") as file:
             file.write(str(number) + "\n")
 
@@ -50,11 +55,11 @@ def setup_environment(seed, params):
     Set up the gym environment with a specified seed.
 
     Parameters:
-    - seed: Random seed to use for environment initialization.
-    - params: Parameters object containing 'env_name'.
+    - seed (int): Random seed to use for environment initialization.
+    - params (Parameters): Parameters object containing 'env_name'.
 
     Returns:
-    - Gym environment object.
+    - env (gym.Env): Gym environment object.
     """
     env = gym.make(params.env_name)
     env = env.unwrapped
@@ -67,12 +72,12 @@ def setup_agent(env, params, seed):
     Set up the agent with environment and specific parameters.
 
     Parameters:
-    - env: Gym environment object.
-    - params: Parameters object with 'agent_sampling_threshold'.
-    - seed: Random seed for agent setup.
+    - env (gym.Env): Gym environment object.
+    - params (Parameters): Parameters object with 'agent_sampling_threshold'.
+    - seed (int): Random seed for agent setup.
 
     Returns:
-    - Initialized Agent object.
+    - agent (Agent): Initialized Agent object.
     """
     return Agent(
         env, sampling_threshold=params.agent_sampling_threshold, seed=seed
@@ -84,13 +89,15 @@ def setup_offline_controller(file_path, env, params, seed):
     Set up the offline controller, loading from file if it exists.
 
     Parameters:
-    - file_path: Path to check for existing controller data.
-    - env: Gym environment object.
-    - params: Parameters for the offline controller.
-    - seed: Random seed for controller setup.
+    - file_path (str): Path to check for existing controller data.
+    - env (gym.Env): Gym environment object.
+    - params (Parameters): Parameters for the offline controller.
+    - seed (int): Random seed for controller setup.
 
     Returns:
-    - Loaded or new OfflineController object.
+    - off_controller (OfflineController): Loaded or new OfflineController
+      object.
+
     """
     if os.path.exists(file_path):
         return OfflineController.load(file_path, env, params, seed)
@@ -103,11 +110,11 @@ def run_epoch(agent, env, off_control, params, epoch):
     Perform multiple episodes of simulation for a single epoch.
 
     Parameters:
-    - agent: Agent object to execute actions.
-    - env: Gym environment object.
-    - off_control: OfflineController for state management.
-    - params: Parameters object containing simulation settings.
-    - epoch: Current epoch number for logging and control.
+    - agent (Agent): Agent object to execute actions.
+    - env (gym.Env): Gym environment object.
+    - off_control (OfflineController): OfflineController for state management.
+    - params (Parameters): Parameters object containing simulation settings.
+    - epoch (int): Current epoch number for logging and control.
     """
     for episode in range(params.episodes):
         run_episode(agent, env, off_control, params, episode, epoch)
@@ -119,12 +126,12 @@ def run_episode(agent, env, off_control, params, episode, epoch):
     Execute a single episode of simulation.
 
     Parameters:
-    - agent: Agent object.
-    - env: Gym environment object.
-    - off_control: OfflineController object.
-    - params: Parameters object with simulation details.
-    - episode: Current episode number.
-    - epoch: Current epoch number.
+    - agent (Agent): Agent object.
+    - env (gym.Env): Gym environment object.
+    - off_control (OfflineController): OfflineController object.
+    - params (Parameters): Parameters object with simulation details.
+    - episode (int): Current episode number.
+    - epoch (int): Current epoch number.
     """
     env.init_world(world=env.rng.choice([0, 1]))
     _, env_info = env.reset()
@@ -138,9 +145,7 @@ def run_episode(agent, env, off_control, params, episode, epoch):
     fovea_plotter = FoveaPlotter(env, offline=True) if plt_enabled else None
 
     action = np.zeros(env.action_space.shape)
-    saccades = off_control.generate_attentional_input(
-        params.saccade_num
-    )
+    saccades = off_control.generate_attentional_input(params.saccade_num)
 
     for saccade_idx, saccade in enumerate(saccades):
         execute_saccade(
@@ -174,15 +179,15 @@ def execute_saccade(
     Execute the attentional saccade phase of an episode.
 
     Parameters:
-    - agent: Agent object.
-    - env: Gym environment object.
-    - off_control: OfflineController object.
-    - params: Parameters object.
-    - action: Initial action configuration.
-    - saccade: Current attentional saccade settings.
-    - episode: Current episode number.
-    - saccade_idx: Current saccade index.
-    - fovea_plotter: Optional plotter for visual output.
+    - agent (Agent): Agent object.
+    - env (gym.Env): Gym environment object.
+    - off_control (OfflineController): OfflineController object.
+    - params (Parameters): Parameters object.
+    - action (np.ndarray): Initial action configuration.
+    - saccade (np.ndarray): Current attentional saccade point.
+    - episode (int): Current episode number.
+    - saccade_idx (int): Current saccade index.
+    - fovea_plotter (FoveaPlotter or None): Optional plotter for visual output.
     """
     for time_step in range(params.saccade_time):
         if time_step == int(0.5 * params.saccade_time):
@@ -209,12 +214,14 @@ def is_plotting_epoch(epoch, params):
     Determine if the current epoch is a plotting epoch.
 
     Parameters:
-    - epoch: Current epoch number.
-    - params: Parameters object containing 'plotting_epochs_interval'
-      and 'epochs'.
+    - epoch (int): Current epoch number.
+    - params (Parameters): Parameters object containing
+      'plotting_epochs_interval' and 'epochs'.
 
     Returns:
-    - True if the current epoch is a plotting epoch; otherwise False.
+    - is_plotting (bool): True if the current epoch is a plotting epoch;
+      otherwise False.
+
     """
     return (
         epoch % params.plotting_epochs_interval == 0
@@ -227,8 +234,8 @@ def save_simulation_gif(fovea_plotter, epoch):
     Save the simulation output as a GIF and log it to WandB.
 
     Parameters:
-    - fovea_plotter: FoveaPlotter object for visualizing data.
-    - epoch: Current epoch number.
+    - fovea_plotter (FoveaPlotter): FoveaPlotter object for visualizing data.
+    - epoch (int): Current epoch number.
     """
     gif_file = f"sim_{epoch:04d}"
     fovea_plotter.close(gif_file)
@@ -244,7 +251,6 @@ def main():
     """
     competence_log = Logger("comp")
 
-    # Setup signal handling to gracefully terminate the program
     signal.signal(signal.SIGINT, signal_handler)
 
     plt.ion()
@@ -287,8 +293,8 @@ def save_maps_gif(maps_plotter, epoch):
     Save and log the maps as both GIF and PNG files.
 
     Parameters:
-    - maps_plotter: MapsPlotter object for visualizing maps.
-    - epoch: Current epoch number.
+    - maps_plotter (MapsPlotter): MapsPlotter object for visualizing maps.
+    - epoch (int): Current epoch number.
     """
     file = f"maps_{epoch:04d}"
     maps_plotter.close(file)
@@ -303,12 +309,10 @@ def save_maps_gif(maps_plotter, epoch):
 
 if __name__ == "__main__":
 
-    # Use Agg backend for matplotlib
     matplotlib.use("agg")
 
     import argparse
 
-    # Argument parser for command-line options
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
@@ -334,7 +338,6 @@ if __name__ == "__main__":
 
     params = Parameters()
 
-    # Set up seed and decaying speed parameters from command-line arguments
     seed = args.seed
 
     params.decaying_speed = (
@@ -348,7 +351,6 @@ if __name__ == "__main__":
         else params.local_decaying_speed
     )
 
-    # Create a unique initialization name based on parameters
     seed_str = str(seed).replace(".", "_")
     decaying_speed_str = str(params.decaying_speed).replace(".", "_")
     local_decaying_speed_str = str(params.local_decaying_speed).replace(
@@ -361,15 +363,12 @@ if __name__ == "__main__":
         f"localdecay_{local_decaying_speed_str}"
     )
 
-    # Initialize wandb for experiment tracking
     wandb.init(
         project=params.project_name,
         entity=params.entity_name,
         name=params.init_name,
     )
 
-    # Run the main simulation
     main()
 
-    # Finish the wandb session
     wandb.finish()
