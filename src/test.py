@@ -122,7 +122,9 @@ def update_environment_position(env, time_step, params):
     if time_step % 10 == 0:
         pos, rot = env.get_position_and_rotation()
         pos_trj_angle = (
-            5 * np.pi * (time_step / (params.saccade_time * params.saccade_num))
+            5
+            * np.pi
+            * (time_step / (params.saccade_time * params.saccade_num))
         )
         pos += 10 * np.array([np.cos(pos_trj_angle), np.sin(pos_trj_angle)])
         rot += pos_trj_angle
