@@ -272,12 +272,11 @@ def main():
         off_control.reset_states()
 
         run_epoch(agent, env, off_control, params, epoch)
+        off_control.filter_salient_states()
+        off_control.update_maps()
 
         competence_log(off_control.competence.detach().cpu().numpy())
         wandb.log({"competence": off_control.competence}, step=epoch)
-
-        off_control.filter_salient_states()
-        off_control.update_maps()
 
         if params.plot_maps:
             maps_plotter.step()

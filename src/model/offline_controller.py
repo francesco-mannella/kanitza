@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 
-from model.topological_maps import STMUpdater, TopologicalMap
+from model.topological_maps import TopologicalMap, Updater
 
 
 class OfflineController:
@@ -52,21 +52,27 @@ class OfflineController:
 
         # Visual conditions map
         self.visual_conditions_map = TopologicalMap(input_size, output_size)
-        self.visual_conditions_updater = STMUpdater(
-            self.visual_conditions_map, self.params.maps_learning_rate
+        self.visual_conditions_updater = Updater(
+            self.visual_conditions_map,
+            self.params.maps_learning_rate,
+            "stm",
         )
 
         # Visual effects map
         self.visual_effects_map = TopologicalMap(input_size, output_size)
-        self.visual_effects_updater = STMUpdater(
-            self.visual_effects_map, self.params.maps_learning_rate
+        self.visual_effects_updater = Updater(
+            self.visual_effects_map,
+            self.params.maps_learning_rate,
+            "stm",
         )
 
         # Attention map
         input_size = self.params.attention_size
         self.attention_map = TopologicalMap(input_size, output_size)
-        self.attention_updater = STMUpdater(
-            self.attention_map, self.params.maps_learning_rate
+        self.attention_updater = Updater(
+            self.attention_map,
+            self.params.maps_learning_rate,
+            "stm",
         )
 
     def _init_storage(self):
@@ -198,7 +204,7 @@ class OfflineController:
         visual_effects = get_state_data(2)
 
         # Retrieve representations
-        representations = self._get_representations(
+        representations = self.get_representations(
             attention_states, visual_conditions, visual_effects
         )
         self.representations = representations
@@ -224,7 +230,28 @@ class OfflineController:
             attention_output, visual_conditions_output, visual_effects_output
         )
 
-    def _get_representations(
+    def get_map_representations(self, map, norms, std_baseline, grid=True):
+        """
+        Compute point and grid representations for a map.
+
+        Parameters:
+        - map: The map object to compute representations for.
+        - norms: Norms to be used in computing the representation.
+        - std_baseline: Baseline standard deviation for modulation.
+        - grid (bool, optional): Indicates whether to include grid
+          representation; defaults to True.
+
+        Returns:
+        - A dictionary with point and grid representations.
+        """
+        return {
+            "point": map.get_representation(norms, rtype="point"),
+            "grid": map.get_representation(
+                norms, rtype="grid", neighborhood_std=std_baseline
+            ),
+        }
+
+    def get_representations(
         self, attention_states, visual_conditions, visual_effects
     ):
         """
@@ -232,36 +259,27 @@ class OfflineController:
 
         Parameters:
         - attention_states: Current states of attention inputs.
-        - visual_conditions: Visual condition representations.
-        - visual_effects: Visual effect representations.
+        - visual_conditions: Visual condition states.
+        - visual_effects: Visual effect states.
 
         Returns:
         - A dictionary with point and grid representations for attention,
           visual conditions, and visual effects.
         """
-
-        def get_map_representations(map, norms, std_baseline):
-            return {
-                "point": map.get_representation(norms, rtype="point"),
-                "grid": map.get_representation(
-                    norms, rtype="grid", std=std_baseline
-                ),
-            }
-
         std_baseline = self.params.neighborhood_modulation_baseline
 
         representations = {
-            "pa": get_map_representations(
+            "pa": self.get_map_representations(
                 self.attention_map,
                 self.attention_map(attention_states),
                 std_baseline,
             ),
-            "pvc": get_map_representations(
+            "pvc": self.get_map_representations(
                 self.visual_conditions_map,
                 self.visual_conditions_map(visual_conditions),
                 std_baseline,
             ),
-            "pve": get_map_representations(
+            "pve": self.get_map_representations(
                 self.visual_effects_map,
                 self.visual_effects_map(visual_effects),
                 std_baseline,
@@ -287,26 +305,26 @@ class OfflineController:
 
         self.visual_conditions_updater(
             output=visual_conditions_output,
-            std=neighborhood_modulation,
-            target=point_attention_representations,
+            neighborhood_std=neighborhood_modulation,
+            anchors=point_attention_representations,
             learning_modulation=learnigrate_modulation,
-            target_std=1,
+            neighborhood_std_anchors=1,
         )
 
-        self.visual_effects_updater(
+        self.visual_conditions_updater(
             output=visual_effects_output,
-            std=neighborhood_modulation,
-            target=point_attention_representations,
+            neighborhood_std=neighborhood_modulation,
+            anchors=point_attention_representations,
             learning_modulation=learnigrate_modulation,
-            target_std=1,
+            neighborhood_std_anchors=1,
         )
 
         self.attention_updater(
             output=attention_output,
-            std=neighborhood_modulation,
-            target=point_attention_representations,
+            neighborhood_std=neighborhood_modulation,
+            anchors=point_attention_representations,
             learning_modulation=learnigrate_modulation,
-            target_std=1,
+            neighborhood_std_anchors=1,
         )
 
     def _compute_matches(self):
@@ -318,11 +336,26 @@ class OfflineController:
         - A tensor of match scores based on the Euclidean distance between
           points.
         """
-        difference = (
+        # Calculate the difference between the "pve" and "pa" representations
+        pve_pa_difference = (
             self.representations["pve"]["point"]
             - self.representations["pa"]["point"]
         )
-        return torch.norm(difference, dim=-1)
+        # Compute the norm of the above difference
+        norm_pve_pa = torch.norm(pve_pa_difference, dim=-1)
+
+        # Calculate the difference between the "pvc" and "pa" representations
+        pvc_pa_difference = (
+            self.representations["pvc"]["point"]
+            - self.representations["pa"]["point"]
+        )
+        # Scale the difference by half
+        scaled_pvc_pa_difference = pvc_pa_difference / 2
+        # Compute the norm of the scaled difference
+        norm_scaled_pvc_pa = torch.norm(scaled_pvc_pa_difference, dim=-1)
+
+        # Return the mean of both norms
+        return torch.stack([norm_pve_pa, norm_scaled_pvc_pa])
 
     def get_action_from_condition(self, condition):
         """
@@ -343,7 +376,7 @@ class OfflineController:
         representation = self.visual_conditions_map.get_representation(
             norm,
             rtype="point",
-            std=self.params.neighborhood_modulation_baseline,
+            neighborhood_std=self.params.neighborhood_modulation_baseline,
         )
 
         focus = self.attention_map.backward(

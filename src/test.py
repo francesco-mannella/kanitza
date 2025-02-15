@@ -90,6 +90,7 @@ def run_episode(
     maps_plotter,
     episode,
 ):
+    # TODO: redundnt
     condition = observation["FOVEA"].copy()
     saccade, goal = off_control.get_action_from_condition(condition)
     agent.set_parameters(saccade)

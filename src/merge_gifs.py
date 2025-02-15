@@ -1,4 +1,5 @@
-from PIL import Image, ImageSequence
+from PIL import Image
+
 
 def merge_gifs(first_frames, second_frames, merged_gif, frame_duration=2000):
 
@@ -9,7 +10,7 @@ def merge_gifs(first_frames, second_frames, merged_gif, frame_duration=2000):
     for frame1, frame2 in zip(first_frames, second_frames):
         # Ensure both frames have the same size
         width, height = frame1.size
-        
+
         # Create a new image for this frame
         merged_frame = Image.new('RGB', (width, height * 2))
 
@@ -31,4 +32,3 @@ def merge_gifs(first_frames, second_frames, merged_gif, frame_duration=2000):
     )
 
     print(f'save {gif_file}')
-
