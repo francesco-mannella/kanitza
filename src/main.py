@@ -321,6 +321,12 @@ if __name__ == "__main__":
         help="Set the seed for random number generation.",
     )
     parser.add_argument(
+        "--variant",
+        type=str,
+        default="base",
+        help="A string describing this particular simulation",
+    )
+    parser.add_argument(
         "--decaying_speed",
         type=float,
         default=None,
@@ -336,8 +342,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     params = Parameters()
-
     seed = args.seed
+    variant = args.variant
 
     params.decaying_speed = (
         args.decaying_speed
@@ -357,7 +363,9 @@ if __name__ == "__main__":
     )
 
     params.init_name = (
-        f"sim_seed_{seed_str}_"
+        "sim_"
+        f"{variant}_"
+        f"seed_{seed_str}_"
         f"decay_{decaying_speed_str}_"
         f"localdecay_{local_decaying_speed_str}"
     )

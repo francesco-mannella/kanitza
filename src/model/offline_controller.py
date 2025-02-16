@@ -210,10 +210,7 @@ class OfflineController:
         self.representations = representations
 
         # Compute competence
-        self.matches = self._compute_matches()
-        self.competences = torch.exp(
-            -((self.params.match_std**-2) * self.matches**2)
-        )
+        self.competences = self._compute_matches()
         self.competence = self.competences.mean()
 
         # Update hyperparameters
@@ -311,7 +308,7 @@ class OfflineController:
             neighborhood_std_anchors=1,
         )
 
-        self.visual_conditions_updater(
+        self.visual_effects_updater(
             output=visual_effects_output,
             neighborhood_std=neighborhood_modulation,
             anchors=point_attention_representations,
@@ -336,26 +333,40 @@ class OfflineController:
         - A tensor of match scores based on the Euclidean distance between
           points.
         """
-        # Calculate the difference between the "pve" and "pa" representations
+        # Determine the positional difference between the "pve" and "pa"
+        # representations
         pve_pa_difference = (
             self.representations["pve"]["point"]
             - self.representations["pa"]["point"]
         )
-        # Compute the norm of the above difference
+        # Compute the Euclidean norm of the above difference, resulting in a
+        # distance measure
         norm_pve_pa = torch.norm(pve_pa_difference, dim=-1)
 
-        # Calculate the difference between the "pvc" and "pa" representations
+        # Determine the positional difference between the "pvc" and "pa"
+        # representations
         pvc_pa_difference = (
             self.representations["pvc"]["point"]
             - self.representations["pa"]["point"]
         )
-        # Scale the difference by half
+        # Adjust the difference by a factor of 0.5 to scale down its impact
         scaled_pvc_pa_difference = pvc_pa_difference / 2
-        # Compute the norm of the scaled difference
+        # Compute the Euclidean norm of the scaled difference for distance
+        # measurement
         norm_scaled_pvc_pa = torch.norm(scaled_pvc_pa_difference, dim=-1)
 
-        # Return the mean of both norms
-        return torch.stack([norm_pve_pa, norm_scaled_pvc_pa])
+        # Stack the calculated norms to form a distances tensor
+        dists = torch.stack([norm_pve_pa, norm_scaled_pvc_pa])
+
+        # Convert distances to similarity scores using a Gaussian-like decay
+        # based on match_std
+        matches = torch.exp(-((self.params.match_std**-2) * dists**2))
+        # Calculate the average of the scores for a comprehensive similarity
+        # measure
+        matches = matches.mean(0)
+
+        # Return the computed average similarity scores
+        return matches
 
     def get_action_from_condition(self, condition):
         """
