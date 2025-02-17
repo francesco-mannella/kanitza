@@ -1,11 +1,10 @@
 #!/bin/bash
 
 seeds=1
-decay_speeds='4'
-local_decay_speeds='1.5'
+decay_speeds='4 3 2'
+local_decay_speeds='1.5 1.3 1.1'
+match_std='4.0 3.5 3.0'
 wandb=false
-# decay_speeds='5 4'
-# local_decay_speeds=$(seq 2.0 -0.5 0.5)
 CURR_DIR=$(pwd)
 EXE=$(dirname "$0" | xargs realpath | sed -e "s/scripts/src\/main.py/" ) 
 
@@ -22,7 +21,12 @@ for s in $seeds; do
             mkdir -p $dirname
             cd $dirname
             if [[ $wandb == false ]]; then wandb disabled; fi
-            python $EXE --seed $s --decaying_speed $ds --local_decaying_speed $lds
+
+            param_list="decaying_speed=${ds}"
+            param_list="${param_list};local_decaying_speed=${lds}"
+            param_list="${param_list};match_std=${lds}"
+
+            python $EXE --variant='grid' --seed=$s --param_list="${param_list}"
             cd $CURR_DIR
         done
     done

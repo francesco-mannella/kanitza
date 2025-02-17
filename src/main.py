@@ -245,7 +245,7 @@ def save_simulation_gif(fovea_plotter, epoch):
     )
 
 
-def main():
+def main(params):
     """
     Main function to execute the simulation process.
     """
@@ -327,16 +327,13 @@ if __name__ == "__main__":
         help="A string describing this particular simulation",
     )
     parser.add_argument(
-        "--decaying_speed",
-        type=float,
+        "--param_list",
+        type=str,
         default=None,
-        help="Speed at which decay occurs",
-    )
-    parser.add_argument(
-        "--local_decaying_speed",
-        type=float,
-        default=None,
-        help="Local speed at which decay occurs",
+        help=(
+            "Specify custom parameters with the format: "
+            "'param1=value1;param2=value2;...'."
+        ),
     )
 
     args = parser.parse_args()
@@ -344,17 +341,9 @@ if __name__ == "__main__":
     params = Parameters()
     seed = args.seed
     variant = args.variant
+    param_list = args.param_list
 
-    params.decaying_speed = (
-        args.decaying_speed
-        if args.decaying_speed is not None
-        else params.decaying_speed
-    )
-    params.local_decaying_speed = (
-        args.local_decaying_speed
-        if args.local_decaying_speed is not None
-        else params.local_decaying_speed
-    )
+    params.string_to_params(param_list)
 
     seed_str = str(seed).replace(".", "_")
     decaying_speed_str = str(params.decaying_speed).replace(".", "_")
@@ -366,8 +355,8 @@ if __name__ == "__main__":
         "sim_"
         f"{variant}_"
         f"seed_{seed_str}_"
-        f"decay_{decaying_speed_str}_"
-        f"localdecay_{local_decaying_speed_str}"
+        f"decay_{params.decaying_speed}_"
+        f"localdecay_{params.local_decaying_speed}"
     )
 
     wandb.init(
@@ -376,6 +365,6 @@ if __name__ == "__main__":
         name=params.init_name,
     )
 
-    main()
+    main(params)
 
     wandb.finish()

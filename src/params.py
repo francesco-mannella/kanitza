@@ -1,4 +1,3 @@
-
 class Parameters:
     def __init__(
         self,
@@ -53,3 +52,75 @@ class Parameters:
         self.match_std = match_std
         self.decaying_speed = decaying_speed
         self.local_decaying_speed = local_decaying_speed
+
+        self.param_types = {
+            "project_name": str,
+            "entity_name": str,
+            "init_name": str,
+            "env_name": str,
+            "episodes": int,
+            "epochs": int,
+            "saccade_num": int,
+            "saccade_time": int,
+            "plot_sim": bool,
+            "plot_maps": bool,
+            "plotting_epochs_interval": int,
+            "agent_sampling_threshold": float,
+            "maps_output_size": int,
+            "action_size": int,
+            "attention_size": int,
+            "maps_learning_rate": float,
+            "saccade_threshold": int,
+            "neighborhood_modulation": int,
+            "neighborhood_modulation_baseline": float,
+            "learnigrate_modulation": float,
+            "learnigrate_modulation_baseline": float,
+            "match_std": float,
+            "decaying_speed": float,
+            "local_decaying_speed": float,
+        }
+
+    def string_to_params(self, param_list):
+        """
+        Read parameter values from a semicolon-separated string of key-value
+        pairs.
+
+        Parameters:
+            - param_list (str): A semicolon-separated string where each element
+              is a key-value pair in the format 'key=value'.
+
+        Example:
+            If `self` has attributes `a` and `b`, calling:
+
+            self.string_to_dict("a=1;b=2")
+
+            will set:
+            self.a = 1
+            self.b = 2
+        """
+        if not param_list:
+            return
+
+        param_dict = dict(
+            item.split("=", 1) for item in param_list.split(";") if "=" in item
+        )
+
+        for key, value in param_dict.items():
+            if hasattr(self, key):
+                converter = self.param_types.get(
+                    key, str
+                )  # Default to str if type is not specified
+                setattr(self, key, converter(value))
+            else:
+                print(f"There's no parameter named {key}")
+
+    def save(self, filepath):
+        with open(filepath, "w") as file:
+            for key in self.__dict__:
+                if key != "param_types":
+                    file.write(f"{key}={getattr(self, key)}\n")
+
+    def load(self, filepath):
+        with open(filepath, "r") as file:
+            param_list = "".join([line.strip() + ";" for line in file])
+        self.string_to_params(param_list)

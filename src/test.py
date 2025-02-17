@@ -235,7 +235,7 @@ def main():
     # Parse arguments
     args = parse_arguments()
 
-    # Create an instance of Parameters with default or custom values
+    # Create an instance of Parameters with default or param_list values
     params = Parameters()
     seed = args.seed
 
