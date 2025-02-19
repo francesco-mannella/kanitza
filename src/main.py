@@ -276,7 +276,15 @@ def main(params):
         off_control.update_maps()
 
         competence_log(off_control.competence.detach().cpu().numpy())
-        wandb.log({"competence": off_control.competence}, step=epoch)
+
+        # Log the data using wandb, including competence and unpacked
+        # weight_changes
+        wandb.log(
+            dict(
+                competence=off_control.competence, **off_control.weight_change
+            ),
+            step=epoch,
+        )
 
         if params.plot_maps:
             maps_plotter.step()
@@ -344,6 +352,7 @@ if __name__ == "__main__":
     param_list = args.param_list
 
     params.string_to_params(param_list)
+    params.save("loaded_params")
 
     seed_str = str(seed).replace(".", "_")
     decaying_speed_str = str(params.decaying_speed).replace(".", "_")
@@ -354,9 +363,10 @@ if __name__ == "__main__":
     params.init_name = (
         "sim_"
         f"{variant}_"
-        f"seed_{seed_str}_"
-        f"decay_{params.decaying_speed}_"
-        f"localdecay_{params.local_decaying_speed}"
+        f"s_{seed_str}_"
+        f"m_{params.match_std}_"
+        f"d_{params.decaying_speed}_"
+        f"l_{params.local_decaying_speed}"
     )
 
     wandb.init(

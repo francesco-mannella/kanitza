@@ -227,6 +227,8 @@ class OfflineController:
             attention_output, visual_conditions_output, visual_effects_output
         )
 
+        self.weight_change = self.compute_weight_change()
+
     def get_map_representations(self, map, norms, std_baseline, grid=True):
         """
         Compute point and grid representations for a map.
@@ -367,6 +369,44 @@ class OfflineController:
 
         # Return the computed average similarity scores
         return matches
+
+    def compute_weight_change(self):
+        """
+        Compute the change in weights for each map.
+
+        The method compares the current weights with previously stored
+        weights for specified keys (e.g., 'visual_conditions',
+        'visual_effects', 'attention'). It calculates the norm (magnitude
+        of difference) between the current and previous weights for each
+        key, and then updates the stored weights with the current ones.
+
+        Returns:
+            - norms (dict): A dictionary containing the norms of the weight
+              differences for each specified map:
+              ["visual_conditions", "visual_effects", "attention"].
+        """
+        keys = ["visual_conditions", "visual_effects", "attention"]
+
+        # Initialize weight_dict if it doesn't exist
+        if not hasattr(self, "weight_dict"):
+            self.weight_dict = {
+                key: torch.zeros_like(getattr(self, f"{key}_map").weights)
+                for key in keys
+            }
+
+        weight_dict_curr = {
+            key: getattr(self, f"{key}_map").weights.clone() for key in keys
+        }
+
+        # Calculate norms and update weight_dict in a single loop
+        norms = {}
+        for key in keys:
+            norms[key] = torch.norm(
+                self.weight_dict[key] - weight_dict_curr[key]
+            )
+            self.weight_dict[key] = weight_dict_curr[key]
+
+        return norms
 
     def get_action_from_condition(self, condition):
         """
