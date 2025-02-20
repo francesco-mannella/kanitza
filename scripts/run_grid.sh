@@ -12,12 +12,7 @@ for s in $seeds; do
     for ms in $match_std; do
         for ds in $decay_speeds; do 
             for lds in $local_decay_speeds; do
-                dirname=$(
-                    printf "s_%04d_ds_%08d_lds_%08d" \
-                        "$s" \
-                        "$(printf "%.0f" $(echo "$ds * 1000" | bc))" \
-                        "$(printf "%10.0f" $(echo "$lds * 1000" | bc))"
-                )
+                dirname=$(mktemp -d)
 
                 mkdir -p $dirname
                 cd $dirname
@@ -28,7 +23,11 @@ for s in $seeds; do
                 param_list="${param_list};match_std=${ms}"
 
                 ( python $EXE --variant='grid' --seed=$s --param_list="${param_list}" )
+
+                dirname_final=$(cat NAME)
                 cd $CURR_DIR
+
+                mv $dirname ./$dirname_final
             done
         done
     done

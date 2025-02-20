@@ -370,6 +370,9 @@ if __name__ == "__main__":
         f"l_{params.local_decaying_speed}"
     )
 
+    with open("NAME", "w") as fname:
+        fname.write(f"{params.init_name}\n")
+
     wandb.init(
         project=params.project_name,
         entity=params.entity_name,
