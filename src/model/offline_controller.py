@@ -1,7 +1,10 @@
 import numpy as np
 import torch
 
-from model.topological_maps import TopologicalMap, Updater
+from model.topological_maps import FilteredTopologicalMap, Updater
+
+
+import sys
 
 
 class OfflineController:
@@ -51,7 +54,9 @@ class OfflineController:
         output_size = self.params.maps_output_size
 
         # Visual conditions map
-        self.visual_conditions_map = TopologicalMap(input_size, output_size)
+        self.visual_conditions_map = FilteredTopologicalMap(
+            input_size, output_size
+        )
         self.visual_conditions_updater = Updater(
             self.visual_conditions_map,
             self.params.maps_learning_rate,
@@ -59,7 +64,9 @@ class OfflineController:
         )
 
         # Visual effects map
-        self.visual_effects_map = TopologicalMap(input_size, output_size)
+        self.visual_effects_map = FilteredTopologicalMap(
+            input_size, output_size
+        )
         self.visual_effects_updater = Updater(
             self.visual_effects_map,
             self.params.maps_learning_rate,
@@ -68,7 +75,7 @@ class OfflineController:
 
         # Attention map
         input_size = self.params.attention_size
-        self.attention_map = TopologicalMap(input_size, output_size)
+        self.attention_map = FilteredTopologicalMap(input_size, output_size)
         self.attention_updater = Updater(
             self.attention_map,
             self.params.maps_learning_rate,
@@ -267,23 +274,30 @@ class OfflineController:
         """
         std_baseline = self.params.neighborhood_modulation_baseline
 
-        representations = {
-            "pa": self.get_map_representations(
-                self.attention_map,
-                self.attention_map(attention_states),
-                std_baseline,
-            ),
-            "pvc": self.get_map_representations(
-                self.visual_conditions_map,
-                self.visual_conditions_map(visual_conditions),
-                std_baseline,
-            ),
-            "pve": self.get_map_representations(
-                self.visual_effects_map,
-                self.visual_effects_map(visual_effects),
-                std_baseline,
-            ),
-        }
+        representations = {}
+        representations["pa"] = self.get_map_representations(
+            self.attention_map,
+            self.attention_map(attention_states),
+            std_baseline,
+        )
+
+        bmus = self.attention_map.get_bmu_from_points(
+            representations["pa"]["point"]
+        ).long()
+
+        self.visual_conditions_map.set_filter(bmus, self.competence)
+        self.visual_effects_map.set_filter(bmus, self.competence)
+
+        representations["pvc"] = self.get_map_representations(
+            self.visual_conditions_map,
+            self.visual_conditions_map(visual_conditions),
+            std_baseline,
+        )
+        representations["pve"] = self.get_map_representations(
+            self.visual_effects_map,
+            self.visual_effects_map(visual_effects),
+            std_baseline,
+        )
         return representations
 
     def _update_maps(
