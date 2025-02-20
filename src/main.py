@@ -363,6 +363,7 @@ if __name__ == "__main__":
     params.init_name = (
         "sim_"
         f"{variant}_"
+        f"{str(hex(np.abs(hash(params))))[:6]}_"
         f"s_{seed_str}_"
         f"m_{params.match_std}_"
         f"d_{params.decaying_speed}_"
