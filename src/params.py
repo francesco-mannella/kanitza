@@ -124,3 +124,30 @@ class Parameters:
         with open(filepath, "r") as file:
             param_list = "".join([line.strip() + ";" for line in file])
         self.string_to_params(param_list)
+
+    def __hash__(self):
+        # Using a tuple comprehension to collect all non-callable and
+        # non-private attributes (those not starting with "_") into a tuple
+        attr_values = tuple(
+            (attr, self._make_hashable(getattr(self, attr)))
+            for attr in dir(self)
+            if not callable(getattr(self, attr)) and not attr.startswith("_")
+        )
+        hashid = hash(attr_values)
+        # Create a unique string from the tuple and return its hash
+        return hashid
+
+    def _make_hashable(self, value):
+        if isinstance(value, dict):
+            # Convert dictionary to a frozenset of its items (key-value pairs)
+            return frozenset(
+                (key, self._make_hashable(v)) for key, v in value.items()
+            )
+        elif isinstance(value, list):
+            # Convert list to a tuple of its elements
+            return tuple(self._make_hashable(v) for v in value)
+        elif isinstance(value, set):
+            # Convert set to a frozenset of its elements
+            return frozenset(self._make_hashable(v) for v in value)
+        # Add other types like list, set, etc., if needed
+        return value
