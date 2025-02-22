@@ -361,7 +361,7 @@ if __name__ == "__main__":
     )
 
     params.init_name = (
-        "sim_"
+        "sim_filter_"
         f"{variant}_"
         f"{str(hex(np.abs(hash(params))))[:6]}_"
         f"s_{seed_str}_"
