@@ -270,8 +270,9 @@ class FilteredTopologicalMap(TopologicalMap):
         """
 
         # Create a one-hot encoded tensor for the chosen BMUs
+        chosen_bmus = chosen_bmus.clone().detach()
         input_filter = torch.nn.functional.one_hot(
-            torch.tensor(chosen_bmus), num_classes=self.output_size
+            chosen_bmus, num_classes=self.output_size
         ).float()
 
         # Invert the one-hot encoded tensor
