@@ -22,7 +22,7 @@ for s in $seeds; do
                 param_list="${param_list};local_decaying_speed=${lds}"
                 param_list="${param_list};match_std=${ms}"
 
-                ( python $EXE --variant='grid' --seed=$s --param_list="${param_list}" )
+                ( python $EXE --variant='filter_grid' --seed=$s --param_list="${param_list}" )
 
                 dirname_final=$(cat NAME)
                 cd $CURR_DIR

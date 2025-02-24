@@ -261,16 +261,28 @@ class OfflineController:
         self, attention_states, visual_conditions, visual_effects
     ):
         """
-        Compute representations of states in the maps.
+        Compute and modulate representations of attention, visual conditions,
+        and visual effects using attentional outputs.
+
+        This function generates a dictionary of spatial representations,
+        including both point and grid formats, for the provided input states.
+        The output of the attentional process is utilized to modulate the
+        representation of both visual conditions and visual effects by
+        influencing their mappings.
 
         Parameters:
-        - attention_states: Current states of attention inputs.
-        - visual_conditions: Visual condition states.
-        - visual_effects: Visual effect states.
+        - attention_states: Array-like, current states of attention inputs.
+        - visual_conditions: Array-like, current visual condition states.
+        - visual_effects: Array-like, current visual effect states.
 
         Returns:
-        - A dictionary with point and grid representations for attention,
-          visual conditions, and visual effects.
+        - dict: A dictionary containing modulated point and grid
+          representations for:
+            - 'pa': Attention mapping representations.
+            - 'pvc': Visual condition mapping representations informed by
+              attention-derived modulation.
+            - 'pve': Visual effect mapping representations informed by
+              attention-derived modulation.
         """
         std_baseline = self.params.neighborhood_modulation_baseline
 
@@ -281,11 +293,19 @@ class OfflineController:
             std_baseline,
         )
 
+        # The filter serves as a modulation mechanism for the conditions and
+        # effects maps, utilizing the Best Matching Units (BMUs) derived from
+        # the attentional output.
         bmus = self.attention_map.get_bmu_from_points(
             representations["pa"]["point"]
         ).long()
 
+        # Apply the modulation filter to the visual conditions map using the
+        # BMUs and competence level
         self.visual_conditions_map.set_filter(bmus, self.competence)
+
+        # Similarly, modulate the visual effects map with the filter based on
+        # the BMUs and competence level
         self.visual_effects_map.set_filter(bmus, self.competence)
 
         representations["pvc"] = self.get_map_representations(
