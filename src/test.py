@@ -9,7 +9,6 @@ import EyeSim
 import gymnasium as gym
 import matplotlib
 import matplotlib.pyplot as plt
-import numpy as np
 import torch
 import wandb
 
@@ -59,7 +58,11 @@ def execute_simulation(
             world = env.rng.choice([0, 1])
 
         env.init_world(world=world, object_params=object_params)
-        observation, _ = env.reset()
+        observation, info = env.reset()
+
+        for k, v in info.items():
+            print(f"{k}: {v}", end="  ")
+        print()
 
         fovea_plotter, maps_plotter = setup_plotters(
             env, off_control, params, is_plotting_epoch
@@ -137,16 +140,17 @@ def run_episode(
 
 
 def update_environment_position(env, time_step, params):
-    if time_step % 10 == 0:
-        pos, rot = env.get_position_and_rotation()
-        pos_trj_angle = (
-            5
-            * np.pi
-            * (time_step / (params.saccade_time * params.saccade_num))
-        )
-        pos += 10 * np.array([np.cos(pos_trj_angle), np.sin(pos_trj_angle)])
-        rot += pos_trj_angle
-        env.update_position_and_rotation(pos, rot)
+    # if time_step % 10 == 0:
+    #     pos, rot = env.get_position_and_rotation()
+    #     pos_trj_angle = (
+    #         5
+    #         * np.pi
+    #         * (time_step / (params.saccade_time * params.saccade_num))
+    #     )
+    #     pos += 10 * np.array([np.cos(pos_trj_angle), np.sin(pos_trj_angle)])
+    #     rot += pos_trj_angle
+    #     env.update_position_and_rotation(pos, rot)
+    pass
 
 
 def update_plotters(
@@ -234,19 +238,12 @@ def parse_arguments():
     )
 
     parser.add_argument(
-        "--rotation",
+        "--posrot",
+        nargs=3,
         type=float,
-        default=None,
-        help="Set the rotation of the object in the world",
-    )
-
-    parser.add_argument(
-        "--position",
-        type=float,
-        nargs=2,
-        metavar=("x", "y"),
-        default=[None, None],
-        help="Set the x, y position of the object in world",
+        metavar=("x", "y", "a"),
+        default=[None, None, None],
+        help="Set the iposition and rotation of the object in the world",
     )
 
     return parser.parse_args()
@@ -266,7 +263,12 @@ def main():
     params = Parameters()
     seed = args.seed
     world = args.world
-    object_params = {"pos": args.position, "rot": args.rotation}
+
+    object_params = (
+        None
+        if args.posrot[0] is None
+        else {"pos": args.posrot[:2], "rot": args.posrot[2]}
+    )
 
     # Set additional parameters
     params.plot_maps = True

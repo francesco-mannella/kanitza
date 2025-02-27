@@ -37,6 +37,7 @@ class EyeSimEnv(gym.Env):
         self.fovea_size = np.array([16, 16])
         self.retina_sim = None
         self.retina_sim_pos = None
+        self.world_labels = ["triangle", "square"]
         self.world_files = [
             "eyesim_triangle.json",
             "eyesim_square.json",
@@ -73,7 +74,7 @@ class EyeSimEnv(gym.Env):
 
         self.reset()
 
-    def init_world(self, world=None, object_params={"pos": None, "rot": None}):
+    def init_world(self, world=None, object_params=None):
         if world is not None:
             self.world = world
         self.world_file = get_resource(
@@ -146,7 +147,7 @@ class EyeSimEnv(gym.Env):
         # Generate a random angle between 0 and 2π radians
         angle = (
             self.object_params["rot"]
-            if self.object_params["rot"]
+            if self.object_params is not None
             else self.rng.rand() * 2 * np.pi
         )
 
@@ -157,7 +158,7 @@ class EyeSimEnv(gym.Env):
         # Calculate a random position within defined central band of task space
         # Position is calculated to be between 40% to 60% of the task space
         # range
-        if self.object_params["pos"]:
+        if self.object_params is not None:
             position = np.array(self.object_params["pos"])
         else:
             position = np.array(
@@ -196,6 +197,7 @@ class EyeSimEnv(gym.Env):
 
         observation, reward, done, info = self.step(np.zeros(2))
 
+        info["world"] = self.world_labels[self.world]
         info["angle"] = angle
         info["position"] = position
 

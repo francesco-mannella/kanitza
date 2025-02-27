@@ -1,4 +1,3 @@
-import EyeSim
 from gymnasium.envs.registration import register
 
 

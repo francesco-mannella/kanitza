@@ -4,7 +4,7 @@ class Parameters:
         project_name="eye-simulation",
         entity_name="francesco-mannella",
         init_name="offline controller tester",
-        env_name="EyeSim-v0",
+        env_name="EyeSim/EyeSim-v0",
         episodes=20,
         epochs=400,
         saccade_num=10,
