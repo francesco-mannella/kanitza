@@ -3,10 +3,9 @@ from importlib import resources
 
 import gymnasium as gym
 import numpy as np
-from gymnasium import spaces
-
 from EyeSim.envs.Simulator import Box2DSim as Sim
 from EyeSim.envs.Simulator import TestPlotter, VisualSensor
+from gymnasium import spaces
 
 
 def DefaultRewardFun(observation):
@@ -23,9 +22,12 @@ class EyeSimEnv(gym.Env):
 
     metadata = {"render_modes": ["human", "offline"], "render_fps": 25}
 
-    def __init__(self):
+    def __init__(self, render_mode=None):
 
-        super(EyeSimEnv, self).__init__()
+        assert (
+            render_mode is None or render_mode in self.metadata["render_modes"]
+        )
+        self.render_mode = render_mode
 
         self.taskspace_xlim = np.array([0, 80])
         self.taskspace_ylim = np.array([0, 80])
@@ -71,13 +73,14 @@ class EyeSimEnv(gym.Env):
 
         self.reset()
 
-    def init_world(self, world=None):
+    def init_world(self, world=None, object_params={"pos": None, "rot": None}):
         if world is not None:
             self.world = world
         self.world_file = get_resource(
             "EyeSim", "models", self.world_files[self.world]
         )
         self.world_dict = Sim.loadWorldJson(self.world_file)
+        self.object_params = object_params
 
     def set_seed(self, seed=None):
         self.seed = seed
@@ -141,7 +144,11 @@ class EyeSimEnv(gym.Env):
         self.sim = Sim(world_dict=self.world_dict)
 
         # Generate a random angle between 0 and 2π radians
-        angle = self.rng.rand() * 2 * np.pi
+        angle = (
+            self.object_params["rot"]
+            if self.object_params["rot"]
+            else self.rng.rand() * 2 * np.pi
+        )
 
         # Calculate the range of possible x and y positions
         x_range = self.taskspace_xlim[1] - self.taskspace_xlim[0]
@@ -150,16 +157,19 @@ class EyeSimEnv(gym.Env):
         # Calculate a random position within defined central band of task space
         # Position is calculated to be between 40% to 60% of the task space
         # range
-        position = np.array(
-            [
-                self.taskspace_xlim[0]
-                + x_range
-                * (0.4 + 0.2 * self.rng.rand()),  # Calculate x position
-                self.taskspace_ylim[0]
-                + y_range
-                * (0.4 + 0.2 * self.rng.rand()),  # Calculate y position
-            ]
-        )
+        if self.object_params["pos"]:
+            position = np.array(self.object_params["pos"])
+        else:
+            position = np.array(
+                [
+                    self.taskspace_xlim[0]
+                    + x_range
+                    * (0.4 + 0.2 * self.rng.rand()),  # Calculate x position
+                    self.taskspace_ylim[0]
+                    + y_range
+                    * (0.4 + 0.2 * self.rng.rand()),  # Calculate y position
+                ]
+            )
 
         # Get the first body from the simulation's bodies dictionary
         first_body_name = list(self.sim.bodies.keys())[0]
@@ -226,7 +236,7 @@ class EyeSimEnv(gym.Env):
         ):
             self.render_init(mode)
 
-    def render(self, mode="human"):
+    def render(self, mode=None):
         self.render_check(mode)
         if self.renderer is not None:
             self.renderer.step()
