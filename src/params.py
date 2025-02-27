@@ -6,7 +6,7 @@ class Parameters:
         init_name="offline controller tester",
         env_name="EyeSim-v0",
         episodes=20,
-        epochs=800,
+        epochs=400,
         saccade_num=10,
         saccade_time=10,
         plot_sim=False,
