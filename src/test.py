@@ -5,6 +5,7 @@ import os
 import signal
 import sys
 
+import EyeSim
 import gymnasium as gym
 import matplotlib
 import matplotlib.pyplot as plt
@@ -17,6 +18,9 @@ from model.agent import Agent
 from model.offline_controller import OfflineController
 from params import Parameters
 from plotter import FoveaPlotter, MapsPlotter
+
+
+_ = EyeSim  # avoid fixer erase EyeSim import
 
 
 def signal_handler(signum, frame):
@@ -240,7 +244,7 @@ def parse_arguments():
         "--position",
         type=float,
         nargs=2,
-        metavar=('x', 'y'),
+        metavar=("x", "y"),
         default=[None, None],
         help="Set the x, y position of the object in world",
     )
