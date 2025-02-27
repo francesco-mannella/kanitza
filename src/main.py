@@ -1,7 +1,9 @@
+import argparse
 import os
 import signal
 import sys
 
+import EyeSim
 import gymnasium as gym
 import matplotlib
 import matplotlib.pyplot as plt
@@ -13,6 +15,9 @@ from model.agent import Agent
 from model.offline_controller import OfflineController
 from params import Parameters
 from plotter import FoveaPlotter, MapsPlotter
+
+
+es = EyeSim
 
 
 def signal_handler(signum, frame):
@@ -317,8 +322,6 @@ def save_maps_gif(maps_plotter, epoch):
 if __name__ == "__main__":
 
     matplotlib.use("agg")
-
-    import argparse
 
     parser = argparse.ArgumentParser()
 
