@@ -9,6 +9,7 @@ import EyeSim
 import gymnasium as gym
 import matplotlib
 import matplotlib.pyplot as plt
+import numpy as np
 import torch
 import wandb
 
@@ -54,10 +55,16 @@ def execute_simulation(
     plotters = []
     for episode in range(params.episodes):
 
-        if world is None:
-            world = env.rng.choice([0, 1])
+        print(world)
 
-        env.init_world(world=world, object_params=object_params)
+        if world is None:
+            world_id = env.rng.choice([0, 1])
+        else:
+            world_id = np.argwhere(
+                [label == world for label in env.world_labels]
+            )[0][0]
+
+        env.init_world(world=world_id, object_params=object_params)
         observation, info = env.reset()
 
         for k, v in info.items():
@@ -232,9 +239,9 @@ def parse_arguments():
 
     parser.add_argument(
         "--world",
-        type=int,
+        type=str,
         default=None,
-        help="Set the world in the test.",
+        help="Set the world in the test. it canbe 'square' or 'triangle'",
     )
 
     parser.add_argument(
