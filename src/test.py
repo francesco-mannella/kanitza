@@ -1,13 +1,14 @@
 # %% IMPORTS
+
 import argparse
 import os
 import signal
 import sys
 
+import EyeSim
 import gymnasium as gym
 import matplotlib
 import matplotlib.pyplot as plt
-import numpy as np
 import torch
 import wandb
 
@@ -16,6 +17,9 @@ from model.agent import Agent
 from model.offline_controller import OfflineController
 from params import Parameters
 from plotter import FoveaPlotter, MapsPlotter
+
+
+_ = EyeSim  # avoid fixer erase EyeSim import
 
 
 def signal_handler(signum, frame):
@@ -38,11 +42,27 @@ def load_offline_controller(file_path, env, params, seed):
     return OfflineController(env, params, seed)
 
 
-def execute_simulation(agent, off_control, env, params, is_plotting_epoch):
+def execute_simulation(
+    agent,
+    off_control,
+    env,
+    params,
+    is_plotting_epoch,
+    world,
+    object_params,
+):
     plotters = []
     for episode in range(params.episodes):
-        env.init_world(world=env.rng.choice([0, 1]))
-        observation, _ = env.reset()
+
+        if world is None:
+            world = env.rng.choice([0, 1])
+
+        env.init_world(world=world, object_params=object_params)
+        observation, info = env.reset()
+
+        for k, v in info.items():
+            print(f"{k}: {v}", end="  ")
+        print()
 
         fovea_plotter, maps_plotter = setup_plotters(
             env, off_control, params, is_plotting_epoch
@@ -120,16 +140,17 @@ def run_episode(
 
 
 def update_environment_position(env, time_step, params):
-    if time_step % 10 == 0:
-        pos, rot = env.get_position_and_rotation()
-        pos_trj_angle = (
-            5
-            * np.pi
-            * (time_step / (params.saccade_time * params.saccade_num))
-        )
-        pos += 10 * np.array([np.cos(pos_trj_angle), np.sin(pos_trj_angle)])
-        rot += pos_trj_angle
-        env.update_position_and_rotation(pos, rot)
+    # if time_step % 10 == 0:
+    #     pos, rot = env.get_position_and_rotation()
+    #     pos_trj_angle = (
+    #         5
+    #         * np.pi
+    #         * (time_step / (params.saccade_time * params.saccade_num))
+    #     )
+    #     pos += 10 * np.array([np.cos(pos_trj_angle), np.sin(pos_trj_angle)])
+    #     rot += pos_trj_angle
+    #     env.update_position_and_rotation(pos, rot)
+    pass
 
 
 def update_plotters(
@@ -163,7 +184,7 @@ def log_simulations(params, episode, fovea_plotter, maps_plotter):
         merge_gifs(fovea_plotter.vm.frames, maps_plotter.vm.frames, gif_file)
 
 
-def test(params, seed):
+def test(params, seed, world=None, object_params=None):
     signal.signal(signal.SIGINT, signal_handler)
     plt.ion()
     plt.close("all")
@@ -185,7 +206,13 @@ def test(params, seed):
             epoch == params.epochs - 1
         )
         plotters = execute_simulation(
-            agent, off_control, env, params, is_plotting_epoch
+            agent,
+            off_control,
+            env,
+            params,
+            is_plotting_epoch,
+            world,
+            object_params,
         )
 
         print(f"Epoch: {epoch}")
@@ -202,27 +229,24 @@ def parse_arguments():
         default=0,
         help="Set the seed for random number generation.",
     )
+
     parser.add_argument(
-        "--decaying_speed",
-        type=float,
+        "--world",
+        type=int,
         default=None,
-        help="Speed at which decay occurs",
+        help="Set the world in the test.",
     )
+
     parser.add_argument(
-        "--local_decaying_speed",
+        "--posrot",
+        nargs=3,
         type=float,
-        default=None,
-        help="Local speed at which decay occurs",
+        metavar=("x", "y", "a"),
+        default=[None, None, None],
+        help="Set the iposition and rotation of the object in the world",
     )
 
     return parser.parse_args()
-
-
-def update_params_from_args(params, args):
-    params.decaying_speed = args.decaying_speed or params.decaying_speed
-    params.local_decaying_speed = (
-        args.local_decaying_speed or params.local_decaying_speed
-    )
 
 
 def format_name(param_name, value):
@@ -238,9 +262,13 @@ def main():
     # Create an instance of Parameters with default or param_list values
     params = Parameters()
     seed = args.seed
+    world = args.world
 
-    # Update parameter values from args
-    update_params_from_args(params, args)
+    object_params = (
+        None
+        if args.posrot[0] is None
+        else {"pos": args.posrot[:2], "rot": args.posrot[2]}
+    )
 
     # Set additional parameters
     params.plot_maps = True
@@ -252,10 +280,8 @@ def main():
 
     # Generate initial name without dots or special characters
     seed_str = format_name("seed", seed)
-    decay_str = format_name("decay", params.decaying_speed)
-    local_decay_str = format_name("localdecay", params.local_decaying_speed)
 
-    params.init_name = f"test_{seed_str}_{decay_str}_{local_decay_str}"
+    params.init_name = f"test_{seed_str}"
 
     # Initialize Weights & Biases logging
     wandb.init(
@@ -264,7 +290,7 @@ def main():
         name=params.init_name,
     )
 
-    test(params, seed)
+    test(params, seed, world, object_params)
 
     wandb.finish()
 
