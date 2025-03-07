@@ -1,4 +1,5 @@
 import glob
+import io
 import os
 
 import matplotlib.pyplot as plt
@@ -55,12 +56,8 @@ class vidManager:
         # Draw canvas
         self.fig.canvas.draw()
 
-        # Create an image from the canvas and append to frames list
-        frame = Image.frombytes(
-            "RGB",
-            self.fig.canvas.get_width_height(),
-            self.fig.canvas.tostring_rgb(),
-        )
+        imbuf = io.BytesIO()
+        frame = Image.open(imbuf, "png")
         self.frames.append(frame)
         self.t += 1
 
@@ -92,11 +89,11 @@ if __name__ == "__main__":
     fig = plt.Figure()
     ax = fig.add_subplot(111)
     pnt = ax.scatter(0, 0, s=100, color="red")
-    ax.set_xlim([0, 1])
-    ax.set_ylim([0, 1])
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
 
     # Initialize video manager
-    vm = VidManager(fig, "fooname", "foodir")
+    vm = vidManager(fig, "fooname", "foodir")
 
     # Update figure and save frames
     for p in np.linspace(0, 1, 30):
