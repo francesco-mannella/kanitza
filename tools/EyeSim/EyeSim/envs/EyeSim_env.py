@@ -139,7 +139,7 @@ class EyeSimEnv(gym.Env):
 
         return self.observation, reward, done, info
 
-    def reset(self, *, seed=None, options=None):
+    def reset(self, *, seed=None, mode=None):
         super().reset(seed=seed)
 
         self.sim = Sim(world_dict=self.world_dict)
@@ -191,6 +191,8 @@ class EyeSimEnv(gym.Env):
                 self.taskspace_ylim[1] // 2,
             ]
         )
+
+        self.render_init(mode)
 
         if self.renderer is not None:
             self.renderer.reset()
