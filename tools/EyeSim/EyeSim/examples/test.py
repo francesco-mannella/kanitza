@@ -1,12 +1,14 @@
-import numpy as np
-from scipy import interpolate
-import gymnasium as gym
 import EyeSim
+import gymnasium as gym
+import matplotlib.pyplot as plt
 
-env = gym.make('EyeSim-v0')
 
+plt.ion()
+_ = EyeSim
 
+env = gym.make("EyeSim/EyeSim-v0")
+env = env.unwrapped
+env.init_world(world=0)
 env.reset()
-env.render()
+env.render(mode="human")
 input()
-
