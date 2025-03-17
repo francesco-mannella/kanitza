@@ -57,7 +57,8 @@ class vidManager:
         self.fig.canvas.draw()
 
         imbuf = io.BytesIO()
-        frame = Image.open(imbuf, "png")
+        self.fig.savefig(imbuf, format="png")
+        frame = Image.open(imbuf)
         self.frames.append(frame)
         self.t += 1
 
@@ -93,7 +94,7 @@ if __name__ == "__main__":
     ax.set_ylim(0, 1)
 
     # Initialize video manager
-    vm = vidManager(fig, "fooname", "foodir")
+    vm = vidManager(fig, "fooname", ".")
 
     # Update figure and save frames
     for p in np.linspace(0, 1, 30):
