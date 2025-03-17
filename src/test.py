@@ -282,7 +282,7 @@ def main():
     params.plot_sim = True
     params.epochs = 1
     params.saccade_num = 4
-    params.episodes = 3
+    params.episodes = 1
     params.plotting_epochs_interval = 1
 
     # Generate initial name without dots or special characters

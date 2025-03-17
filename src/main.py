@@ -122,8 +122,8 @@ def run_epoch(agent, env, off_control, params, epoch):
     - epoch (int): Current epoch number for logging and control.
     """
     for episode in range(params.episodes):
-        run_episode(agent, env, off_control, params, episode, epoch)
-        print(f"Episode: {episode}, Epoch: {epoch}")
+        info = run_episode(agent, env, off_control, params, episode, epoch)
+        print(f"Episode: {episode}-{info['world']:10s}, Epoch: {epoch}")
 
 
 def run_episode(agent, env, off_control, params, episode, epoch):
@@ -138,7 +138,7 @@ def run_episode(agent, env, off_control, params, episode, epoch):
     - episode (int): Current episode number.
     - epoch (int): Current epoch number.
     """
-    env.init_world(world=env.rng.choice([0, 1]))
+    env.init_world(world=env.rng.choice([0, 1], p=[0.95, 0.05]))
     _, env_info = env.reset()
 
     plt_enabled = (
@@ -167,6 +167,8 @@ def run_episode(agent, env, off_control, params, episode, epoch):
 
     if plt_enabled:
         save_simulation_gif(fovea_plotter, epoch)
+
+    return env_info
 
 
 def execute_saccade(
@@ -207,6 +209,7 @@ def execute_saccade(
             )
 
         state = {
+            "world": env.world,
             "vision": observation["FOVEA"],
             "action": action,
             "attention": np.copy(agent.params),
@@ -278,6 +281,21 @@ def main(params):
 
         run_epoch(agent, env, off_control, params, epoch)
         off_control.filter_salient_states()
+
+        # count world types
+        world_dict = {"triangle": 0, "square": 0}
+        for idx in np.array(off_control.filtered_idcs).T:
+            world = int(off_control.world_states[idx[0], idx[1], idx[2]][0])
+            if env.world_labels[world] == "triangle":
+                world_dict["triangle"] += 1
+            elif env.world_labels[world] == "square":
+                world_dict["square"] += 1
+
+        print(
+            f"triangles: {world_dict['triangle']}, "
+            f"squares: {world_dict['square']}"
+        )
+
         off_control.update_maps()
 
         competence_log(off_control.competence.detach().cpu().numpy())
