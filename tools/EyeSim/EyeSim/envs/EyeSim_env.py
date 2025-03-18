@@ -22,7 +22,7 @@ class EyeSimEnv(gym.Env):
 
     metadata = {"render_modes": ["human", "offline"], "render_fps": 25}
 
-    def __init__(self, render_mode=None):
+    def __init__(self, render_mode=None, colors=False):
 
         assert (
             render_mode is None or render_mode in self.metadata["render_modes"]
@@ -38,10 +38,17 @@ class EyeSimEnv(gym.Env):
         self.retina_sim = None
         self.retina_sim_pos = None
         self.world_labels = ["triangle", "square"]
-        self.world_files = [
-            "eyesim_triangle.json",
-            "eyesim_square.json",
-        ]
+        if colors:
+            self.world_files = [
+                "eyesim_red_triangle.json",
+                "eyesim_blue_square.json",
+            ]
+        else:
+            self.world_files = [
+                "eyesim_triangle.json",
+                "eyesim_square.json",
+            ]
+
         self.world = 0
 
         # Define action and observation space

@@ -66,7 +66,7 @@ def setup_environment(seed, params):
     Returns:
     - env (gym.Env): Gym environment object.
     """
-    env = gym.make(params.env_name)
+    env = gym.make(params.env_name, colors=True)
     env = env.unwrapped
     env.set_seed(seed)
     return env
