@@ -106,12 +106,21 @@ class OfflineController:
                 self.params.attention_size,
             )
         )
+        self.world_states = np.zeros(
+            (
+                self.params.episodes,
+                self.params.saccade_num,
+                self.params.saccade_time,
+                1,
+            )
+        )
 
     def reset_states(self):
         """Reset the stored states for the current episode."""
         self.visual_states.fill(0)
         self.action_states.fill(0)
         self.attention_states.fill(0)
+        self.world_states.fill(99)
 
     def set_hyperparams(self):
         """Set the controller's hyperparameters based on current competence."""
@@ -169,6 +178,7 @@ class OfflineController:
         )
         self.action_states[episode, saccade, ts] = state["action"]
         self.attention_states[episode, saccade, ts] = state["attention"]
+        self.world_states[episode, saccade, ts] = state["world"]
 
     def filter_salient_states(self):
         """
