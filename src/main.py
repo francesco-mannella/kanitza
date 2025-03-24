@@ -126,8 +126,8 @@ def run_epoch(agent, env, off_control, params, epoch, log):
     for episode in range(params.episodes):
         info = run_episode(agent, env, off_control, params, episode, epoch)
         log(
-            f"Epoch: {epoch:5d} "
-            f"Episode: {episode:3d} "
+            f"Epoch: {epoch:<5d} "
+            f"Episode: {episode:<3d} "
             f"type:{info['world']:10s}"
         )
 
@@ -144,7 +144,7 @@ def run_episode(agent, env, off_control, params, episode, epoch):
     - episode (int): Current episode number.
     - epoch (int): Current epoch number.
     """
-    env.init_world(world=env.rng.choice([0, 1], p=[0.5, 0.5]))
+    env.init_world(world=0 if epoch % 100 < params.triangles_percent else 1)
     _, env_info = env.reset()
 
     plt_enabled = (

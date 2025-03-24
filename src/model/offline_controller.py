@@ -21,14 +21,16 @@ class OfflineController:
                   configuration variables.
         - seed: Optional random seed for reproducibility.
         """
+        # Environment and parameters setup
+        self.env = env
+        self.params = params
+
+        # Param inits
         self.epoch = 0
         self.competence = torch.tensor(0.0)
         self.competences = torch.tensor(0.0)
         self.local_incompetence = torch.tensor(0.0)
-
-        # Environment and parameters setup
-        self.env = env
-        self.params = params
+        self.match_std = self.params.match_std
 
         # Random generator initialization
         self.seed = seed if seed is not None else 0
@@ -132,9 +134,9 @@ class OfflineController:
         self.incompetence = 1 - decay
         self.local_incompetence = (1 - local_decay).reshape(-1, 1)
 
-        lm_baseline = self.params.learnigrate_modulation_baseline
-        self.learnigrate_modulation = lm_baseline + (
-            self.params.learnigrate_modulation
+        lm_baseline = self.params.learningrate_modulation_baseline
+        self.learningrate_modulation = lm_baseline + (
+            self.params.learningrate_modulation
             * self.local_incompetence
             * self.incompetence
         )
@@ -150,6 +152,8 @@ class OfflineController:
             -1, 1
         )
 
+        self.match_std = self.params.match_std
+
     def generate_attentional_input(self, saccade_num):
         """
         Generate random attentional input.
@@ -160,7 +164,19 @@ class OfflineController:
         Returns:
         - 2D array of attentional inputs with random values.
         """
-        return self.rng.rand(saccade_num, 2)
+        # if not hasattr(self, "saccade_samples"):
+        #     self.saccade_samples = 0.9 * np.array(
+        #         [
+        #             [np.cos(a), np.sin(a)]
+        #             for a in np.linspace(0, (9 / 10) * 2 * np.pi, 9)
+        #         ]
+        #     )
+        #
+        # saccade_idcs = self.rng.randint(0, 9, saccade_num)
+        # res = self.saccade_samples[saccade_idcs].copy()
+        res = self.rng.rand(saccade_num, 2)
+
+        return res
 
     def record_states(self, episode, saccade, ts, state):
         """
@@ -319,13 +335,13 @@ class OfflineController:
         """
         point_attention_representations = self.representations["pa"]["point"]
         neighborhood_modulation = self.neighborhood_modulation
-        learnigrate_modulation = self.learnigrate_modulation
+        learningrate_modulation = self.learningrate_modulation
 
         self.visual_conditions_updater(
             output=visual_conditions_output,
             neighborhood_std=neighborhood_modulation,
             anchors=point_attention_representations,
-            learning_modulation=learnigrate_modulation,
+            learning_modulation=learningrate_modulation,
             neighborhood_std_anchors=self.params.anchor_std,
         )
 
@@ -333,7 +349,7 @@ class OfflineController:
             output=visual_effects_output,
             neighborhood_std=neighborhood_modulation,
             anchors=point_attention_representations,
-            learning_modulation=learnigrate_modulation,
+            learning_modulation=learningrate_modulation,
             neighborhood_std_anchors=self.params.anchor_std,
         )
 
@@ -341,7 +357,7 @@ class OfflineController:
             output=attention_output,
             neighborhood_std=neighborhood_modulation,
             anchors=point_attention_representations,
-            learning_modulation=learnigrate_modulation,
+            learning_modulation=learningrate_modulation,
             neighborhood_std_anchors=self.params.anchor_std,
         )
 
@@ -379,7 +395,7 @@ class OfflineController:
 
         # Convert distances to similarity scores using a Gaussian-like decay
         # based on match_std
-        matches = torch.exp(-((self.params.match_std**-2) * dists**2))
+        matches = torch.exp(-((self.match_std**-2) * dists**2))
         # Calculate the average of the scores for a comprehensive similarity
         # measure
         matches = matches.mean(0)

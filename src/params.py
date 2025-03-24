@@ -1,3 +1,6 @@
+import sys
+
+
 class Parameters:
     def __init__(
         self,
@@ -20,12 +23,14 @@ class Parameters:
         saccade_threshold=12,
         neighborhood_modulation=10,
         neighborhood_modulation_baseline=0.8,
-        learnigrate_modulation=0.8,
-        learnigrate_modulation_baseline=0.02,
+        learningrate_modulation=0.8,
+        learningrate_modulation_baseline=0.02,
+        match_std_baseline=0.5,
         match_std=4.0,
         anchor_std=8.0,
         decaying_speed=5.0,
         local_decaying_speed=1.0,
+        triangles_percent=50,
     ):
         self.project_name = project_name
         self.entity_name = entity_name
@@ -44,16 +49,20 @@ class Parameters:
         self.attention_size = attention_size
         self.maps_learning_rate = maps_learning_rate
         self.saccade_threshold = saccade_threshold
-        self.learnigrate_modulation = learnigrate_modulation
+        self.learningrate_modulation = learningrate_modulation
         self.neighborhood_modulation = neighborhood_modulation
-        self.learnigrate_modulation_baseline = learnigrate_modulation_baseline
+        self.learningrate_modulation_baseline = (
+            learningrate_modulation_baseline
+        )
         self.neighborhood_modulation_baseline = (
             neighborhood_modulation_baseline
         )
+        self.match_std_baseline = match_std_baseline
         self.match_std = match_std
         self.anchor_std = anchor_std
         self.decaying_speed = decaying_speed
         self.local_decaying_speed = local_decaying_speed
+        self.triangles_percent = triangles_percent
 
         self.param_types = {
             "project_name": str,
@@ -75,12 +84,13 @@ class Parameters:
             "saccade_threshold": float,
             "neighborhood_modulation": float,
             "neighborhood_modulation_baseline": float,
-            "learnigrate_modulation": float,
-            "learnigrate_modulation_baseline": float,
+            "learningrate_modulation": float,
+            "learningrate_modulation_baseline": float,
             "match_std": float,
             "anchor_std": float,
             "decaying_speed": float,
             "local_decaying_speed": float,
+            "triangles_percent": float,
         }
 
     def string_to_params(self, param_list):
@@ -116,6 +126,7 @@ class Parameters:
                 setattr(self, key, converter(value))
             else:
                 print(f"There's no parameter named {key}")
+                sys.exit(1)
 
     def save(self, filepath):
         with open(filepath, "w") as file:
