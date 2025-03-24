@@ -209,7 +209,7 @@ class TopologicalMap(torch.nn.Module):
         if neighborhood_std is None:
             neighborhood_std = self.curr_neighborhood_std
         phi = self.radial(point, neighborhood_std, as_point=True)
-        max_idx = phi.argmax()
+        max_idx = phi.argmax(-1)
         hov_phi = torch.nn.functional.one_hot(
             max_idx, self.output_size
         ).float()

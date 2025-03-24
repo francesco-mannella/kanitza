@@ -30,7 +30,7 @@ def signal_handler(signum, frame):
 
 
 def init_environment(params, seed):
-    env = gym.make(params.env_name)
+    env = gym.make(params.env_name, colors=True)
     env = env.unwrapped
     env.set_seed(seed)
     env.rotation = 0.0
@@ -117,16 +117,12 @@ def run_episode(
     maps_plotter,
     episode,
 ):
-    # TODO: redundnt
-    condition = observation["FOVEA"].copy()
-    saccade, goal = off_control.get_action_from_condition(condition)
-    agent.set_parameters(saccade)
 
     for time_step in range(params.saccade_time * params.saccade_num):
         condition = observation["FOVEA"].copy()
         saccade, goal = off_control.get_action_from_condition(condition)
 
-        if time_step % 1 == 0:
+        if time_step % 4 == 0:
             print("ts: ", time_step)
             agent.set_parameters(saccade)
 
@@ -268,6 +264,11 @@ def main():
 
     # Create an instance of Parameters with default or param_list values
     params = Parameters()
+    try:
+        params.load("loaded_params")
+    except FileNotFoundError:
+        print("no local parameters")
+
     seed = args.seed
     world = args.world
 
@@ -281,7 +282,7 @@ def main():
     params.plot_maps = True
     params.plot_sim = True
     params.epochs = 1
-    params.saccade_num = 4
+    params.saccade_num = 8
     params.episodes = 1
     params.plotting_epochs_interval = 1
 

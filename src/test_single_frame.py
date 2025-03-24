@@ -1,17 +1,24 @@
 # %% IMPORTS
-import numpy as np
+
+import argparse
+import os
+import signal
+import sys
+
+import EyeSim
+import gymnasium as gym
 import matplotlib
 import matplotlib.pyplot as plt
-import gymnasium as gym
-import wandb
-import signal
-import sys, os, re
 import torch
+import wandb
 
-from model.agent import Agent, gaussian_mask
-from plotter import FoveaPlotter, MapsPlotter
+from merge_gifs import merge_gifs
 from model.offline_controller import OfflineController
 from params import Parameters
+from plotter import FoveaPlotter, MapsPlotter
+
+
+_ = EyeSim  # avoid fixer erase EyeSim import
 
 
 def signal_handler(signum, frame):
@@ -20,150 +27,250 @@ def signal_handler(signum, frame):
     sys.exit(0)
 
 
-class Logger:
-    def __init__(self, filename):
-        self.filename = filename
+def init_environment(params, seed):
+    env = gym.make(params.env_name, colors=True)
+    env = env.unwrapped
+    env.set_seed(seed)
+    env.rotation = 0.0
+    return env
 
-    def __call__(self, number):
-        with open(self.filename, 'a') as file:
-            file.write(str(number) + '\n')
+
+def load_offline_controller(file_path, env, params, seed):
+    if os.path.exists(file_path):
+        return OfflineController.load(file_path, env, params, seed)
+    return OfflineController(env, params, seed)
 
 
-def collect_frames(env, agent):
-    n_frames = 200
+def setup_plotters(env, off_control, params, is_plotting_epoch):
+    fovea_plotter, maps_plotter = None, None
+    if is_plotting_epoch:
+        if params.plot_sim:
+            fovea_plotter = FoveaPlotter(env, offline=True)
+        if params.plot_maps:
+            maps_plotter = MapsPlotter(env, off_control, offline=True)
+    return fovea_plotter, maps_plotter
 
-    agent.set_parameters(np.random.rand(2))
-    frames = []
 
-    for t in range(n_frames):
-        if t % 100 == 0:
-            env.init_world(world=env.rng.choice([0,1]))
-            observation, env_info = env.reset()
-        if t % 10 == 5:
-            agent.set_parameters(np.random.rand(2))
-        if t % 10 == 0:
-            frames.append(observation['FOVEA'].copy())
+def run_episode(
+    agent,
+    env,
+    off_control,
+    observation,
+    params,
+    is_plotting_epoch,
+    fovea_plotter,
+    maps_plotter,
+    episode,
+):
+
+    for time_step in range(params.saccade_time * params.saccade_num):
+        condition = observation["FOVEA"].copy()
+        saccade, goal = off_control.get_action_from_condition(condition)
+
+        if time_step % 4 == 0:
+            print("ts: ", time_step)
+            agent.set_parameters(saccade)
+
+        update_environment_position(env, time_step, params)
 
         action, saliency_map, salient_point = agent.get_action(observation)
         observation, *_ = env.step(action)
 
-    return np.stack(frames)
+        if is_plotting_epoch:
+            update_plotters(
+                fovea_plotter,
+                maps_plotter,
+                saliency_map,
+                salient_point,
+                agent,
+                goal,
+            )
 
 
-def test_frames(agent, off_control, frames):
-
-    std = off_control.params.neighborhood_modulation_baseline
-    frames = torch.tensor(frames.reshape(-1, 16 * 16 * 3) / 255.0)
-    cond_map = off_control.visual_conditions_map
-    eff_map = off_control.visual_effects_map
-    att_map = off_control.attention_map
-
-    norms = cond_map(frames)
-    reps = cond_map.get_representation(norms, rtype='point')
-
-    focuses = att_map.backward(reps, std)
-
-    return reps.cpu().detach().numpy(), focuses.cpu().detach().numpy()
+def update_environment_position(env, time_step, params):
+    # if time_step % 10 == 0:
+    #     pos, rot = env.get_position_and_rotation()
+    #     pos_trj_angle = (
+    #         5
+    #         * np.pi
+    #         * (time_step / (params.saccade_time * params.saccade_num))
+    #     )
+    #     pos += 10 * np.array([np.cos(pos_trj_angle), np.sin(pos_trj_angle)])
+    #     rot += pos_trj_angle
+    #     env.update_position_and_rotation(pos, rot)
+    pass
 
 
-if __name__ == '__main__':
+def update_plotters(
+    fovea_plotter, maps_plotter, saliency_map, salient_point, agent, goal
+):
+    if fovea_plotter:
+        fovea_plotter.step(saliency_map, salient_point, agent.attentional_mask)
+    if maps_plotter:
+        maps_plotter.step(goal)
 
-    # matplotlib.use("agg")
 
-    import argparse
+def log_simulations(params, episode, fovea_plotter, maps_plotter):
+    if params.plot_sim:
+        gif_file = f"sim_test_{episode:04d}"
+        fovea_plotter.close(gif_file)
+        wandb.log(
+            {"Simulation": wandb.Video(f"{gif_file}.gif", format="gif")},
+            step=episode,
+        )
 
-    # Create the parser
+    if params.plot_maps:
+        gif_file = f"maps_test_{episode:04d}"
+        maps_plotter.close(gif_file)
+        wandb.log(
+            {"Maps": wandb.Video(f"{gif_file}.gif", format="gif")},
+            step=episode,
+        )
+
+    if params.plot_sim and params.plot_maps:
+        gif_file = f"merged_test_{episode:04d}"
+        merge_gifs(fovea_plotter.vm.frames, maps_plotter.vm.frames, gif_file)
+
+
+def execute_single_frame(
+    env,
+    off_control,
+    params,
+    points,
+):
+
+    maps_plotter = MapsPlotter(env, off_control, offline=True)
+    maps_plotter.step()
+    maps_plotter.fig.show()
+
+    points = torch.tensor(points).float()
+
+    num_points = points.shape[0]
+    fig, axes = plt.subplots(2, num_points)
+    generated_conds = off_control.visual_conditions_map.backward(
+        points, params.neighborhood_modulation_baseline
+    )
+    generated_effects = off_control.visual_effects_map.backward(
+        points, params.neighborhood_modulation_baseline
+    )
+    generated_conds = (
+        generated_conds.reshape(-1, 16, 16, 3)
+        .cpu()
+        .detach()
+        .numpy()[:, ::-1]
+        .transpose(0, 1, 2, 3)
+        # .transpose(0, 2, 1, 3)[:, ::-1]
+    )
+    generated_effects = (
+        generated_effects.reshape(-1, 16, 16, 3)
+        .cpu()
+        .detach()
+        .numpy()[:, ::-1]
+        .transpose(0, 1, 2, 3)
+        # .transpose(0, 2, 1, 3)[:, ::-1]
+    )
+
+    for i, point in enumerate(points):
+        axes[0, i].imshow(generated_conds[i])
+        axes[1, i].imshow(generated_effects[i])
+    input()
+
+
+def test_frame_generation(params, seed, world=None, object_params=None):
+    signal.signal(signal.SIGINT, signal_handler)
+    plt.ion()
+    plt.close("all")
+    torch.manual_seed(seed)
+
+    env = init_environment(params, seed)
+    file_path = "off_control_store"
+    off_control = load_offline_controller(file_path, env, params, seed)
+
+    off_control.reset_states()
+
+    points = [
+        [4, 5],
+        [9, 9],
+    ]
+
+    execute_single_frame(
+        env,
+        off_control,
+        params,
+        points,
+    )
+
+
+def parse_arguments():
     parser = argparse.ArgumentParser()
 
-    # Add the 'seed' argument
     parser.add_argument(
-        '--seed',
+        "--seed",
         type=int,
         default=0,
-        help='Set the seed for random number generation.',
-    )
-    parser.add_argument(
-        '--decaying_speed',
-        type=float,
-        default=None,
-        help='Speed at which decay occurs',
+        help="Set the seed for random number generation.",
     )
 
     parser.add_argument(
-        '--local_decaying_speed',
-        type=float,
+        "--world",
+        type=str,
         default=None,
-        help='Local speed at which decay occurs',
+        help="Set the world in the test. it canbe 'square' or 'triangle'",
     )
 
-    # Parse the arguments
-    args = parser.parse_args()
+    parser.add_argument(
+        "--posrot",
+        nargs=3,
+        type=float,
+        metavar=("x", "y", "a"),
+        default=[None, None, None],
+        help="Set the iposition and rotation of the object in the world",
+    )
 
-    # Create an instance of Parameters with default or custom values
+    return parser.parse_args()
+
+
+def format_name(param_name, value):
+    return f"{param_name}_{str(value).replace('.', '_')}"
+
+
+def main():
+    matplotlib.use("QtAgg")
+
+    # Parse arguments
+    args = parse_arguments()
+
+    # Create an instance of Parameters with default or param_list values
     params = Parameters()
+    try:
+        params.load("loaded_params")
+    except FileNotFoundError:
+        print("no local parameters")
 
-    # Access the seed value
     seed = args.seed
+    world = args.world
 
-    params.decaying_speed = (
-        args.decaying_speed
-        if args.decaying_speed is not None
-        else params.decaying_speed
-    )
-    params.local_decaying_speed = (
-        args.local_decaying_speed
-        if args.local_decaying_speed is not None
-        else params.local_decaying_speed
-    )
-    params.plot_maps = False
-    params.plot_sim = False
-
-    # Ensure values are converted to strings free of dots or special characters
-    seed_str = str(seed).replace('.', '_')
-    decaying_speed_str = str(params.decaying_speed).replace('.', '_')
-    local_decaying_speed_str = str(params.local_decaying_speed).replace(
-        '.', '_'
+    object_params = (
+        None
+        if args.posrot[0] is None
+        else {"pos": args.posrot[:2], "rot": args.posrot[2]}
     )
 
-    # Include seed, decaying_speed, and decay in init_name without dots or special characters
-    params.init_name = f'test_seed_{seed_str}_decay_{decaying_speed_str}_localdecay_{local_decaying_speed_str}'
+    # Set additional parameters
+    params.plot_maps = True
+    params.plot_sim = True
+    params.epochs = 1
+    params.saccade_num = 8
+    params.episodes = 1
+    params.plotting_epochs_interval = 1
 
-    # Configure the environment
-    env = gym.make(params.env_name)
-    env = env.unwrapped
-    env.set_seed(seed)
-    env.reset()
+    # Generate initial name without dots or special characters
+    seed_str = format_name("seed", seed)
 
-    # configure the agent
-    agent = Agent(
-        env,
-        sampling_threshold=params.agent_sampling_threshold,
-        seed=seed,
-    )
+    params.init_name = f"test_{seed_str}"
 
-    # configure the controller
-    file_path = 'off_control_store'
+    test_frame_generation(params, seed, world, object_params)
 
-    # Check if the offline control data file exists
-    if os.path.exists(file_path):
-        # Load the offline controller from the file if it exists
-        off_control = OfflineController.load(file_path, env, params, seed)
-    else:
-        # Initialize a new offline controller
-        off_control = OfflineController(env, params, seed)
 
-    frames = collect_frames(env, agent)
-    reps, focuses = test_frames(agent, off_control, frames)
-
-    fig, axes = plt.subplots(1, 2, figsize=(9, 3))
-    for ax in axes:
-        ax.set_axis_off()
-    maps_plotter = MapsPlotter(
-        env, off_control, offline=True, video_frame_duration=1000
-    )
-    for i, frame in enumerate(frames):
-        maps_plotter.step(reps[i])
-        axes[0].clear()
-        axes[0].imshow(frame)
-        fig.canvas.draw()
-        plt.pause(1)
+if __name__ == "__main__":
+    main()

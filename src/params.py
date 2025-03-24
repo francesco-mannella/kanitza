@@ -17,12 +17,13 @@ class Parameters:
         action_size=2,
         attention_size=2,
         maps_learning_rate=0.1,
-        saccade_threshold=14,
+        saccade_threshold=12,
         neighborhood_modulation=10,
         neighborhood_modulation_baseline=0.8,
         learnigrate_modulation=0.8,
         learnigrate_modulation_baseline=0.02,
         match_std=4.0,
+        anchor_std=8.0,
         decaying_speed=5.0,
         local_decaying_speed=1.0,
     ):
@@ -50,6 +51,7 @@ class Parameters:
             neighborhood_modulation_baseline
         )
         self.match_std = match_std
+        self.anchor_std = anchor_std
         self.decaying_speed = decaying_speed
         self.local_decaying_speed = local_decaying_speed
 
@@ -70,12 +72,13 @@ class Parameters:
             "action_size": int,
             "attention_size": int,
             "maps_learning_rate": float,
-            "saccade_threshold": int,
-            "neighborhood_modulation": int,
+            "saccade_threshold": float,
+            "neighborhood_modulation": float,
             "neighborhood_modulation_baseline": float,
             "learnigrate_modulation": float,
             "learnigrate_modulation_baseline": float,
             "match_std": float,
+            "anchor_std": float,
             "decaying_speed": float,
             "local_decaying_speed": float,
         }

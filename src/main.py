@@ -125,7 +125,11 @@ def run_epoch(agent, env, off_control, params, epoch, log):
     """
     for episode in range(params.episodes):
         info = run_episode(agent, env, off_control, params, episode, epoch)
-        log(f"Episode: {episode} type:{info['world']:10s}")
+        log(
+            f"Epoch: {epoch:5d} "
+            f"Episode: {episode:3d} "
+            f"type:{info['world']:10s}"
+        )
 
 
 def run_episode(agent, env, off_control, params, episode, epoch):
@@ -299,7 +303,7 @@ def main(params):
             f"squares: {world_dict['square']}"
         )
 
-        off_control.update_maps()
+        off_control.update()
 
         # Logs
 
@@ -386,14 +390,18 @@ if __name__ == "__main__":
         ".", "_"
     )
 
+    def format_scalar(x):
+        return f"{x:06.3f}".replace(".", "")
+
     params.init_name = (
         "sim_"
         f"{variant}_"
         f"{str(hex(np.abs(hash(params))))[:6]}_"
         f"s_{seed_str}_"
-        f"m_{params.match_std}_"
-        f"d_{params.decaying_speed}_"
-        f"l_{params.local_decaying_speed}"
+        f"m_{format_scalar(params.match_std)}_"
+        f"a_{format_scalar(params.anchor_std)}_"
+        f"d_{format_scalar(params.decaying_speed)}_"
+        f"l_{format_scalar(params.local_decaying_speed)}"
     )
 
     with open("NAME", "w") as fname:

@@ -190,28 +190,37 @@ class OfflineController:
         is_salient = magnitudes > self.params.saccade_threshold
         self.filtered_idcs = np.stack(np.where(is_salient))
 
-    def update_maps(self):
+    def update(self):
         """
         Update all sensory maps based on stored states and current competence.
         """
-        # Only consider states that are not on the time edges
+        offset = 2
+        # Only consider saccades that are not on the time-limits edges
         idcs = self.filtered_idcs
-        ts_cond = (2 < idcs[2]) & (idcs[2] < (self.params.saccade_time - 2))
+        ts_cond = (offset < idcs[2]) & (
+            idcs[2] < (self.params.saccade_time - offset)
+        )
         idcs = idcs[:, ts_cond]
 
         # Get states for attention, visual conditions, and visual effects
-        def get_state_data(offset):
+        def get_state_data(states, offset):
+            item_size = states.shape[-1]
             return torch.tensor(
-                self.visual_states[idcs[0], idcs[1], idcs[2] + offset],
+                states[idcs[0], idcs[1], idcs[2] + offset],
                 dtype=torch.float32,
-            ).reshape(-1, self.params.visual_size)
+            ).reshape(-1, item_size)
 
-        attention_states = torch.tensor(
-            self.attention_states[idcs[0], idcs[1], idcs[2] + 2]
-        ).reshape(-1, self.params.attention_size)
+        attention_states = get_state_data(self.attention_states, offset=offset)
+        visual_conditions = get_state_data(self.visual_states, offset=-offset)
+        visual_effects = get_state_data(self.visual_states, offset=offset)
 
-        visual_conditions = get_state_data(-2)
-        visual_effects = get_state_data(2)
+        # np.save(
+        #     "visuals",
+        #     torch.stack([visual_conditions, visual_effects])
+        #     .cpu()
+        #     .detach()
+        #     .numpy(),
+        # )
 
         # Retrieve representations
         representations = self.get_representations(
@@ -317,7 +326,7 @@ class OfflineController:
             neighborhood_std=neighborhood_modulation,
             anchors=point_attention_representations,
             learning_modulation=learnigrate_modulation,
-            neighborhood_std_anchors=1,
+            neighborhood_std_anchors=self.params.anchor_std,
         )
 
         self.visual_effects_updater(
@@ -325,7 +334,7 @@ class OfflineController:
             neighborhood_std=neighborhood_modulation,
             anchors=point_attention_representations,
             learning_modulation=learnigrate_modulation,
-            neighborhood_std_anchors=1,
+            neighborhood_std_anchors=self.params.anchor_std,
         )
 
         self.attention_updater(
@@ -333,7 +342,7 @@ class OfflineController:
             neighborhood_std=neighborhood_modulation,
             anchors=point_attention_representations,
             learning_modulation=learnigrate_modulation,
-            neighborhood_std_anchors=1,
+            neighborhood_std_anchors=self.params.anchor_std,
         )
 
     def _compute_matches(self):
@@ -361,14 +370,12 @@ class OfflineController:
             self.representations["pvc"]["point"]
             - self.representations["pa"]["point"]
         )
-        # Adjust the difference by a factor of 0.5 to scale down its impact
-        scaled_pvc_pa_difference = pvc_pa_difference / 2
-        # Compute the Euclidean norm of the scaled difference for distance
+        # Compute the Euclidean norm of the  above difference for distance
         # measurement
-        norm_scaled_pvc_pa = torch.norm(scaled_pvc_pa_difference, dim=-1)
+        norm_pvc_pa = torch.norm(pvc_pa_difference, dim=-1)
 
         # Stack the calculated norms to form a distances tensor
-        dists = torch.stack([norm_pve_pa, norm_scaled_pvc_pa])
+        dists = torch.stack([norm_pve_pa, norm_pvc_pa])
 
         # Convert distances to similarity scores using a Gaussian-like decay
         # based on match_std

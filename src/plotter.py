@@ -437,9 +437,9 @@ class MapsPlotter:
             weights.cpu()
             .detach()
             .numpy()
-            .reshape(inp_side1, inp_side2, 3, out_side1, out_side2)[::-1]
+            .reshape(inp_side1, inp_side2, 3, out_side1, out_side2)
         )
-        transposed_weights = reshaped_weights.transpose(3, 1, 4, 0, 2).reshape(
+        transposed_weights = reshaped_weights.transpose(3, 0, 4, 1, 2).reshape(
             inp_side1 * out_side1, inp_side2 * out_side2, 3
         )
 
