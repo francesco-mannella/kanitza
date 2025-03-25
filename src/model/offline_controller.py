@@ -338,7 +338,7 @@ class OfflineController:
         - visual_conditions_output: Output from the visual conditions map.
         - visual_effects_output: Output from the visual effects map.
         """
-        point_goal_representations = self.representations["pa"]["point"]
+        point_goal_representations = self.representations["pg"]["point"]
         neighborhood_modulation = self.neighborhood_modulation
         learningrate_modulation = self.learningrate_modulation
 
