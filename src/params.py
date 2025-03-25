@@ -20,6 +20,7 @@ class Parameters:
         action_size=2,
         attention_size=2,
         maps_learning_rate=0.1,
+        predictor_learning_rate=0.01,
         saccade_threshold=12,
         neighborhood_modulation=10,
         neighborhood_modulation_baseline=0.8,
@@ -48,6 +49,7 @@ class Parameters:
         self.action_size = action_size
         self.attention_size = attention_size
         self.maps_learning_rate = maps_learning_rate
+        self.predictor_learning_rate = predictor_learning_rate
         self.saccade_threshold = saccade_threshold
         self.learningrate_modulation = learningrate_modulation
         self.neighborhood_modulation = neighborhood_modulation
@@ -80,6 +82,7 @@ class Parameters:
             "maps_output_size": int,
             "action_size": int,
             "attention_size": int,
+            "predictor_learning_rate": float,
             "maps_learning_rate": float,
             "saccade_threshold": float,
             "neighborhood_modulation": float,

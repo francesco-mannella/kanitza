@@ -156,16 +156,14 @@ def run_episode(agent, env, off_control, params, episode, epoch):
     fovea_plotter = FoveaPlotter(env, offline=True) if plt_enabled else None
 
     action = np.zeros(env.action_space.shape)
-    saccades = off_control.generate_attentional_input(params.saccade_num)
 
-    for saccade_idx, saccade in enumerate(saccades):
+    for saccade_idx in range(params.saccade_num):
         execute_saccade(
             agent,
             env,
             off_control,
             params,
             action,
-            saccade,
             episode,
             saccade_idx,
             fovea_plotter,
@@ -183,7 +181,6 @@ def execute_saccade(
     off_control,
     params,
     action,
-    saccade,
     episode,
     saccade_idx,
     fovea_plotter,
@@ -197,13 +194,15 @@ def execute_saccade(
     - off_control (OfflineController): OfflineController object.
     - params (Parameters): Parameters object.
     - action (np.ndarray): Initial action configuration.
-    - saccade (np.ndarray): Current attentional saccade point.
     - episode (int): Current episode number.
     - saccade_idx (int): Current saccade index.
     - fovea_plotter (FoveaPlotter or None): Optional plotter for visual output.
     """
+    observation, *_ = env.step(np.zeros(params.action_size))
+
     for time_step in range(params.saccade_time):
         if time_step == int(0.5 * params.saccade_time):
+            saccade = self.generate_saccade(observation["FOVEA"])
             agent.set_parameters(saccade)
 
         observation, *_ = env.step(action)

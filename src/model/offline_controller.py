@@ -1,6 +1,7 @@
 import numpy as np
 import torch
 
+from model.predict import Predictor, PredictorUpdater
 from model.topological_maps import TopologicalMap, Updater
 
 
@@ -36,6 +37,8 @@ class OfflineController:
         self.seed = seed if seed is not None else 0
         self.rng = np.random.RandomState(self.seed)
 
+        self._init_internal_space_grid()
+
         # Initialize maps for sensory processing
         self._init_maps()
 
@@ -44,6 +47,18 @@ class OfflineController:
 
         # Set initial hyperparameters
         self.set_hyperparams()
+
+    def _init_internal_space_grid(self):
+        output_size = self.params.maps_output_size
+        output_side = int(output_size**0.5)
+
+        side_idcs = torch.arange(output_side)
+        grid_x, grid_y = torch.meshgrid(side_idcs, side_idcs, indexing="ij")
+        self.internal_space_grid = torch.stack(
+            (grid_x.flatten(), grid_y.flatten()), dim=-1
+        )
+
+        return self.grid
 
     def _init_maps(self):
         """Initialize the topological maps and their updaters."""
@@ -75,6 +90,14 @@ class OfflineController:
             self.attention_map,
             self.params.maps_learning_rate,
             "stm",
+        )
+
+    def _init_predictor(self):
+        output_size = self.params.maps_output_size
+        lr = self.params.predictor_learning_rate
+        self.predictor = Predictor(output_size)
+        self.predictor_updater = PredictorUpdater(
+            self.predictor, learning_rate=lr
         )
 
     def _init_storage(self):
@@ -154,27 +177,23 @@ class OfflineController:
 
         self.match_std = self.params.match_std
 
-    def generate_attentional_input(self, saccade_num):
-        """
-        Generate random attentional input.
+    def generate_saccade(self, visual_input):
 
-        Parameters:
-        - saccade_num: Number of saccades to generate input for.
+        norms = self.visual_conditions_map(visual_input)
+        reps = self.get_map_representations(
+            self.visual_conditions_map(),
+            norms,
+            self.params.neighborhood_modulation_baseline,
+        )
 
-        Returns:
-        - 2D array of attentional inputs with random values.
-        """
-        # if not hasattr(self, "saccade_samples"):
-        #     self.saccade_samples = 0.9 * np.array(
-        #         [
-        #             [np.cos(a), np.sin(a)]
-        #             for a in np.linspace(0, (9 / 10) * 2 * np.pi, 9)
-        #         ]
-        #     )
-        #
-        # saccade_idcs = self.rng.randint(0, 9, saccade_num)
-        # res = self.saccade_samples[saccade_idcs].copy()
-        res = self.rng.rand(saccade_num, 2)
+        competence = self.predictor(reps["grid"])[0]
+        coin = self.rng.rand() > (1 - competence)
+
+        if coin:
+            res = self.attention_map.backward(reps["point"])
+            res = res.flatten().tolist()
+        else:
+            res = self.rng.rand(2)
 
         return res
 
@@ -245,7 +264,8 @@ class OfflineController:
         self.representations = representations
 
         # Compute competence
-        self.competences = self._compute_matches()
+        self.metches = self._compute_matches()
+        self.competences = self.metches
         self.competence = self.competences.mean()
 
         # Update hyperparameters
@@ -338,7 +358,7 @@ class OfflineController:
         - visual_conditions_output: Output from the visual conditions map.
         - visual_effects_output: Output from the visual effects map.
         """
-        point_goal_representations = self.representations["pa"]["point"]
+        point_goal_representations = self.representations["pg"]["point"]
         neighborhood_modulation = self.neighborhood_modulation
         learningrate_modulation = self.learningrate_modulation
 
@@ -365,6 +385,11 @@ class OfflineController:
             learning_modulation=learningrate_modulation,
             neighborhood_std_anchors=self.params.anchor_std,
         )
+
+    def _update_predictor(self):
+        point_goal_representations = self.representations["pg"]["grid"]
+        outputs = self.predictor(point_goal_representations)
+        self.predictor_updater(outputs, self.matches, 1.0)
 
     def _compute_matches(self):
         """
