@@ -298,7 +298,7 @@ class OfflineController:
 
         Returns:
         - A dictionary with point and grid representations for attention,
-          visual conditions, and visual effects.
+          visual conditions, and visual effects and goals.
         """
         std_baseline = self.params.neighborhood_modulation_baseline
 
@@ -318,6 +318,11 @@ class OfflineController:
                 self.visual_effects_map(visual_effects),
                 std_baseline,
             ),
+            "pg": self.get_map_representations(
+                self.visual_conditions_map,
+                self.visual_conditions_map(visual_conditions),
+                std_baseline,
+            ),
         }
         return representations
 
@@ -333,14 +338,14 @@ class OfflineController:
         - visual_conditions_output: Output from the visual conditions map.
         - visual_effects_output: Output from the visual effects map.
         """
-        point_attention_representations = self.representations["pa"]["point"]
+        point_goal_representations = self.representations["pa"]["point"]
         neighborhood_modulation = self.neighborhood_modulation
         learningrate_modulation = self.learningrate_modulation
 
         self.visual_conditions_updater(
             output=visual_conditions_output,
             neighborhood_std=neighborhood_modulation,
-            anchors=point_attention_representations,
+            anchors=point_goal_representations,
             learning_modulation=learningrate_modulation,
             neighborhood_std_anchors=self.params.anchor_std,
         )
@@ -348,7 +353,7 @@ class OfflineController:
         self.visual_effects_updater(
             output=visual_effects_output,
             neighborhood_std=neighborhood_modulation,
-            anchors=point_attention_representations,
+            anchors=point_goal_representations,
             learning_modulation=learningrate_modulation,
             neighborhood_std_anchors=self.params.anchor_std,
         )
@@ -356,7 +361,7 @@ class OfflineController:
         self.attention_updater(
             output=attention_output,
             neighborhood_std=neighborhood_modulation,
-            anchors=point_attention_representations,
+            anchors=point_goal_representations,
             learning_modulation=learningrate_modulation,
             neighborhood_std_anchors=self.params.anchor_std,
         )
@@ -370,28 +375,39 @@ class OfflineController:
         - A tensor of match scores based on the Euclidean distance between
           points.
         """
-        # Determine the positional difference between the "pve" and "pa"
+
+        # Determine the positional difference between the "pa" and "pa"
         # representations
-        pve_pa_difference = (
-            self.representations["pve"]["point"]
-            - self.representations["pa"]["point"]
+        pa_pg_difference = (
+            self.representations["pa"]["point"]
+            - self.representations["pg"]["point"]
         )
         # Compute the Euclidean norm of the above difference, resulting in a
         # distance measure
-        norm_pve_pa = torch.norm(pve_pa_difference, dim=-1)
+        norm_pa_pg = torch.norm(pa_pg_difference, dim=-1)
+
+        # Determine the positional difference between the "pve" and "pa"
+        # representations
+        pve_pg_difference = (
+            self.representations["pve"]["point"]
+            - self.representations["pg"]["point"]
+        )
+        # Compute the Euclidean norm of the above difference, resulting in a
+        # distance measure
+        norm_pve_pg = torch.norm(pve_pg_difference, dim=-1)
 
         # Determine the positional difference between the "pvc" and "pa"
         # representations
-        pvc_pa_difference = (
+        pvc_pg_difference = (
             self.representations["pvc"]["point"]
-            - self.representations["pa"]["point"]
+            - self.representations["pg"]["point"]
         )
         # Compute the Euclidean norm of the  above difference for distance
         # measurement
-        norm_pvc_pa = torch.norm(pvc_pa_difference, dim=-1)
+        norm_pvc_pg = torch.norm(pvc_pg_difference, dim=-1)
 
         # Stack the calculated norms to form a distances tensor
-        dists = torch.stack([norm_pve_pa, norm_pvc_pa])
+        dists = torch.stack([norm_pa_pg, norm_pve_pg, norm_pvc_pg])
 
         # Convert distances to similarity scores using a Gaussian-like decay
         # based on match_std
