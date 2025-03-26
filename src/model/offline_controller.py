@@ -37,10 +37,13 @@ class OfflineController:
         self.seed = seed if seed is not None else 0
         self.rng = np.random.RandomState(self.seed)
 
-        self._init_internal_space_grid()
+        self._init_internal_space_prototypes()
 
         # Initialize maps for sensory processing
         self._init_maps()
+
+        # Initialize prediction component
+        self._init_predictor()
 
         # Preallocate storage for states
         self._init_storage()
@@ -48,17 +51,25 @@ class OfflineController:
         # Set initial hyperparameters
         self.set_hyperparams()
 
-    def _init_internal_space_grid(self):
+    def _init_internal_space_prototypes(self):
         output_size = self.params.maps_output_size
         output_side = int(output_size**0.5)
 
-        side_idcs = torch.arange(output_side)
+        side_idcs = torch.arange(output_side).float()
         grid_x, grid_y = torch.meshgrid(side_idcs, side_idcs, indexing="ij")
-        self.internal_space_grid = torch.stack(
-            (grid_x.flatten(), grid_y.flatten()), dim=-1
+        grid = torch.stack([grid_x.ravel(), grid_y.ravel()], dim=-1)
+
+        self.prototype_grid_reps = torch.stack(
+            [
+                torch.exp(
+                    -(self.params.neighborhood_modulation_baseline**-2)
+                    * torch.norm(grid - m, dim=-1) ** 2
+                )
+                for m in grid
+            ]
         )
 
-        return self.grid
+        return self.prototype_grid_reps
 
     def _init_maps(self):
         """Initialize the topological maps and their updaters."""
@@ -139,6 +150,14 @@ class OfflineController:
                 1,
             )
         )
+        self.timestep_competences = np.zeros(
+            (
+                self.params.episodes,
+                self.params.saccade_num,
+                self.params.saccade_time,
+                1,
+            )
+        )
 
     def reset_states(self):
         """Reset the stored states for the current episode."""
@@ -146,10 +165,11 @@ class OfflineController:
         self.action_states.fill(0)
         self.attention_states.fill(0)
         self.world_states.fill(99)
+        self.timestep_competences.fill(None)
 
     def set_hyperparams(self):
         """Set the controller's hyperparameters based on current competence."""
-        decay = torch.tanh(self.params.decaying_speed * self.competence)
+        decay = np.tanh(self.params.decaying_speed * self.competence)
         local_decay = torch.tanh(
             self.params.local_decaying_speed * self.competences
         )
@@ -177,25 +197,47 @@ class OfflineController:
 
         self.match_std = self.params.match_std
 
+    def get_local_competence(self, representation):
+        comp = self.predictor(representation.reshape(1, -1))[0]
+        comp = comp.tolist()[0]
+
+        # convert values so that [0.5, 1.0] maps into [0, 1]
+        comp = 2*(np.maximum(0.5, comp) - 0.5)
+
+        return comp
+
+    def get_global_competence(self):
+        grid_comps = self.predictor(self.prototype_grid_reps)
+        comp = grid_comps.mean().tolist()
+        
+        # convert values so that [0.5, 1.0] maps into [0, 1]
+        comp = 2*(np.maximum(0.5, comp) - 0.5)
+
+        return comp
+
     def generate_saccade(self, visual_input):
 
-        norms = self.visual_conditions_map(visual_input)
+        torch_visual_input = torch.tensor(visual_input).reshape(1, -1) / 255.0
+        visual_map_output = self.visual_conditions_map(torch_visual_input)
         reps = self.get_map_representations(
-            self.visual_conditions_map(),
-            norms,
+            self.visual_conditions_map,
+            visual_map_output,
             self.params.neighborhood_modulation_baseline,
         )
 
-        competence = self.predictor(reps["grid"])[0]
+        competence = self.get_local_competence(reps["grid"])
         coin = self.rng.rand() > (1 - competence)
 
         if coin:
-            res = self.attention_map.backward(reps["point"])
-            res = res.flatten().tolist()
+            saccade = self.attention_map.backward(
+                reps["point"],
+                self.params.neighborhood_modulation_baseline,
+            )
+            saccade = saccade.flatten().tolist()
         else:
-            res = self.rng.rand(2)
+            saccade = self.rng.rand(2)
 
-        return res
+        return saccade, competence
 
     def record_states(self, episode, saccade, ts, state):
         """
@@ -205,8 +247,8 @@ class OfflineController:
         - episode: The current episode number.
         - saccade: The current saccade number.
         - ts: The current timestep within a saccade.
-        - state: The state dictionary containing 'vision', 'action', and
-                 'attention' keys.
+        - state: The state dictionary containing 'vision', 'action',
+          'attention' and 'competence' keys.
         """
         self.visual_states[episode, saccade, ts] = (
             state["vision"].ravel() / 255.0
@@ -214,6 +256,7 @@ class OfflineController:
         self.action_states[episode, saccade, ts] = state["action"]
         self.attention_states[episode, saccade, ts] = state["attention"]
         self.world_states[episode, saccade, ts] = state["world"]
+        self.timestep_competences[episode, saccade, ts] = state["competence"]
 
     def filter_salient_states(self):
         """
@@ -248,14 +291,7 @@ class OfflineController:
         attention_states = get_state_data(self.attention_states, offset=offset)
         visual_conditions = get_state_data(self.visual_states, offset=-offset)
         visual_effects = get_state_data(self.visual_states, offset=offset)
-
-        # np.save(
-        #     "visuals",
-        #     torch.stack([visual_conditions, visual_effects])
-        #     .cpu()
-        #     .detach()
-        #     .numpy(),
-        # )
+        competences = get_state_data(self.timestep_competences, offset=offset)
 
         # Retrieve representations
         representations = self.get_representations(
@@ -264,23 +300,20 @@ class OfflineController:
         self.representations = representations
 
         # Compute competence
-        self.metches = self._compute_matches()
-        self.competences = self.metches
-        self.competence = self.competences.mean()
+        self.matches = self._compute_matches()
+        self.competences = competences
+        self.competence = self.get_global_competence()
 
-        # Update hyperparameters
+        # hyperparameters
         self.set_hyperparams()
 
-        # Spread map outputs for the update graph
-        attention_output = self.attention_map(attention_states)
-        visual_conditions_output = self.visual_conditions_map(
-            visual_conditions
-        )
-        visual_effects_output = self.visual_effects_map(visual_effects)
-
+        # Updates
         self._update_maps(
-            attention_output, visual_conditions_output, visual_effects_output
+            attention_states,
+            visual_conditions,
+            visual_effects,
         )
+        self._update_predictor()
 
         self.weight_change = self.compute_weight_change()
 
@@ -347,21 +380,34 @@ class OfflineController:
         return representations
 
     def _update_maps(
-        self, attention_output, visual_conditions_output, visual_effects_output
+        self,
+        attention_states,
+        visual_conditions,
+        visual_effects,
     ):
         """
         Update topological maps using their respective updaters and current
         representations.
 
         Parameters:
-        - attention_output: Output from the attention map processing.
-        - visual_conditions_output: Output from the visual conditions map.
-        - visual_effects_output: Output from the visual effects map.
+        - attention_states: attentional templetes i.e. saccades.
+        - visual_conditions: fovea vision before saccades.
+        - visual_effects: fovea vision after saccades.
         """
+
+        # Spread map outputs for the update graph
+        attention_output = self.attention_map(attention_states)
+        visual_conditions_output = self.visual_conditions_map(
+            visual_conditions
+        )
+        visual_effects_output = self.visual_effects_map(visual_effects)
+
+        # define common vars
         point_goal_representations = self.representations["pg"]["point"]
         neighborhood_modulation = self.neighborhood_modulation
         learningrate_modulation = self.learningrate_modulation
 
+        # Update maps
         self.visual_conditions_updater(
             output=visual_conditions_output,
             neighborhood_std=neighborhood_modulation,
@@ -541,6 +587,10 @@ class OfflineController:
                 self.attention_updater.optimizer.state_dict()
             ),
             "rng_state": self.rng.get_state(),
+            "predictor_state_dict": (self.predictor.state_dict()),
+            "predictor_updater_optimizer_state_dict": (
+                self.predictor_updater.optimizer.state_dict()
+            ),
         }
 
         torch.save(state, file_path)
@@ -586,6 +636,12 @@ class OfflineController:
         )
         offline_controller.attention_updater.optimizer.load_state_dict(
             state["attention_updater_optimizer_state_dict"]
+        )
+        offline_controller.predictor.load_state_dict(
+            state["predictor_state_dict"]
+        )
+        offline_controller.predictor_updater.optimizer.load_state_dict(
+            state["predictor_updater_optimizer_state_dict"]
         )
         offline_controller.rng.set_state(state["rng_state"])
 
