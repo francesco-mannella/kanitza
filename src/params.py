@@ -90,6 +90,7 @@ class Parameters:
             "learningrate_modulation": float,
             "learningrate_modulation_baseline": float,
             "match_std": float,
+            "match_std_baseline": float,
             "anchor_std": float,
             "decaying_speed": float,
             "local_decaying_speed": float,
@@ -123,10 +124,12 @@ class Parameters:
 
         for key, value in param_dict.items():
             if hasattr(self, key):
-                converter = self.param_types.get(
-                    key, str
-                )  # Default to str if type is not specified
-                setattr(self, key, converter(value))
+                converter = self.param_types[key]
+                if converter is not bool:
+                    setattr(self, key, converter(value))
+                else:
+                    setattr(self, key, value == "True")
+
             else:
                 print(f"There's no parameter named {key}")
                 sys.exit(1)
