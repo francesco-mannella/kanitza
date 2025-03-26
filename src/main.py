@@ -148,12 +148,14 @@ def run_episode(agent, env, off_control, params, episode, epoch):
     _, env_info = env.reset()
 
     plt_enabled = (
-        params.plot_sim
+        params.plot_sim is True
         and episode == params.episodes - 1
         and is_plotting_epoch(epoch, params)
     )
 
-    fovea_plotter = FoveaPlotter(env, offline=True) if plt_enabled else None
+    fovea_plotter = (
+        FoveaPlotter(env, offline=True) if plt_enabled is True else None
+    )
 
     action = np.zeros(env.action_space.shape)
 
@@ -169,7 +171,7 @@ def run_episode(agent, env, off_control, params, episode, epoch):
             fovea_plotter,
         )
 
-    if plt_enabled:
+    if plt_enabled is True:
         save_simulation_gif(fovea_plotter, epoch)
 
     return env_info
@@ -200,9 +202,12 @@ def execute_saccade(
     """
     observation, *_ = env.step(np.zeros(params.action_size))
 
+    competence = None
     for time_step in range(params.saccade_time):
         if time_step == int(0.5 * params.saccade_time):
-            saccade = self.generate_saccade(observation["FOVEA"])
+            saccade, competence = off_control.generate_saccade(
+                observation["FOVEA"]
+            )
             agent.set_parameters(saccade)
 
         observation, *_ = env.step(action)
@@ -218,6 +223,7 @@ def execute_saccade(
             "vision": observation["FOVEA"],
             "action": action,
             "attention": np.copy(agent.params),
+            "competence": competence,
         }
         off_control.record_states(episode, saccade_idx, time_step, state)
 
@@ -307,7 +313,7 @@ def main(params):
         # Logs
 
         # Log to file
-        main_log(f"comp: {off_control.competence.detach().cpu().numpy()}")
+        main_log(f"comp: {off_control.competence}")
 
         # log to wandb
         wandb.log(
