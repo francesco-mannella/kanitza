@@ -37,11 +37,12 @@ class EyeSimEnv(gym.Env):
         self.fovea_size = np.array([16, 16])
         self.retina_sim = None
         self.retina_sim_pos = None
-        self.world_labels = ["triangle", "square"]
+        self.world_labels = ["triangle", "square", "circle"]
         if colors:
             self.world_files = [
                 "eyesim_red_triangle.json",
                 "eyesim_blue_square.json",
+                "eyesim_green_circle.json",
             ]
         else:
             self.world_files = [

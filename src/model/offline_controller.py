@@ -202,16 +202,16 @@ class OfflineController:
         comp = comp.tolist()[0]
 
         # convert values so that [0.5, 1.0] maps into [0, 1]
-        comp = 2*(np.maximum(0.5, comp) - 0.5)
+        comp = 2 * (np.maximum(0.5, comp) - 0.5)
 
         return comp
 
     def get_global_competence(self):
         grid_comps = self.predictor(self.prototype_grid_reps)
         comp = grid_comps.mean().tolist()
-        
+
         # convert values so that [0.5, 1.0] maps into [0, 1]
-        comp = 2*(np.maximum(0.5, comp) - 0.5)
+        comp = 2 * (np.maximum(0.5, comp) - 0.5)
 
         return comp
 

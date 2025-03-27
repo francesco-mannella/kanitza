@@ -2,7 +2,6 @@
 
 import EyeSim
 import gymnasium as gym
-import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import wandb
@@ -18,8 +17,6 @@ _ = EyeSim
 # %% MAIN LOOP AND VISUALIZATION
 if __name__ == "__main__":
 
-    matplotlib.use("agg")
-
     # Initialize Weights & Biases logging
     wandb.init(
         project="eye-simulation",
@@ -34,9 +31,9 @@ if __name__ == "__main__":
     # Set up the environment and agent
     env = gym.make("EyeSim/EyeSim-v0", colors=True)
     env = env.unwrapped
-    agent = Agent(env, sampling_threshold=0.002)
+    agent = Agent(env, sampling_threshold=0.00001)
 
-    worlds = ["triangle", "square"]
+    worlds = ["circle", "triangle", "square"]
 
     # Run the simulation for a fixed number of episodes
     for episode in range(2):
@@ -55,7 +52,7 @@ if __name__ == "__main__":
         action = [30, 30]
 
         # Create a plotting object for the current episode
-        plotter = FoveaPlotter(env, offline=True)
+        plotter = FoveaPlotter(env, offline=False)
 
         # Generate random means for Gaussian masks
         a = np.linspace(0, 2 * np.pi, 5)

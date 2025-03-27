@@ -1,8 +1,8 @@
 #!/bin/bash
 
 seeds=1
-decay_speeds='3 2'
-local_decay_speeds='1 0.5'
+decay_speeds='6 4'
+local_decay_speeds='1.5'
 wandb=true
 CURR_DIR=$(pwd)
 EXE=$(dirname "$0" | xargs realpath | sed -e "s/scripts/src\/main.py/")
@@ -25,7 +25,8 @@ learningrate_modulation=10.0;\
 neighborhood_modulation=10.0;\
 learningrate_modulation_baseline=0.02;\
 neighborhood_modulation_baseline=0.8;\
-match_std_baseline=0.5;match_std=8.0;\
+match_std_baseline=0.5;\
+match_std=8.0;\
 anchor_std=2.0;\
 triangles_percent=50.0"
 
