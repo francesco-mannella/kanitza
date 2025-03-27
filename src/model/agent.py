@@ -121,6 +121,9 @@ def sampling(array, precision=0.01, rng=None):
 
     flattened_array = array.flatten()
     probabilities = softmax(flattened_array / precision)
+    probabilities[probabilities < probabilities.max() * 0.9] = 0
+    probabilities /= probabilities.sum()
+
     sampled_flat_index = rng.choice(a=flattened_array.size, p=probabilities)
     sampled_index = np.unravel_index(
         sampled_flat_index, array.shape, order="F"

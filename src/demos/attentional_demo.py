@@ -4,7 +4,6 @@ import EyeSim
 import gymnasium as gym
 import matplotlib.pyplot as plt
 import numpy as np
-import wandb
 from model.agent import Agent
 from plotter import FoveaPlotter
 
@@ -17,13 +16,6 @@ _ = EyeSim
 # %% MAIN LOOP AND VISUALIZATION
 if __name__ == "__main__":
 
-    # Initialize Weights & Biases logging
-    wandb.init(
-        project="eye-simulation",
-        entity="francesco-mannella",
-        name="attentional demo",
-    )
-
     # Enable interactive mode and close any previously opened plots
     plt.ion()
     plt.close("all")
@@ -31,12 +23,12 @@ if __name__ == "__main__":
     # Set up the environment and agent
     env = gym.make("EyeSim/EyeSim-v0", colors=True)
     env = env.unwrapped
-    agent = Agent(env, sampling_threshold=0.00001)
+    agent = Agent(env, sampling_threshold=0.0001)
 
     worlds = ["circle", "triangle", "square"]
 
     # Run the simulation for a fixed number of episodes
-    for episode in range(2):
+    for episode in range(3):
         world_id = next(
             i
             for i, world in enumerate(env.world_labels)
@@ -77,11 +69,3 @@ if __name__ == "__main__":
         # Save the plot for the current episode as a gif
         gif_file = f"episode_{episode:04d}"
         plotter.close(gif_file)
-
-        # Log the gif file to Weights & Biases
-        wandb.log(
-            {"attentional_demo": wandb.Video(f"{gif_file}.gif", format="gif")}
-        )
-
-    # Close the Weights & Biases run
-    wandb.finish()
