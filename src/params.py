@@ -123,7 +123,7 @@ class Parameters:
         )
 
         for key, value in param_dict.items():
-            if hasattr(self, key):
+            if key in dir(self):
                 converter = self.param_types[key]
                 if converter is not bool:
                     setattr(self, key, converter(value))
