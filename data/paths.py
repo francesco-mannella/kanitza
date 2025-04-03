@@ -2,14 +2,13 @@
 
 from glob import glob
 
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
 import seaborn.objects as so
 from seaborn import axes_style
-
-import matplotlib
 
 
 matplotlib.use("agg")
@@ -24,6 +23,7 @@ for d in glob(dirs):
     file_regex = f"{test_dir}/goals*npy"
     files = glob(file_regex)
     if len(files) > 0:
+
         ndict = []
         for filename in files:
             np_dict = pd.DataFrame(np.load(filename, allow_pickle=True)[0])
@@ -83,5 +83,9 @@ for d in glob(dirs):
 
         fig.savefig(f"{test_dir}.png")
 
-dfs = pd.concat(dfs)
-dfs.to_csv("paths.csv")
+pddfs = pd.concat(dfs)
+pddfs.to_csv("paths.csv")
+
+# %%
+
+# %%
