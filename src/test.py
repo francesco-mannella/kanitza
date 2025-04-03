@@ -10,6 +10,7 @@ import gymnasium as gym
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
+from slugify import slugify
 import torch
 import wandb
 
@@ -66,6 +67,7 @@ def execute_simulation(
 
         env.init_world(world=world_id, object_params=object_params)
         observation, info = env.reset()
+        env.info = info
 
         for k, v in info.items():
             print(f"{k}: {v}", end="  ")
@@ -125,6 +127,12 @@ def run_episode(
         if time_step % 4 == 0:
             print("ts: ", time_step)
             agent.set_parameters(saccade)
+            off_control.goals["world"].append(env.info["world"])
+            off_control.goals["angle"].append(env.info["angle"])
+            off_control.goals["position"].append(env.info["position"])
+            saccade_id = f"{episode:04d}-{time_step:04d}"
+            off_control.goals["saccade_id"].append(saccade_id)
+            off_control.goals["goal"].append(goal)
 
         update_environment_position(env, time_step, params)
 
@@ -204,6 +212,13 @@ def test(params, seed, world=None, object_params=None):
     for epoch in range(off_control.epoch, off_control.epoch + params.epochs):
         off_control.epoch = epoch
         off_control.reset_states()
+        off_control.goals = {
+            "world": [],
+            "position": [],
+            "angle": [],
+            "saccade_id": [],
+            "goal": [],
+        }
 
         is_plotting_epoch = (epoch % params.plotting_epochs_interval == 0) or (
             epoch == params.epochs - 1
@@ -216,6 +231,15 @@ def test(params, seed, world=None, object_params=None):
             is_plotting_epoch,
             world,
             object_params,
+        )
+
+        np.save(
+            slugify(
+                f"goals_{world}_"
+                f"{object_params['pos']}_"
+                f"{object_params['rot']:06.2f}"
+            ),
+            [off_control.goals],
         )
 
         print(f"Epoch: {epoch}")
