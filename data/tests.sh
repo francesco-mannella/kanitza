@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e 
+ 
 
 TEST_APP=${HOME}/Projects/current/kanizsa_predict/src/test.py
 # Store the initial working directory
@@ -16,7 +16,7 @@ for EXPERIMENT_DIR in s_1*00; do
 		# Iterate through shapes (triangle and square)
 		for SHAPE in triangle square; do
 			# Iterate through rotation values from 0 to 1 with a step of 0.2
-			for ROTATION in $(seq 0 0.2 1); do
+			for ROTATION in $(seq 0 0.2 1.6); do
 				# Disable wandb (Weights & Biases)
 				wandb disabled
 

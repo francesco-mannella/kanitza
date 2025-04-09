@@ -19,20 +19,20 @@ except FileNotFoundError:
     runs = api.runs(entity + "/" + project)
 
     stats = []
+    names = []
     for run in runs:
 
-        print(run.name)
-
         if run.name.find("predgrid") > 0:
-            df = run.history()
-            df.loc[:, "run"] = run.name
-            df.loc[:, "decay"] = float(
-                re.sub(r".*_d_(..)(...)_l_.*", r"\1.\2", run.name)
-            )
-            df.loc[:, "local_decay"] = float(
-                re.sub(r".*_l_(..)(...)$", r"\1.\2", run.name)
-            )
-            stats.append(df)
+            names.append(run.name)
+            decay = float(re.sub(r".*_d_(..)(...)_l_.*", r"\1.\2", run.name))
+            local_decay = float(re.sub(r".*_l_(..)(...)$", r"\1.\2", run.name))
+
+            if decay < 6:
+                df = run.history()
+                df.loc[:, "run"] = run.name
+                df.loc[:, "decay"] = decay
+                df.loc[:, "local_decay"] = local_decay
+                stats.append(df)
 
     stats = pd.concat(stats)
     stats = stats[
@@ -41,8 +41,8 @@ except FileNotFoundError:
             "_step",
             "competence",
             "visual_conditions",
-            "visual_conditions",
             "visual_effects",
+            "attention",
             "decay",
             "local_decay",
         ]
@@ -88,7 +88,7 @@ ps = []
 for var in ["cond_base", "eff_base", "att_base"]:
     ps.append(
         so.Plot(
-            stats.query("_step==400"),
+            stats.query("_step==400 and decay < 6"),
             x="decay",
             y="local_decay",
             pointsize=var,
@@ -112,5 +112,4 @@ for idx, ax in enumerate(axes):
         ps[idx - 1].on(ax).plot()
 fig1.tight_layout()
 fig1.show()
-
-
+fig1.savefig("parameter_exploration.png")
