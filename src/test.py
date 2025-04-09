@@ -10,9 +10,9 @@ import gymnasium as gym
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
-from slugify import slugify
 import torch
 import wandb
+from slugify import slugify
 
 from merge_gifs import merge_gifs
 from model.agent import Agent
@@ -91,7 +91,13 @@ def execute_simulation(
         )
 
         if is_plotting_epoch:
-            log_simulations(params, episode, fovea_plotter, maps_plotter)
+            log_simulations(
+                params,
+                episode,
+                fovea_plotter,
+                maps_plotter,
+                env.info,
+            )
 
         print(f"Episode: {episode}")
 
@@ -173,9 +179,12 @@ def update_plotters(
         maps_plotter.step(goal)
 
 
-def log_simulations(params, episode, fovea_plotter, maps_plotter):
+def log_simulations(params, episode, fovea_plotter, maps_plotter, info):
+
+    tag = slugify(f"{info['world']}_{info['angle']}_{info['position']}")
+
     if params.plot_sim:
-        gif_file = f"sim_test_{episode:04d}"
+        gif_file = f"sim_test_{tag}"
         fovea_plotter.close(gif_file)
         wandb.log(
             {"Simulation": wandb.Video(f"{gif_file}.gif", format="gif")},
@@ -183,7 +192,7 @@ def log_simulations(params, episode, fovea_plotter, maps_plotter):
         )
 
     if params.plot_maps:
-        gif_file = f"maps_test_{episode:04d}"
+        gif_file = f"maps_test_{tag}"
         maps_plotter.close(gif_file)
         wandb.log(
             {"Maps": wandb.Video(f"{gif_file}.gif", format="gif")},
@@ -191,8 +200,13 @@ def log_simulations(params, episode, fovea_plotter, maps_plotter):
         )
 
     if params.plot_sim and params.plot_maps:
-        gif_file = f"merged_test_{episode:04d}"
-        merge_gifs(fovea_plotter.vm.frames, maps_plotter.vm.frames, gif_file)
+        gif_file = f"merged_test_{tag}"
+        merge_gifs(
+            fovea_plotter.vm.frames,
+            maps_plotter.vm.frames,
+            gif_file,
+            frame_duration=80,
+        )
 
 
 def test(params, seed, world=None, object_params=None):
@@ -306,7 +320,7 @@ def main():
     params.plot_maps = True
     params.plot_sim = True
     params.epochs = 1
-    params.saccade_num = 8
+    params.saccade_num = 16
     params.episodes = 1
     params.plotting_epochs_interval = 1
 
