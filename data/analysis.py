@@ -48,7 +48,7 @@ p = (
         pointsize="comp",
     )
     .add(so.Dot(marker="s", color="#444"))
-    .scale(pointsize=(1, 10))
+    .scale(pointsize=(1, 18))
     .layout(extent=(0.1, 0.1, 0.7, 0.9))
     .limit(
         x=(1, 4.5),

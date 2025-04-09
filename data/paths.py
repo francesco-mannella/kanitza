@@ -2,7 +2,6 @@
 
 from glob import glob
 
-import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -10,8 +9,6 @@ import seaborn as sns
 import seaborn.objects as so
 from seaborn import axes_style
 
-
-matplotlib.use("agg")
 
 dirs = "s_1*"
 
@@ -66,6 +63,7 @@ for d in glob(dirs):
             .scale(
                 x=so.Continuous().tick(at=np.arange(10)),
                 y=so.Continuous().tick(at=np.arange(10)),
+                color=("#ff5555","#5555ff"),
             )
             .limit(
                 x=(-0.5, 9.5),
