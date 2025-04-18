@@ -134,7 +134,7 @@ def run_episode(
         saccade, goal = off_control.get_action_from_condition(
             condition, prev_gen_goal
         )
-        gen_goal = off_control.recurrent_model.step(goal)
+        gen_goal = off_control.recurrent_model.step(goal.squeeze())
         prev_gen_goal = gen_goal.copy()
 
         if time_step % 4 == 0:

@@ -2,7 +2,8 @@ import numpy as np
 import torch
 
 from model.predict import Predictor, PredictorUpdater
-from model.topological_maps import TopologicalMap, Updater
+from model.topological_maps import FilteredTopologicalMap as TopologicalMap
+from model.topological_maps import Updater
 
 
 class OfflineController:
@@ -545,7 +546,7 @@ class OfflineController:
         )
 
         if condition_filter is not None:
-            self.visual_conditions_map.set_filter([condition_filter])
+            self.visual_conditions_map.set_filter([condition_filter], 1)
 
         norm = self.visual_conditions_map(condition_tensor)
 

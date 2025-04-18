@@ -1,4 +1,3 @@
-import math
 import pickle
 
 import numpy as np
@@ -109,7 +108,7 @@ class RecurrentGenerativeModel:
             (self.N_rec, self.N_readouts),
         )
 
-        if feedback == True:
+        if feedback is True:
             self.feedback_weights = self.phi * np.random.uniform(
                 self.paramsFORCE.uniform_dist,
                 -self.paramsFORCE.uniform_dist,
@@ -306,13 +305,13 @@ class RecurrentGenerativeModel:
         if timesteps is None:
             timesteps = self.paramsFORCE.target_shape_lenght
 
-        if goal is None:  
+        if goal is None:
             mode = "default"
         elif RNN_updater is None:
             mode = "input"
         else:
             mode = "training"
-            
+
         readouts_storage = np.zeros((self.N_readouts, timesteps))
 
         if mode == "default":
@@ -337,7 +336,7 @@ class RecurrentGenerativeModel:
                 )
             if (
                 isinstance(RNN_updater, RecurrentGenerativeModelUpdater)
-                == False
+                is False
             ):
                 raise TypeError(
                     "Error! The RNN updater you are using is not a FORCE updater"
