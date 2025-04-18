@@ -2,17 +2,23 @@
 
 from glob import glob
 
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
 import seaborn.objects as so
+import slugify
 from seaborn import axes_style
 
+
+matplotlib.use("agg")
 
 dirs = "s_1*"
 
 dfs = []
+sns.set_style("whitegrid")
+so.Plot.config.display["scaling"] = 0.7
 
 for d in glob(dirs):
     test_dir = d
@@ -33,12 +39,17 @@ for d in glob(dirs):
         df.loc[:, "sim"] = d
         df.loc[:, "pos.x"] = np.stack(df.position)[:, 0]
         df.loc[:, "pos.y"] = np.stack(df.position)[:, 1]
-        df.loc[:, "goal.x"] = np.stack(df.goal)[:, 0, 0]
-        df.loc[:, "goal.y"] = np.stack(df.goal)[:, 0, 1]
+        df.loc[:, "y"] = np.stack(df.goal)[:, 0, 0]
+        df.loc[:, "x"] = np.stack(df.goal)[:, 0, 1]
         df.loc[:, "saccade"] = [
             int(x.replace("0000-", "")) for x in df.saccade_id
         ]
-        df.loc[:, "rot"] = df.angle * 180 / np.pi
+        df.loc[:, "Rot"] = df.angle * 180 / np.pi
+        df = df.rename(columns={"world": "Object"})
+        df = df.query("saccade > 2")
+        df.loc[:, "trial"] = [slugify.slugify(f"{obj}-{angle}") for obj, angle in zip(df.Object, df.angle) ]
+
+
 
         dfs.append(df)
 
@@ -46,24 +57,26 @@ for d in glob(dirs):
             axes_style("whitegrid", {"font_scale": 1, "axes.grid": True})
         )
 
-        so.Plot.config.display["scaling"] = 0.7
+        fig, ax = plt.subplots()
         p = (
             so.Plot(
                 df,
-                x="goal.y",
-                y="goal.x",
-                linewidth="rot",
-                color="world",
+                x="x",
+                y="y",
             )
             .add(
                 so.Path(
                     marker="o",
+                    alpha=0.5,
                 ),
+                linewidth="Rot",
+                color="Object",
+                group="trial",
             )
             .scale(
                 x=so.Continuous().tick(at=np.arange(10)),
                 y=so.Continuous().tick(at=np.arange(10)),
-                color=("#ff5555","#5555ff"),
+                color=("#ff5555", "#5555ff"),
             )
             .limit(
                 x=(-0.5, 9.5),
@@ -75,11 +88,27 @@ for d in glob(dirs):
             )
         )
 
-        sns.set_style("whitegrid")
-        fig, ax = plt.subplots()
-        p.on(ax).show()
+        p.on(ax).plot()
+
+        fig.legends[0].set_bbox_to_anchor((0.78, 0.5))
 
         fig.savefig(f"{test_dir}.png")
+
+        if test_dir.find("d_03500_l_00500") >= 0:
+
+            for i, obj in enumerate(df.Object.unique()):
+                for j, angle in enumerate(df.angle.unique()):
+                    fig, ax = plt.subplots()
+
+                    dfline = df.query(f"Object=='{obj}' and angle=={angle}")
+
+                    p.add(so.Path(linewidth=3, alpha=1), data=dfline,legend=False, color="Object").on(ax).plot()
+
+                    fig.legends[0].set_bbox_to_anchor((0.78, 0.5))
+
+                    fig.savefig(slugify.slugify(f"{test_dir}_{obj}_{angle}.png"))
+
+            ddf = df.copy()
 
 pddfs = pd.concat(dfs)
 pddfs.to_csv("paths.csv")

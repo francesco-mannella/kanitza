@@ -1,12 +1,14 @@
 #!/bin/bash
- 
+
+set -e
 
 TEST_APP=${HOME}/Projects/current/kanizsa_predict/src/test.py
 # Store the initial working directory
 INITIAL_DIR=$(pwd)
 
 # Iterate through directories matching the pattern "s_1*00"
-for EXPERIMENT_DIR in s_1*00; do
+#for EXPERIMENT_DIR in s_1*00; do
+for EXPERIMENT_DIR in s_1_*_d_03500_l_00500; do
     echo $EXPERIMENT_DIR
 	# Check if the directory contains a file named "goal"
 	if [[ -z "$(ls "$EXPERIMENT_DIR" | grep goal)" ]]; then

@@ -175,7 +175,7 @@ class MapsPlotter:
         - controller (object): Manages the weights to be plotted.
         - offline (bool): Indicates if operations should be done offline.
         - video_frame_duration (int): Duration for video frames in
-          milliseconds.  
+          milliseconds.
         """
         self.controller = controller
         self.env = env
