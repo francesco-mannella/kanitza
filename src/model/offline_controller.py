@@ -528,12 +528,13 @@ class OfflineController:
 
         return norms
 
-    def get_action_from_condition(self, condition):
+    def get_action_from_condition(self, condition, condition_filter=None):
         """
         Retrieve the action representation given a visual condition.
 
         Parameters:
         - condition: A visual state to obtain corresponding action.
+        - condition_filter: A predicted point representation.
 
         Returns:
         - A tuple containing the focus point and representation.
@@ -542,6 +543,10 @@ class OfflineController:
             torch.tensor(condition.ravel().reshape(1, -1), dtype=torch.float32)
             / 255.0
         )
+
+        if condition_filter is not None:
+            self.visual_conditions_map.set_filter([condition_filter])
+
         norm = self.visual_conditions_map(condition_tensor)
 
         representation = self.visual_conditions_map.get_representation(
