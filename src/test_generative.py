@@ -17,9 +17,10 @@ from slugify import slugify
 from merge_gifs import merge_gifs
 from model.agent import Agent
 from model.offline_controller import OfflineController
+from model.recurrent_generative_model import RecurrentGenerativeModel
 from params import Parameters
 from plotter import FoveaPlotter, MapsPlotter
-from model.recurrent_generative_model import RecurrentGenerativeModel 
+
 
 _ = EyeSim  # avoid fixer erase EyeSim import
 
@@ -130,8 +131,10 @@ def run_episode(
 
     for time_step in range(params.saccade_time * params.saccade_num):
         condition = observation["FOVEA"].copy()
-        saccade, goal = off:redraw!_control.get_action_from_condition(condition, prev_gen_goal )
-        gen_goal = off_control.recurrent_model.step(goal) 
+        saccade, goal = off_control.get_action_from_condition(
+            condition, prev_gen_goal
+        )
+        gen_goal = off_control.recurrent_model.step(goal)
         prev_gen_goal = gen_goal.copy()
 
         if time_step % 4 == 0:
