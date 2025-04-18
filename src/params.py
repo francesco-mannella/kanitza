@@ -1,3 +1,6 @@
+import sys
+
+
 class Parameters:
     def __init__(
         self,
@@ -17,14 +20,19 @@ class Parameters:
         action_size=2,
         attention_size=2,
         maps_learning_rate=0.1,
-        saccade_threshold=14,
+        predictor_learning_rate=0.01,
+        saccade_threshold=12,
         neighborhood_modulation=10,
         neighborhood_modulation_baseline=0.8,
-        learnigrate_modulation=0.8,
-        learnigrate_modulation_baseline=0.02,
+        learningrate_modulation=0.8,
+        learningrate_modulation_baseline=0.02,
+        match_std_baseline=0.5,
         match_std=4.0,
+        anchor_std=8.0,
         decaying_speed=5.0,
         local_decaying_speed=1.0,
+        triangles_percent=50,
+        colors=True,
     ):
         self.project_name = project_name
         self.entity_name = entity_name
@@ -42,16 +50,23 @@ class Parameters:
         self.action_size = action_size
         self.attention_size = attention_size
         self.maps_learning_rate = maps_learning_rate
+        self.predictor_learning_rate = predictor_learning_rate
         self.saccade_threshold = saccade_threshold
-        self.learnigrate_modulation = learnigrate_modulation
+        self.learningrate_modulation = learningrate_modulation
         self.neighborhood_modulation = neighborhood_modulation
-        self.learnigrate_modulation_baseline = learnigrate_modulation_baseline
+        self.learningrate_modulation_baseline = (
+            learningrate_modulation_baseline
+        )
         self.neighborhood_modulation_baseline = (
             neighborhood_modulation_baseline
         )
+        self.match_std_baseline = match_std_baseline
         self.match_std = match_std
+        self.anchor_std = anchor_std
         self.decaying_speed = decaying_speed
         self.local_decaying_speed = local_decaying_speed
+        self.triangles_percent = triangles_percent
+        self.colors = colors
 
         self.param_types = {
             "project_name": str,
@@ -69,15 +84,20 @@ class Parameters:
             "maps_output_size": int,
             "action_size": int,
             "attention_size": int,
+            "predictor_learning_rate": float,
             "maps_learning_rate": float,
-            "saccade_threshold": int,
-            "neighborhood_modulation": int,
+            "saccade_threshold": float,
+            "neighborhood_modulation": float,
             "neighborhood_modulation_baseline": float,
-            "learnigrate_modulation": float,
-            "learnigrate_modulation_baseline": float,
+            "learningrate_modulation": float,
+            "learningrate_modulation_baseline": float,
             "match_std": float,
+            "match_std_baseline": float,
+            "anchor_std": float,
             "decaying_speed": float,
             "local_decaying_speed": float,
+            "triangles_percent": float,
+            "colors": bool,
         }
 
     def string_to_params(self, param_list):
@@ -106,13 +126,16 @@ class Parameters:
         )
 
         for key, value in param_dict.items():
-            if hasattr(self, key):
-                converter = self.param_types.get(
-                    key, str
-                )  # Default to str if type is not specified
-                setattr(self, key, converter(value))
+            if key in dir(self):
+                converter = self.param_types[key]
+                if converter is not bool:
+                    setattr(self, key, converter(value))
+                else:
+                    setattr(self, key, value == "True")
+
             else:
                 print(f"There's no parameter named {key}")
+                sys.exit(1)
 
     def save(self, filepath):
         with open(filepath, "w") as file:

@@ -1,4 +1,5 @@
 # %% IMPORTS
+
 import numpy as np
 from scipy.signal import convolve2d
 from scipy.special import softmax
@@ -120,6 +121,9 @@ def sampling(array, precision=0.01, rng=None):
 
     flattened_array = array.flatten()
     probabilities = softmax(flattened_array / precision)
+    probabilities[probabilities < probabilities.max() * 0.9] = 0
+    probabilities /= probabilities.sum()
+
     sampled_flat_index = rng.choice(a=flattened_array.size, p=probabilities)
     sampled_index = np.unravel_index(
         sampled_flat_index, array.shape, order="F"
@@ -217,7 +221,7 @@ class Agent:
 
             env_size = np.array([self.env_height, self.env_width])
             params *= env_size
-            scale = 0.04 * np.linalg.norm(params - env_size / 2)
+            scale = 0.02 * np.linalg.norm(params - env_size / 2)
 
             self.attentional_mask = gaussian_mask(
                 (self.env_height, self.env_width),

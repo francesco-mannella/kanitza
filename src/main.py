@@ -35,7 +35,7 @@ def signal_handler(signum, frame):
 
 class Logger:
     """
-    Logger class to write numbers to a file.
+    Logger class to write to a file.
 
     Attributes:
     - filename (str): The name of the file to which the logs are written.
@@ -44,15 +44,16 @@ class Logger:
     def __init__(self, filename):
         self.filename = filename
 
-    def __call__(self, number):
+    def __call__(self, log):
         """
-        Log a number to the file.
+        Log to the file and stdout.
 
         Parameters:
-        - number (float): The number to log.
+        - log (any): The log.
         """
         with open(self.filename, "a") as file:
-            file.write(str(number) + "\n")
+            print(log, file=file)
+        print(log)
 
 
 def setup_environment(seed, params):
@@ -66,7 +67,7 @@ def setup_environment(seed, params):
     Returns:
     - env (gym.Env): Gym environment object.
     """
-    env = gym.make(params.env_name)
+    env = gym.make(params.env_name, colors=params.colors)
     env = env.unwrapped
     env.set_seed(seed)
     return env
@@ -110,7 +111,7 @@ def setup_offline_controller(file_path, env, params, seed):
         return OfflineController(env, params, seed)
 
 
-def run_epoch(agent, env, off_control, params, epoch):
+def run_epoch(agent, env, off_control, params, epoch, log):
     """
     Perform multiple episodes of simulation for a single epoch.
 
@@ -120,10 +121,15 @@ def run_epoch(agent, env, off_control, params, epoch):
     - off_control (OfflineController): OfflineController for state management.
     - params (Parameters): Parameters object containing simulation settings.
     - epoch (int): Current epoch number for logging and control.
+    - log (Logger): controls logging
     """
     for episode in range(params.episodes):
-        run_episode(agent, env, off_control, params, episode, epoch)
-        print(f"Episode: {episode}, Epoch: {epoch}")
+        info = run_episode(agent, env, off_control, params, episode, epoch)
+        log(
+            f"Epoch: {epoch:<5d} "
+            f"Episode: {episode:<3d} "
+            f"type:{info['world']:10s}"
+        )
 
 
 def run_episode(agent, env, off_control, params, episode, epoch):
@@ -138,35 +144,37 @@ def run_episode(agent, env, off_control, params, episode, epoch):
     - episode (int): Current episode number.
     - epoch (int): Current epoch number.
     """
-    env.init_world(world=env.rng.choice([0, 1]))
+    env.init_world(world=0 if epoch % 100 < params.triangles_percent else 1)
     _, env_info = env.reset()
 
     plt_enabled = (
-        params.plot_sim
+        params.plot_sim is True
         and episode == params.episodes - 1
         and is_plotting_epoch(epoch, params)
     )
 
-    fovea_plotter = FoveaPlotter(env, offline=True) if plt_enabled else None
+    fovea_plotter = (
+        FoveaPlotter(env, offline=True) if plt_enabled is True else None
+    )
 
     action = np.zeros(env.action_space.shape)
-    saccades = off_control.generate_attentional_input(params.saccade_num)
 
-    for saccade_idx, saccade in enumerate(saccades):
+    for saccade_idx in range(params.saccade_num):
         execute_saccade(
             agent,
             env,
             off_control,
             params,
             action,
-            saccade,
             episode,
             saccade_idx,
             fovea_plotter,
         )
 
-    if plt_enabled:
+    if plt_enabled is True:
         save_simulation_gif(fovea_plotter, epoch)
+
+    return env_info
 
 
 def execute_saccade(
@@ -175,7 +183,6 @@ def execute_saccade(
     off_control,
     params,
     action,
-    saccade,
     episode,
     saccade_idx,
     fovea_plotter,
@@ -189,13 +196,18 @@ def execute_saccade(
     - off_control (OfflineController): OfflineController object.
     - params (Parameters): Parameters object.
     - action (np.ndarray): Initial action configuration.
-    - saccade (np.ndarray): Current attentional saccade point.
     - episode (int): Current episode number.
     - saccade_idx (int): Current saccade index.
     - fovea_plotter (FoveaPlotter or None): Optional plotter for visual output.
     """
+    observation, *_ = env.step(np.zeros(params.action_size))
+
+    competence = None
     for time_step in range(params.saccade_time):
         if time_step == int(0.5 * params.saccade_time):
+            saccade, competence = off_control.generate_saccade(
+                observation["FOVEA"]
+            )
             agent.set_parameters(saccade)
 
         observation, *_ = env.step(action)
@@ -207,9 +219,11 @@ def execute_saccade(
             )
 
         state = {
+            "world": env.world,
             "vision": observation["FOVEA"],
             "action": action,
             "attention": np.copy(agent.params),
+            "competence": competence,
         }
         off_control.record_states(episode, saccade_idx, time_step, state)
 
@@ -254,7 +268,7 @@ def main(params):
     """
     Main function to execute the simulation process.
     """
-    competence_log = Logger("comp")
+    main_log = Logger("log")
 
     signal.signal(signal.SIGINT, signal_handler)
 
@@ -273,17 +287,35 @@ def main(params):
         maps_plotter = MapsPlotter(env, off_control, offline=True)
 
     for epoch in range(off_control.epoch, off_control.epoch + params.epochs):
+        main_log(f"epoch: {epoch}")
         off_control.epoch = epoch
         off_control.reset_states()
 
-        run_epoch(agent, env, off_control, params, epoch)
+        run_epoch(agent, env, off_control, params, epoch, main_log)
         off_control.filter_salient_states()
-        off_control.update_maps()
 
-        competence_log(off_control.competence.detach().cpu().numpy())
+        # count world types
+        world_dict = {"triangle": 0, "square": 0}
+        for idx in np.array(off_control.filtered_idcs).T:
+            world = int(off_control.world_states[idx[0], idx[1], idx[2]][0])
+            if env.world_labels[world] == "triangle":
+                world_dict["triangle"] += 1
+            elif env.world_labels[world] == "square":
+                world_dict["square"] += 1
 
-        # Log the data using wandb, including competence and unpacked
-        # weight_changes
+        main_log(
+            f"triangles: {world_dict['triangle']}, "
+            f"squares: {world_dict['square']}"
+        )
+
+        off_control.update()
+
+        # Logs
+
+        # Log to file
+        main_log(f"comp: {off_control.competence}")
+
+        # log to wandb
         wandb.log(
             dict(
                 competence=off_control.competence, **off_control.weight_change
@@ -363,14 +395,18 @@ if __name__ == "__main__":
         ".", "_"
     )
 
+    def format_scalar(x):
+        return f"{x:06.3f}".replace(".", "")
+
     params.init_name = (
-        "sim_filter_"
+        "sim_"
         f"{variant}_"
         f"{str(hex(np.abs(hash(params))))[:6]}_"
         f"s_{seed_str}_"
-        f"m_{params.match_std}_"
-        f"d_{params.decaying_speed}_"
-        f"l_{params.local_decaying_speed}"
+        f"m_{format_scalar(params.match_std)}_"
+        f"a_{format_scalar(params.anchor_std)}_"
+        f"d_{format_scalar(params.decaying_speed)}_"
+        f"l_{format_scalar(params.local_decaying_speed)}"
     )
 
     with open("NAME", "w") as fname:
