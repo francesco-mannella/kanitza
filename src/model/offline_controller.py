@@ -529,13 +529,19 @@ class OfflineController:
 
         return norms
 
-    def get_action_from_condition(self, condition, condition_filter=None):
+    def get_action_from_condition(
+        self,
+        condition,
+        condition_filter=None,
+        filter_magnitude=0,
+    ):
         """
         Retrieve the action representation given a visual condition.
 
         Parameters:
         - condition: A visual state to obtain corresponding action.
         - condition_filter: A predicted point representation.
+        - filter_magnitude: The proportion of influence of the filter
 
         Returns:
         - A tuple containing the focus point and representation.
@@ -546,7 +552,10 @@ class OfflineController:
         )
 
         if condition_filter is not None:
-            self.visual_conditions_map.set_filter([condition_filter], 1)
+            self.visual_conditions_map.set_filter(
+                [condition_filter],
+                magnitude=filter_magnitude,
+            )
 
         norm = self.visual_conditions_map(condition_tensor)
 

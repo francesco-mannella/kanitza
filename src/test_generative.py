@@ -127,25 +127,36 @@ def run_episode(
     episode,
 ):
 
-    prev_gen_goal = None
+    gen_goal = None
+    off_control.magnitude = 1
 
     for time_step in range(params.saccade_time * params.saccade_num):
-        condition = observation["FOVEA"].copy()
-        saccade, goal = off_control.get_action_from_condition(
-            condition, prev_gen_goal
-        )
-        gen_goal = off_control.recurrent_model.step(goal.squeeze())
-        prev_gen_goal = gen_goal.copy()
-
         if time_step % 4 == 0:
             print("ts: ", time_step)
+
+            # Get info for saccade
+            condition = observation["FOVEA"].copy()
+            # Compute saccade
+            saccade, goal = off_control.get_action_from_condition(
+                condition, gen_goal, off_control.magnitude
+            )
+
+            off_control.magnitude += params.magnitude_decay * (
+                0 - off_control.magnitude
+            )
+
+            # Recurrent model step (next saccade prediction)
+            gen_goal = off_control.recurrent_model.step(goal.squeeze())
+            # Trigger saccade
             agent.set_parameters(saccade)
+
             off_control.goals["world"].append(env.info["world"])
             off_control.goals["angle"].append(env.info["angle"])
             off_control.goals["position"].append(env.info["position"])
             saccade_id = f"{episode:04d}-{time_step:04d}"
             off_control.goals["saccade_id"].append(saccade_id)
             off_control.goals["goal"].append(goal)
+            off_control.goals["gen_goal"].append(gen_goal)
 
         update_environment_position(env, time_step, params)
 
@@ -240,6 +251,7 @@ def test(params, seed, world=None, object_params=None):
             "angle": [],
             "saccade_id": [],
             "goal": [],
+            "gen_goal": [],
         }
 
         is_plotting_epoch = (epoch % params.plotting_epochs_interval == 0) or (
