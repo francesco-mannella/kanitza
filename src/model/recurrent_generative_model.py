@@ -1,3 +1,4 @@
+import math
 import pickle
 
 import numpy as np
@@ -79,7 +80,7 @@ class RecurrentGenerativeModel:
         self.reservoir_activity = np.tanh(self.x)
         self.readout_activity = np.zeros((self.N_readouts, 1))
 
-        self.input_weights = np.random.uniform(
+        self.input_weights = np.random.uniform(    ###TOGLIERE
             self.paramsFORCE.uniform_dist,
             -self.paramsFORCE.uniform_dist,
             (
@@ -108,7 +109,7 @@ class RecurrentGenerativeModel:
             (self.N_rec, self.N_readouts),
         )
 
-        if feedback is True:
+        if feedback == True:
             self.feedback_weights = self.phi * np.random.uniform(
                 self.paramsFORCE.uniform_dist,
                 -self.paramsFORCE.uniform_dist,
@@ -220,12 +221,13 @@ class RecurrentGenerativeModel:
 
         Parameters
         ----------
-        goal : TYPE
-            DESCRIPTION.
+        goal : The winning unit position, as an array [pos_y, pos_x]
 
         Returns
         -------
-        None.
+        target_sequence : the target sequence of the readouts, as an array
+                          having as rows the number of readouts
+                          and as columns the target shape lenght
 
         """
         linearized_scanpath = int(goal[0] * self.output_side + goal[1])
@@ -244,12 +246,12 @@ class RecurrentGenerativeModel:
 
         Parameters
         ----------
-        goal : TYPE
-            DESCRIPTION.
+        readouts_storage : an array which has as rows the number of readouts
+                           and as columns the target shape lenght
 
         Returns
         -------
-        None.
+        The winning unit position, as an array [pos_y, pos_x]
 
         """
 
@@ -298,45 +300,48 @@ class RecurrentGenerativeModel:
 
         Returns
         -------
-        None.
+        The predicted goal, as an array [pos_y, pos_x]
 
         """
 
         if timesteps is None:
             timesteps = self.paramsFORCE.target_shape_lenght
-
-        if goal is None:
+        
+        if goal is None:  
             mode = "default"
         elif RNN_updater is None:
             mode = "input"
         else:
             mode = "training"
-
+        
         readouts_storage = np.zeros((self.N_readouts, timesteps))
 
         if mode == "default":
             for t in range(int(timesteps)):
                 self.update(inputs=None, mode="default")
                 readouts_storage[:, [t]] = self.readout_activity
-
+            
+            
         elif mode == "input":
             if goal is None:
                 raise TypeError(
-                    "Error! You tried to use the RNN in input mode, but the input was nan"
+                    "Error! You tried to use the RNN in input mode, but the input was None"
                 )
+            
             target_sequence = self._STM_to_RNN(goal)
             for t in range(len(target_sequence[1])):
                 self.update(inputs=target_sequence[:, [t]], mode="input")
                 readouts_storage[:, [t]] = self.readout_activity
+            
 
         elif mode == "training":
             if goal is None:
                 raise TypeError(
-                    "Error! You tried to use the RNN in training mode, but the target function was nan"
+                    "Error! You tried to use the RNN in training mode, but the target function was None"
                 )
             if (
                 isinstance(RNN_updater, RecurrentGenerativeModelUpdater)
-                is False
+                == False
             ):
                 raise TypeError(
                     "Error! The RNN updater you are using is not a FORCE updater"
@@ -347,7 +352,7 @@ class RecurrentGenerativeModel:
                 error = self._compute_error(
                     self.readout_activity, target_sequence[:, [t + 1]]
                 )
-                self.updater(error)
+                RNN_updater(error)
                 readouts_storage[:, [t]] = self.readout_activity
 
         predicted_goal = self._RNN_to_STM(readouts_storage)
@@ -362,8 +367,16 @@ class RecurrentGenerativeModel:
         filename : str
             The name of the file to save the object to.
         """
-        with open(filename, "wb") as f:
-            pickle.dump(self, f)
+
+        weight_dict = {
+            "input_weights": self.input_weights,
+            "rec_weights": self.rec_weights,
+            "readout_weights": self.readout_weights,
+            "feedback_weights": self.feedback_weights,
+        }
+
+        np.save(filename, [weight_dict])
+            
 
     def load(self, filename):
         """
@@ -374,9 +387,11 @@ class RecurrentGenerativeModel:
         filename : str
             The name of the file to load the object from.
         """
-        with open(filename, "rb") as f:
-            loaded_model = pickle.load(f)
-            self.__dict__.update(loaded_model.__dict__)
+
+        weight_dict = np.load(filename, allow_pickle=True)[0]
+
+        for k, v in weight_dict.items():
+            setattr(self, k, v)
 
 
 if __name__ == "__main__":
