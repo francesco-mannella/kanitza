@@ -128,7 +128,6 @@ def run_episode(
 ):
 
     gen_goal = None
-    off_control.magnitude = 1
 
     for time_step in range(params.saccade_time * params.saccade_num):
         if time_step % 4 == 0:
@@ -138,11 +137,8 @@ def run_episode(
             condition = observation["FOVEA"].copy()
             # Compute saccade
             saccade, goal = off_control.get_action_from_condition(
-                condition, gen_goal, off_control.magnitude
-            )
-
-            off_control.magnitude += params.magnitude_decay * (
-                0 - off_control.magnitude
+                condition,
+                gen_goal,
             )
 
             # Recurrent model step (next saccade prediction)
@@ -241,6 +237,7 @@ def test(params, seed, world=None, object_params=None):
     file_path = "off_control_store"
     off_control = load_offline_controller(file_path, env, params, seed)
     off_control.recurrent_model = RecurrentGenerativeModel()
+    off_control.recurrent_model.load("rnn_store.npy")
 
     for epoch in range(off_control.epoch, off_control.epoch + params.epochs):
         off_control.epoch = epoch
@@ -267,12 +264,25 @@ def test(params, seed, world=None, object_params=None):
             object_params,
         )
 
+        base_name = f"goals_{world}"
+
+        if object_params is not None:
+
+            parts = []
+            if object_params.get("pos") is not None:
+                parts.append(f"{object_params['pos']}_")
+            if object_params.get("rot") is not None:
+                parts.append(f"{object_params['rot']:06.2f}")
+
+            filename = slugify(f"{base_name}_{''.join(parts)}")
+
+        else:
+            filename = slugify(f"{base_name}")
+
+        print(filename)
+
         np.save(
-            slugify(
-                f"goals_{world}_"
-                f"{object_params['pos']}_"
-                f"{object_params['rot']:06.2f}"
-            ),
+            filename,
             [off_control.goals],
         )
 
