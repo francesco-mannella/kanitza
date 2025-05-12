@@ -136,13 +136,19 @@ def run_episode(
             # Get info for saccade
             condition = observation["FOVEA"].copy()
             # Compute saccade
-            saccade, goal = off_control.get_action_from_condition(
+            saccade, offcontrol_goal = off_control.get_action_from_condition(
                 condition,
-                gen_goal,
+                condition_filter=goal,
+                filter_magnitude=0,
             )
 
             # Recurrent model step (next saccade prediction)
-            gen_goal = off_control.recurrent_model.step(goal.squeeze())
+            rnn_goal = off_control.recurrent_model.step(
+                offcontrol_goal.squeeze()
+            )
+
+            goal = off_control.arbitrate_goals(offcontrol_goal, rnn_goal, w=0)
+
             # Trigger saccade
             agent.set_parameters(saccade)
 
@@ -151,8 +157,9 @@ def run_episode(
             off_control.goals["position"].append(env.info["position"])
             saccade_id = f"{episode:04d}-{time_step:04d}"
             off_control.goals["saccade_id"].append(saccade_id)
+            off_control.goals["offcontrol_goal"].append(offcontrol_goal)
+            off_control.goals["rnn_goal"].append(rnn_goal)
             off_control.goals["goal"].append(goal)
-            off_control.goals["gen_goal"].append(gen_goal)
 
         update_environment_position(env, time_step, params)
 
@@ -234,10 +241,11 @@ def test(params, seed, world=None, object_params=None):
         env, sampling_threshold=params.agent_sampling_threshold, seed=seed
     )
 
-    file_path = "off_control_store"
-    off_control = load_offline_controller(file_path, env, params, seed)
+    controller_path = "off_control_store"
+    rnn_path = "rnn_store.npy"
+    off_control = load_offline_controller(controller_path, env, params, seed)
     off_control.recurrent_model = RecurrentGenerativeModel()
-    off_control.recurrent_model.load("rnn_store.npy")
+    off_control.recurrent_model.load(rnn_path)
 
     for epoch in range(off_control.epoch, off_control.epoch + params.epochs):
         off_control.epoch = epoch
@@ -247,8 +255,9 @@ def test(params, seed, world=None, object_params=None):
             "position": [],
             "angle": [],
             "saccade_id": [],
+            "offcontrol_goal": [],
+            "rnn_goal": [],
             "goal": [],
-            "gen_goal": [],
         }
 
         is_plotting_epoch = (epoch % params.plotting_epochs_interval == 0) or (

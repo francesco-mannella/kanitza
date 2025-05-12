@@ -529,6 +529,18 @@ class OfflineController:
 
         return norms
 
+    def arbitrate_goals(self, offcontrol_goal, rnn_goal, w):
+        hov_oc_goal = self.recurrent_model.linearize(
+            offcontrol_goal
+        )
+        hov_rnn_goal = self.recurrent_model.linearize(rnn_goal)
+        hov_goal = w * hov_rnn_goal + (1 - w) * hov_oc_goal
+        # TODO: add noise
+        goal = np.argmax(hov_goal)
+        goal = self.recurrent_model.to_point(goal)
+
+        return goal
+
     def get_action_from_condition(
         self,
         condition,

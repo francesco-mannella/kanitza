@@ -1,6 +1,3 @@
-import math
-import pickle
-
 import numpy as np
 from params_recurrent_generative_model import ParamsFORCE
 
@@ -80,7 +77,7 @@ class RecurrentGenerativeModel:
         self.reservoir_activity = np.tanh(self.x)
         self.readout_activity = np.zeros((self.N_readouts, 1))
 
-        self.input_weights = np.random.uniform(    ###TOGLIERE
+        self.input_weights = np.random.uniform(  ###TOGLIERE
             self.paramsFORCE.uniform_dist,
             -self.paramsFORCE.uniform_dist,
             (
@@ -230,7 +227,7 @@ class RecurrentGenerativeModel:
                           and as columns the target shape lenght
 
         """
-        linearized_scanpath = int(goal[0] * self.output_side + goal[1])
+        linearized_scanpath = self.to1d(goal) 
         target_sequence = np.zeros(
             (
                 self.paramsFORCE.num_output_units,
@@ -269,70 +266,81 @@ class RecurrentGenerativeModel:
         """
         Find the winning unit position in a 2D grid
         """
-        pos_y = winning_unit // self.output_side
-        pos_x = winning_unit % self.output_side
-        winning_unit_pos = np.array([pos_y, pos_x])
+        return self.to_point(winning_unit)
 
-        return winning_unit_pos
+    def to_point(self, goal):
+        pos_y = goal // self.output_side
+        pos_x = goal % self.output_side
+        point = np.array([pos_y, pos_x])
+        return point
+    
+    def to1d(self, point):
+        """Converts a 2D point to a 1D index."""
+        return int(goal[0] * self.output_side + goal[1])
+    
+    def linearize(self, goal):
+        """
+        One-hot encodes a 2D goal into a 1D array.
+    
+        Args:
+            goal: The 2D goal coordinates.
+    
+        Returns:
+            A 1D numpy array representing the one-hot
+            encoded goal.
+        """
+        linearized_scanpath = self.to1d(goal)
+        return np.eye(self.output_side**2)[linearized_scanpath]
 
     def step(
         self,
         goal=None,
         timesteps=None,
         RNN_updater=None,
-        mode="default",
     ):
-        """
-        Parameters
-        ----------
-        RNN : class object, recurrent neural network
+        """Run the recurrent neural network .
 
-        goal : tuple or array or list with x and y coordinates
+        Args:
+            RNN: Recurrent neural network class object.
+            goal: Goal coordinates (x, y) as tuple, array, or list.
+                Mode default: No goal input, requires timesteps.
+                Mode input: Goal is given as input.
+                Mode training: Goal is target, requires RNN_updater.
+            timesteps: Number of time steps for network update.
+            RNN_updater: RNN updater class object (required for training).
 
-        timesteps : time of network update
-
-        RNN_updater : class object, RNN updater
-
-        mode : the function can be run in three modalities.
-              Mode default -> no input, no updater, it requires only how many timesteps the network has to run
-              Mode input -> the network is given an input (goal)
-              Mode training -> the network is given an input (goal) as target function. It requires the RNN updater too
-
-        Returns
-        -------
-        The predicted goal, as an array [pos_y, pos_x]
-
+        Returns:
+            Predicted goal as array [pos_y, pos_x].
         """
 
         if timesteps is None:
             timesteps = self.paramsFORCE.target_shape_lenght
-        
-        if goal is None:  
+
+        mode = None
+        if goal is None:
             mode = "default"
         elif RNN_updater is None:
             mode = "input"
         else:
             mode = "training"
-        
+
         readouts_storage = np.zeros((self.N_readouts, timesteps))
 
         if mode == "default":
             for t in range(int(timesteps)):
                 self.update(inputs=None, mode="default")
                 readouts_storage[:, [t]] = self.readout_activity
-            
-            
+
         elif mode == "input":
             if goal is None:
                 raise TypeError(
-                    "Error! You tried to use the RNN in input mode, but the input was None"
+                    "Error! You tried to use the RNN in input mode, ""but the input was None"
                 )
-            
+
             target_sequence = self._STM_to_RNN(goal)
             for t in range(len(target_sequence[1])):
                 self.update(inputs=target_sequence[:, [t]], mode="input")
                 readouts_storage[:, [t]] = self.readout_activity
-            
 
         elif mode == "training":
             if goal is None:
@@ -376,7 +384,6 @@ class RecurrentGenerativeModel:
         }
 
         np.save(filename, [weight_dict])
-            
 
     def load(self, filename):
         """
