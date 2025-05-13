@@ -127,7 +127,7 @@ def run_episode(
     episode,
 ):
 
-    gen_goal = None
+    goal = None
 
     for time_step in range(params.saccade_time * params.saccade_num):
         if time_step % 4 == 0:

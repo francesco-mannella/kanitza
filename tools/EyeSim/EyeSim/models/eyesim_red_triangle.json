@@ -11,6 +11,7 @@
         {
             "angle": 0.0,
             "name": "red_triangle",
+            "zorder": 1,
             "color": [
                 1.0,
                 0.0,
@@ -19,6 +20,43 @@
             "position": {
                 "x": 15.0,
                 "y": 20.0
+            },
+            "type": 0,
+            "fixture": [
+                {
+                    "density": 0.0,
+                    "group_index": 0,
+                    "polygon": {
+                        "vertices": {
+                            "x": [
+                                0.0,
+                                30.4,
+                                15.2,
+                                0.0
+                            ],
+                            "y": [
+                                0.0,
+                                0.0,
+                                26.32,
+                                0.0
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "angle": 0.0,
+            "name": "mask",
+            "zorder": 0,
+            "color": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "position": {
+                "x": 10.0,
+                "y": 10.0
             },
             "type": 0,
             "fixture": [

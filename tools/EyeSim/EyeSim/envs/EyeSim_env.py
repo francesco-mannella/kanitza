@@ -152,6 +152,10 @@ class EyeSimEnv(gym.Env):
 
         self.sim = Sim(world_dict=self.world_dict)
 
+        # TODO: it is a demo. remove
+        self.sim.move([30, 20], 1.57/2, "mask")
+
+
         # Generate a random angle between 0 and 2π radians
         angle = (
             self.object_params["rot"]

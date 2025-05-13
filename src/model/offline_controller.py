@@ -531,7 +531,7 @@ class OfflineController:
 
     def arbitrate_goals(self, offcontrol_goal, rnn_goal, w):
         hov_oc_goal = self.recurrent_model.linearize(
-            offcontrol_goal
+            offcontrol_goal.flatten()
         )
         hov_rnn_goal = self.recurrent_model.linearize(rnn_goal)
         hov_goal = w * hov_rnn_goal + (1 - w) * hov_oc_goal

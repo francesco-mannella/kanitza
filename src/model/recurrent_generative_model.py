@@ -268,15 +268,15 @@ class RecurrentGenerativeModel:
         """
         return self.to_point(winning_unit)
 
-    def to_point(self, goal):
-        pos_y = goal // self.output_side
-        pos_x = goal % self.output_side
+    def to_point(self, index):
+        pos_y = index // self.output_side
+        pos_x = index % self.output_side
         point = np.array([pos_y, pos_x])
         return point
     
     def to1d(self, point):
         """Converts a 2D point to a 1D index."""
-        return int(goal[0] * self.output_side + goal[1])
+        return int(point[0] * self.output_side + point[1])
     
     def linearize(self, goal):
         """

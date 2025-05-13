@@ -11,6 +11,7 @@
         {
             "angle": 0.0,
             "name": "blue_square",
+            "zorder": 1,
             "color": [
                 0.0,
                 0.0,
