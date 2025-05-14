@@ -3,8 +3,10 @@ import numpy as np
 from Box2D import b2ContactListener
 from matplotlib.patches import Polygon
 from matplotlib.path import Path
+from collections import OrderedDict
 
 from EyeSim.envs import JsonToPyBox2D as json2d
+from EyeSim.envs.PixelManager import PathToPixelsConverter
 from .mkvideo import vidManager
 
 
@@ -86,7 +88,9 @@ class Box2DSim(object):
         self.pos_iters = pos_iters
         self.world = world
         self.world.contactListener = self.contact_listener
-        self.bodies = bodies
+        self.bodies = OrderedDict(
+            sorted(bodies.items(), key=lambda item: item[1].zorder, reverse=True)
+        )
 
     def contacts(self, bodyA, bodyB):
         """Read contacts between two parts of the simulation
@@ -151,17 +155,14 @@ class VisualSensor:
 
         """
 
-        self.shape = list(shape)
-        self.n_pixels = self.shape[0] * self.shape[1]
-
-        # make a canvas with coordinates
-        x = np.arange(-self.shape[0] // 2, self.shape[0] // 2) + 1
-        y = np.arange(-self.shape[1] // 2, self.shape[1] // 2) + 1
-        X, Y = np.meshgrid(x, y[::-1])
-        self.grid = np.vstack((X.flatten(), Y.flatten())).T
-        self.scale = np.array(rng) / shape
         self.radius = np.mean(np.array(rng) / shape)
-        self.retina = np.zeros(self.shape + [3])
+        self.pixelManager = PathToPixelsConverter(
+            scale=rng,
+            shape=shape,
+            radius=self.radius,
+        )
+
+        self.retina = np.zeros(shape + [3])
         self.sim = sim
 
         self.reset(sim)
@@ -182,33 +183,30 @@ class VisualSensor:
             (np.ndarray): a rescaled retina state
         """
 
+
         self.retina *= 0
+        body_polygons = []
+        colors = []
+        zorder = []
         for key in self.sim.bodies.keys():
             body = self.sim.bodies[key]
             vercs = np.vstack(body.fixtures[0].shape.vertices)
             vercs = vercs[np.arange(len(vercs)) + [0]]
-            data = [body.GetWorldPoint(vercs[x]) for x in range(len(vercs))]
-            body_pixels = self.path2pixels(data, saccade)
-            if body.color is None:
-                body.color = [0.5, 0.5, 0.5]
-            color = np.array(body.color)
-            body_pixels = body_pixels.reshape(body_pixels.shape + (1,)) * (
-                1 - color
+            polygon = np.array(
+                [body.GetWorldPoint(vercs[x]) for x in range(len(vercs))]
             )
-            self.retina += body_pixels
-        self.retina = np.maximum(0, 1 - (self.retina))
+            body_polygons.append(polygon)
+            colors.append(
+                body.color if body.color is not None else [0.5, 0.5, 0.5]
+            )
+            zorder.append(body.zorder if zorder is not None else 1e10)
+
+        self.pixelManager.set_displace(saccade)
+        self.retina = self.pixelManager.merge_imgs(
+            body_polygons, colors, zorder
+        )
         self.retina = 255 * self.retina
         return self.retina.astype(np.uint8)
-
-    def path2pixels(self, vertices, saccade):
-
-        points = self.grid * self.scale + saccade
-
-        path = Path(vertices)  # make a polygon
-        points_in_path = path.contains_points(points, radius=self.radius)
-        img = 1.0 * points_in_path.reshape(*self.shape, order="F").T  # pixels
-
-        return img
 
 
 # ------------------------------------------------------------------------------

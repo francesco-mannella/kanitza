@@ -359,7 +359,7 @@ def main():
     params.plot_maps = True
     params.plot_sim = True
     params.epochs = 1
-    params.saccade_num = 16
+    params.saccade_num = 5
     params.episodes = 1
     params.plotting_epochs_interval = 1
 
