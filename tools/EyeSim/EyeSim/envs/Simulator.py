@@ -114,7 +114,7 @@ class Box2DSim(object):
 
         return c1 + c2
 
-    def move(self, pos=None, angle=None, body=None):
+    def move(self, pos=None, angle=None, obj=None):
         """translate ans rotate
 
         Args:
@@ -124,14 +124,14 @@ class Box2DSim(object):
 
         """
 
-        if body is None:
-            first = list(self.bodies.keys())[0]
+        if obj is None:
+            body_name = list(self.bodies.keys())[-1]
         else:
-            first = body
+            body_name = obj
         if pos is not None:
-            self.bodies[first].position = pos
+            self.bodies[body_name].position = pos
         if angle is not None:
-            self.bodies[first].angle = angle
+            self.bodies[body_name].angle = angle
 
     def step(self):
         """A simulation step"""

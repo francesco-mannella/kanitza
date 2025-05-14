@@ -70,6 +70,18 @@ def execute_simulation(
         observation, info = env.reset()
         env.info = info
 
+        main_obj_name = env.world_objects[env.world]
+        position, rotation = env.get_position_and_rotation(main_obj_name)
+        new_mask_position = position + [13, 10] @ np.array(
+            [
+                [np.cos(rotation), -np.sin(rotation)],
+                [np.sin(rotation), np.cos(rotation)],
+            ]
+        )
+        env.update_position_and_rotation(
+            position=new_mask_position, obj="mask"
+        )
+
         for k, v in info.items():
             print(f"{k}: {v}", end="  ")
         print()
@@ -207,18 +219,20 @@ def log_simulations(params, episode, fovea_plotter, maps_plotter, info):
     if params.plot_sim:
         gif_file = f"sim_test_{tag}"
         fovea_plotter.close(gif_file)
-        wandb.log(
-            {"Simulation": wandb.Video(f"{gif_file}.gif", format="gif")},
-            step=episode,
-        )
+        if params.wandb:
+            wandb.log(
+                {"Simulation": wandb.Video(f"{gif_file}.gif", format="gif")},
+                step=episode,
+            )
 
     if params.plot_maps:
         gif_file = f"maps_test_{tag}"
         maps_plotter.close(gif_file)
-        wandb.log(
-            {"Maps": wandb.Video(f"{gif_file}.gif", format="gif")},
-            step=episode,
-        )
+        if params.wandb:
+            wandb.log(
+                {"Maps": wandb.Video(f"{gif_file}.gif", format="gif")},
+                step=episode,
+            )
 
     if params.plot_sim and params.plot_maps:
         gif_file = f"merged_test_{tag}"
@@ -323,7 +337,12 @@ def parse_arguments():
         type=float,
         metavar=("x", "y", "a"),
         default=[None, None, None],
-        help="Set the iposition and rotation of the object in the world",
+        help="Set the position and rotation of the object in the world",
+    )
+    parser.add_argument(
+        "--wandb",
+        action="store_true",
+        help="Enable Weights & Biases logging.",
     )
 
     return parser.parse_args()
@@ -367,17 +386,20 @@ def main():
     seed_str = format_name("seed", seed)
 
     params.init_name = f"test_{seed_str}"
+    params.wandb = args.wandb
 
     # Initialize Weights & Biases logging
-    wandb.init(
-        project=params.project_name,
-        entity=params.entity_name,
-        name=params.init_name,
-    )
+    if args.wandb:
+        wandb.init(
+            project=params.project_name,
+            entity=params.entity_name,
+            name=params.init_name,
+        )
 
     test(params, seed, world, object_params)
 
-    wandb.finish()
+    if args.wandb:
+        wandb.finish()
 
 
 if __name__ == "__main__":

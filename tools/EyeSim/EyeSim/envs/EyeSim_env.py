@@ -106,12 +106,24 @@ class EyeSimEnv(gym.Env):
             self.seed = np.frombuffer(os.urandom(4), dtype=np.uint32)[0]
         self.rng = np.random.RandomState(self.seed)
 
-    def update_position_and_rotation(self, position=None, rotation=None):
-        self.sim.move(angle=rotation, pos=position)
+    def update_position_and_rotation(self, position=None, rotation=None, obj=None):
+        self.sim.move(angle=rotation, pos=position, obj=obj)
 
-    def get_position_and_rotation(self):
+    def get_center(self, obj_name=None):
 
-        obj_name = self.world_objects[self.world]
+        if obj_name is None:
+            obj_name = self.world_objects[self.world]
+
+        center = np.array(
+            self.sim.bodies[obj_name].worldCenter
+        )
+
+        return center
+
+    def get_position_and_rotation(self, obj_name=None):
+
+        if obj_name is None:
+            obj_name = self.world_objects[self.world]
 
         # Set the angle and position of the first body
         rotation = self.sim.bodies[obj_name].transform.angle
