@@ -2,7 +2,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 from Box2D import b2ContactListener
 from matplotlib.patches import Polygon
-from matplotlib.path import Path
 from collections import OrderedDict
 
 from EyeSim.envs import JsonToPyBox2D as json2d
@@ -89,7 +88,9 @@ class Box2DSim(object):
         self.world = world
         self.world.contactListener = self.contact_listener
         self.bodies = OrderedDict(
-            sorted(bodies.items(), key=lambda item: item[1].zorder, reverse=True)
+            sorted(
+                bodies.items(), key=lambda item: item[1].zorder, reverse=True
+            )
         )
 
     def contacts(self, bodyA, bodyB):
@@ -182,7 +183,6 @@ class VisualSensor:
 
             (np.ndarray): a rescaled retina state
         """
-
 
         self.retina *= 0
         body_polygons = []
