@@ -45,12 +45,11 @@ def load_offline_controller(file_path, env, params, seed):
     return OfflineController(env, params, seed)
 
 
-def update_mask_position(env):
-    main_obj_name = env.world_objects[env.world]
-    position, rotation = env.get_position_and_rotation(main_obj_name)
-    env.update_position_and_rotation(
-        position=position, rotation=rotation, obj="mask"
-    )
+def update_mask(env, mask_params):
+    if mask_params is not None:
+        env.update_position_and_rotation(
+            position=mask_params["pos"], rotation=mask_params["rot"], obj="mask"
+        )
 
 def execute_simulation(
     agent,
@@ -60,6 +59,7 @@ def execute_simulation(
     is_plotting_epoch,
     world,
     object_params,
+    mask_params,
 ):
     plotters = []
     for episode in range(params.episodes):
@@ -77,7 +77,7 @@ def execute_simulation(
         observation, info = env.reset()
         env.info = info
 
-        update_mask_position(env)
+        update_mask(env, mask_params)
 
         for k, v in info.items():
             print(f"{k}: {v}", end="  ")
@@ -241,7 +241,7 @@ def log_simulations(params, episode, fovea_plotter, maps_plotter, info):
         )
 
 
-def test(params, seed, world=None, object_params=None):
+def test(params, seed, world=None, object_params=None, mask_params=None):
     signal.signal(signal.SIGINT, signal_handler)
     plt.ion()
     plt.close("all")
@@ -282,6 +282,7 @@ def test(params, seed, world=None, object_params=None):
             is_plotting_epoch,
             world,
             object_params,
+            mask_params,
         )
 
         base_name = f"goals_{world}"
@@ -336,6 +337,16 @@ def parse_arguments():
         default=[None, None, None],
         help="Set the position and rotation of the object in the world",
     )
+    
+    parser.add_argument(
+        "--mask_posrot",
+        nargs=3,
+        type=float,
+        metavar=("x", "y", "a"),
+        default=[None, None, None],
+        help="Set the position and rotation of the mask in the world",
+    )
+
     parser.add_argument(
         "--wandb",
         action="store_true",
@@ -370,6 +381,11 @@ def main():
         if args.posrot[0] is None
         else {"pos": args.posrot[:2], "rot": args.posrot[2]}
     )
+    mask_params = (
+        None
+        if args.mask_posrot[0] is None
+        else {"pos": args.mask_posrot[:2], "rot": args.mask_posrot[2]}
+    )
 
     # Set additional parameters
     params.plot_maps = True
@@ -393,7 +409,7 @@ def main():
             name=params.init_name,
         )
 
-    test(params, seed, world, object_params)
+    test(params, seed, world, object_params, mask_params)
 
     if args.wandb:
         wandb.finish()

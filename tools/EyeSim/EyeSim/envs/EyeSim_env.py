@@ -172,7 +172,6 @@ class EyeSimEnv(gym.Env):
         super().reset(seed=seed)
 
         self.sim = Sim(world_dict=self.world_dict)
-        print(self.object_params)
 
         # Generate a random angle between 0 and 2π radians
         angle = (
