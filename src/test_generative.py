@@ -45,6 +45,18 @@ def load_offline_controller(file_path, env, params, seed):
     return OfflineController(env, params, seed)
 
 
+def update_mask_position(env):
+    main_obj_name = env.world_objects[env.world]
+    position, rotation = env.get_position_and_rotation(main_obj_name)
+    new_mask_position = position + [13, 10] @ np.array(
+        [
+            [np.cos(rotation), -np.sin(rotation)],
+            [np.sin(rotation), np.cos(rotation)],
+        ]
+    )
+    env.update_position_and_rotation(position=new_mask_position,  obj="mask")
+
+
 def execute_simulation(
     agent,
     off_control,
@@ -70,17 +82,7 @@ def execute_simulation(
         observation, info = env.reset()
         env.info = info
 
-        main_obj_name = env.world_objects[env.world]
-        position, rotation = env.get_position_and_rotation(main_obj_name)
-        new_mask_position = position + [13, 10] @ np.array(
-            [
-                [np.cos(rotation), -np.sin(rotation)],
-                [np.sin(rotation), np.cos(rotation)],
-            ]
-        )
-        env.update_position_and_rotation(
-            position=new_mask_position, obj="mask"
-        )
+        update_mask_position(env)
 
         for k, v in info.items():
             print(f"{k}: {v}", end="  ")
