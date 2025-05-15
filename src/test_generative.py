@@ -48,8 +48,11 @@ def load_offline_controller(file_path, env, params, seed):
 def update_mask(env, mask_params):
     if mask_params is not None:
         env.update_position_and_rotation(
-            position=mask_params["pos"], rotation=mask_params["rot"], obj="mask"
+            position=mask_params["pos"],
+            rotation=mask_params["rot"],
+            obj="mask",
         )
+
 
 def execute_simulation(
     agent,
@@ -77,8 +80,6 @@ def execute_simulation(
         observation, info = env.reset()
         env.info = info
 
-        update_mask(env, mask_params)
-
         for k, v in info.items():
             print(f"{k}: {v}", end="  ")
         print()
@@ -98,6 +99,7 @@ def execute_simulation(
             fovea_plotter,
             maps_plotter,
             episode,
+            mask_params,
         )
 
         if is_plotting_epoch:
@@ -134,11 +136,16 @@ def run_episode(
     fovea_plotter,
     maps_plotter,
     episode,
+    mask_params,
 ):
 
     goal = None
 
     for time_step in range(params.saccade_time * params.saccade_num):
+
+        if time_step >= params.mask_start:
+            update_mask(env, mask_params)
+
         if time_step % 4 == 0:
             print("ts: ", time_step)
 
@@ -156,7 +163,15 @@ def run_episode(
                 offcontrol_goal.squeeze()
             )
 
-            goal = off_control.arbitrate_goals(offcontrol_goal, rnn_goal, w=0)
+            goal = off_control.arbitrate_goals(
+                offcontrol_goal,
+                rnn_goal,
+                w=(
+                    0
+                    if time_step < params.mask_start
+                    else params.arbitration_weight
+                ),
+            )
 
             # Trigger saccade
             agent.set_parameters(saccade)
@@ -337,7 +352,7 @@ def parse_arguments():
         default=[None, None, None],
         help="Set the position and rotation of the object in the world",
     )
-    
+
     parser.add_argument(
         "--mask_posrot",
         nargs=3,
@@ -351,6 +366,19 @@ def parse_arguments():
         "--wandb",
         action="store_true",
         help="Enable Weights & Biases logging.",
+    )
+
+    parser.add_argument(
+        "--mask_start",
+        type=int,
+        default=99999,
+        help="The timestep whe the mask is shown.",
+    )
+
+    parser.add_argument(
+        "--arbitration",
+        action="store_true",
+        help="Set the behavior of the internal moel to active",
     )
 
     return parser.parse_args()
@@ -391,9 +419,11 @@ def main():
     params.plot_maps = True
     params.plot_sim = True
     params.epochs = 1
-    params.saccade_num = 5
+    params.saccade_num = 10
     params.episodes = 1
     params.plotting_epochs_interval = 1
+    params.mask_start = args.mask_start
+    params.arbitration_weight = 1 if args.arbitration is True else 0
 
     # Generate initial name without dots or special characters
     seed_str = format_name("seed", seed)
