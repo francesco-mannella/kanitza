@@ -57,6 +57,7 @@ class EyeSimEnv(gym.Env):
             self.world_objects = [
                 "triangle",
                 "square",
+                "circle",
             ]
 
         self.world = 0

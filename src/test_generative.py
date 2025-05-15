@@ -52,7 +52,6 @@ def update_mask_position(env):
         position=position, rotation=rotation, obj="mask"
     )
 
-
 def execute_simulation(
     agent,
     off_control,
