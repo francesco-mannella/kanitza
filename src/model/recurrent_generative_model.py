@@ -121,7 +121,7 @@ class RecurrentGenerativeModel:
         self.reservoir_activity = np.tanh(self.x)
         self.readout_activity = np.zeros((self.N_readouts, 1))
 
-    def update(self, inputs=None, mode="default"):
+    def update(self, inputs=None, mode="default", reservoir_influence=0.0):
 
         if mode == "training":
 
@@ -162,7 +162,11 @@ class RecurrentGenerativeModel:
                 (
                     -self.x
                     + np.dot(self.rec_weights, self.reservoir_activity)
-                    + np.dot(self.feedback_weights, inputs)
+                    + np.dot(
+                        self.feedback_weights,
+                        self.readout_activity * reservoir_influence
+                        + inputs * (1 - reservoir_influence),
+                    )
                 )
                 * self.dt
                 / self.tau
@@ -227,7 +231,7 @@ class RecurrentGenerativeModel:
                           and as columns the target shape lenght
 
         """
-        linearized_scanpath = self.to1d(goal) 
+        linearized_scanpath = self.to1d(goal)
         target_sequence = np.zeros(
             (
                 self.paramsFORCE.num_output_units,
@@ -273,18 +277,18 @@ class RecurrentGenerativeModel:
         pos_x = index % self.output_side
         point = np.array([pos_y, pos_x])
         return point
-    
+
     def to1d(self, point):
         """Converts a 2D point to a 1D index."""
         return int(point[0] * self.output_side + point[1])
-    
+
     def linearize(self, goal):
         """
         One-hot encodes a 2D goal into a 1D array.
-    
+
         Args:
             goal: The 2D goal coordinates.
-    
+
         Returns:
             A 1D numpy array representing the one-hot
             encoded goal.
@@ -297,6 +301,7 @@ class RecurrentGenerativeModel:
         goal=None,
         timesteps=None,
         RNN_updater=None,
+        reservoir_influence=0.0,
     ):
         """Run the recurrent neural network .
 
@@ -334,12 +339,17 @@ class RecurrentGenerativeModel:
         elif mode == "input":
             if goal is None:
                 raise TypeError(
-                    "Error! You tried to use the RNN in input mode, ""but the input was None"
+                    "Error! You tried to use the RNN in input mode, "
+                    "but the input was None"
                 )
 
             target_sequence = self._STM_to_RNN(goal)
             for t in range(len(target_sequence[1])):
-                self.update(inputs=target_sequence[:, [t]], mode="input")
+                self.update(
+                    inputs=target_sequence[:, [t]],
+                    mode="input",
+                    reservoir_influence=reservoir_influence,
+                )
                 readouts_storage[:, [t]] = self.readout_activity
 
         elif mode == "training":

@@ -280,9 +280,6 @@ class FilteredTopologicalMap(TopologicalMap):
             chosen_bmus, num_classes=self.output_size
         ).float()
 
-        # Invert the one-hot encoded tensor
-        input_filter = 1.0 - input_filter
-
         # Compute the BMU filter
         self.bmu_filter = 1.0 - magnitude * input_filter
 
