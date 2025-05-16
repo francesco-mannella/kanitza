@@ -361,7 +361,7 @@ class SimulationTest:
         """
 
         tag = slugify(f"{info['world']}_{info['angle']}_{info['position']}")
-        tag +=  f"_{self.params.arbitration_weight:1d}"
+        tag += f"_{self.params.arbitration_weight:1d}"
 
         if self.params.plot_sim:
             gif_file = f"sim_test_{tag}"
