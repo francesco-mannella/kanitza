@@ -209,6 +209,7 @@ class SimulationTest:
         """
 
         goal = None
+        mask_updated = False
 
         for time_step in range(
             self.params.saccade_time * self.params.saccade_num
@@ -291,11 +292,11 @@ class SimulationTest:
                 self.off_control.goals["rnn_goal"].append(rnn_goal)
                 self.off_control.goals["goal"].append(goal)
 
-            self.update_environment_position(time_step)
-            if time_step >= self.params.mask_start:
-                if not hasattr(self, "mask_updated"):
-                    self.update_mask(self.mask_params)
-                    self.mask_updated = True
+                self.update_environment_position(time_step)
+                if time_step >= self.params.mask_start:
+                    if mask_updated is False:
+                        self.update_mask(self.mask_params)
+                        mask_updated = True
 
             action, saliency_map, salient_point = self.agent.get_action(
                 observation
