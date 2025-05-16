@@ -216,7 +216,7 @@ class SimulationTest:
 
             goal_influence = (
                 0
-                if time_step < self.params.mask_start
+                if time_step < self.params.mask_start - 4
                 else self.params.arbitration_weight
             )
 

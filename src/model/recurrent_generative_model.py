@@ -164,8 +164,8 @@ class RecurrentGenerativeModel:
                     + np.dot(self.rec_weights, self.reservoir_activity)
                     + np.dot(
                         self.feedback_weights,
-                        self.readout_activity * reservoir_influence
-                        + inputs * (1 - reservoir_influence),
+                        self.readout_activity * reservoir_influence +
+                        inputs * (1 - reservoir_influence),
                     )
                 )
                 * self.dt

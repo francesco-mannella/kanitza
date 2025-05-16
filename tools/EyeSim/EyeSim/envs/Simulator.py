@@ -158,7 +158,7 @@ class VisualSensor:
 
         self.radius = np.mean(np.array(rng) / shape)
         self.pixelManager = PathToPixelsConverter(
-            scale=rng,
+            dims=rng,
             shape=shape,
             radius=self.radius,
         )

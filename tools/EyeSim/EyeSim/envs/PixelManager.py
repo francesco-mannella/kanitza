@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.path import Path
 
@@ -5,44 +6,42 @@ from matplotlib.path import Path
 class PathToPixelsConverter:
     """Converts a path defined by vertices to a pixelated image."""
 
-    def __init__(self, scale, shape, radius):
+    def __init__(self, dims, shape, radius):
         """Initializes the converter.
 
         Args:
-            scale (list): The scale of the image.
+            dims (list): The original dimensions of the image.
             shape (list): The shape of the image (height, width).
             radius (float): The radius for path inclusion.
         """
         self.shape = list(shape)
-        self.scale = scale
+        self.scale = dims/self.shape
         self.n_pixels = self.shape[0] * self.shape[1]
         self.displace = np.zeros(2)
 
         # Create x and y coordinate arrays
         self.x = (
-            np.linspace(
-                -self.scale[0] // 2,
-                self.scale[0] // 2,
-                self.shape[0],
+            np.arange(
+                -self.shape[0] // 2,
+                self.shape[0] // 2,
             )
             + 1
         )
         self.y = (
-            np.linspace(
-                -self.scale[1] // 2,
-                self.scale[1] // 2,
-                self.shape[1],
+            np.arange(
+                -self.shape[1] // 2,
+                self.shape[1] // 2,
             )
             + 1
         )
         # Create a grid of coordinates
         X, Y = np.meshgrid(self.x, self.y[::-1])
         self.grid = np.vstack((X.flatten(), Y.flatten())).T
-        self.radius = radius
+        self.radius = np.mean(np.array(self.scale) / self.shape)
 
     def set_displace(self, displace):
         self.displace *= 0
-        self.displace += displace * (self.scale / self.shape)
+        self.displace += displace
 
     def path2pixels(self, vertices):
         """Converts a path to a pixel image (grayscale).
@@ -53,7 +52,8 @@ class PathToPixelsConverter:
         Returns:
             np.ndarray: A pixel image representing the path.
         """
-        points = self.grid + self.displace
+        points = self.grid * self.scale + self.displace
+
         path = Path(vertices)
         points_in_path = path.contains_points(points, radius=self.radius)
         img = 2.0 * points_in_path.reshape(*self.shape, order="F").T - 1
@@ -69,7 +69,8 @@ class PathToPixelsConverter:
         Returns:
             np.ndarray: A colored pixel image representing the path.
         """
-        points = self.grid + self.displace
+        points = self.grid * self.scale + self.displace
+
         path = Path(vertices)
         points_in_path = path.contains_points(points, radius=self.radius)
         img = np.zeros((*self.shape, 3))
@@ -142,7 +143,6 @@ if __name__ == "__main__":
     img = converter.path2pixels(vertices)
 
     # Display the image (requires matplotlib)
-    import matplotlib.pyplot as plt
 
     plt.imshow(
         img,
