@@ -44,10 +44,20 @@ class EyeSimEnv(gym.Env):
                 "eyesim_blue_square.json",
                 "eyesim_green_circle.json",
             ]
+            self.world_objects = [
+                "red_triangle",
+                "blue_square",
+                "green_circle",
+            ]
         else:
             self.world_files = [
                 "eyesim_triangle.json",
                 "eyesim_square.json",
+            ]
+            self.world_objects = [
+                "triangle",
+                "square",
+                "circle",
             ]
 
         self.world = 0
@@ -97,18 +107,29 @@ class EyeSimEnv(gym.Env):
             self.seed = np.frombuffer(os.urandom(4), dtype=np.uint32)[0]
         self.rng = np.random.RandomState(self.seed)
 
-    def update_position_and_rotation(self, position=None, rotation=None):
-        self.sim.move(angle=rotation, pos=position)
+    def update_position_and_rotation(self, position=None, rotation=None, obj=None):
+        self.sim.move(angle=rotation, pos=position, obj=obj)
 
-    def get_position_and_rotation(self):
+    def get_center(self, obj_name=None):
 
-        # Get the first body from the simulation's bodies dictionary
-        first_body_name = list(self.sim.bodies.keys())[0]
+        if obj_name is None:
+            obj_name = self.world_objects[self.world]
+
+        center = np.array(
+            self.sim.bodies[obj_name].worldCenter
+        )
+
+        return center
+
+    def get_position_and_rotation(self, obj_name=None):
+
+        if obj_name is None:
+            obj_name = self.world_objects[self.world]
 
         # Set the angle and position of the first body
-        rotation = self.sim.bodies[first_body_name].transform.angle
+        rotation = self.sim.bodies[obj_name].transform.angle
         position = np.array(
-            self.sim.bodies[first_body_name].transform.position
+            self.sim.bodies[obj_name].transform.position
         )
 
         return position, rotation
@@ -180,12 +201,11 @@ class EyeSimEnv(gym.Env):
                 ]
             )
 
-        # Get the first body from the simulation's bodies dictionary
-        first_body_name = list(self.sim.bodies.keys())[0]
+        obj_name = self.world_objects[self.world]
 
         # Set the angle and position of the first body
-        self.sim.bodies[first_body_name].transform.angle = angle
-        self.sim.bodies[first_body_name].transform.position = position
+        self.sim.bodies[obj_name].transform.angle = angle
+        self.sim.bodies[obj_name].transform.position = position
 
         self.retina_sim = VisualSensor(
             self.sim,

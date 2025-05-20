@@ -2,7 +2,8 @@ import numpy as np
 import torch
 
 from model.predict import Predictor, PredictorUpdater
-from model.topological_maps import TopologicalMap, Updater
+from model.topological_maps import FilteredTopologicalMap as TopologicalMap
+from model.topological_maps import Updater
 
 
 class OfflineController:
@@ -528,12 +529,31 @@ class OfflineController:
 
         return norms
 
-    def get_action_from_condition(self, condition):
+    def arbitrate_goals(self, offcontrol_goal, rnn_goal, w):
+        hov_oc_goal = self.recurrent_model.linearize(
+            offcontrol_goal.flatten()
+        )
+        hov_rnn_goal = self.recurrent_model.linearize(rnn_goal)
+        hov_goal = w * hov_rnn_goal + (1 - w) * hov_oc_goal
+        # TODO: add noise
+        goal = np.argmax(hov_goal)
+        goal = self.recurrent_model.to_point(goal)
+
+        return goal
+
+    def get_action_from_condition(
+        self,
+        condition,
+        condition_filter=None,
+        filter_magnitude=0,
+    ):
         """
         Retrieve the action representation given a visual condition.
 
         Parameters:
         - condition: A visual state to obtain corresponding action.
+        - condition_filter: A predicted point representation.
+        - filter_magnitude: The proportion of influence of the filter
 
         Returns:
         - A tuple containing the focus point and representation.
@@ -542,6 +562,13 @@ class OfflineController:
             torch.tensor(condition.ravel().reshape(1, -1), dtype=torch.float32)
             / 255.0
         )
+
+        if condition_filter is not None:
+            self.visual_conditions_map.set_filter(
+                [condition_filter],
+                magnitude=filter_magnitude,
+            )
+
         norm = self.visual_conditions_map(condition_tensor)
 
         representation = self.visual_conditions_map.get_representation(
@@ -597,41 +624,7 @@ class OfflineController:
 
     @staticmethod
     def load(file_path, env, params, seed=None):
-        """
-        Load and restart an OfflineController from a saved state.
-
-        Parameters:
-        - file_path: Path to the file from which to load the state.
-        - env: Environment to be associated with the loaded controller.
-        - params: Parameter settings to apply.
-        - seed: Optional seed for random number generators.
-
-        Returns:
-        - An OfflineController instance with the loaded state.
-        """
-        state = torch.load(file_path, weights_only=False)
-
-        # Create a new OfflineController instance
-        offline_controller = OfflineController(env, params, seed)
-
-        # Restore saved state
-        offline_controller.epoch = state["epoch"] + 1
-        offline_controller.competence = state["competence"]
-        offline_controller.competences = state["competences"]
-        offline_controller.local_incompetence = state["local_incompetence"]
-        offline_controller.visual_conditions_map.load_state_dict(
-            state["visual_conditions_map_state_dict"]
-        )
-        offline_controller.visual_conditions_updater.optimizer.load_state_dict(
-            state["visual_conditions_updater_optimizer_state_dict"]
-        )
-        offline_controller.visual_effects_map.load_state_dict(
-            state["visual_effects_map_state_dict"]
-        )
-        offline_controller.visual_effects_updater.optimizer.load_state_dict(
-            state["visual_effects_updater_optimizer_state_dict"]
-        )
-        offline_controller.attention_map.load_state_dict(
+        
             state["attention_map_state_dict"]
         )
         offline_controller.attention_updater.optimizer.load_state_dict(

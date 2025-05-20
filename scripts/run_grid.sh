@@ -6,7 +6,7 @@ local_decay_speeds="0.5"
 # decay_speeds="$(seq 1.5 0.5 4.0)"
 # local_decay_speeds="$(seq 0.5 0.5 4)"
 wandb=true
-series=nocolors
+series=test_rnn
 CURR_DIR=$(pwd)
 CURR_SIMS=$(ls | grep sim_ | grep $series)
 EXE=$(dirname "$0" | xargs realpath | sed -e "s/scripts/src\/main.py/")
@@ -33,7 +33,7 @@ match_std_baseline=0.5;\
 match_std=8.0;\
 anchor_std=2.0;\
 triangles_percent=50.0;\
-colors=False"
+colors=True"
 
 for s in $seeds; do
 	for ds in $decay_speeds; do

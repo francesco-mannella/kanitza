@@ -33,6 +33,7 @@ class Parameters:
         local_decaying_speed=1.0,
         triangles_percent=50,
         colors=True,
+        magnitude_decay=1e-10,
     ):
         self.project_name = project_name
         self.entity_name = entity_name
@@ -67,6 +68,7 @@ class Parameters:
         self.local_decaying_speed = local_decaying_speed
         self.triangles_percent = triangles_percent
         self.colors = colors
+        self.magnitude_decay = magnitude_decay
 
         self.param_types = {
             "project_name": str,
@@ -98,6 +100,7 @@ class Parameters:
             "local_decaying_speed": float,
             "triangles_percent": float,
             "colors": bool,
+            "magnitude_decay": float,
         }
 
     def string_to_params(self, param_list):

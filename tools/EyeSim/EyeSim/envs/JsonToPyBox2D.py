@@ -135,9 +135,13 @@ def add_bodies(b2_world, jsw):
         for js_body in jsw["body"]:
             key, ref = add_body(b2_world, jsw, js_body)
             color = None
+            zorder = None
             if "color" in js_body.keys():
                 color = js_body["color"]
+            if "zorder" in js_body.keys():
+                zorder = js_body["zorder"]
             ref.color = color
+            ref.zorder = zorder
             body_refs[key] = ref
     return body_refs
 
@@ -145,7 +149,7 @@ def add_bodies(b2_world, jsw):
 def create_world(jsw):
     """creates a b2World object using parameters in the json file
 
-    :param jsw: dictionary defining all the gropups of data
+    :param jsw: dictionary defining all the groups of data
                 in the json file
     :type jsw: dict(sting: variant)
 
