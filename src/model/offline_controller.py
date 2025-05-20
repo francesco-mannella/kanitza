@@ -624,7 +624,41 @@ class OfflineController:
 
     @staticmethod
     def load(file_path, env, params, seed=None):
-        
+        """
+        Load and restart an OfflineController from a saved state.
+
+        Parameters:
+        - file_path: Path to the file from which to load the state.
+        - env: Environment to be associated with the loaded controller.
+        - params: Parameter settings to apply.
+        - seed: Optional seed for random number generators.
+
+        Returns:
+        - An OfflineController instance with the loaded state.
+        """
+        state = torch.load(file_path, weights_only=False)
+
+        # Create a new OfflineController instance
+        offline_controller = OfflineController(env, params, seed)
+
+        # Restore saved state
+        offline_controller.epoch = state["epoch"] + 1
+        offline_controller.competence = state["competence"]
+        offline_controller.competences = state["competences"]
+        offline_controller.local_incompetence = state["local_incompetence"]
+        offline_controller.visual_conditions_map.load_state_dict(
+            state["visual_conditions_map_state_dict"]
+        )
+        offline_controller.visual_conditions_updater.optimizer.load_state_dict(
+            state["visual_conditions_updater_optimizer_state_dict"]
+        )
+        offline_controller.visual_effects_map.load_state_dict(
+            state["visual_effects_map_state_dict"]
+        )
+        offline_controller.visual_effects_updater.optimizer.load_state_dict(
+            state["visual_effects_updater_optimizer_state_dict"]
+        )
+        offline_controller.attention_map.load_state_dict(
             state["attention_map_state_dict"]
         )
         offline_controller.attention_updater.optimizer.load_state_dict(

@@ -1,12 +1,10 @@
 #!/bin/bash
 
 seeds=1
-decay_speeds="3.5"
-local_decay_speeds="0.5"
-# decay_speeds="$(seq 1.5 0.5 4.0)"
-# local_decay_speeds="$(seq 0.5 0.5 4)"
+decay_speeds="$(seq 3.0 0.5 4.0)"
+local_decay_speeds="$(seq 0.5 0.5 1.5)"
 wandb=true
-series=test_rnn
+series=new_pred
 CURR_DIR=$(pwd)
 CURR_SIMS=$(ls | grep sim_ | grep $series)
 EXE=$(dirname "$0" | xargs realpath | sed -e "s/scripts/src\/main.py/")
