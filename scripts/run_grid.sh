@@ -1,7 +1,7 @@
 #!/bin/bash
 
-seeds=1
-decay_speeds="$(seq 3.0 0.5 4.0)"
+seeds="1 2 3"
+decay_speeds="$(seq 3.0 0.5 4.5)"
 local_decay_speeds="$(seq 0.5 0.5 1.5)"
 wandb=true
 series=new_pred

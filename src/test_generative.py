@@ -217,7 +217,9 @@ class SimulationTest:
 
             goal_influence = (
                 0
-                if time_step < self.params.mask_start - 4
+                if time_step
+                < self.params.mask_start
+                - self.params.rnn_arbitration_before_mask
                 else self.params.arbitration_weight
             )
 
@@ -523,7 +525,7 @@ def parse_arguments():
     parser.add_argument(
         "--arbitration",
         action="store_true",
-        help="Set the behavior of the internal moel to active",
+        help="Set the behavior of the internal model to active",
     )
 
     return parser.parse_args()
@@ -578,6 +580,7 @@ def main():
     params.episodes = 1
     params.plotting_epochs_interval = 1
     params.mask_start = args.mask_start
+    params.rnn_arbitration_before_mask = 4
     params.arbitration_weight = 1 if args.arbitration is True else 0
 
     # Generate initial name without dots or special characters
