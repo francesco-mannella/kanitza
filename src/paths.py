@@ -14,7 +14,7 @@ from seaborn import axes_style
 
 matplotlib.use("agg")
 
-dirs = "s_1*"
+dirs = "*"
 
 dfs = []
 sns.set_style("whitegrid")
@@ -39,17 +39,18 @@ for d in glob(dirs):
         df.loc[:, "sim"] = d
         df.loc[:, "pos.x"] = np.stack(df.position)[:, 0]
         df.loc[:, "pos.y"] = np.stack(df.position)[:, 1]
-        df.loc[:, "y"] = np.stack(df.goal)[:, 0, 0]
-        df.loc[:, "x"] = np.stack(df.goal)[:, 0, 1]
+        df.loc[:, "goal.y"] = np.stack(df.goal)[:, 0, 0]
+        df.loc[:, "goal.x"] = np.stack(df.goal)[:, 0, 1]
         df.loc[:, "saccade"] = [
             int(x.replace("0000-", "")) for x in df.saccade_id
         ]
         df.loc[:, "Rot"] = df.angle * 180 / np.pi
         df = df.rename(columns={"world": "Object"})
         df = df.query("saccade > 2")
-        df.loc[:, "trial"] = [slugify.slugify(f"{obj}-{angle}") for obj, angle in zip(df.Object, df.angle) ]
-
-
+        df.loc[:, "trial"] = [
+            slugify.slugify(f"{obj}-{angle}")
+            for obj, angle in zip(df.Object, df.angle)
+        ]
 
         dfs.append(df)
 
@@ -61,8 +62,8 @@ for d in glob(dirs):
         p = (
             so.Plot(
                 df,
-                x="x",
-                y="y",
+                x="goal.x",
+                y="goal.y",
             )
             .add(
                 so.Path(
@@ -102,15 +103,50 @@ for d in glob(dirs):
 
                     dfline = df.query(f"Object=='{obj}' and angle=={angle}")
 
-                    p.add(so.Path(linewidth=3, alpha=1), data=dfline,legend=False, color="Object").on(ax).plot()
+                    p.add(
+                        so.Path(linewidth=3, alpha=1),
+                        data=dfline,
+                        legend=False,
+                        color="Object",
+                    ).on(ax).plot()
 
                     fig.legends[0].set_bbox_to_anchor((0.78, 0.5))
 
-                    fig.savefig(slugify.slugify(f"{test_dir}_{obj}_{angle}.png"))
+                    fig.savefig(
+                        slugify.slugify(f"{test_dir}_{obj}_{angle}.png")
+                    )
 
             ddf = df.copy()
 
 pddfs = pd.concat(dfs)
+pddfs = pddfs[
+    [
+        "Object",
+        "saccade_id",
+        "sim",
+        "pos.x",
+        "pos.y",
+        "goal.y",
+        "goal.x",
+        "saccade",
+        "Rot",
+        "trial",
+    ]
+]
+
+pddfs = pddfs.rename(
+    columns={
+        "Object": "object",
+        "saccade": "ts",
+        "Rot": "rot",
+    }
+)
+
+
+pddfs.loc[:, "saccade_num"] = pddfs.groupby(["trial", "trial", "rot"])[
+    "ts"
+].transform(lambda x: np.arange(len(x)))
+
 pddfs.to_csv("paths.csv")
 
 # %%

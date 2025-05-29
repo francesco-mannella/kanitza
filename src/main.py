@@ -144,7 +144,9 @@ def run_episode(agent, env, off_control, params, episode, epoch):
     - episode (int): Current episode number.
     - epoch (int): Current epoch number.
     """
-    env.init_world(world=0 if epoch % 100 < params.triangles_percent else 1)
+    env.init_world(
+        world=0 if epoch % 100 < params.triangles_percent else 1,
+    )
     _, env_info = env.reset()
 
     plt_enabled = (
@@ -384,10 +386,14 @@ if __name__ == "__main__":
     params = Parameters()
     seed = args.seed
     variant = args.variant
-    param_list = args.param_list
 
-    params.string_to_params(param_list)
-    params.save("loaded_params")
+    try:
+        params.load("loaded_params")
+    except FileNotFoundError:
+        print("no local parameters")
+        param_list = args.param_list
+        params.string_to_params(param_list)
+        params.save("loaded_params")
 
     seed_str = str(seed).replace(".", "_")
     decaying_speed_str = str(params.decaying_speed).replace(".", "_")

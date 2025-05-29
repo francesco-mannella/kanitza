@@ -1,3 +1,4 @@
+# %%
 import re
 
 import matplotlib.pyplot as plt
@@ -6,6 +7,9 @@ import pandas as pd
 import seaborn as sns
 import seaborn.objects as so
 import wandb
+
+def flt(x, win=150):
+    return np.convolve(x, np.ones(win) / win, mode="same")
 
 
 try:
@@ -50,10 +54,7 @@ except FileNotFoundError:
 
     stats.to_csv("stats.csv")
 
-
-def flt(x, win=150):
-    return np.convolve(x, np.ones(win) / win, mode="same")
-
+# %%
 
 for var_name, orig_var_name in zip(
     ["cond_base", "eff_base", "att_base"],
@@ -65,7 +66,7 @@ for var_name, orig_var_name in zip(
         .transform(flt)
         .to_numpy()
     )
-
+# %%
 sns.set_style("white")
 p1 = (
     so.Plot(
