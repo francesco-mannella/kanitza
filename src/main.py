@@ -67,7 +67,7 @@ def setup_environment(seed, params):
     Returns:
     - env (gym.Env): Gym environment object.
     """
-    env = gym.make(params.env_name, colors=True)
+    env = gym.make(params.env_name, colors=params.colors)
     env = env.unwrapped
     env.set_seed(seed)
     return env
@@ -125,7 +125,11 @@ def run_epoch(agent, env, off_control, params, epoch, log):
     """
     for episode in range(params.episodes):
         info = run_episode(agent, env, off_control, params, episode, epoch)
-        log(f"Episode: {episode} type:{info['world']:10s}")
+        log(
+            f"Epoch: {epoch:<5d} "
+            f"Episode: {episode:<3d} "
+            f"type:{info['world']:10s}"
+        )
 
 
 def run_episode(agent, env, off_control, params, episode, epoch):
@@ -140,34 +144,34 @@ def run_episode(agent, env, off_control, params, episode, epoch):
     - episode (int): Current episode number.
     - epoch (int): Current epoch number.
     """
-    env.init_world(world=env.rng.choice([0, 1], p=[0.5, 0.5]))
+    env.init_world(world=0 if epoch % 100 < params.triangles_percent else 1)
     _, env_info = env.reset()
 
     plt_enabled = (
-        params.plot_sim
+        params.plot_sim is True
         and episode == params.episodes - 1
         and is_plotting_epoch(epoch, params)
     )
 
-    fovea_plotter = FoveaPlotter(env, offline=True) if plt_enabled else None
+    fovea_plotter = (
+        FoveaPlotter(env, offline=True) if plt_enabled is True else None
+    )
 
     action = np.zeros(env.action_space.shape)
-    saccades = off_control.generate_attentional_input(params.saccade_num)
 
-    for saccade_idx, saccade in enumerate(saccades):
+    for saccade_idx in range(params.saccade_num):
         execute_saccade(
             agent,
             env,
             off_control,
             params,
             action,
-            saccade,
             episode,
             saccade_idx,
             fovea_plotter,
         )
 
-    if plt_enabled:
+    if plt_enabled is True:
         save_simulation_gif(fovea_plotter, epoch)
 
     return env_info
@@ -179,7 +183,6 @@ def execute_saccade(
     off_control,
     params,
     action,
-    saccade,
     episode,
     saccade_idx,
     fovea_plotter,
@@ -193,13 +196,18 @@ def execute_saccade(
     - off_control (OfflineController): OfflineController object.
     - params (Parameters): Parameters object.
     - action (np.ndarray): Initial action configuration.
-    - saccade (np.ndarray): Current attentional saccade point.
     - episode (int): Current episode number.
     - saccade_idx (int): Current saccade index.
     - fovea_plotter (FoveaPlotter or None): Optional plotter for visual output.
     """
+    observation, *_ = env.step(np.zeros(params.action_size))
+
+    competence = None
     for time_step in range(params.saccade_time):
         if time_step == int(0.5 * params.saccade_time):
+            saccade, competence = off_control.generate_saccade(
+                observation["FOVEA"]
+            )
             agent.set_parameters(saccade)
 
         observation, *_ = env.step(action)
@@ -215,6 +223,7 @@ def execute_saccade(
             "vision": observation["FOVEA"],
             "action": action,
             "attention": np.copy(agent.params),
+            "competence": competence,
         }
         off_control.record_states(episode, saccade_idx, time_step, state)
 
@@ -299,12 +308,12 @@ def main(params):
             f"squares: {world_dict['square']}"
         )
 
-        off_control.update_maps()
+        off_control.update()
 
         # Logs
 
         # Log to file
-        main_log(f"comp: {off_control.competence.detach().cpu().numpy()}")
+        main_log(f"comp: {off_control.competence}")
 
         # log to wandb
         wandb.log(
@@ -386,14 +395,18 @@ if __name__ == "__main__":
         ".", "_"
     )
 
+    def format_scalar(x):
+        return f"{x:06.3f}".replace(".", "")
+
     params.init_name = (
         "sim_"
         f"{variant}_"
         f"{str(hex(np.abs(hash(params))))[:6]}_"
         f"s_{seed_str}_"
-        f"m_{params.match_std}_"
-        f"d_{params.decaying_speed}_"
-        f"l_{params.local_decaying_speed}"
+        f"m_{format_scalar(params.match_std)}_"
+        f"a_{format_scalar(params.anchor_std)}_"
+        f"d_{format_scalar(params.decaying_speed)}_"
+        f"l_{format_scalar(params.local_decaying_speed)}"
     )
 
     with open("NAME", "w") as fname:

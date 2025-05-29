@@ -1,68 +1,69 @@
 # %% IMPORTS
+
+import EyeSim
 import gymnasium as gym
 import matplotlib.pyplot as plt
-import numpy as np
-import wandb
 from model.agent import Agent
 from plotter import FoveaPlotter
 
-# This code is for running a simulation of an eye-tracking agent interacting
-# with an environment and visualizing the interactions.
+
+_ = EyeSim
+
+# This code is designed for simulating and visualizing an agent’s behavior in
+# an environment, specifically focusing on its attention mechanisms
 
 # %% MAIN LOOP AND VISUALIZATION
 if __name__ == "__main__":
 
-    import matplotlib
-
-    matplotlib.use("agg")
-
-    # Initialize Weights & Biases logging
-    wandb.init(
-        project="eye-simulation",
-        entity="francesco-mannella",
-        name="random demo",
-    )
-
+    # Enable interactive mode and close any previously opened plots
     plt.ion()
     plt.close("all")
 
-    # Prepare environment
-    env = gym.make("EyeSim-v0")
+    # Set up the environment and agent
+    env = gym.make("EyeSim/EyeSim-v0", colors=True)
     env = env.unwrapped
-    env.reset()
-    agent = Agent(env)
+    agent = Agent(env, sampling_threshold=0.01)
 
-    for episode in range(2):
-        _, env_info = env.reset()
+    worlds = ["circle", "triangle", "square"]
 
-        # Create plotting objects
-        plotter = FoveaPlotter(env, offline=True)
-
-        # Initialize action before starting the loop
-        action = np.zeros(env.action_space.shape)
-
-        for time_step in range(10):
-            observation, *_ = env.step(action)
-            action, saliency_map, salient_point = agent.get_action(observation)
-            plotter.step(saliency_map, salient_point)
-
-        # Save the plot for the current episode as a gif
-        gif_file = f"episode_{episode:04d}_random"
-        plotter.close(gif_file)
-
-        # Log the gif file to Weights & Biases
-        wandb.log(
-            {"random_demo": wandb.Video(f"{gif_file}.gif", format="gif")}
+    # Run the simulation for a fixed number of episodes
+    for episode in range(3):
+        world_id = next(
+            i
+            for i, world in enumerate(env.world_labels)
+            if world == worlds[episode]
         )
 
-    # Plot gabor filters
-    fig, axes = plt.subplots(1, 8, figsize=(10, 3))
-    for ax, gabor in zip(axes, agent.saliency_mapper.gabor_filters):
-        ax.imshow(gabor)
+        object_params = {"pos": [20.0, 20.0], "rot": 0.5}
 
-    fig.savefig("gabor_filters.png", dpi=300)
-    # Log the png to Weights & Biases
-    wandb.log({"random_demo": wandb.Image("gabor_filters.png")})
+        env.init_world(world=world_id, object_params=object_params)
+        _, env_info = env.reset()
 
-    # Close the Weights & Biases run
-    wandb.finish()
+        # Precompute some constants
+        action = [30, 30]
+
+        # Create a plotting object for the current episode
+        plotter = FoveaPlotter(env, offline=False)
+
+        attention_centers = [None for x in range(5)]
+
+        for center in attention_centers:
+            # Set agent parameters based on the current attention center
+            agent.set_parameters(center)
+
+            # Simulate for a fixed number of time steps
+            for time_step in range(10):
+                observation, *_ = env.step(action)
+                action, saliency_map, salient_point = agent.get_action(
+                    observation
+                )
+                # Update the plotter with the current saliency map and salient
+                # point
+                plotter.step(
+                    saliency_map, salient_point, agent.attentional_mask
+                )
+                plt.pause(0.1)
+
+        # Save the plot for the current episode as a gif
+        gif_file = f"episode_{episode:04d}"
+        plotter.close(gif_file)

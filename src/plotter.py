@@ -174,7 +174,8 @@ class MapsPlotter:
         - env (object): The environment within which the controller operates.
         - controller (object): Manages the weights to be plotted.
         - offline (bool): Indicates if operations should be done offline.
-        - video_frame_duration (int): Duration for video frames in milliseconds.
+        - video_frame_duration (int): Duration for video frames in
+          milliseconds.
         """
         self.controller = controller
         self.env = env
@@ -188,7 +189,7 @@ class MapsPlotter:
         self.fovea_size = env.fovea_size[0]
 
         self.palette = self._create_palette()
-        self.att_palette = self._create_palette(T=True)
+        self.att_palette = self._create_palette(True)
 
         self.fig, (
             self.visual_conditions_map_ax,
@@ -234,14 +235,14 @@ class MapsPlotter:
         """Prepare a grid for scatter plots."""
         t = np.linspace(0, self.fovea_size * (self.side - 1), self.side)
         t += 0.2 * self.fovea_size
-        return np.stack([x.ravel() for x in np.meshgrid(t, t[::-1])])
+        return np.stack([x.ravel() for x in np.meshgrid(t, t)])[::-1]
 
     def _initialize_maps(self):
         """Initialize all map visualizations."""
         self._initialize_visual_conditions_map()
         self._initialize_visual_effects_map()
         self._initialize_attention_map_traces()
-        self._set_axis_limits()
+        self._set_axis()
 
     def _initialize_visual_conditions_map(self):
         """Initialize the visual conditions map image."""
@@ -301,14 +302,18 @@ class MapsPlotter:
             for _ in range(num_traces)
         ]
 
-    def _set_axis_limits(self):
+    def _set_axis(self):
         """Set limits for the map axes."""
         self.attention_map_ax.set_xlim(
-            [-0.1 * self.env_height, 1.1 * self.env_height]
-        )
-        self.attention_map_ax.set_ylim(
             [-0.1 * self.env_width, 1.1 * self.env_width]
         )
+        self.attention_map_ax.set_ylim(
+            [1.1 * self.env_height, -0.1 * self.env_height]
+        )
+
+        self.visual_conditions_map_ax.set_axis_off()
+        self.visual_effects_map_ax.set_axis_off()
+        self.attention_map_ax.set_axis_off()
 
     def step(self, saccade=None):
         """
@@ -378,14 +383,15 @@ class MapsPlotter:
             .numpy()
             * np.array([self.env_height, self.env_width]).reshape(-1, 1)
         )
-        weights = weights[::-1]
+
+        weights = weights
 
         self.attention_map_im.set_offsets(weights.T)
 
         num_traces = self.side
         reshaped_weights = weights.reshape(
             2, num_traces, num_traces
-        ).transpose(2, 1, 0)[::-1, :, :]
+        ).transpose(1, 2, 0)
         for p in range(num_traces):
             self.attention_map_traces[p].set_data(*reshaped_weights[p, :, :].T)
         for p in range(num_traces, 2 * num_traces):
@@ -437,9 +443,9 @@ class MapsPlotter:
             weights.cpu()
             .detach()
             .numpy()
-            .reshape(inp_side1, inp_side2, 3, out_side1, out_side2)[::-1]
-        )
-        transposed_weights = reshaped_weights.transpose(3, 1, 4, 0, 2).reshape(
+            .reshape(inp_side1, inp_side2, 3, out_side1, out_side2)
+        )[::-1, :, :, :, :]
+        transposed_weights = reshaped_weights.transpose(3, 0, 4, 1, 2).reshape(
             inp_side1 * out_side1, inp_side2 * out_side2, 3
         )
 

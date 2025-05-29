@@ -1,10 +1,14 @@
 # %% IMPORTS
+
+import EyeSim
 import gymnasium as gym
 import matplotlib.pyplot as plt
 import numpy as np
-import wandb
 from model.agent import Agent
 from plotter import FoveaPlotter
+
+
+_ = EyeSim
 
 # This code is designed for simulating and visualizing an agent’s behavior in
 # an environment, specifically focusing on its attention mechanisms
@@ -12,39 +16,39 @@ from plotter import FoveaPlotter
 # %% MAIN LOOP AND VISUALIZATION
 if __name__ == "__main__":
 
-    import matplotlib
-
-    matplotlib.use("agg")
-
-    # Initialize Weights & Biases logging
-    wandb.init(
-        project="eye-simulation",
-        entity="francesco-mannella",
-        name="attentional demo",
-    )
-
     # Enable interactive mode and close any previously opened plots
     plt.ion()
     plt.close("all")
 
     # Set up the environment and agent
-    env = gym.make("EyeSim-v0")
+    env = gym.make("EyeSim/EyeSim-v0", colors=True)
     env = env.unwrapped
-    env.reset()
-    agent = Agent(env, sampling_threshold=0.015)
+    agent = Agent(env, sampling_threshold=0.0001)
+
+    worlds = ["circle", "triangle", "square"]
 
     # Run the simulation for a fixed number of episodes
-    for episode in range(5):
+    for episode in range(3):
+        world_id = next(
+            i
+            for i, world in enumerate(env.world_labels)
+            if world == worlds[episode]
+        )
+
+        object_params = {"pos": [20.0, 20.0], "rot": 0.5}
+
+        env.init_world(world=world_id, object_params=object_params)
         _, env_info = env.reset()
 
         # Precompute some constants
-        action = np.zeros(env.action_space.shape)
+        action = [30, 30]
 
         # Create a plotting object for the current episode
-        plotter = FoveaPlotter(env, offline=True)
+        plotter = FoveaPlotter(env, offline=False)
 
         # Generate random means for Gaussian masks
-        attention_centers = np.random.rand(5, 2)
+        a = np.linspace(0, 2 * np.pi, 5)
+        attention_centers = 0.6 * np.array([[np.cos(x), np.sin(x)] for x in a])
 
         for center in attention_centers:
             # Set agent parameters based on the current attention center
@@ -65,11 +69,3 @@ if __name__ == "__main__":
         # Save the plot for the current episode as a gif
         gif_file = f"episode_{episode:04d}"
         plotter.close(gif_file)
-
-        # Log the gif file to Weights & Biases
-        wandb.log(
-            {"attentional_demo": wandb.Video(f"{gif_file}.gif", format="gif")}
-        )
-
-    # Close the Weights & Biases run
-    wandb.finish()
