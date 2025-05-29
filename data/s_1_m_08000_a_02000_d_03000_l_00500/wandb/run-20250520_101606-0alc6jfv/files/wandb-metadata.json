@@ -1,0 +1,85 @@
+{
+    "os": "Linux-6.8.0-59-generic-x86_64-with-glibc2.35",
+    "python": "3.10.12",
+    "heartbeatAt": "2025-05-20T08:16:07.529586",
+    "startedAt": "2025-05-20T08:16:06.862012",
+    "docker": null,
+    "cuda": null,
+    "args": [
+        "--variant=new_pred",
+        "--seed=1",
+        "--param_list=episodes=20;epochs=500;saccade_num=10;saccade_time=10;plot_sim=False;plot_maps=True;plotting_epochs_interval=100;agent_sampling_threshold=0.00001;maps_output_size=100;action_size=2;attention_size=2;maps_learning_rate=0.1;saccade_threshold=12.0;learningrate_modulation=10.0;neighborhood_modulation=20.0;learningrate_modulation_baseline=0.02;neighborhood_modulation_baseline=0.8;match_std_baseline=0.5;match_std=8.0;anchor_std=2.0;triangles_percent=50.0;colors=True;decaying_speed=3.0;local_decaying_speed=0.5"
+    ],
+    "state": "running",
+    "program": "/home/fmannella/Dropbox/Projects/current/kanizsa_tests/src/main.py",
+    "codePathLocal": null,
+    "host": "istc-alienwareaurorar6",
+    "username": "fmannella",
+    "executable": "/home/fmannella/venv3/bin/python",
+    "cpu_count": 4,
+    "cpu_count_logical": 8,
+    "cpu_freq": {
+        "current": 4277.9998749999995,
+        "min": 800.0,
+        "max": 4500.0
+    },
+    "cpu_freq_per_core": [
+        {
+            "current": 4200.029,
+            "min": 800.0,
+            "max": 4500.0
+        },
+        {
+            "current": 4200.007,
+            "min": 800.0,
+            "max": 4500.0
+        },
+        {
+            "current": 4199.824,
+            "min": 800.0,
+            "max": 4500.0
+        },
+        {
+            "current": 4198.69,
+            "min": 800.0,
+            "max": 4500.0
+        },
+        {
+            "current": 4202.263,
+            "min": 800.0,
+            "max": 4500.0
+        },
+        {
+            "current": 4399.757,
+            "min": 800.0,
+            "max": 4500.0
+        },
+        {
+            "current": 4206.818,
+            "min": 800.0,
+            "max": 4500.0
+        },
+        {
+            "current": 4466.824,
+            "min": 800.0,
+            "max": 4500.0
+        }
+    ],
+    "disk": {
+        "/": {
+            "total": 45.533897399902344,
+            "used": 31.696990966796875
+        }
+    },
+    "gpu": "NVIDIA GeForce GTX 1080 Ti",
+    "gpu_count": 1,
+    "gpu_devices": [
+        {
+            "name": "NVIDIA GeForce GTX 1080 Ti",
+            "memory_total": 11811160064
+        }
+    ],
+    "memory": {
+        "total": 62.69950485229492
+    }
+}
