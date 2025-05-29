@@ -19,7 +19,7 @@ Epoch: 0     Episode: 16  type:triangle
 Epoch: 0     Episode: 17  type:triangle  
 Epoch: 0     Episode: 18  type:triangle  
 Epoch: 0     Episode: 19  type:triangle  
-triangles: 514, squares: 0
+triangles: 124, squares: 0
 comp: 0.04128158092498779
 epoch: 1
 Epoch: 1     Episode: 0   type:triangle  
@@ -42,8 +42,8 @@ Epoch: 1     Episode: 16  type:triangle
 Epoch: 1     Episode: 17  type:triangle  
 Epoch: 1     Episode: 18  type:triangle  
 Epoch: 1     Episode: 19  type:triangle  
-triangles: 360, squares: 0
-comp: 0.055730462074279785
+triangles: 114, squares: 0
+comp: 0.05575156211853027
 epoch: 2
 Epoch: 2     Episode: 0   type:triangle  
 Epoch: 2     Episode: 1   type:triangle  
@@ -65,8 +65,8 @@ Epoch: 2     Episode: 16  type:triangle
 Epoch: 2     Episode: 17  type:triangle  
 Epoch: 2     Episode: 18  type:triangle  
 Epoch: 2     Episode: 19  type:triangle  
-triangles: 410, squares: 0
-comp: 0.06756985187530518
+triangles: 121, squares: 0
+comp: 0.06768131256103516
 epoch: 3
 Epoch: 3     Episode: 0   type:triangle  
 Epoch: 3     Episode: 1   type:triangle  
@@ -88,8 +88,8 @@ Epoch: 3     Episode: 16  type:triangle
 Epoch: 3     Episode: 17  type:triangle  
 Epoch: 3     Episode: 18  type:triangle  
 Epoch: 3     Episode: 19  type:triangle  
-triangles: 276, squares: 0
-comp: 0.07828080654144287
+triangles: 114, squares: 0
+comp: 0.07848310470581055
 epoch: 4
 Epoch: 4     Episode: 0   type:triangle  
 Epoch: 4     Episode: 1   type:triangle  
@@ -111,8 +111,8 @@ Epoch: 4     Episode: 16  type:triangle
 Epoch: 4     Episode: 17  type:triangle  
 Epoch: 4     Episode: 18  type:triangle  
 Epoch: 4     Episode: 19  type:triangle  
-triangles: 320, squares: 0
-comp: 0.0884326696395874
+triangles: 107, squares: 0
+comp: 0.08854734897613525
 epoch: 5
 Epoch: 5     Episode: 0   type:triangle  
 Epoch: 5     Episode: 1   type:triangle  
@@ -134,8 +134,8 @@ Epoch: 5     Episode: 16  type:triangle
 Epoch: 5     Episode: 17  type:triangle  
 Epoch: 5     Episode: 18  type:triangle  
 Epoch: 5     Episode: 19  type:triangle  
-triangles: 393, squares: 0
-comp: 0.09819483757019043
+triangles: 108, squares: 0
+comp: 0.09808635711669922
 epoch: 6
 Epoch: 6     Episode: 0   type:triangle  
 Epoch: 6     Episode: 1   type:triangle  
@@ -157,8 +157,8 @@ Epoch: 6     Episode: 16  type:triangle
 Epoch: 6     Episode: 17  type:triangle  
 Epoch: 6     Episode: 18  type:triangle  
 Epoch: 6     Episode: 19  type:triangle  
-triangles: 312, squares: 0
-comp: 0.10764896869659424
+triangles: 121, squares: 0
+comp: 0.10717201232910156
 epoch: 7
 Epoch: 7     Episode: 0   type:triangle  
 Epoch: 7     Episode: 1   type:triangle  
@@ -180,8 +180,8 @@ Epoch: 7     Episode: 16  type:triangle
 Epoch: 7     Episode: 17  type:triangle  
 Epoch: 7     Episode: 18  type:triangle  
 Epoch: 7     Episode: 19  type:triangle  
-triangles: 350, squares: 0
-comp: 0.11684513092041016
+triangles: 110, squares: 0
+comp: 0.11595654487609863
 epoch: 8
 Epoch: 8     Episode: 0   type:triangle  
 Epoch: 8     Episode: 1   type:triangle  
@@ -203,8 +203,8 @@ Epoch: 8     Episode: 16  type:triangle
 Epoch: 8     Episode: 17  type:triangle  
 Epoch: 8     Episode: 18  type:triangle  
 Epoch: 8     Episode: 19  type:triangle  
-triangles: 308, squares: 0
-comp: 0.1258251667022705
+triangles: 122, squares: 0
+comp: 0.12460637092590332
 epoch: 9
 Epoch: 9     Episode: 0   type:triangle  
 Epoch: 9     Episode: 1   type:triangle  
@@ -226,8 +226,8 @@ Epoch: 9     Episode: 16  type:triangle
 Epoch: 9     Episode: 17  type:triangle  
 Epoch: 9     Episode: 18  type:triangle  
 Epoch: 9     Episode: 19  type:triangle  
-triangles: 343, squares: 0
-comp: 0.13466835021972656
+triangles: 106, squares: 0
+comp: 0.13321077823638916
 epoch: 10
 Epoch: 10    Episode: 0   type:triangle  
 Epoch: 10    Episode: 1   type:triangle  
@@ -249,8 +249,8 @@ Epoch: 10    Episode: 16  type:triangle
 Epoch: 10    Episode: 17  type:triangle  
 Epoch: 10    Episode: 18  type:triangle  
 Epoch: 10    Episode: 19  type:triangle  
-triangles: 285, squares: 0
-comp: 0.14364969730377197
+triangles: 113, squares: 0
+comp: 0.1417311429977417
 epoch: 11
 Epoch: 11    Episode: 0   type:triangle  
 Epoch: 11    Episode: 1   type:triangle  
@@ -272,8 +272,8 @@ Epoch: 11    Episode: 16  type:triangle
 Epoch: 11    Episode: 17  type:triangle  
 Epoch: 11    Episode: 18  type:triangle  
 Epoch: 11    Episode: 19  type:triangle  
-triangles: 344, squares: 0
-comp: 0.15280771255493164
+triangles: 108, squares: 0
+comp: 0.15030276775360107
 epoch: 12
 Epoch: 12    Episode: 0   type:triangle  
 Epoch: 12    Episode: 1   type:triangle  
@@ -295,8 +295,8 @@ Epoch: 12    Episode: 16  type:triangle
 Epoch: 12    Episode: 17  type:triangle  
 Epoch: 12    Episode: 18  type:triangle  
 Epoch: 12    Episode: 19  type:triangle  
-triangles: 296, squares: 0
-comp: 0.16205298900604248
+triangles: 128, squares: 0
+comp: 0.15891039371490479
 epoch: 13
 Epoch: 13    Episode: 0   type:triangle  
 Epoch: 13    Episode: 1   type:triangle  
@@ -318,8 +318,8 @@ Epoch: 13    Episode: 16  type:triangle
 Epoch: 13    Episode: 17  type:triangle  
 Epoch: 13    Episode: 18  type:triangle  
 Epoch: 13    Episode: 19  type:triangle  
-triangles: 216, squares: 0
-comp: 0.17132067680358887
+triangles: 113, squares: 0
+comp: 0.16771340370178223
 epoch: 14
 Epoch: 14    Episode: 0   type:triangle  
 Epoch: 14    Episode: 1   type:triangle  
@@ -341,8 +341,8 @@ Epoch: 14    Episode: 16  type:triangle
 Epoch: 14    Episode: 17  type:triangle  
 Epoch: 14    Episode: 18  type:triangle  
 Epoch: 14    Episode: 19  type:triangle  
-triangles: 357, squares: 0
-comp: 0.18070948123931885
+triangles: 129, squares: 0
+comp: 0.176743745803833
 epoch: 15
 Epoch: 15    Episode: 0   type:triangle  
 Epoch: 15    Episode: 1   type:triangle  
@@ -364,8 +364,8 @@ Epoch: 15    Episode: 16  type:triangle
 Epoch: 15    Episode: 17  type:triangle  
 Epoch: 15    Episode: 18  type:triangle  
 Epoch: 15    Episode: 19  type:triangle  
-triangles: 340, squares: 0
-comp: 0.1902531385421753
+triangles: 125, squares: 0
+comp: 0.1859724521636963
 epoch: 16
 Epoch: 16    Episode: 0   type:triangle  
 Epoch: 16    Episode: 1   type:triangle  
@@ -387,8 +387,8 @@ Epoch: 16    Episode: 16  type:triangle
 Epoch: 16    Episode: 17  type:triangle  
 Epoch: 16    Episode: 18  type:triangle  
 Epoch: 16    Episode: 19  type:triangle  
-triangles: 275, squares: 0
-comp: 0.1997544765472412
+triangles: 117, squares: 0
+comp: 0.1953425407409668
 epoch: 17
 Epoch: 17    Episode: 0   type:triangle  
 Epoch: 17    Episode: 1   type:triangle  
@@ -410,8 +410,8 @@ Epoch: 17    Episode: 16  type:triangle
 Epoch: 17    Episode: 17  type:triangle  
 Epoch: 17    Episode: 18  type:triangle  
 Epoch: 17    Episode: 19  type:triangle  
-triangles: 266, squares: 0
-comp: 0.20911502838134766
+triangles: 134, squares: 0
+comp: 0.2049182653427124
 epoch: 18
 Epoch: 18    Episode: 0   type:triangle  
 Epoch: 18    Episode: 1   type:triangle  
@@ -433,8 +433,8 @@ Epoch: 18    Episode: 16  type:triangle
 Epoch: 18    Episode: 17  type:triangle  
 Epoch: 18    Episode: 18  type:triangle  
 Epoch: 18    Episode: 19  type:triangle  
-triangles: 334, squares: 0
-comp: 0.21855056285858154
+triangles: 134, squares: 0
+comp: 0.21469998359680176
 epoch: 19
 Epoch: 19    Episode: 0   type:triangle  
 Epoch: 19    Episode: 1   type:triangle  
@@ -456,8 +456,8 @@ Epoch: 19    Episode: 16  type:triangle
 Epoch: 19    Episode: 17  type:triangle  
 Epoch: 19    Episode: 18  type:triangle  
 Epoch: 19    Episode: 19  type:triangle  
-triangles: 266, squares: 0
-comp: 0.2277766466140747
+triangles: 128, squares: 0
+comp: 0.22455167770385742
 epoch: 20
 Epoch: 20    Episode: 0   type:triangle  
 Epoch: 20    Episode: 1   type:triangle  
@@ -479,8 +479,8 @@ Epoch: 20    Episode: 16  type:triangle
 Epoch: 20    Episode: 17  type:triangle  
 Epoch: 20    Episode: 18  type:triangle  
 Epoch: 20    Episode: 19  type:triangle  
-triangles: 319, squares: 0
-comp: 0.23696482181549072
+triangles: 122, squares: 0
+comp: 0.23450160026550293
 epoch: 21
 Epoch: 21    Episode: 0   type:triangle  
 Epoch: 21    Episode: 1   type:triangle  
@@ -502,8 +502,8 @@ Epoch: 21    Episode: 16  type:triangle
 Epoch: 21    Episode: 17  type:triangle  
 Epoch: 21    Episode: 18  type:triangle  
 Epoch: 21    Episode: 19  type:triangle  
-triangles: 301, squares: 0
-comp: 0.2460007667541504
+triangles: 129, squares: 0
+comp: 0.24445927143096924
 epoch: 22
 Epoch: 22    Episode: 0   type:triangle  
 Epoch: 22    Episode: 1   type:triangle  
@@ -525,8 +525,8 @@ Epoch: 22    Episode: 16  type:triangle
 Epoch: 22    Episode: 17  type:triangle  
 Epoch: 22    Episode: 18  type:triangle  
 Epoch: 22    Episode: 19  type:triangle  
-triangles: 309, squares: 0
-comp: 0.2548927068710327
+triangles: 141, squares: 0
+comp: 0.25435757637023926
 epoch: 23
 Epoch: 23    Episode: 0   type:triangle  
 Epoch: 23    Episode: 1   type:triangle  
@@ -548,8 +548,8 @@ Epoch: 23    Episode: 16  type:triangle
 Epoch: 23    Episode: 17  type:triangle  
 Epoch: 23    Episode: 18  type:triangle  
 Epoch: 23    Episode: 19  type:triangle  
-triangles: 282, squares: 0
-comp: 0.2636474370956421
+triangles: 148, squares: 0
+comp: 0.2641657590866089
 epoch: 24
 Epoch: 24    Episode: 0   type:triangle  
 Epoch: 24    Episode: 1   type:triangle  
@@ -571,8 +571,8 @@ Epoch: 24    Episode: 16  type:triangle
 Epoch: 24    Episode: 17  type:triangle  
 Epoch: 24    Episode: 18  type:triangle  
 Epoch: 24    Episode: 19  type:triangle  
-triangles: 275, squares: 0
-comp: 0.27236223220825195
+triangles: 138, squares: 0
+comp: 0.2737370729446411
 epoch: 25
 Epoch: 25    Episode: 0   type:triangle  
 Epoch: 25    Episode: 1   type:triangle  
@@ -594,8 +594,8 @@ Epoch: 25    Episode: 16  type:triangle
 Epoch: 25    Episode: 17  type:triangle  
 Epoch: 25    Episode: 18  type:triangle  
 Epoch: 25    Episode: 19  type:triangle  
-triangles: 301, squares: 0
-comp: 0.28100037574768066
+triangles: 139, squares: 0
+comp: 0.28316283226013184
 epoch: 26
 Epoch: 26    Episode: 0   type:triangle  
 Epoch: 26    Episode: 1   type:triangle  
@@ -617,8 +617,8 @@ Epoch: 26    Episode: 16  type:triangle
 Epoch: 26    Episode: 17  type:triangle  
 Epoch: 26    Episode: 18  type:triangle  
 Epoch: 26    Episode: 19  type:triangle  
-triangles: 321, squares: 0
-comp: 0.2895774841308594
+triangles: 149, squares: 0
+comp: 0.2923715114593506
 epoch: 27
 Epoch: 27    Episode: 0   type:triangle  
 Epoch: 27    Episode: 1   type:triangle  
@@ -640,8 +640,8 @@ Epoch: 27    Episode: 16  type:triangle
 Epoch: 27    Episode: 17  type:triangle  
 Epoch: 27    Episode: 18  type:triangle  
 Epoch: 27    Episode: 19  type:triangle  
-triangles: 258, squares: 0
-comp: 0.2980707883834839
+triangles: 126, squares: 0
+comp: 0.30142641067504883
 epoch: 28
 Epoch: 28    Episode: 0   type:triangle  
 Epoch: 28    Episode: 1   type:triangle  
@@ -663,8 +663,8 @@ Epoch: 28    Episode: 16  type:triangle
 Epoch: 28    Episode: 17  type:triangle  
 Epoch: 28    Episode: 18  type:triangle  
 Epoch: 28    Episode: 19  type:triangle  
-triangles: 273, squares: 0
-comp: 0.3065321445465088
+triangles: 140, squares: 0
+comp: 0.3102985620498657
 epoch: 29
 Epoch: 29    Episode: 0   type:triangle  
 Epoch: 29    Episode: 1   type:triangle  
@@ -686,8 +686,8 @@ Epoch: 29    Episode: 16  type:triangle
 Epoch: 29    Episode: 17  type:triangle  
 Epoch: 29    Episode: 18  type:triangle  
 Epoch: 29    Episode: 19  type:triangle  
-triangles: 301, squares: 0
-comp: 0.3149697780609131
+triangles: 144, squares: 0
+comp: 0.31903398036956787
 epoch: 30
 Epoch: 30    Episode: 0   type:triangle  
 Epoch: 30    Episode: 1   type:triangle  
@@ -709,8 +709,8 @@ Epoch: 30    Episode: 16  type:triangle
 Epoch: 30    Episode: 17  type:triangle  
 Epoch: 30    Episode: 18  type:triangle  
 Epoch: 30    Episode: 19  type:triangle  
-triangles: 313, squares: 0
-comp: 0.32335972785949707
+triangles: 133, squares: 0
+comp: 0.3276411294937134
 epoch: 31
 Epoch: 31    Episode: 0   type:triangle  
 Epoch: 31    Episode: 1   type:triangle  
@@ -732,8 +732,8 @@ Epoch: 31    Episode: 16  type:triangle
 Epoch: 31    Episode: 17  type:triangle  
 Epoch: 31    Episode: 18  type:triangle  
 Epoch: 31    Episode: 19  type:triangle  
-triangles: 281, squares: 0
-comp: 0.3316270112991333
+triangles: 122, squares: 0
+comp: 0.3361020088195801
 epoch: 32
 Epoch: 32    Episode: 0   type:triangle  
 Epoch: 32    Episode: 1   type:triangle  
@@ -755,8 +755,8 @@ Epoch: 32    Episode: 16  type:triangle
 Epoch: 32    Episode: 17  type:triangle  
 Epoch: 32    Episode: 18  type:triangle  
 Epoch: 32    Episode: 19  type:triangle  
-triangles: 275, squares: 0
-comp: 0.3397926092147827
+triangles: 134, squares: 0
+comp: 0.34444189071655273
 epoch: 33
 Epoch: 33    Episode: 0   type:triangle  
 Epoch: 33    Episode: 1   type:triangle  
@@ -778,8 +778,8 @@ Epoch: 33    Episode: 16  type:triangle
 Epoch: 33    Episode: 17  type:triangle  
 Epoch: 33    Episode: 18  type:triangle  
 Epoch: 33    Episode: 19  type:triangle  
-triangles: 316, squares: 0
-comp: 0.3478490114212036
+triangles: 131, squares: 0
+comp: 0.35260868072509766
 epoch: 34
 Epoch: 34    Episode: 0   type:triangle  
 Epoch: 34    Episode: 1   type:triangle  
@@ -801,8 +801,8 @@ Epoch: 34    Episode: 16  type:triangle
 Epoch: 34    Episode: 17  type:triangle  
 Epoch: 34    Episode: 18  type:triangle  
 Epoch: 34    Episode: 19  type:triangle  
-triangles: 250, squares: 0
-comp: 0.3557549715042114
+triangles: 136, squares: 0
+comp: 0.3606600761413574
 epoch: 35
 Epoch: 35    Episode: 0   type:triangle  
 Epoch: 35    Episode: 1   type:triangle  
@@ -824,8 +824,8 @@ Epoch: 35    Episode: 16  type:triangle
 Epoch: 35    Episode: 17  type:triangle  
 Epoch: 35    Episode: 18  type:triangle  
 Epoch: 35    Episode: 19  type:triangle  
-triangles: 225, squares: 0
-comp: 0.3634464740753174
+triangles: 138, squares: 0
+comp: 0.36860835552215576
 epoch: 36
 Epoch: 36    Episode: 0   type:triangle  
 Epoch: 36    Episode: 1   type:triangle  
@@ -847,8 +847,8 @@ Epoch: 36    Episode: 16  type:triangle
 Epoch: 36    Episode: 17  type:triangle  
 Epoch: 36    Episode: 18  type:triangle  
 Epoch: 36    Episode: 19  type:triangle  
-triangles: 233, squares: 0
-comp: 0.37117552757263184
+triangles: 159, squares: 0
+comp: 0.3764423131942749
 epoch: 37
 Epoch: 37    Episode: 0   type:triangle  
 Epoch: 37    Episode: 1   type:triangle  
@@ -870,8 +870,8 @@ Epoch: 37    Episode: 16  type:triangle
 Epoch: 37    Episode: 17  type:triangle  
 Epoch: 37    Episode: 18  type:triangle  
 Epoch: 37    Episode: 19  type:triangle  
-triangles: 249, squares: 0
-comp: 0.37888479232788086
+triangles: 130, squares: 0
+comp: 0.3841665983200073
 epoch: 38
 Epoch: 38    Episode: 0   type:triangle  
 Epoch: 38    Episode: 1   type:triangle  
@@ -893,8 +893,8 @@ Epoch: 38    Episode: 16  type:triangle
 Epoch: 38    Episode: 17  type:triangle  
 Epoch: 38    Episode: 18  type:triangle  
 Epoch: 38    Episode: 19  type:triangle  
-triangles: 288, squares: 0
-comp: 0.386427640914917
+triangles: 137, squares: 0
+comp: 0.39176344871520996
 epoch: 39
 Epoch: 39    Episode: 0   type:triangle  
 Epoch: 39    Episode: 1   type:triangle  
@@ -916,8 +916,8 @@ Epoch: 39    Episode: 16  type:triangle
 Epoch: 39    Episode: 17  type:triangle  
 Epoch: 39    Episode: 18  type:triangle  
 Epoch: 39    Episode: 19  type:triangle  
-triangles: 344, squares: 0
-comp: 0.3938283920288086
+triangles: 135, squares: 0
+comp: 0.399267315864563
 epoch: 40
 Epoch: 40    Episode: 0   type:triangle  
 Epoch: 40    Episode: 1   type:triangle  
@@ -939,8 +939,8 @@ Epoch: 40    Episode: 16  type:triangle
 Epoch: 40    Episode: 17  type:triangle  
 Epoch: 40    Episode: 18  type:triangle  
 Epoch: 40    Episode: 19  type:triangle  
-triangles: 292, squares: 0
-comp: 0.4009871482849121
+triangles: 136, squares: 0
+comp: 0.40671277046203613
 epoch: 41
 Epoch: 41    Episode: 0   type:triangle  
 Epoch: 41    Episode: 1   type:triangle  
@@ -962,8 +962,8 @@ Epoch: 41    Episode: 16  type:triangle
 Epoch: 41    Episode: 17  type:triangle  
 Epoch: 41    Episode: 18  type:triangle  
 Epoch: 41    Episode: 19  type:triangle  
-triangles: 271, squares: 0
-comp: 0.40794384479522705
+triangles: 151, squares: 0
+comp: 0.41405975818634033
 epoch: 42
 Epoch: 42    Episode: 0   type:triangle  
 Epoch: 42    Episode: 1   type:triangle  
@@ -985,8 +985,8 @@ Epoch: 42    Episode: 16  type:triangle
 Epoch: 42    Episode: 17  type:triangle  
 Epoch: 42    Episode: 18  type:triangle  
 Epoch: 42    Episode: 19  type:triangle  
-triangles: 247, squares: 0
-comp: 0.4147895574569702
+triangles: 140, squares: 0
+comp: 0.4214348793029785
 epoch: 43
 Epoch: 43    Episode: 0   type:triangle  
 Epoch: 43    Episode: 1   type:triangle  
@@ -1008,8 +1008,8 @@ Epoch: 43    Episode: 16  type:triangle
 Epoch: 43    Episode: 17  type:triangle  
 Epoch: 43    Episode: 18  type:triangle  
 Epoch: 43    Episode: 19  type:triangle  
-triangles: 267, squares: 0
-comp: 0.42162930965423584
+triangles: 160, squares: 0
+comp: 0.4287518262863159
 epoch: 44
 Epoch: 44    Episode: 0   type:triangle  
 Epoch: 44    Episode: 1   type:triangle  
@@ -1031,8 +1031,8 @@ Epoch: 44    Episode: 16  type:triangle
 Epoch: 44    Episode: 17  type:triangle  
 Epoch: 44    Episode: 18  type:triangle  
 Epoch: 44    Episode: 19  type:triangle  
-triangles: 301, squares: 0
-comp: 0.42848050594329834
+triangles: 150, squares: 0
+comp: 0.4360769987106323
 epoch: 45
 Epoch: 45    Episode: 0   type:triangle  
 Epoch: 45    Episode: 1   type:triangle  
@@ -1054,8 +1054,8 @@ Epoch: 45    Episode: 16  type:triangle
 Epoch: 45    Episode: 17  type:triangle  
 Epoch: 45    Episode: 18  type:triangle  
 Epoch: 45    Episode: 19  type:triangle  
-triangles: 246, squares: 0
-comp: 0.43525588512420654
+triangles: 152, squares: 0
+comp: 0.4432961940765381
 epoch: 46
 Epoch: 46    Episode: 0   type:triangle  
 Epoch: 46    Episode: 1   type:triangle  
@@ -1077,8 +1077,8 @@ Epoch: 46    Episode: 16  type:triangle
 Epoch: 46    Episode: 17  type:triangle  
 Epoch: 46    Episode: 18  type:triangle  
 Epoch: 46    Episode: 19  type:triangle  
-triangles: 244, squares: 0
-comp: 0.44192075729370117
+triangles: 150, squares: 0
+comp: 0.45043301582336426
 epoch: 47
 Epoch: 47    Episode: 0   type:triangle  
 Epoch: 47    Episode: 1   type:triangle  
@@ -1100,8 +1100,8 @@ Epoch: 47    Episode: 16  type:triangle
 Epoch: 47    Episode: 17  type:triangle  
 Epoch: 47    Episode: 18  type:triangle  
 Epoch: 47    Episode: 19  type:triangle  
-triangles: 342, squares: 0
-comp: 0.4485030174255371
+triangles: 138, squares: 0
+comp: 0.4575575590133667
 epoch: 48
 Epoch: 48    Episode: 0   type:triangle  
 Epoch: 48    Episode: 1   type:triangle  
@@ -1123,8 +1123,8 @@ Epoch: 48    Episode: 16  type:triangle
 Epoch: 48    Episode: 17  type:triangle  
 Epoch: 48    Episode: 18  type:triangle  
 Epoch: 48    Episode: 19  type:triangle  
-triangles: 247, squares: 0
-comp: 0.4549626111984253
+triangles: 152, squares: 0
+comp: 0.4645662307739258
 epoch: 49
 Epoch: 49    Episode: 0   type:triangle  
 Epoch: 49    Episode: 1   type:triangle  
@@ -1146,8 +1146,8 @@ Epoch: 49    Episode: 16  type:triangle
 Epoch: 49    Episode: 17  type:triangle  
 Epoch: 49    Episode: 18  type:triangle  
 Epoch: 49    Episode: 19  type:triangle  
-triangles: 396, squares: 0
-comp: 0.46132969856262207
+triangles: 156, squares: 0
+comp: 0.47148990631103516
 epoch: 50
 Epoch: 50    Episode: 0   type:square    
 Epoch: 50    Episode: 1   type:square    
@@ -1169,8 +1169,8 @@ Epoch: 50    Episode: 16  type:square
 Epoch: 50    Episode: 17  type:square    
 Epoch: 50    Episode: 18  type:square    
 Epoch: 50    Episode: 19  type:square    
-triangles: 0, squares: 239
-comp: 0.4674556255340576
+triangles: 0, squares: 178
+comp: 0.47841036319732666
 epoch: 51
 Epoch: 51    Episode: 0   type:square    
 Epoch: 51    Episode: 1   type:square    
@@ -1192,8 +1192,8 @@ Epoch: 51    Episode: 16  type:square
 Epoch: 51    Episode: 17  type:square    
 Epoch: 51    Episode: 18  type:square    
 Epoch: 51    Episode: 19  type:square    
-triangles: 0, squares: 251
-comp: 0.47336316108703613
+triangles: 0, squares: 184
+comp: 0.48516130447387695
 epoch: 52
 Epoch: 52    Episode: 0   type:square    
 Epoch: 52    Episode: 1   type:square    
@@ -1215,8 +1215,8 @@ Epoch: 52    Episode: 16  type:square
 Epoch: 52    Episode: 17  type:square    
 Epoch: 52    Episode: 18  type:square    
 Epoch: 52    Episode: 19  type:square    
-triangles: 0, squares: 254
-comp: 0.4790217876434326
+triangles: 0, squares: 186
+comp: 0.49173200130462646
 epoch: 53
 Epoch: 53    Episode: 0   type:square    
 Epoch: 53    Episode: 1   type:square    
@@ -1238,8 +1238,8 @@ Epoch: 53    Episode: 16  type:square
 Epoch: 53    Episode: 17  type:square    
 Epoch: 53    Episode: 18  type:square    
 Epoch: 53    Episode: 19  type:square    
-triangles: 0, squares: 186
-comp: 0.4844926595687866
+triangles: 0, squares: 188
+comp: 0.49812638759613037
 epoch: 54
 Epoch: 54    Episode: 0   type:square    
 Epoch: 54    Episode: 1   type:square    
@@ -1261,8 +1261,8 @@ Epoch: 54    Episode: 16  type:square
 Epoch: 54    Episode: 17  type:square    
 Epoch: 54    Episode: 18  type:square    
 Epoch: 54    Episode: 19  type:square    
-triangles: 0, squares: 209
-comp: 0.48975515365600586
+triangles: 0, squares: 195
+comp: 0.5043693780899048
 epoch: 55
 Epoch: 55    Episode: 0   type:square    
 Epoch: 55    Episode: 1   type:square    
@@ -1284,8 +1284,8 @@ Epoch: 55    Episode: 16  type:square
 Epoch: 55    Episode: 17  type:square    
 Epoch: 55    Episode: 18  type:square    
 Epoch: 55    Episode: 19  type:square    
-triangles: 0, squares: 175
-comp: 0.49482083320617676
+triangles: 0, squares: 195
+comp: 0.5104012489318848
 epoch: 56
 Epoch: 56    Episode: 0   type:square    
 Epoch: 56    Episode: 1   type:square    
@@ -1307,8 +1307,8 @@ Epoch: 56    Episode: 16  type:square
 Epoch: 56    Episode: 17  type:square    
 Epoch: 56    Episode: 18  type:square    
 Epoch: 56    Episode: 19  type:square    
-triangles: 0, squares: 231
-comp: 0.4997265338897705
+triangles: 0, squares: 209
+comp: 0.5162200927734375
 epoch: 57
 Epoch: 57    Episode: 0   type:square    
 Epoch: 57    Episode: 1   type:square    
@@ -1330,8 +1330,8 @@ Epoch: 57    Episode: 16  type:square
 Epoch: 57    Episode: 17  type:square    
 Epoch: 57    Episode: 18  type:square    
 Epoch: 57    Episode: 19  type:square    
-triangles: 0, squares: 233
-comp: 0.5042604207992554
+triangles: 0, squares: 206
+comp: 0.5218992233276367
 epoch: 58
 Epoch: 58    Episode: 0   type:square    
 Epoch: 58    Episode: 1   type:square    
@@ -1353,8 +1353,8 @@ Epoch: 58    Episode: 16  type:square
 Epoch: 58    Episode: 17  type:square    
 Epoch: 58    Episode: 18  type:square    
 Epoch: 58    Episode: 19  type:square    
-triangles: 0, squares: 228
-comp: 0.5085568428039551
+triangles: 0, squares: 200
+comp: 0.5274462699890137
 epoch: 59
 Epoch: 59    Episode: 0   type:square    
 Epoch: 59    Episode: 1   type:square    
@@ -1376,8 +1376,8 @@ Epoch: 59    Episode: 16  type:square
 Epoch: 59    Episode: 17  type:square    
 Epoch: 59    Episode: 18  type:square    
 Epoch: 59    Episode: 19  type:square    
-triangles: 0, squares: 268
-comp: 0.5125705003738403
+triangles: 0, squares: 205
+comp: 0.5328648090362549
 epoch: 60
 Epoch: 60    Episode: 0   type:square    
 Epoch: 60    Episode: 1   type:square    
@@ -1399,8 +1399,8 @@ Epoch: 60    Episode: 16  type:square
 Epoch: 60    Episode: 17  type:square    
 Epoch: 60    Episode: 18  type:square    
 Epoch: 60    Episode: 19  type:square    
-triangles: 0, squares: 280
-comp: 0.5162814855575562
+triangles: 0, squares: 214
+comp: 0.5381345748901367
 epoch: 61
 Epoch: 61    Episode: 0   type:square    
 Epoch: 61    Episode: 1   type:square    
@@ -1422,8 +1422,8 @@ Epoch: 61    Episode: 16  type:square
 Epoch: 61    Episode: 17  type:square    
 Epoch: 61    Episode: 18  type:square    
 Epoch: 61    Episode: 19  type:square    
-triangles: 0, squares: 285
-comp: 0.519740104675293
+triangles: 0, squares: 204
+comp: 0.5432265996932983
 epoch: 62
 Epoch: 62    Episode: 0   type:square    
 Epoch: 62    Episode: 1   type:square    
@@ -1445,8 +1445,8 @@ Epoch: 62    Episode: 16  type:square
 Epoch: 62    Episode: 17  type:square    
 Epoch: 62    Episode: 18  type:square    
 Epoch: 62    Episode: 19  type:square    
-triangles: 0, squares: 281
-comp: 0.5230040550231934
+triangles: 0, squares: 209
+comp: 0.5481816530227661
 epoch: 63
 Epoch: 63    Episode: 0   type:square    
 Epoch: 63    Episode: 1   type:square    
@@ -1468,8 +1468,8 @@ Epoch: 63    Episode: 16  type:square
 Epoch: 63    Episode: 17  type:square    
 Epoch: 63    Episode: 18  type:square    
 Epoch: 63    Episode: 19  type:square    
-triangles: 0, squares: 242
-comp: 0.5260854959487915
+triangles: 0, squares: 185
+comp: 0.5530389547348022
 epoch: 64
 Epoch: 64    Episode: 0   type:square    
 Epoch: 64    Episode: 1   type:square    
@@ -1491,8 +1491,8 @@ Epoch: 64    Episode: 16  type:square
 Epoch: 64    Episode: 17  type:square    
 Epoch: 64    Episode: 18  type:square    
 Epoch: 64    Episode: 19  type:square    
-triangles: 0, squares: 256
-comp: 0.5289617776870728
+triangles: 0, squares: 210
+comp: 0.5578532218933105
 epoch: 65
 Epoch: 65    Episode: 0   type:square    
 Epoch: 65    Episode: 1   type:square    
@@ -1514,8 +1514,8 @@ Epoch: 65    Episode: 16  type:square
 Epoch: 65    Episode: 17  type:square    
 Epoch: 65    Episode: 18  type:square    
 Epoch: 65    Episode: 19  type:square    
-triangles: 0, squares: 234
-comp: 0.5317550897598267
+triangles: 0, squares: 201
+comp: 0.562565803527832
 epoch: 66
 Epoch: 66    Episode: 0   type:square    
 Epoch: 66    Episode: 1   type:square    
@@ -1537,8 +1537,8 @@ Epoch: 66    Episode: 16  type:square
 Epoch: 66    Episode: 17  type:square    
 Epoch: 66    Episode: 18  type:square    
 Epoch: 66    Episode: 19  type:square    
-triangles: 0, squares: 204
-comp: 0.5345168113708496
+triangles: 0, squares: 189
+comp: 0.5672187805175781
 epoch: 67
 Epoch: 67    Episode: 0   type:square    
 Epoch: 67    Episode: 1   type:square    
@@ -1560,8 +1560,8 @@ Epoch: 67    Episode: 16  type:square
 Epoch: 67    Episode: 17  type:square    
 Epoch: 67    Episode: 18  type:square    
 Epoch: 67    Episode: 19  type:square    
-triangles: 0, squares: 189
-comp: 0.5372147560119629
+triangles: 0, squares: 199
+comp: 0.571830153465271
 epoch: 68
 Epoch: 68    Episode: 0   type:square    
 Epoch: 68    Episode: 1   type:square    
@@ -1583,8 +1583,8 @@ Epoch: 68    Episode: 16  type:square
 Epoch: 68    Episode: 17  type:square    
 Epoch: 68    Episode: 18  type:square    
 Epoch: 68    Episode: 19  type:square    
-triangles: 0, squares: 268
-comp: 0.5398303270339966
+triangles: 0, squares: 214
+comp: 0.5763510465621948
 epoch: 69
 Epoch: 69    Episode: 0   type:square    
 Epoch: 69    Episode: 1   type:square    
@@ -1606,8 +1606,8 @@ Epoch: 69    Episode: 16  type:square
 Epoch: 69    Episode: 17  type:square    
 Epoch: 69    Episode: 18  type:square    
 Epoch: 69    Episode: 19  type:square    
-triangles: 0, squares: 309
-comp: 0.5423150062561035
+triangles: 0, squares: 170
+comp: 0.5808404684066772
 epoch: 70
 Epoch: 70    Episode: 0   type:square    
 Epoch: 70    Episode: 1   type:square    
@@ -1629,8 +1629,8 @@ Epoch: 70    Episode: 16  type:square
 Epoch: 70    Episode: 17  type:square    
 Epoch: 70    Episode: 18  type:square    
 Epoch: 70    Episode: 19  type:square    
-triangles: 0, squares: 228
-comp: 0.5447382926940918
+triangles: 0, squares: 203
+comp: 0.5853018760681152
 epoch: 71
 Epoch: 71    Episode: 0   type:square    
 Epoch: 71    Episode: 1   type:square    
@@ -1652,8 +1652,8 @@ Epoch: 71    Episode: 16  type:square
 Epoch: 71    Episode: 17  type:square    
 Epoch: 71    Episode: 18  type:square    
 Epoch: 71    Episode: 19  type:square    
-triangles: 0, squares: 258
-comp: 0.5470747947692871
+triangles: 0, squares: 214
+comp: 0.5897418260574341
 epoch: 72
 Epoch: 72    Episode: 0   type:square    
 Epoch: 72    Episode: 1   type:square    
@@ -1675,8 +1675,8 @@ Epoch: 72    Episode: 16  type:square
 Epoch: 72    Episode: 17  type:square    
 Epoch: 72    Episode: 18  type:square    
 Epoch: 72    Episode: 19  type:square    
-triangles: 0, squares: 247
-comp: 0.5494064092636108
+triangles: 0, squares: 201
+comp: 0.59415602684021
 epoch: 73
 Epoch: 73    Episode: 0   type:square    
 Epoch: 73    Episode: 1   type:square    
@@ -1698,8 +1698,8 @@ Epoch: 73    Episode: 16  type:square
 Epoch: 73    Episode: 17  type:square    
 Epoch: 73    Episode: 18  type:square    
 Epoch: 73    Episode: 19  type:square    
-triangles: 0, squares: 282
-comp: 0.5516767501831055
+triangles: 0, squares: 197
+comp: 0.5985814332962036
 epoch: 74
 Epoch: 74    Episode: 0   type:square    
 Epoch: 74    Episode: 1   type:square    
@@ -1721,8 +1721,8 @@ Epoch: 74    Episode: 16  type:square
 Epoch: 74    Episode: 17  type:square    
 Epoch: 74    Episode: 18  type:square    
 Epoch: 74    Episode: 19  type:square    
-triangles: 0, squares: 354
-comp: 0.5538040399551392
+triangles: 0, squares: 195
+comp: 0.6029324531555176
 epoch: 75
 Epoch: 75    Episode: 0   type:square    
 Epoch: 75    Episode: 1   type:square    
@@ -1744,8 +1744,8 @@ Epoch: 75    Episode: 16  type:square
 Epoch: 75    Episode: 17  type:square    
 Epoch: 75    Episode: 18  type:square    
 Epoch: 75    Episode: 19  type:square    
-triangles: 0, squares: 384
-comp: 0.5557844638824463
+triangles: 0, squares: 192
+comp: 0.6072410345077515
 epoch: 76
 Epoch: 76    Episode: 0   type:square    
 Epoch: 76    Episode: 1   type:square    
@@ -1767,8 +1767,8 @@ Epoch: 76    Episode: 16  type:square
 Epoch: 76    Episode: 17  type:square    
 Epoch: 76    Episode: 18  type:square    
 Epoch: 76    Episode: 19  type:square    
-triangles: 0, squares: 296
-comp: 0.5576286315917969
+triangles: 0, squares: 194
+comp: 0.611472487449646
 epoch: 77
 Epoch: 77    Episode: 0   type:square    
 Epoch: 77    Episode: 1   type:square    
@@ -1790,8 +1790,8 @@ Epoch: 77    Episode: 16  type:square
 Epoch: 77    Episode: 17  type:square    
 Epoch: 77    Episode: 18  type:square    
 Epoch: 77    Episode: 19  type:square    
-triangles: 0, squares: 293
-comp: 0.5594748258590698
+triangles: 0, squares: 192
+comp: 0.6156823635101318
 epoch: 78
 Epoch: 78    Episode: 0   type:square    
 Epoch: 78    Episode: 1   type:square    
@@ -1814,7 +1814,7 @@ Epoch: 78    Episode: 17  type:square
 Epoch: 78    Episode: 18  type:square    
 Epoch: 78    Episode: 19  type:square    
 triangles: 0, squares: 211
-comp: 0.5612661838531494
+comp: 0.6197952032089233
 epoch: 79
 Epoch: 79    Episode: 0   type:square    
 Epoch: 79    Episode: 1   type:square    
@@ -1836,8 +1836,8 @@ Epoch: 79    Episode: 16  type:square
 Epoch: 79    Episode: 17  type:square    
 Epoch: 79    Episode: 18  type:square    
 Epoch: 79    Episode: 19  type:square    
-triangles: 0, squares: 231
-comp: 0.5630311965942383
+triangles: 0, squares: 219
+comp: 0.6238808631896973
 epoch: 80
 Epoch: 80    Episode: 0   type:square    
 Epoch: 80    Episode: 1   type:square    
@@ -1859,8 +1859,8 @@ Epoch: 80    Episode: 16  type:square
 Epoch: 80    Episode: 17  type:square    
 Epoch: 80    Episode: 18  type:square    
 Epoch: 80    Episode: 19  type:square    
-triangles: 0, squares: 274
-comp: 0.5647649765014648
+triangles: 0, squares: 189
+comp: 0.6279109716415405
 epoch: 81
 Epoch: 81    Episode: 0   type:square    
 Epoch: 81    Episode: 1   type:square    
@@ -1882,8 +1882,8 @@ Epoch: 81    Episode: 16  type:square
 Epoch: 81    Episode: 17  type:square    
 Epoch: 81    Episode: 18  type:square    
 Epoch: 81    Episode: 19  type:square    
-triangles: 0, squares: 316
-comp: 0.5665481090545654
+triangles: 0, squares: 197
+comp: 0.6318548917770386
 epoch: 82
 Epoch: 82    Episode: 0   type:square    
 Epoch: 82    Episode: 1   type:square    
@@ -1905,8 +1905,8 @@ Epoch: 82    Episode: 16  type:square
 Epoch: 82    Episode: 17  type:square    
 Epoch: 82    Episode: 18  type:square    
 Epoch: 82    Episode: 19  type:square    
-triangles: 0, squares: 267
-comp: 0.568323016166687
+triangles: 0, squares: 214
+comp: 0.6357113122940063
 epoch: 83
 Epoch: 83    Episode: 0   type:square    
 Epoch: 83    Episode: 1   type:square    
@@ -1928,8 +1928,8 @@ Epoch: 83    Episode: 16  type:square
 Epoch: 83    Episode: 17  type:square    
 Epoch: 83    Episode: 18  type:square    
 Epoch: 83    Episode: 19  type:square    
-triangles: 0, squares: 375
-comp: 0.569959282875061
+triangles: 0, squares: 204
+comp: 0.6394997835159302
 epoch: 84
 Epoch: 84    Episode: 0   type:square    
 Epoch: 84    Episode: 1   type:square    
@@ -1951,8 +1951,8 @@ Epoch: 84    Episode: 16  type:square
 Epoch: 84    Episode: 17  type:square    
 Epoch: 84    Episode: 18  type:square    
 Epoch: 84    Episode: 19  type:square    
-triangles: 0, squares: 323
-comp: 0.5715489387512207
+triangles: 0, squares: 225
+comp: 0.6432276964187622
 epoch: 85
 Epoch: 85    Episode: 0   type:square    
 Epoch: 85    Episode: 1   type:square    
@@ -1974,8 +1974,8 @@ Epoch: 85    Episode: 16  type:square
 Epoch: 85    Episode: 17  type:square    
 Epoch: 85    Episode: 18  type:square    
 Epoch: 85    Episode: 19  type:square    
-triangles: 0, squares: 252
-comp: 0.5731484889984131
+triangles: 0, squares: 208
+comp: 0.6468825340270996
 epoch: 86
 Epoch: 86    Episode: 0   type:square    
 Epoch: 86    Episode: 1   type:square    
@@ -1997,8 +1997,8 @@ Epoch: 86    Episode: 16  type:square
 Epoch: 86    Episode: 17  type:square    
 Epoch: 86    Episode: 18  type:square    
 Epoch: 86    Episode: 19  type:square    
-triangles: 0, squares: 197
-comp: 0.5747544765472412
+triangles: 0, squares: 204
+comp: 0.6504809856414795
 epoch: 87
 Epoch: 87    Episode: 0   type:square    
 Epoch: 87    Episode: 1   type:square    
@@ -2020,8 +2020,8 @@ Epoch: 87    Episode: 16  type:square
 Epoch: 87    Episode: 17  type:square    
 Epoch: 87    Episode: 18  type:square    
 Epoch: 87    Episode: 19  type:square    
-triangles: 0, squares: 374
-comp: 0.576470136642456
+triangles: 0, squares: 181
+comp: 0.6539933681488037
 epoch: 88
 Epoch: 88    Episode: 0   type:square    
 Epoch: 88    Episode: 1   type:square    
@@ -2043,8 +2043,8 @@ Epoch: 88    Episode: 16  type:square
 Epoch: 88    Episode: 17  type:square    
 Epoch: 88    Episode: 18  type:square    
 Epoch: 88    Episode: 19  type:square    
-triangles: 0, squares: 315
-comp: 0.5780882835388184
+triangles: 0, squares: 190
+comp: 0.6574314832687378
 epoch: 89
 Epoch: 89    Episode: 0   type:square    
 Epoch: 89    Episode: 1   type:square    
@@ -2066,8 +2066,8 @@ Epoch: 89    Episode: 16  type:square
 Epoch: 89    Episode: 17  type:square    
 Epoch: 89    Episode: 18  type:square    
 Epoch: 89    Episode: 19  type:square    
-triangles: 0, squares: 236
-comp: 0.5795831680297852
+triangles: 0, squares: 188
+comp: 0.6607987880706787
 epoch: 90
 Epoch: 90    Episode: 0   type:square    
 Epoch: 90    Episode: 1   type:square    
@@ -2089,8 +2089,8 @@ Epoch: 90    Episode: 16  type:square
 Epoch: 90    Episode: 17  type:square    
 Epoch: 90    Episode: 18  type:square    
 Epoch: 90    Episode: 19  type:square    
-triangles: 0, squares: 240
-comp: 0.5810675621032715
+triangles: 0, squares: 232
+comp: 0.6641415357589722
 epoch: 91
 Epoch: 91    Episode: 0   type:square    
 Epoch: 91    Episode: 1   type:square    
@@ -2112,8 +2112,8 @@ Epoch: 91    Episode: 16  type:square
 Epoch: 91    Episode: 17  type:square    
 Epoch: 91    Episode: 18  type:square    
 Epoch: 91    Episode: 19  type:square    
-triangles: 0, squares: 292
-comp: 0.5826230049133301
+triangles: 0, squares: 188
+comp: 0.6674239635467529
 epoch: 92
 Epoch: 92    Episode: 0   type:square    
 Epoch: 92    Episode: 1   type:square    
@@ -2135,8 +2135,8 @@ Epoch: 92    Episode: 16  type:square
 Epoch: 92    Episode: 17  type:square    
 Epoch: 92    Episode: 18  type:square    
 Epoch: 92    Episode: 19  type:square    
-triangles: 0, squares: 297
-comp: 0.5842018127441406
+triangles: 0, squares: 206
+comp: 0.6706198453903198
 epoch: 93
 Epoch: 93    Episode: 0   type:square    
 Epoch: 93    Episode: 1   type:square    
@@ -2158,8 +2158,8 @@ Epoch: 93    Episode: 16  type:square
 Epoch: 93    Episode: 17  type:square    
 Epoch: 93    Episode: 18  type:square    
 Epoch: 93    Episode: 19  type:square    
-triangles: 0, squares: 325
-comp: 0.585838794708252
+triangles: 0, squares: 236
+comp: 0.6737350225448608
 epoch: 94
 Epoch: 94    Episode: 0   type:square    
 Epoch: 94    Episode: 1   type:square    
@@ -2181,8 +2181,8 @@ Epoch: 94    Episode: 16  type:square
 Epoch: 94    Episode: 17  type:square    
 Epoch: 94    Episode: 18  type:square    
 Epoch: 94    Episode: 19  type:square    
-triangles: 0, squares: 234
-comp: 0.5874420404434204
+triangles: 0, squares: 195
+comp: 0.6768372058868408
 epoch: 95
 Epoch: 95    Episode: 0   type:square    
 Epoch: 95    Episode: 1   type:square    
@@ -2204,8 +2204,8 @@ Epoch: 95    Episode: 16  type:square
 Epoch: 95    Episode: 17  type:square    
 Epoch: 95    Episode: 18  type:square    
 Epoch: 95    Episode: 19  type:square    
-triangles: 0, squares: 231
-comp: 0.588962197303772
+triangles: 0, squares: 180
+comp: 0.6798570156097412
 epoch: 96
 Epoch: 96    Episode: 0   type:square    
 Epoch: 96    Episode: 1   type:square    
@@ -2227,8 +2227,8 @@ Epoch: 96    Episode: 16  type:square
 Epoch: 96    Episode: 17  type:square    
 Epoch: 96    Episode: 18  type:square    
 Epoch: 96    Episode: 19  type:square    
-triangles: 0, squares: 353
-comp: 0.5904934406280518
+triangles: 0, squares: 198
+comp: 0.6828042268753052
 epoch: 97
 Epoch: 97    Episode: 0   type:square    
 Epoch: 97    Episode: 1   type:square    
@@ -2250,8 +2250,8 @@ Epoch: 97    Episode: 16  type:square
 Epoch: 97    Episode: 17  type:square    
 Epoch: 97    Episode: 18  type:square    
 Epoch: 97    Episode: 19  type:square    
-triangles: 0, squares: 319
-comp: 0.5919561386108398
+triangles: 0, squares: 211
+comp: 0.6857132911682129
 epoch: 98
 Epoch: 98    Episode: 0   type:square    
 Epoch: 98    Episode: 1   type:square    
@@ -2273,8 +2273,8 @@ Epoch: 98    Episode: 16  type:square
 Epoch: 98    Episode: 17  type:square    
 Epoch: 98    Episode: 18  type:square    
 Epoch: 98    Episode: 19  type:square    
-triangles: 0, squares: 240
-comp: 0.593346357345581
+triangles: 0, squares: 205
+comp: 0.6885336637496948
 epoch: 99
 Epoch: 99    Episode: 0   type:square    
 Epoch: 99    Episode: 1   type:square    
@@ -2296,8 +2296,8 @@ Epoch: 99    Episode: 16  type:square
 Epoch: 99    Episode: 17  type:square    
 Epoch: 99    Episode: 18  type:square    
 Epoch: 99    Episode: 19  type:square    
-triangles: 0, squares: 295
-comp: 0.5946880578994751
+triangles: 0, squares: 196
+comp: 0.6912941932678223
 epoch: 100
 Epoch: 100   Episode: 0   type:triangle  
 Epoch: 100   Episode: 1   type:triangle  
@@ -2319,8 +2319,8 @@ Epoch: 100   Episode: 16  type:triangle
 Epoch: 100   Episode: 17  type:triangle  
 Epoch: 100   Episode: 18  type:triangle  
 Epoch: 100   Episode: 19  type:triangle  
-triangles: 398, squares: 0
-comp: 0.5960065126419067
+triangles: 161, squares: 0
+comp: 0.6939957141876221
 epoch: 101
 Epoch: 101   Episode: 0   type:triangle  
 Epoch: 101   Episode: 1   type:triangle  
@@ -2342,8 +2342,8 @@ Epoch: 101   Episode: 16  type:triangle
 Epoch: 101   Episode: 17  type:triangle  
 Epoch: 101   Episode: 18  type:triangle  
 Epoch: 101   Episode: 19  type:triangle  
-triangles: 311, squares: 0
-comp: 0.597420334815979
+triangles: 186, squares: 0
+comp: 0.6968921422958374
 epoch: 102
 Epoch: 102   Episode: 0   type:triangle  
 Epoch: 102   Episode: 1   type:triangle  
@@ -2365,8 +2365,8 @@ Epoch: 102   Episode: 16  type:triangle
 Epoch: 102   Episode: 17  type:triangle  
 Epoch: 102   Episode: 18  type:triangle  
 Epoch: 102   Episode: 19  type:triangle  
-triangles: 352, squares: 0
-comp: 0.5989478826522827
+triangles: 179, squares: 0
+comp: 0.6999326944351196
 epoch: 103
 Epoch: 103   Episode: 0   type:triangle  
 Epoch: 103   Episode: 1   type:triangle  
@@ -2388,8 +2388,8 @@ Epoch: 103   Episode: 16  type:triangle
 Epoch: 103   Episode: 17  type:triangle  
 Epoch: 103   Episode: 18  type:triangle  
 Epoch: 103   Episode: 19  type:triangle  
-triangles: 350, squares: 0
-comp: 0.6005125045776367
+triangles: 169, squares: 0
+comp: 0.7030813694000244
 epoch: 104
 Epoch: 104   Episode: 0   type:triangle  
 Epoch: 104   Episode: 1   type:triangle  
@@ -2411,8 +2411,8 @@ Epoch: 104   Episode: 16  type:triangle
 Epoch: 104   Episode: 17  type:triangle  
 Epoch: 104   Episode: 18  type:triangle  
 Epoch: 104   Episode: 19  type:triangle  
-triangles: 368, squares: 0
-comp: 0.6020885705947876
+triangles: 169, squares: 0
+comp: 0.7063102722167969
 epoch: 105
 Epoch: 105   Episode: 0   type:triangle  
 Epoch: 105   Episode: 1   type:triangle  
@@ -2434,8 +2434,8 @@ Epoch: 105   Episode: 16  type:triangle
 Epoch: 105   Episode: 17  type:triangle  
 Epoch: 105   Episode: 18  type:triangle  
 Epoch: 105   Episode: 19  type:triangle  
-triangles: 341, squares: 0
-comp: 0.6036181449890137
+triangles: 184, squares: 0
+comp: 0.7095992565155029
 epoch: 106
 Epoch: 106   Episode: 0   type:triangle  
 Epoch: 106   Episode: 1   type:triangle  
@@ -2457,8 +2457,8 @@ Epoch: 106   Episode: 16  type:triangle
 Epoch: 106   Episode: 17  type:triangle  
 Epoch: 106   Episode: 18  type:triangle  
 Epoch: 106   Episode: 19  type:triangle  
-triangles: 419, squares: 0
-comp: 0.6052430868148804
+triangles: 181, squares: 0
+comp: 0.7129744291305542
 epoch: 107
 Epoch: 107   Episode: 0   type:triangle  
 Epoch: 107   Episode: 1   type:triangle  
@@ -2480,8 +2480,8 @@ Epoch: 107   Episode: 16  type:triangle
 Epoch: 107   Episode: 17  type:triangle  
 Epoch: 107   Episode: 18  type:triangle  
 Epoch: 107   Episode: 19  type:triangle  
-triangles: 360, squares: 0
-comp: 0.6068977117538452
+triangles: 149, squares: 0
+comp: 0.7163567543029785
 epoch: 108
 Epoch: 108   Episode: 0   type:triangle  
 Epoch: 108   Episode: 1   type:triangle  
@@ -2503,8 +2503,8 @@ Epoch: 108   Episode: 16  type:triangle
 Epoch: 108   Episode: 17  type:triangle  
 Epoch: 108   Episode: 18  type:triangle  
 Epoch: 108   Episode: 19  type:triangle  
-triangles: 416, squares: 0
-comp: 0.6086279153823853
+triangles: 154, squares: 0
+comp: 0.7197314500808716
 epoch: 109
 Epoch: 109   Episode: 0   type:triangle  
 Epoch: 109   Episode: 1   type:triangle  
@@ -2526,8 +2526,8 @@ Epoch: 109   Episode: 16  type:triangle
 Epoch: 109   Episode: 17  type:triangle  
 Epoch: 109   Episode: 18  type:triangle  
 Epoch: 109   Episode: 19  type:triangle  
-triangles: 440, squares: 0
-comp: 0.6103438138961792
+triangles: 166, squares: 0
+comp: 0.723076581954956
 epoch: 110
 Epoch: 110   Episode: 0   type:triangle  
 Epoch: 110   Episode: 1   type:triangle  
@@ -2549,8 +2549,8 @@ Epoch: 110   Episode: 16  type:triangle
 Epoch: 110   Episode: 17  type:triangle  
 Epoch: 110   Episode: 18  type:triangle  
 Epoch: 110   Episode: 19  type:triangle  
-triangles: 453, squares: 0
-comp: 0.6120858192443848
+triangles: 151, squares: 0
+comp: 0.7264178991317749
 epoch: 111
 Epoch: 111   Episode: 0   type:triangle  
 Epoch: 111   Episode: 1   type:triangle  
@@ -2572,8 +2572,8 @@ Epoch: 111   Episode: 16  type:triangle
 Epoch: 111   Episode: 17  type:triangle  
 Epoch: 111   Episode: 18  type:triangle  
 Epoch: 111   Episode: 19  type:triangle  
-triangles: 470, squares: 0
-comp: 0.6138306856155396
+triangles: 168, squares: 0
+comp: 0.729736328125
 epoch: 112
 Epoch: 112   Episode: 0   type:triangle  
 Epoch: 112   Episode: 1   type:triangle  
@@ -2595,8 +2595,8 @@ Epoch: 112   Episode: 16  type:triangle
 Epoch: 112   Episode: 17  type:triangle  
 Epoch: 112   Episode: 18  type:triangle  
 Epoch: 112   Episode: 19  type:triangle  
-triangles: 433, squares: 0
-comp: 0.6155508756637573
+triangles: 163, squares: 0
+comp: 0.7330268621444702
 epoch: 113
 Epoch: 113   Episode: 0   type:triangle  
 Epoch: 113   Episode: 1   type:triangle  
@@ -2618,8 +2618,8 @@ Epoch: 113   Episode: 16  type:triangle
 Epoch: 113   Episode: 17  type:triangle  
 Epoch: 113   Episode: 18  type:triangle  
 Epoch: 113   Episode: 19  type:triangle  
-triangles: 502, squares: 0
-comp: 0.617239236831665
+triangles: 174, squares: 0
+comp: 0.7362796068191528
 epoch: 114
 Epoch: 114   Episode: 0   type:triangle  
 Epoch: 114   Episode: 1   type:triangle  
@@ -2641,8 +2641,8 @@ Epoch: 114   Episode: 16  type:triangle
 Epoch: 114   Episode: 17  type:triangle  
 Epoch: 114   Episode: 18  type:triangle  
 Epoch: 114   Episode: 19  type:triangle  
-triangles: 495, squares: 0
-comp: 0.618880033493042
+triangles: 168, squares: 0
+comp: 0.7394897937774658
 epoch: 115
 Epoch: 115   Episode: 0   type:triangle  
 Epoch: 115   Episode: 1   type:triangle  
@@ -2664,8 +2664,8 @@ Epoch: 115   Episode: 16  type:triangle
 Epoch: 115   Episode: 17  type:triangle  
 Epoch: 115   Episode: 18  type:triangle  
 Epoch: 115   Episode: 19  type:triangle  
-triangles: 497, squares: 0
-comp: 0.6204788684844971
+triangles: 164, squares: 0
+comp: 0.7426636219024658
 epoch: 116
 Epoch: 116   Episode: 0   type:triangle  
 Epoch: 116   Episode: 1   type:triangle  
@@ -2687,8 +2687,8 @@ Epoch: 116   Episode: 16  type:triangle
 Epoch: 116   Episode: 17  type:triangle  
 Epoch: 116   Episode: 18  type:triangle  
 Epoch: 116   Episode: 19  type:triangle  
-triangles: 531, squares: 0
-comp: 0.6220031976699829
+triangles: 158, squares: 0
+comp: 0.7457728385925293
 epoch: 117
 Epoch: 117   Episode: 0   type:triangle  
 Epoch: 117   Episode: 1   type:triangle  
@@ -2710,8 +2710,8 @@ Epoch: 117   Episode: 16  type:triangle
 Epoch: 117   Episode: 17  type:triangle  
 Epoch: 117   Episode: 18  type:triangle  
 Epoch: 117   Episode: 19  type:triangle  
-triangles: 622, squares: 0
-comp: 0.6235373020172119
+triangles: 159, squares: 0
+comp: 0.7488222122192383
 epoch: 118
 Epoch: 118   Episode: 0   type:triangle  
 Epoch: 118   Episode: 1   type:triangle  
@@ -2733,8 +2733,8 @@ Epoch: 118   Episode: 16  type:triangle
 Epoch: 118   Episode: 17  type:triangle  
 Epoch: 118   Episode: 18  type:triangle  
 Epoch: 118   Episode: 19  type:triangle  
-triangles: 695, squares: 0
-comp: 0.625014066696167
+triangles: 170, squares: 0
+comp: 0.7517929077148438
 epoch: 119
 Epoch: 119   Episode: 0   type:triangle  
 Epoch: 119   Episode: 1   type:triangle  
@@ -2756,8 +2756,8 @@ Epoch: 119   Episode: 16  type:triangle
 Epoch: 119   Episode: 17  type:triangle  
 Epoch: 119   Episode: 18  type:triangle  
 Epoch: 119   Episode: 19  type:triangle  
-triangles: 714, squares: 0
-comp: 0.6264570951461792
+triangles: 161, squares: 0
+comp: 0.7546802759170532
 epoch: 120
 Epoch: 120   Episode: 0   type:triangle  
 Epoch: 120   Episode: 1   type:triangle  
@@ -2779,8 +2779,8 @@ Epoch: 120   Episode: 16  type:triangle
 Epoch: 120   Episode: 17  type:triangle  
 Epoch: 120   Episode: 18  type:triangle  
 Epoch: 120   Episode: 19  type:triangle  
-triangles: 590, squares: 0
-comp: 0.6277917623519897
+triangles: 162, squares: 0
+comp: 0.7574870586395264
 epoch: 121
 Epoch: 121   Episode: 0   type:triangle  
 Epoch: 121   Episode: 1   type:triangle  
@@ -2802,8 +2802,8 @@ Epoch: 121   Episode: 16  type:triangle
 Epoch: 121   Episode: 17  type:triangle  
 Epoch: 121   Episode: 18  type:triangle  
 Epoch: 121   Episode: 19  type:triangle  
-triangles: 652, squares: 0
-comp: 0.6290286779403687
+triangles: 166, squares: 0
+comp: 0.7602130174636841
 epoch: 122
 Epoch: 122   Episode: 0   type:triangle  
 Epoch: 122   Episode: 1   type:triangle  
@@ -2825,8 +2825,8 @@ Epoch: 122   Episode: 16  type:triangle
 Epoch: 122   Episode: 17  type:triangle  
 Epoch: 122   Episode: 18  type:triangle  
 Epoch: 122   Episode: 19  type:triangle  
-triangles: 795, squares: 0
-comp: 0.6302134990692139
+triangles: 144, squares: 0
+comp: 0.7628579139709473
 epoch: 123
 Epoch: 123   Episode: 0   type:triangle  
 Epoch: 123   Episode: 1   type:triangle  
@@ -2848,8 +2848,8 @@ Epoch: 123   Episode: 16  type:triangle
 Epoch: 123   Episode: 17  type:triangle  
 Epoch: 123   Episode: 18  type:triangle  
 Epoch: 123   Episode: 19  type:triangle  
-triangles: 688, squares: 0
-comp: 0.6313189268112183
+triangles: 151, squares: 0
+comp: 0.7654304504394531
 epoch: 124
 Epoch: 124   Episode: 0   type:triangle  
 Epoch: 124   Episode: 1   type:triangle  
@@ -2871,8 +2871,8 @@ Epoch: 124   Episode: 16  type:triangle
 Epoch: 124   Episode: 17  type:triangle  
 Epoch: 124   Episode: 18  type:triangle  
 Epoch: 124   Episode: 19  type:triangle  
-triangles: 624, squares: 0
-comp: 0.6322996616363525
+triangles: 111, squares: 0
+comp: 0.7679210901260376
 epoch: 125
 Epoch: 125   Episode: 0   type:triangle  
 Epoch: 125   Episode: 1   type:triangle  
@@ -2894,8 +2894,8 @@ Epoch: 125   Episode: 16  type:triangle
 Epoch: 125   Episode: 17  type:triangle  
 Epoch: 125   Episode: 18  type:triangle  
 Epoch: 125   Episode: 19  type:triangle  
-triangles: 612, squares: 0
-comp: 0.6331652402877808
+triangles: 124, squares: 0
+comp: 0.7703574895858765
 epoch: 126
 Epoch: 126   Episode: 0   type:triangle  
 Epoch: 126   Episode: 1   type:triangle  
@@ -2917,8 +2917,8 @@ Epoch: 126   Episode: 16  type:triangle
 Epoch: 126   Episode: 17  type:triangle  
 Epoch: 126   Episode: 18  type:triangle  
 Epoch: 126   Episode: 19  type:triangle  
-triangles: 648, squares: 0
-comp: 0.6339951753616333
+triangles: 150, squares: 0
+comp: 0.7726823091506958
 epoch: 127
 Epoch: 127   Episode: 0   type:triangle  
 Epoch: 127   Episode: 1   type:triangle  
@@ -2940,8 +2940,8 @@ Epoch: 127   Episode: 16  type:triangle
 Epoch: 127   Episode: 17  type:triangle  
 Epoch: 127   Episode: 18  type:triangle  
 Epoch: 127   Episode: 19  type:triangle  
-triangles: 706, squares: 0
-comp: 0.6348204612731934
+triangles: 128, squares: 0
+comp: 0.7749028205871582
 epoch: 128
 Epoch: 128   Episode: 0   type:triangle  
 Epoch: 128   Episode: 1   type:triangle  
@@ -2963,8 +2963,8 @@ Epoch: 128   Episode: 16  type:triangle
 Epoch: 128   Episode: 17  type:triangle  
 Epoch: 128   Episode: 18  type:triangle  
 Epoch: 128   Episode: 19  type:triangle  
-triangles: 768, squares: 0
-comp: 0.6355299949645996
+triangles: 132, squares: 0
+comp: 0.7770575284957886
 epoch: 129
 Epoch: 129   Episode: 0   type:triangle  
 Epoch: 129   Episode: 1   type:triangle  
@@ -2986,8 +2986,8 @@ Epoch: 129   Episode: 16  type:triangle
 Epoch: 129   Episode: 17  type:triangle  
 Epoch: 129   Episode: 18  type:triangle  
 Epoch: 129   Episode: 19  type:triangle  
-triangles: 723, squares: 0
-comp: 0.6361336708068848
+triangles: 137, squares: 0
+comp: 0.7791285514831543
 epoch: 130
 Epoch: 130   Episode: 0   type:triangle  
 Epoch: 130   Episode: 1   type:triangle  
@@ -3009,8 +3009,8 @@ Epoch: 130   Episode: 16  type:triangle
 Epoch: 130   Episode: 17  type:triangle  
 Epoch: 130   Episode: 18  type:triangle  
 Epoch: 130   Episode: 19  type:triangle  
-triangles: 640, squares: 0
-comp: 0.6367512941360474
+triangles: 137, squares: 0
+comp: 0.7811230421066284
 epoch: 131
 Epoch: 131   Episode: 0   type:triangle  
 Epoch: 131   Episode: 1   type:triangle  
@@ -3032,8 +3032,8 @@ Epoch: 131   Episode: 16  type:triangle
 Epoch: 131   Episode: 17  type:triangle  
 Epoch: 131   Episode: 18  type:triangle  
 Epoch: 131   Episode: 19  type:triangle  
-triangles: 597, squares: 0
-comp: 0.637338399887085
+triangles: 123, squares: 0
+comp: 0.783064603805542
 epoch: 132
 Epoch: 132   Episode: 0   type:triangle  
 Epoch: 132   Episode: 1   type:triangle  
@@ -3055,8 +3055,8 @@ Epoch: 132   Episode: 16  type:triangle
 Epoch: 132   Episode: 17  type:triangle  
 Epoch: 132   Episode: 18  type:triangle  
 Epoch: 132   Episode: 19  type:triangle  
-triangles: 812, squares: 0
-comp: 0.6379601955413818
+triangles: 127, squares: 0
+comp: 0.7849409580230713
 epoch: 133
 Epoch: 133   Episode: 0   type:triangle  
 Epoch: 133   Episode: 1   type:triangle  
@@ -3078,8 +3078,8 @@ Epoch: 133   Episode: 16  type:triangle
 Epoch: 133   Episode: 17  type:triangle  
 Epoch: 133   Episode: 18  type:triangle  
 Epoch: 133   Episode: 19  type:triangle  
-triangles: 755, squares: 0
-comp: 0.6385712623596191
+triangles: 127, squares: 0
+comp: 0.786758542060852
 epoch: 134
 Epoch: 134   Episode: 0   type:triangle  
 Epoch: 134   Episode: 1   type:triangle  
@@ -3101,8 +3101,8 @@ Epoch: 134   Episode: 16  type:triangle
 Epoch: 134   Episode: 17  type:triangle  
 Epoch: 134   Episode: 18  type:triangle  
 Epoch: 134   Episode: 19  type:triangle  
-triangles: 696, squares: 0
-comp: 0.6391404867172241
+triangles: 132, squares: 0
+comp: 0.7885318994522095
 epoch: 135
 Epoch: 135   Episode: 0   type:triangle  
 Epoch: 135   Episode: 1   type:triangle  
@@ -3124,8 +3124,8 @@ Epoch: 135   Episode: 16  type:triangle
 Epoch: 135   Episode: 17  type:triangle  
 Epoch: 135   Episode: 18  type:triangle  
 Epoch: 135   Episode: 19  type:triangle  
-triangles: 651, squares: 0
-comp: 0.6396794319152832
+triangles: 97, squares: 0
+comp: 0.7902534008026123
 epoch: 136
 Epoch: 136   Episode: 0   type:triangle  
 Epoch: 136   Episode: 1   type:triangle  
@@ -3147,8 +3147,8 @@ Epoch: 136   Episode: 16  type:triangle
 Epoch: 136   Episode: 17  type:triangle  
 Epoch: 136   Episode: 18  type:triangle  
 Epoch: 136   Episode: 19  type:triangle  
-triangles: 829, squares: 0
-comp: 0.6402571201324463
+triangles: 117, squares: 0
+comp: 0.7919023036956787
 epoch: 137
 Epoch: 137   Episode: 0   type:triangle  
 Epoch: 137   Episode: 1   type:triangle  
@@ -3170,8 +3170,8 @@ Epoch: 137   Episode: 16  type:triangle
 Epoch: 137   Episode: 17  type:triangle  
 Epoch: 137   Episode: 18  type:triangle  
 Epoch: 137   Episode: 19  type:triangle  
-triangles: 722, squares: 0
-comp: 0.640809178352356
+triangles: 121, squares: 0
+comp: 0.7934879064559937
 epoch: 138
 Epoch: 138   Episode: 0   type:triangle  
 Epoch: 138   Episode: 1   type:triangle  
@@ -3193,8 +3193,8 @@ Epoch: 138   Episode: 16  type:triangle
 Epoch: 138   Episode: 17  type:triangle  
 Epoch: 138   Episode: 18  type:triangle  
 Epoch: 138   Episode: 19  type:triangle  
-triangles: 758, squares: 0
-comp: 0.6413242816925049
+triangles: 138, squares: 0
+comp: 0.7950373888015747
 epoch: 139
 Epoch: 139   Episode: 0   type:triangle  
 Epoch: 139   Episode: 1   type:triangle  
@@ -3216,8 +3216,8 @@ Epoch: 139   Episode: 16  type:triangle
 Epoch: 139   Episode: 17  type:triangle  
 Epoch: 139   Episode: 18  type:triangle  
 Epoch: 139   Episode: 19  type:triangle  
-triangles: 811, squares: 0
-comp: 0.6418575048446655
+triangles: 126, squares: 0
+comp: 0.7965359687805176
 epoch: 140
 Epoch: 140   Episode: 0   type:triangle  
 Epoch: 140   Episode: 1   type:triangle  
@@ -3239,8 +3239,8 @@ Epoch: 140   Episode: 16  type:triangle
 Epoch: 140   Episode: 17  type:triangle  
 Epoch: 140   Episode: 18  type:triangle  
 Epoch: 140   Episode: 19  type:triangle  
-triangles: 757, squares: 0
-comp: 0.642339825630188
+triangles: 98, squares: 0
+comp: 0.7979732751846313
 epoch: 141
 Epoch: 141   Episode: 0   type:triangle  
 Epoch: 141   Episode: 1   type:triangle  
@@ -3262,8 +3262,8 @@ Epoch: 141   Episode: 16  type:triangle
 Epoch: 141   Episode: 17  type:triangle  
 Epoch: 141   Episode: 18  type:triangle  
 Epoch: 141   Episode: 19  type:triangle  
-triangles: 749, squares: 0
-comp: 0.6428320407867432
+triangles: 134, squares: 0
+comp: 0.7993484735488892
 epoch: 142
 Epoch: 142   Episode: 0   type:triangle  
 Epoch: 142   Episode: 1   type:triangle  
@@ -3285,8 +3285,8 @@ Epoch: 142   Episode: 16  type:triangle
 Epoch: 142   Episode: 17  type:triangle  
 Epoch: 142   Episode: 18  type:triangle  
 Epoch: 142   Episode: 19  type:triangle  
-triangles: 749, squares: 0
-comp: 0.6433401107788086
+triangles: 124, squares: 0
+comp: 0.8006656169891357
 epoch: 143
 Epoch: 143   Episode: 0   type:triangle  
 Epoch: 143   Episode: 1   type:triangle  
@@ -3308,8 +3308,8 @@ Epoch: 143   Episode: 16  type:triangle
 Epoch: 143   Episode: 17  type:triangle  
 Epoch: 143   Episode: 18  type:triangle  
 Epoch: 143   Episode: 19  type:triangle  
-triangles: 716, squares: 0
-comp: 0.6438008546829224
+triangles: 120, squares: 0
+comp: 0.801948070526123
 epoch: 144
 Epoch: 144   Episode: 0   type:triangle  
 Epoch: 144   Episode: 1   type:triangle  
@@ -3331,8 +3331,8 @@ Epoch: 144   Episode: 16  type:triangle
 Epoch: 144   Episode: 17  type:triangle  
 Epoch: 144   Episode: 18  type:triangle  
 Epoch: 144   Episode: 19  type:triangle  
-triangles: 663, squares: 0
-comp: 0.6442321538925171
+triangles: 110, squares: 0
+comp: 0.8031817674636841
 epoch: 145
 Epoch: 145   Episode: 0   type:triangle  
 Epoch: 145   Episode: 1   type:triangle  
@@ -3354,8 +3354,8 @@ Epoch: 145   Episode: 16  type:triangle
 Epoch: 145   Episode: 17  type:triangle  
 Epoch: 145   Episode: 18  type:triangle  
 Epoch: 145   Episode: 19  type:triangle  
-triangles: 710, squares: 0
-comp: 0.6446774005889893
+triangles: 100, squares: 0
+comp: 0.8043681383132935
 epoch: 146
 Epoch: 146   Episode: 0   type:triangle  
 Epoch: 146   Episode: 1   type:triangle  
@@ -3377,8 +3377,8 @@ Epoch: 146   Episode: 16  type:triangle
 Epoch: 146   Episode: 17  type:triangle  
 Epoch: 146   Episode: 18  type:triangle  
 Epoch: 146   Episode: 19  type:triangle  
-triangles: 693, squares: 0
-comp: 0.6451438665390015
+triangles: 138, squares: 0
+comp: 0.8055272102355957
 epoch: 147
 Epoch: 147   Episode: 0   type:triangle  
 Epoch: 147   Episode: 1   type:triangle  
@@ -3400,8 +3400,8 @@ Epoch: 147   Episode: 16  type:triangle
 Epoch: 147   Episode: 17  type:triangle  
 Epoch: 147   Episode: 18  type:triangle  
 Epoch: 147   Episode: 19  type:triangle  
-triangles: 752, squares: 0
-comp: 0.6456221342086792
+triangles: 148, squares: 0
+comp: 0.8066301345825195
 epoch: 148
 Epoch: 148   Episode: 0   type:triangle  
 Epoch: 148   Episode: 1   type:triangle  
@@ -3423,8 +3423,8 @@ Epoch: 148   Episode: 16  type:triangle
 Epoch: 148   Episode: 17  type:triangle  
 Epoch: 148   Episode: 18  type:triangle  
 Epoch: 148   Episode: 19  type:triangle  
-triangles: 769, squares: 0
-comp: 0.6461246013641357
+triangles: 122, squares: 0
+comp: 0.8077191114425659
 epoch: 149
 Epoch: 149   Episode: 0   type:triangle  
 Epoch: 149   Episode: 1   type:triangle  
@@ -3446,8 +3446,8 @@ Epoch: 149   Episode: 16  type:triangle
 Epoch: 149   Episode: 17  type:triangle  
 Epoch: 149   Episode: 18  type:triangle  
 Epoch: 149   Episode: 19  type:triangle  
-triangles: 803, squares: 0
-comp: 0.6466116905212402
+triangles: 119, squares: 0
+comp: 0.8087790012359619
 epoch: 150
 Epoch: 150   Episode: 0   type:square    
 Epoch: 150   Episode: 1   type:square    
@@ -3469,8 +3469,8 @@ Epoch: 150   Episode: 16  type:square
 Epoch: 150   Episode: 17  type:square    
 Epoch: 150   Episode: 18  type:square    
 Epoch: 150   Episode: 19  type:square    
-triangles: 0, squares: 319
-comp: 0.6470648050308228
+triangles: 0, squares: 183
+comp: 0.8097988367080688
 epoch: 151
 Epoch: 151   Episode: 0   type:square    
 Epoch: 151   Episode: 1   type:square    
@@ -3492,8 +3492,8 @@ Epoch: 151   Episode: 16  type:square
 Epoch: 151   Episode: 17  type:square    
 Epoch: 151   Episode: 18  type:square    
 Epoch: 151   Episode: 19  type:square    
-triangles: 0, squares: 282
-comp: 0.6474707126617432
+triangles: 0, squares: 174
+comp: 0.8108220100402832
 epoch: 152
 Epoch: 152   Episode: 0   type:square    
 Epoch: 152   Episode: 1   type:square    
@@ -3515,8 +3515,8 @@ Epoch: 152   Episode: 16  type:square
 Epoch: 152   Episode: 17  type:square    
 Epoch: 152   Episode: 18  type:square    
 Epoch: 152   Episode: 19  type:square    
-triangles: 0, squares: 243
-comp: 0.6478196382522583
+triangles: 0, squares: 160
+comp: 0.811842679977417
 epoch: 153
 Epoch: 153   Episode: 0   type:square    
 Epoch: 153   Episode: 1   type:square    
@@ -3538,8 +3538,8 @@ Epoch: 153   Episode: 16  type:square
 Epoch: 153   Episode: 17  type:square    
 Epoch: 153   Episode: 18  type:square    
 Epoch: 153   Episode: 19  type:square    
-triangles: 0, squares: 269
-comp: 0.6481399536132812
+triangles: 0, squares: 170
+comp: 0.81284499168396
 epoch: 154
 Epoch: 154   Episode: 0   type:square    
 Epoch: 154   Episode: 1   type:square    
@@ -3561,8 +3561,8 @@ Epoch: 154   Episode: 16  type:square
 Epoch: 154   Episode: 17  type:square    
 Epoch: 154   Episode: 18  type:square    
 Epoch: 154   Episode: 19  type:square    
-triangles: 0, squares: 292
-comp: 0.648491621017456
+triangles: 0, squares: 162
+comp: 0.8138433694839478
 epoch: 155
 Epoch: 155   Episode: 0   type:square    
 Epoch: 155   Episode: 1   type:square    
@@ -3584,8 +3584,8 @@ Epoch: 155   Episode: 16  type:square
 Epoch: 155   Episode: 17  type:square    
 Epoch: 155   Episode: 18  type:square    
 Epoch: 155   Episode: 19  type:square    
-triangles: 0, squares: 237
-comp: 0.6488654613494873
+triangles: 0, squares: 166
+comp: 0.8148384094238281
 epoch: 156
 Epoch: 156   Episode: 0   type:square    
 Epoch: 156   Episode: 1   type:square    
@@ -3607,8 +3607,8 @@ Epoch: 156   Episode: 16  type:square
 Epoch: 156   Episode: 17  type:square    
 Epoch: 156   Episode: 18  type:square    
 Epoch: 156   Episode: 19  type:square    
-triangles: 0, squares: 445
-comp: 0.6491605043411255
+triangles: 0, squares: 157
+comp: 0.8158187866210938
 epoch: 157
 Epoch: 157   Episode: 0   type:square    
 Epoch: 157   Episode: 1   type:square    
@@ -3630,8 +3630,8 @@ Epoch: 157   Episode: 16  type:square
 Epoch: 157   Episode: 17  type:square    
 Epoch: 157   Episode: 18  type:square    
 Epoch: 157   Episode: 19  type:square    
-triangles: 0, squares: 282
-comp: 0.649421215057373
+triangles: 0, squares: 183
+comp: 0.816800594329834
 epoch: 158
 Epoch: 158   Episode: 0   type:square    
 Epoch: 158   Episode: 1   type:square    
@@ -3653,8 +3653,8 @@ Epoch: 158   Episode: 16  type:square
 Epoch: 158   Episode: 17  type:square    
 Epoch: 158   Episode: 18  type:square    
 Epoch: 158   Episode: 19  type:square    
-triangles: 0, squares: 208
-comp: 0.6496589183807373
+triangles: 0, squares: 156
+comp: 0.8177844285964966
 epoch: 159
 Epoch: 159   Episode: 0   type:square    
 Epoch: 159   Episode: 1   type:square    
@@ -3676,8 +3676,8 @@ Epoch: 159   Episode: 16  type:square
 Epoch: 159   Episode: 17  type:square    
 Epoch: 159   Episode: 18  type:square    
 Epoch: 159   Episode: 19  type:square    
-triangles: 0, squares: 250
-comp: 0.649929404258728
+triangles: 0, squares: 199
+comp: 0.818755030632019
 epoch: 160
 Epoch: 160   Episode: 0   type:square    
 Epoch: 160   Episode: 1   type:square    
@@ -3699,8 +3699,8 @@ Epoch: 160   Episode: 16  type:square
 Epoch: 160   Episode: 17  type:square    
 Epoch: 160   Episode: 18  type:square    
 Epoch: 160   Episode: 19  type:square    
-triangles: 0, squares: 231
-comp: 0.6501684188842773
+triangles: 0, squares: 187
+comp: 0.8197205066680908
 epoch: 161
 Epoch: 161   Episode: 0   type:square    
 Epoch: 161   Episode: 1   type:square    
@@ -3722,8 +3722,8 @@ Epoch: 161   Episode: 16  type:square
 Epoch: 161   Episode: 17  type:square    
 Epoch: 161   Episode: 18  type:square    
 Epoch: 161   Episode: 19  type:square    
-triangles: 0, squares: 296
-comp: 0.6503218412399292
+triangles: 0, squares: 175
+comp: 0.820681095123291
 epoch: 162
 Epoch: 162   Episode: 0   type:square    
 Epoch: 162   Episode: 1   type:square    
@@ -3745,8 +3745,8 @@ Epoch: 162   Episode: 16  type:square
 Epoch: 162   Episode: 17  type:square    
 Epoch: 162   Episode: 18  type:square    
 Epoch: 162   Episode: 19  type:square    
-triangles: 0, squares: 272
-comp: 0.6503846645355225
+triangles: 0, squares: 166
+comp: 0.8216286897659302
 epoch: 163
 Epoch: 163   Episode: 0   type:square    
 Epoch: 163   Episode: 1   type:square    
@@ -3768,8 +3768,8 @@ Epoch: 163   Episode: 16  type:square
 Epoch: 163   Episode: 17  type:square    
 Epoch: 163   Episode: 18  type:square    
 Epoch: 163   Episode: 19  type:square    
-triangles: 0, squares: 221
-comp: 0.6503608226776123
+triangles: 0, squares: 215
+comp: 0.8225549459457397
 epoch: 164
 Epoch: 164   Episode: 0   type:square    
 Epoch: 164   Episode: 1   type:square    
@@ -3791,8 +3791,8 @@ Epoch: 164   Episode: 16  type:square
 Epoch: 164   Episode: 17  type:square    
 Epoch: 164   Episode: 18  type:square    
 Epoch: 164   Episode: 19  type:square    
-triangles: 0, squares: 145
-comp: 0.6503715515136719
+triangles: 0, squares: 181
+comp: 0.8234935998916626
 epoch: 165
 Epoch: 165   Episode: 0   type:square    
 Epoch: 165   Episode: 1   type:square    
@@ -3814,8 +3814,8 @@ Epoch: 165   Episode: 16  type:square
 Epoch: 165   Episode: 17  type:square    
 Epoch: 165   Episode: 18  type:square    
 Epoch: 165   Episode: 19  type:square    
-triangles: 0, squares: 298
-comp: 0.6505532264709473
+triangles: 0, squares: 190
+comp: 0.8244318962097168
 epoch: 166
 Epoch: 166   Episode: 0   type:square    
 Epoch: 166   Episode: 1   type:square    
@@ -3837,8 +3837,8 @@ Epoch: 166   Episode: 16  type:square
 Epoch: 166   Episode: 17  type:square    
 Epoch: 166   Episode: 18  type:square    
 Epoch: 166   Episode: 19  type:square    
-triangles: 0, squares: 235
-comp: 0.6506071090698242
+triangles: 0, squares: 189
+comp: 0.8253616094589233
 epoch: 167
 Epoch: 167   Episode: 0   type:square    
 Epoch: 167   Episode: 1   type:square    
@@ -3860,8 +3860,8 @@ Epoch: 167   Episode: 16  type:square
 Epoch: 167   Episode: 17  type:square    
 Epoch: 167   Episode: 18  type:square    
 Epoch: 167   Episode: 19  type:square    
-triangles: 0, squares: 260
-comp: 0.6506695747375488
+triangles: 0, squares: 191
+comp: 0.8262755870819092
 epoch: 168
 Epoch: 168   Episode: 0   type:square    
 Epoch: 168   Episode: 1   type:square    
@@ -3883,8 +3883,8 @@ Epoch: 168   Episode: 16  type:square
 Epoch: 168   Episode: 17  type:square    
 Epoch: 168   Episode: 18  type:square    
 Epoch: 168   Episode: 19  type:square    
-triangles: 0, squares: 225
-comp: 0.650578498840332
+triangles: 0, squares: 179
+comp: 0.827195405960083
 epoch: 169
 Epoch: 169   Episode: 0   type:square    
 Epoch: 169   Episode: 1   type:square    
@@ -3906,8 +3906,8 @@ Epoch: 169   Episode: 16  type:square
 Epoch: 169   Episode: 17  type:square    
 Epoch: 169   Episode: 18  type:square    
 Epoch: 169   Episode: 19  type:square    
-triangles: 0, squares: 221
-comp: 0.6504063606262207
+triangles: 0, squares: 176
+comp: 0.8280990123748779
 epoch: 170
 Epoch: 170   Episode: 0   type:square    
 Epoch: 170   Episode: 1   type:square    
@@ -3929,8 +3929,8 @@ Epoch: 170   Episode: 16  type:square
 Epoch: 170   Episode: 17  type:square    
 Epoch: 170   Episode: 18  type:square    
 Epoch: 170   Episode: 19  type:square    
-triangles: 0, squares: 340
-comp: 0.650151252746582
+triangles: 0, squares: 192
+comp: 0.8289885520935059
 epoch: 171
 Epoch: 171   Episode: 0   type:square    
 Epoch: 171   Episode: 1   type:square    
@@ -3952,8 +3952,8 @@ Epoch: 171   Episode: 16  type:square
 Epoch: 171   Episode: 17  type:square    
 Epoch: 171   Episode: 18  type:square    
 Epoch: 171   Episode: 19  type:square    
-triangles: 0, squares: 233
-comp: 0.6497700214385986
+triangles: 0, squares: 206
+comp: 0.8298745155334473
 epoch: 172
 Epoch: 172   Episode: 0   type:square    
 Epoch: 172   Episode: 1   type:square    
@@ -3975,8 +3975,8 @@ Epoch: 172   Episode: 16  type:square
 Epoch: 172   Episode: 17  type:square    
 Epoch: 172   Episode: 18  type:square    
 Epoch: 172   Episode: 19  type:square    
-triangles: 0, squares: 353
-comp: 0.6494102478027344
+triangles: 0, squares: 191
+comp: 0.8307478427886963
 epoch: 173
 Epoch: 173   Episode: 0   type:square    
 Epoch: 173   Episode: 1   type:square    
@@ -3998,8 +3998,8 @@ Epoch: 173   Episode: 16  type:square
 Epoch: 173   Episode: 17  type:square    
 Epoch: 173   Episode: 18  type:square    
 Epoch: 173   Episode: 19  type:square    
-triangles: 0, squares: 280
-comp: 0.6489754915237427
+triangles: 0, squares: 199
+comp: 0.8316198587417603
 epoch: 174
 Epoch: 174   Episode: 0   type:square    
 Epoch: 174   Episode: 1   type:square    
@@ -4021,8 +4021,8 @@ Epoch: 174   Episode: 16  type:square
 Epoch: 174   Episode: 17  type:square    
 Epoch: 174   Episode: 18  type:square    
 Epoch: 174   Episode: 19  type:square    
-triangles: 0, squares: 247
-comp: 0.6485433578491211
+triangles: 0, squares: 197
+comp: 0.8324896097183228
 epoch: 175
 Epoch: 175   Episode: 0   type:square    
 Epoch: 175   Episode: 1   type:square    
@@ -4044,8 +4044,8 @@ Epoch: 175   Episode: 16  type:square
 Epoch: 175   Episode: 17  type:square    
 Epoch: 175   Episode: 18  type:square    
 Epoch: 175   Episode: 19  type:square    
-triangles: 0, squares: 346
-comp: 0.6480604410171509
+triangles: 0, squares: 200
+comp: 0.8333559036254883
 epoch: 176
 Epoch: 176   Episode: 0   type:square    
 Epoch: 176   Episode: 1   type:square    
@@ -4067,8 +4067,8 @@ Epoch: 176   Episode: 16  type:square
 Epoch: 176   Episode: 17  type:square    
 Epoch: 176   Episode: 18  type:square    
 Epoch: 176   Episode: 19  type:square    
-triangles: 0, squares: 254
-comp: 0.6474108695983887
+triangles: 0, squares: 204
+comp: 0.8341962099075317
 epoch: 177
 Epoch: 177   Episode: 0   type:square    
 Epoch: 177   Episode: 1   type:square    
@@ -4090,8 +4090,8 @@ Epoch: 177   Episode: 16  type:square
 Epoch: 177   Episode: 17  type:square    
 Epoch: 177   Episode: 18  type:square    
 Epoch: 177   Episode: 19  type:square    
-triangles: 0, squares: 296
-comp: 0.646737813949585
+triangles: 0, squares: 180
+comp: 0.8350268602371216
 epoch: 178
 Epoch: 178   Episode: 0   type:square    
 Epoch: 178   Episode: 1   type:square    
@@ -4113,8 +4113,8 @@ Epoch: 178   Episode: 16  type:square
 Epoch: 178   Episode: 17  type:square    
 Epoch: 178   Episode: 18  type:square    
 Epoch: 178   Episode: 19  type:square    
-triangles: 0, squares: 271
-comp: 0.6460498571395874
+triangles: 0, squares: 200
+comp: 0.8358519077301025
 epoch: 179
 Epoch: 179   Episode: 0   type:square    
 Epoch: 179   Episode: 1   type:square    
@@ -4136,8 +4136,8 @@ Epoch: 179   Episode: 16  type:square
 Epoch: 179   Episode: 17  type:square    
 Epoch: 179   Episode: 18  type:square    
 Epoch: 179   Episode: 19  type:square    
-triangles: 0, squares: 364
-comp: 0.6453957557678223
+triangles: 0, squares: 209
+comp: 0.8366678953170776
 epoch: 180
 Epoch: 180   Episode: 0   type:square    
 Epoch: 180   Episode: 1   type:square    
@@ -4159,8 +4159,8 @@ Epoch: 180   Episode: 16  type:square
 Epoch: 180   Episode: 17  type:square    
 Epoch: 180   Episode: 18  type:square    
 Epoch: 180   Episode: 19  type:square    
-triangles: 0, squares: 277
-comp: 0.6446366310119629
+triangles: 0, squares: 201
+comp: 0.8374706506729126
 epoch: 181
 Epoch: 181   Episode: 0   type:square    
 Epoch: 181   Episode: 1   type:square    
@@ -4182,8 +4182,8 @@ Epoch: 181   Episode: 16  type:square
 Epoch: 181   Episode: 17  type:square    
 Epoch: 181   Episode: 18  type:square    
 Epoch: 181   Episode: 19  type:square    
-triangles: 0, squares: 407
-comp: 0.6439175605773926
+triangles: 0, squares: 179
+comp: 0.838270902633667
 epoch: 182
 Epoch: 182   Episode: 0   type:square    
 Epoch: 182   Episode: 1   type:square    
@@ -4205,8 +4205,8 @@ Epoch: 182   Episode: 16  type:square
 Epoch: 182   Episode: 17  type:square    
 Epoch: 182   Episode: 18  type:square    
 Epoch: 182   Episode: 19  type:square    
-triangles: 0, squares: 340
-comp: 0.6431732177734375
+triangles: 0, squares: 195
+comp: 0.8390755653381348
 epoch: 183
 Epoch: 183   Episode: 0   type:square    
 Epoch: 183   Episode: 1   type:square    
@@ -4228,8 +4228,8 @@ Epoch: 183   Episode: 16  type:square
 Epoch: 183   Episode: 17  type:square    
 Epoch: 183   Episode: 18  type:square    
 Epoch: 183   Episode: 19  type:square    
-triangles: 0, squares: 449
-comp: 0.6425023078918457
+triangles: 0, squares: 188
+comp: 0.839874267578125
 epoch: 184
 Epoch: 184   Episode: 0   type:square    
 Epoch: 184   Episode: 1   type:square    
@@ -4251,8 +4251,8 @@ Epoch: 184   Episode: 16  type:square
 Epoch: 184   Episode: 17  type:square    
 Epoch: 184   Episode: 18  type:square    
 Epoch: 184   Episode: 19  type:square    
-triangles: 0, squares: 325
-comp: 0.6418585777282715
+triangles: 0, squares: 187
+comp: 0.8406596183776855
 epoch: 185
 Epoch: 185   Episode: 0   type:square    
 Epoch: 185   Episode: 1   type:square    
@@ -4274,8 +4274,8 @@ Epoch: 185   Episode: 16  type:square
 Epoch: 185   Episode: 17  type:square    
 Epoch: 185   Episode: 18  type:square    
 Epoch: 185   Episode: 19  type:square    
-triangles: 0, squares: 369
-comp: 0.6412625312805176
+triangles: 0, squares: 204
+comp: 0.8414441347122192
 epoch: 186
 Epoch: 186   Episode: 0   type:square    
 Epoch: 186   Episode: 1   type:square    
@@ -4297,8 +4297,8 @@ Epoch: 186   Episode: 16  type:square
 Epoch: 186   Episode: 17  type:square    
 Epoch: 186   Episode: 18  type:square    
 Epoch: 186   Episode: 19  type:square    
-triangles: 0, squares: 356
-comp: 0.6407006978988647
+triangles: 0, squares: 215
+comp: 0.8422274589538574
 epoch: 187
 Epoch: 187   Episode: 0   type:square    
 Epoch: 187   Episode: 1   type:square    
@@ -4320,8 +4320,8 @@ Epoch: 187   Episode: 16  type:square
 Epoch: 187   Episode: 17  type:square    
 Epoch: 187   Episode: 18  type:square    
 Epoch: 187   Episode: 19  type:square    
-triangles: 0, squares: 294
-comp: 0.6401731967926025
+triangles: 0, squares: 203
+comp: 0.8429986238479614
 epoch: 188
 Epoch: 188   Episode: 0   type:square    
 Epoch: 188   Episode: 1   type:square    
@@ -4343,8 +4343,8 @@ Epoch: 188   Episode: 16  type:square
 Epoch: 188   Episode: 17  type:square    
 Epoch: 188   Episode: 18  type:square    
 Epoch: 188   Episode: 19  type:square    
-triangles: 0, squares: 439
-comp: 0.6396229267120361
+triangles: 0, squares: 194
+comp: 0.8437514305114746
 epoch: 189
 Epoch: 189   Episode: 0   type:square    
 Epoch: 189   Episode: 1   type:square    
@@ -4366,8 +4366,8 @@ Epoch: 189   Episode: 16  type:square
 Epoch: 189   Episode: 17  type:square    
 Epoch: 189   Episode: 18  type:square    
 Epoch: 189   Episode: 19  type:square    
-triangles: 0, squares: 276
-comp: 0.6390485763549805
+triangles: 0, squares: 209
+comp: 0.8444920778274536
 epoch: 190
 Epoch: 190   Episode: 0   type:square    
 Epoch: 190   Episode: 1   type:square    
@@ -4389,8 +4389,8 @@ Epoch: 190   Episode: 16  type:square
 Epoch: 190   Episode: 17  type:square    
 Epoch: 190   Episode: 18  type:square    
 Epoch: 190   Episode: 19  type:square    
-triangles: 0, squares: 278
-comp: 0.6384592056274414
+triangles: 0, squares: 200
+comp: 0.8452377319335938
 epoch: 191
 Epoch: 191   Episode: 0   type:square    
 Epoch: 191   Episode: 1   type:square    
@@ -4412,8 +4412,8 @@ Epoch: 191   Episode: 16  type:square
 Epoch: 191   Episode: 17  type:square    
 Epoch: 191   Episode: 18  type:square    
 Epoch: 191   Episode: 19  type:square    
-triangles: 0, squares: 279
-comp: 0.6378196477890015
+triangles: 0, squares: 231
+comp: 0.8459806442260742
 epoch: 192
 Epoch: 192   Episode: 0   type:square    
 Epoch: 192   Episode: 1   type:square    
@@ -4435,8 +4435,8 @@ Epoch: 192   Episode: 16  type:square
 Epoch: 192   Episode: 17  type:square    
 Epoch: 192   Episode: 18  type:square    
 Epoch: 192   Episode: 19  type:square    
-triangles: 0, squares: 307
-comp: 0.6372700929641724
+triangles: 0, squares: 221
+comp: 0.8467181921005249
 epoch: 193
 Epoch: 193   Episode: 0   type:square    
 Epoch: 193   Episode: 1   type:square    
@@ -4458,8 +4458,8 @@ Epoch: 193   Episode: 16  type:square
 Epoch: 193   Episode: 17  type:square    
 Epoch: 193   Episode: 18  type:square    
 Epoch: 193   Episode: 19  type:square    
-triangles: 0, squares: 328
-comp: 0.6367956399917603
+triangles: 0, squares: 207
+comp: 0.8474551439285278
 epoch: 194
 Epoch: 194   Episode: 0   type:square    
 Epoch: 194   Episode: 1   type:square    
@@ -4481,8 +4481,8 @@ Epoch: 194   Episode: 16  type:square
 Epoch: 194   Episode: 17  type:square    
 Epoch: 194   Episode: 18  type:square    
 Epoch: 194   Episode: 19  type:square    
-triangles: 0, squares: 336
-comp: 0.636318564414978
+triangles: 0, squares: 223
+comp: 0.8481945991516113
 epoch: 195
 Epoch: 195   Episode: 0   type:square    
 Epoch: 195   Episode: 1   type:square    
@@ -4504,8 +4504,8 @@ Epoch: 195   Episode: 16  type:square
 Epoch: 195   Episode: 17  type:square    
 Epoch: 195   Episode: 18  type:square    
 Epoch: 195   Episode: 19  type:square    
-triangles: 0, squares: 262
-comp: 0.635908842086792
+triangles: 0, squares: 231
+comp: 0.8489394187927246
 epoch: 196
 Epoch: 196   Episode: 0   type:square    
 Epoch: 196   Episode: 1   type:square    
@@ -4527,8 +4527,8 @@ Epoch: 196   Episode: 16  type:square
 Epoch: 196   Episode: 17  type:square    
 Epoch: 196   Episode: 18  type:square    
 Epoch: 196   Episode: 19  type:square    
-triangles: 0, squares: 294
-comp: 0.6354924440383911
+triangles: 0, squares: 233
+comp: 0.8496853113174438
 epoch: 197
 Epoch: 197   Episode: 0   type:square    
 Epoch: 197   Episode: 1   type:square    
@@ -4550,8 +4550,8 @@ Epoch: 197   Episode: 16  type:square
 Epoch: 197   Episode: 17  type:square    
 Epoch: 197   Episode: 18  type:square    
 Epoch: 197   Episode: 19  type:square    
-triangles: 0, squares: 300
-comp: 0.6351377964019775
+triangles: 0, squares: 231
+comp: 0.8504184484481812
 epoch: 198
 Epoch: 198   Episode: 0   type:square    
 Epoch: 198   Episode: 1   type:square    
@@ -4573,8 +4573,8 @@ Epoch: 198   Episode: 16  type:square
 Epoch: 198   Episode: 17  type:square    
 Epoch: 198   Episode: 18  type:square    
 Epoch: 198   Episode: 19  type:square    
-triangles: 0, squares: 323
-comp: 0.6348309516906738
+triangles: 0, squares: 210
+comp: 0.8511461019515991
 epoch: 199
 Epoch: 199   Episode: 0   type:square    
 Epoch: 199   Episode: 1   type:square    
@@ -4596,8 +4596,8 @@ Epoch: 199   Episode: 16  type:square
 Epoch: 199   Episode: 17  type:square    
 Epoch: 199   Episode: 18  type:square    
 Epoch: 199   Episode: 19  type:square    
-triangles: 0, squares: 258
-comp: 0.6345491409301758
+triangles: 0, squares: 218
+comp: 0.8518548011779785
 epoch: 200
 Epoch: 200   Episode: 0   type:triangle  
 Epoch: 200   Episode: 1   type:triangle  
@@ -4619,8 +4619,8 @@ Epoch: 200   Episode: 16  type:triangle
 Epoch: 200   Episode: 17  type:triangle  
 Epoch: 200   Episode: 18  type:triangle  
 Epoch: 200   Episode: 19  type:triangle  
-triangles: 686, squares: 0
-comp: 0.6341185569763184
+triangles: 116, squares: 0
+comp: 0.85256028175354
 epoch: 201
 Epoch: 201   Episode: 0   type:triangle  
 Epoch: 201   Episode: 1   type:triangle  
@@ -4642,8 +4642,8 @@ Epoch: 201   Episode: 16  type:triangle
 Epoch: 201   Episode: 17  type:triangle  
 Epoch: 201   Episode: 18  type:triangle  
 Epoch: 201   Episode: 19  type:triangle  
-triangles: 880, squares: 0
-comp: 0.6336679458618164
+triangles: 126, squares: 0
+comp: 0.8532406091690063
 epoch: 202
 Epoch: 202   Episode: 0   type:triangle  
 Epoch: 202   Episode: 1   type:triangle  
@@ -4665,8 +4665,8 @@ Epoch: 202   Episode: 16  type:triangle
 Epoch: 202   Episode: 17  type:triangle  
 Epoch: 202   Episode: 18  type:triangle  
 Epoch: 202   Episode: 19  type:triangle  
-triangles: 857, squares: 0
-comp: 0.6331323385238647
+triangles: 116, squares: 0
+comp: 0.8539129495620728
 epoch: 203
 Epoch: 203   Episode: 0   type:triangle  
 Epoch: 203   Episode: 1   type:triangle  
@@ -4688,8 +4688,8 @@ Epoch: 203   Episode: 16  type:triangle
 Epoch: 203   Episode: 17  type:triangle  
 Epoch: 203   Episode: 18  type:triangle  
 Epoch: 203   Episode: 19  type:triangle  
-triangles: 843, squares: 0
-comp: 0.632634162902832
+triangles: 116, squares: 0
+comp: 0.8545727729797363
 epoch: 204
 Epoch: 204   Episode: 0   type:triangle  
 Epoch: 204   Episode: 1   type:triangle  
@@ -4711,8 +4711,8 @@ Epoch: 204   Episode: 16  type:triangle
 Epoch: 204   Episode: 17  type:triangle  
 Epoch: 204   Episode: 18  type:triangle  
 Epoch: 204   Episode: 19  type:triangle  
-triangles: 815, squares: 0
-comp: 0.6321051120758057
+triangles: 106, squares: 0
+comp: 0.8552126884460449
 epoch: 205
 Epoch: 205   Episode: 0   type:triangle  
 Epoch: 205   Episode: 1   type:triangle  
@@ -4734,8 +4734,8 @@ Epoch: 205   Episode: 16  type:triangle
 Epoch: 205   Episode: 17  type:triangle  
 Epoch: 205   Episode: 18  type:triangle  
 Epoch: 205   Episode: 19  type:triangle  
-triangles: 814, squares: 0
-comp: 0.631659746170044
+triangles: 120, squares: 0
+comp: 0.8558474779129028
 epoch: 206
 Epoch: 206   Episode: 0   type:triangle  
 Epoch: 206   Episode: 1   type:triangle  
@@ -4757,8 +4757,8 @@ Epoch: 206   Episode: 16  type:triangle
 Epoch: 206   Episode: 17  type:triangle  
 Epoch: 206   Episode: 18  type:triangle  
 Epoch: 206   Episode: 19  type:triangle  
-triangles: 902, squares: 0
-comp: 0.6311687231063843
+triangles: 107, squares: 0
+comp: 0.8564658164978027
 epoch: 207
 Epoch: 207   Episode: 0   type:triangle  
 Epoch: 207   Episode: 1   type:triangle  
@@ -4780,8 +4780,8 @@ Epoch: 207   Episode: 16  type:triangle
 Epoch: 207   Episode: 17  type:triangle  
 Epoch: 207   Episode: 18  type:triangle  
 Epoch: 207   Episode: 19  type:triangle  
-triangles: 783, squares: 0
-comp: 0.630643367767334
+triangles: 116, squares: 0
+comp: 0.8570640087127686
 epoch: 208
 Epoch: 208   Episode: 0   type:triangle  
 Epoch: 208   Episode: 1   type:triangle  
@@ -4803,8 +4803,8 @@ Epoch: 208   Episode: 16  type:triangle
 Epoch: 208   Episode: 17  type:triangle  
 Epoch: 208   Episode: 18  type:triangle  
 Epoch: 208   Episode: 19  type:triangle  
-triangles: 841, squares: 0
-comp: 0.6301127672195435
+triangles: 125, squares: 0
+comp: 0.8576565980911255
 epoch: 209
 Epoch: 209   Episode: 0   type:triangle  
 Epoch: 209   Episode: 1   type:triangle  
@@ -4826,8 +4826,8 @@ Epoch: 209   Episode: 16  type:triangle
 Epoch: 209   Episode: 17  type:triangle  
 Epoch: 209   Episode: 18  type:triangle  
 Epoch: 209   Episode: 19  type:triangle  
-triangles: 869, squares: 0
-comp: 0.6295433044433594
+triangles: 116, squares: 0
+comp: 0.858238935470581
 epoch: 210
 Epoch: 210   Episode: 0   type:triangle  
 Epoch: 210   Episode: 1   type:triangle  
@@ -4849,8 +4849,8 @@ Epoch: 210   Episode: 16  type:triangle
 Epoch: 210   Episode: 17  type:triangle  
 Epoch: 210   Episode: 18  type:triangle  
 Epoch: 210   Episode: 19  type:triangle  
-triangles: 764, squares: 0
-comp: 0.6289044618606567
+triangles: 110, squares: 0
+comp: 0.8588149547576904
 epoch: 211
 Epoch: 211   Episode: 0   type:triangle  
 Epoch: 211   Episode: 1   type:triangle  
@@ -4872,8 +4872,8 @@ Epoch: 211   Episode: 16  type:triangle
 Epoch: 211   Episode: 17  type:triangle  
 Epoch: 211   Episode: 18  type:triangle  
 Epoch: 211   Episode: 19  type:triangle  
-triangles: 807, squares: 0
-comp: 0.6282472610473633
+triangles: 157, squares: 0
+comp: 0.8593873977661133
 epoch: 212
 Epoch: 212   Episode: 0   type:triangle  
 Epoch: 212   Episode: 1   type:triangle  
@@ -4895,8 +4895,8 @@ Epoch: 212   Episode: 16  type:triangle
 Epoch: 212   Episode: 17  type:triangle  
 Epoch: 212   Episode: 18  type:triangle  
 Epoch: 212   Episode: 19  type:triangle  
-triangles: 663, squares: 0
-comp: 0.6275551319122314
+triangles: 130, squares: 0
+comp: 0.8599673509597778
 epoch: 213
 Epoch: 213   Episode: 0   type:triangle  
 Epoch: 213   Episode: 1   type:triangle  
@@ -4918,8 +4918,8 @@ Epoch: 213   Episode: 16  type:triangle
 Epoch: 213   Episode: 17  type:triangle  
 Epoch: 213   Episode: 18  type:triangle  
 Epoch: 213   Episode: 19  type:triangle  
-triangles: 732, squares: 0
-comp: 0.6268463134765625
+triangles: 104, squares: 0
+comp: 0.8605407476425171
 epoch: 214
 Epoch: 214   Episode: 0   type:triangle  
 Epoch: 214   Episode: 1   type:triangle  
@@ -4941,8 +4941,8 @@ Epoch: 214   Episode: 16  type:triangle
 Epoch: 214   Episode: 17  type:triangle  
 Epoch: 214   Episode: 18  type:triangle  
 Epoch: 214   Episode: 19  type:triangle  
-triangles: 700, squares: 0
-comp: 0.6262069940567017
+triangles: 122, squares: 0
+comp: 0.8611024618148804
 epoch: 215
 Epoch: 215   Episode: 0   type:triangle  
 Epoch: 215   Episode: 1   type:triangle  
@@ -4964,8 +4964,8 @@ Epoch: 215   Episode: 16  type:triangle
 Epoch: 215   Episode: 17  type:triangle  
 Epoch: 215   Episode: 18  type:triangle  
 Epoch: 215   Episode: 19  type:triangle  
-triangles: 752, squares: 0
-comp: 0.625557541847229
+triangles: 100, squares: 0
+comp: 0.861666202545166
 epoch: 216
 Epoch: 216   Episode: 0   type:triangle  
 Epoch: 216   Episode: 1   type:triangle  
@@ -4987,8 +4987,8 @@ Epoch: 216   Episode: 16  type:triangle
 Epoch: 216   Episode: 17  type:triangle  
 Epoch: 216   Episode: 18  type:triangle  
 Epoch: 216   Episode: 19  type:triangle  
-triangles: 738, squares: 0
-comp: 0.6248223781585693
+triangles: 110, squares: 0
+comp: 0.8622125387191772
 epoch: 217
 Epoch: 217   Episode: 0   type:triangle  
 Epoch: 217   Episode: 1   type:triangle  
@@ -5010,8 +5010,8 @@ Epoch: 217   Episode: 16  type:triangle
 Epoch: 217   Episode: 17  type:triangle  
 Epoch: 217   Episode: 18  type:triangle  
 Epoch: 217   Episode: 19  type:triangle  
-triangles: 819, squares: 0
-comp: 0.6240347623825073
+triangles: 133, squares: 0
+comp: 0.8627618551254272
 epoch: 218
 Epoch: 218   Episode: 0   type:triangle  
 Epoch: 218   Episode: 1   type:triangle  
@@ -5033,8 +5033,8 @@ Epoch: 218   Episode: 16  type:triangle
 Epoch: 218   Episode: 17  type:triangle  
 Epoch: 218   Episode: 18  type:triangle  
 Epoch: 218   Episode: 19  type:triangle  
-triangles: 737, squares: 0
-comp: 0.6231786012649536
+triangles: 104, squares: 0
+comp: 0.863311767578125
 epoch: 219
 Epoch: 219   Episode: 0   type:triangle  
 Epoch: 219   Episode: 1   type:triangle  
@@ -5056,8 +5056,8 @@ Epoch: 219   Episode: 16  type:triangle
 Epoch: 219   Episode: 17  type:triangle  
 Epoch: 219   Episode: 18  type:triangle  
 Epoch: 219   Episode: 19  type:triangle  
-triangles: 786, squares: 0
-comp: 0.6223340034484863
+triangles: 117, squares: 0
+comp: 0.8638336658477783
 epoch: 220
 Epoch: 220   Episode: 0   type:triangle  
 Epoch: 220   Episode: 1   type:triangle  
@@ -5079,8 +5079,8 @@ Epoch: 220   Episode: 16  type:triangle
 Epoch: 220   Episode: 17  type:triangle  
 Epoch: 220   Episode: 18  type:triangle  
 Epoch: 220   Episode: 19  type:triangle  
-triangles: 605, squares: 0
-comp: 0.6215255260467529
+triangles: 110, squares: 0
+comp: 0.8643476963043213
 epoch: 221
 Epoch: 221   Episode: 0   type:triangle  
 Epoch: 221   Episode: 1   type:triangle  
@@ -5102,8 +5102,8 @@ Epoch: 221   Episode: 16  type:triangle
 Epoch: 221   Episode: 17  type:triangle  
 Epoch: 221   Episode: 18  type:triangle  
 Epoch: 221   Episode: 19  type:triangle  
-triangles: 619, squares: 0
-comp: 0.6208592653274536
+triangles: 105, squares: 0
+comp: 0.8648500442504883
 epoch: 222
 Epoch: 222   Episode: 0   type:triangle  
 Epoch: 222   Episode: 1   type:triangle  
@@ -5125,8 +5125,8 @@ Epoch: 222   Episode: 16  type:triangle
 Epoch: 222   Episode: 17  type:triangle  
 Epoch: 222   Episode: 18  type:triangle  
 Epoch: 222   Episode: 19  type:triangle  
-triangles: 567, squares: 0
-comp: 0.6202472448348999
+triangles: 131, squares: 0
+comp: 0.865355372428894
 epoch: 223
 Epoch: 223   Episode: 0   type:triangle  
 Epoch: 223   Episode: 1   type:triangle  
@@ -5148,8 +5148,8 @@ Epoch: 223   Episode: 16  type:triangle
 Epoch: 223   Episode: 17  type:triangle  
 Epoch: 223   Episode: 18  type:triangle  
 Epoch: 223   Episode: 19  type:triangle  
-triangles: 495, squares: 0
-comp: 0.619635820388794
+triangles: 138, squares: 0
+comp: 0.8658500909805298
 epoch: 224
 Epoch: 224   Episode: 0   type:triangle  
 Epoch: 224   Episode: 1   type:triangle  
@@ -5171,8 +5171,8 @@ Epoch: 224   Episode: 16  type:triangle
 Epoch: 224   Episode: 17  type:triangle  
 Epoch: 224   Episode: 18  type:triangle  
 Epoch: 224   Episode: 19  type:triangle  
-triangles: 712, squares: 0
-comp: 0.6191738843917847
+triangles: 143, squares: 0
+comp: 0.8663400411605835
 epoch: 225
 Epoch: 225   Episode: 0   type:triangle  
 Epoch: 225   Episode: 1   type:triangle  
@@ -5194,8 +5194,8 @@ Epoch: 225   Episode: 16  type:triangle
 Epoch: 225   Episode: 17  type:triangle  
 Epoch: 225   Episode: 18  type:triangle  
 Epoch: 225   Episode: 19  type:triangle  
-triangles: 596, squares: 0
-comp: 0.6187072992324829
+triangles: 128, squares: 0
+comp: 0.8668320178985596
 epoch: 226
 Epoch: 226   Episode: 0   type:triangle  
 Epoch: 226   Episode: 1   type:triangle  
@@ -5217,8 +5217,8 @@ Epoch: 226   Episode: 16  type:triangle
 Epoch: 226   Episode: 17  type:triangle  
 Epoch: 226   Episode: 18  type:triangle  
 Epoch: 226   Episode: 19  type:triangle  
-triangles: 541, squares: 0
-comp: 0.6182670593261719
+triangles: 152, squares: 0
+comp: 0.867317795753479
 epoch: 227
 Epoch: 227   Episode: 0   type:triangle  
 Epoch: 227   Episode: 1   type:triangle  
@@ -5240,8 +5240,8 @@ Epoch: 227   Episode: 16  type:triangle
 Epoch: 227   Episode: 17  type:triangle  
 Epoch: 227   Episode: 18  type:triangle  
 Epoch: 227   Episode: 19  type:triangle  
-triangles: 566, squares: 0
-comp: 0.6178125143051147
+triangles: 100, squares: 0
+comp: 0.8677995204925537
 epoch: 228
 Epoch: 228   Episode: 0   type:triangle  
 Epoch: 228   Episode: 1   type:triangle  
@@ -5263,8 +5263,8 @@ Epoch: 228   Episode: 16  type:triangle
 Epoch: 228   Episode: 17  type:triangle  
 Epoch: 228   Episode: 18  type:triangle  
 Epoch: 228   Episode: 19  type:triangle  
-triangles: 551, squares: 0
-comp: 0.6174517869949341
+triangles: 131, squares: 0
+comp: 0.8682563304901123
 epoch: 229
 Epoch: 229   Episode: 0   type:triangle  
 Epoch: 229   Episode: 1   type:triangle  
@@ -5286,8 +5286,8 @@ Epoch: 229   Episode: 16  type:triangle
 Epoch: 229   Episode: 17  type:triangle  
 Epoch: 229   Episode: 18  type:triangle  
 Epoch: 229   Episode: 19  type:triangle  
-triangles: 674, squares: 0
-comp: 0.6171426773071289
+triangles: 138, squares: 0
+comp: 0.868727445602417
 epoch: 230
 Epoch: 230   Episode: 0   type:triangle  
 Epoch: 230   Episode: 1   type:triangle  
@@ -5309,8 +5309,8 @@ Epoch: 230   Episode: 16  type:triangle
 Epoch: 230   Episode: 17  type:triangle  
 Epoch: 230   Episode: 18  type:triangle  
 Epoch: 230   Episode: 19  type:triangle  
-triangles: 439, squares: 0
-comp: 0.6168359518051147
+triangles: 100, squares: 0
+comp: 0.8692030906677246
 epoch: 231
 Epoch: 231   Episode: 0   type:triangle  
 Epoch: 231   Episode: 1   type:triangle  
@@ -5332,8 +5332,8 @@ Epoch: 231   Episode: 16  type:triangle
 Epoch: 231   Episode: 17  type:triangle  
 Epoch: 231   Episode: 18  type:triangle  
 Epoch: 231   Episode: 19  type:triangle  
-triangles: 556, squares: 0
-comp: 0.6166253089904785
+triangles: 158, squares: 0
+comp: 0.8696622848510742
 epoch: 232
 Epoch: 232   Episode: 0   type:triangle  
 Epoch: 232   Episode: 1   type:triangle  
@@ -5355,8 +5355,8 @@ Epoch: 232   Episode: 16  type:triangle
 Epoch: 232   Episode: 17  type:triangle  
 Epoch: 232   Episode: 18  type:triangle  
 Epoch: 232   Episode: 19  type:triangle  
-triangles: 659, squares: 0
-comp: 0.616422176361084
+triangles: 164, squares: 0
+comp: 0.8701266050338745
 epoch: 233
 Epoch: 233   Episode: 0   type:triangle  
 Epoch: 233   Episode: 1   type:triangle  
@@ -5378,8 +5378,8 @@ Epoch: 233   Episode: 16  type:triangle
 Epoch: 233   Episode: 17  type:triangle  
 Epoch: 233   Episode: 18  type:triangle  
 Epoch: 233   Episode: 19  type:triangle  
-triangles: 536, squares: 0
-comp: 0.6162207126617432
+triangles: 127, squares: 0
+comp: 0.8705869913101196
 epoch: 234
 Epoch: 234   Episode: 0   type:triangle  
 Epoch: 234   Episode: 1   type:triangle  
@@ -5401,8 +5401,8 @@ Epoch: 234   Episode: 16  type:triangle
 Epoch: 234   Episode: 17  type:triangle  
 Epoch: 234   Episode: 18  type:triangle  
 Epoch: 234   Episode: 19  type:triangle  
-triangles: 597, squares: 0
-comp: 0.6161221265792847
+triangles: 171, squares: 0
+comp: 0.8710445165634155
 epoch: 235
 Epoch: 235   Episode: 0   type:triangle  
 Epoch: 235   Episode: 1   type:triangle  
@@ -5424,8 +5424,8 @@ Epoch: 235   Episode: 16  type:triangle
 Epoch: 235   Episode: 17  type:triangle  
 Epoch: 235   Episode: 18  type:triangle  
 Epoch: 235   Episode: 19  type:triangle  
-triangles: 467, squares: 0
-comp: 0.6160043478012085
+triangles: 167, squares: 0
+comp: 0.8715072870254517
 epoch: 236
 Epoch: 236   Episode: 0   type:triangle  
 Epoch: 236   Episode: 1   type:triangle  
@@ -5447,8 +5447,8 @@ Epoch: 236   Episode: 16  type:triangle
 Epoch: 236   Episode: 17  type:triangle  
 Epoch: 236   Episode: 18  type:triangle  
 Epoch: 236   Episode: 19  type:triangle  
-triangles: 506, squares: 0
-comp: 0.616026759147644
+triangles: 157, squares: 0
+comp: 0.8719589710235596
 epoch: 237
 Epoch: 237   Episode: 0   type:triangle  
 Epoch: 237   Episode: 1   type:triangle  
@@ -5470,8 +5470,8 @@ Epoch: 237   Episode: 16  type:triangle
 Epoch: 237   Episode: 17  type:triangle  
 Epoch: 237   Episode: 18  type:triangle  
 Epoch: 237   Episode: 19  type:triangle  
-triangles: 496, squares: 0
-comp: 0.6160968542098999
+triangles: 164, squares: 0
+comp: 0.8724112510681152
 epoch: 238
 Epoch: 238   Episode: 0   type:triangle  
 Epoch: 238   Episode: 1   type:triangle  
@@ -5493,8 +5493,8 @@ Epoch: 238   Episode: 16  type:triangle
 Epoch: 238   Episode: 17  type:triangle  
 Epoch: 238   Episode: 18  type:triangle  
 Epoch: 238   Episode: 19  type:triangle  
-triangles: 541, squares: 0
-comp: 0.616206169128418
+triangles: 144, squares: 0
+comp: 0.8728631734848022
 epoch: 239
 Epoch: 239   Episode: 0   type:triangle  
 Epoch: 239   Episode: 1   type:triangle  
@@ -5516,8 +5516,8 @@ Epoch: 239   Episode: 16  type:triangle
 Epoch: 239   Episode: 17  type:triangle  
 Epoch: 239   Episode: 18  type:triangle  
 Epoch: 239   Episode: 19  type:triangle  
-triangles: 382, squares: 0
-comp: 0.6163318157196045
+triangles: 136, squares: 0
+comp: 0.8733181953430176
 epoch: 240
 Epoch: 240   Episode: 0   type:triangle  
 Epoch: 240   Episode: 1   type:triangle  
@@ -5539,8 +5539,8 @@ Epoch: 240   Episode: 16  type:triangle
 Epoch: 240   Episode: 17  type:triangle  
 Epoch: 240   Episode: 18  type:triangle  
 Epoch: 240   Episode: 19  type:triangle  
-triangles: 439, squares: 0
-comp: 0.616562008857727
+triangles: 140, squares: 0
+comp: 0.8737667798995972
 epoch: 241
 Epoch: 241   Episode: 0   type:triangle  
 Epoch: 241   Episode: 1   type:triangle  
@@ -5562,8 +5562,8 @@ Epoch: 241   Episode: 16  type:triangle
 Epoch: 241   Episode: 17  type:triangle  
 Epoch: 241   Episode: 18  type:triangle  
 Epoch: 241   Episode: 19  type:triangle  
-triangles: 436, squares: 0
-comp: 0.6168675422668457
+triangles: 111, squares: 0
+comp: 0.8741966485977173
 epoch: 242
 Epoch: 242   Episode: 0   type:triangle  
 Epoch: 242   Episode: 1   type:triangle  
@@ -5585,8 +5585,8 @@ Epoch: 242   Episode: 16  type:triangle
 Epoch: 242   Episode: 17  type:triangle  
 Epoch: 242   Episode: 18  type:triangle  
 Epoch: 242   Episode: 19  type:triangle  
-triangles: 422, squares: 0
-comp: 0.6172990798950195
+triangles: 151, squares: 0
+comp: 0.8746088743209839
 epoch: 243
 Epoch: 243   Episode: 0   type:triangle  
 Epoch: 243   Episode: 1   type:triangle  
@@ -5608,8 +5608,8 @@ Epoch: 243   Episode: 16  type:triangle
 Epoch: 243   Episode: 17  type:triangle  
 Epoch: 243   Episode: 18  type:triangle  
 Epoch: 243   Episode: 19  type:triangle  
-triangles: 437, squares: 0
-comp: 0.6177734136581421
+triangles: 136, squares: 0
+comp: 0.8750128746032715
 epoch: 244
 Epoch: 244   Episode: 0   type:triangle  
 Epoch: 244   Episode: 1   type:triangle  
@@ -5631,8 +5631,8 @@ Epoch: 244   Episode: 16  type:triangle
 Epoch: 244   Episode: 17  type:triangle  
 Epoch: 244   Episode: 18  type:triangle  
 Epoch: 244   Episode: 19  type:triangle  
-triangles: 440, squares: 0
-comp: 0.6182358264923096
+triangles: 192, squares: 0
+comp: 0.8754152059555054
 epoch: 245
 Epoch: 245   Episode: 0   type:triangle  
 Epoch: 245   Episode: 1   type:triangle  
@@ -5654,8 +5654,8 @@ Epoch: 245   Episode: 16  type:triangle
 Epoch: 245   Episode: 17  type:triangle  
 Epoch: 245   Episode: 18  type:triangle  
 Epoch: 245   Episode: 19  type:triangle  
-triangles: 470, squares: 0
-comp: 0.6187552213668823
+triangles: 159, squares: 0
+comp: 0.875816822052002
 epoch: 246
 Epoch: 246   Episode: 0   type:triangle  
 Epoch: 246   Episode: 1   type:triangle  
@@ -5677,8 +5677,8 @@ Epoch: 246   Episode: 16  type:triangle
 Epoch: 246   Episode: 17  type:triangle  
 Epoch: 246   Episode: 18  type:triangle  
 Epoch: 246   Episode: 19  type:triangle  
-triangles: 494, squares: 0
-comp: 0.6191492080688477
+triangles: 179, squares: 0
+comp: 0.8762263059616089
 epoch: 247
 Epoch: 247   Episode: 0   type:triangle  
 Epoch: 247   Episode: 1   type:triangle  
@@ -5700,8 +5700,8 @@ Epoch: 247   Episode: 16  type:triangle
 Epoch: 247   Episode: 17  type:triangle  
 Epoch: 247   Episode: 18  type:triangle  
 Epoch: 247   Episode: 19  type:triangle  
-triangles: 347, squares: 0
-comp: 0.6194545030593872
+triangles: 158, squares: 0
+comp: 0.8766316175460815
 epoch: 248
 Epoch: 248   Episode: 0   type:triangle  
 Epoch: 248   Episode: 1   type:triangle  
@@ -5723,8 +5723,8 @@ Epoch: 248   Episode: 16  type:triangle
 Epoch: 248   Episode: 17  type:triangle  
 Epoch: 248   Episode: 18  type:triangle  
 Epoch: 248   Episode: 19  type:triangle  
-triangles: 522, squares: 0
-comp: 0.6198751926422119
+triangles: 194, squares: 0
+comp: 0.8770385980606079
 epoch: 249
 Epoch: 249   Episode: 0   type:triangle  
 Epoch: 249   Episode: 1   type:triangle  
@@ -5746,8 +5746,8 @@ Epoch: 249   Episode: 16  type:triangle
 Epoch: 249   Episode: 17  type:triangle  
 Epoch: 249   Episode: 18  type:triangle  
 Epoch: 249   Episode: 19  type:triangle  
-triangles: 530, squares: 0
-comp: 0.620284914970398
+triangles: 172, squares: 0
+comp: 0.8774476051330566
 epoch: 250
 Epoch: 250   Episode: 0   type:square    
 Epoch: 250   Episode: 1   type:square    
@@ -5769,8 +5769,8 @@ Epoch: 250   Episode: 16  type:square
 Epoch: 250   Episode: 17  type:square    
 Epoch: 250   Episode: 18  type:square    
 Epoch: 250   Episode: 19  type:square    
-triangles: 0, squares: 352
-comp: 0.620672345161438
+triangles: 0, squares: 241
+comp: 0.8778578042984009
 epoch: 251
 Epoch: 251   Episode: 0   type:square    
 Epoch: 251   Episode: 1   type:square    
@@ -5792,8 +5792,8 @@ Epoch: 251   Episode: 16  type:square
 Epoch: 251   Episode: 17  type:square    
 Epoch: 251   Episode: 18  type:square    
 Epoch: 251   Episode: 19  type:square    
-triangles: 0, squares: 233
-comp: 0.6210899353027344
+triangles: 0, squares: 223
+comp: 0.8782687187194824
 epoch: 252
 Epoch: 252   Episode: 0   type:square    
 Epoch: 252   Episode: 1   type:square    
@@ -5815,8 +5815,8 @@ Epoch: 252   Episode: 16  type:square
 Epoch: 252   Episode: 17  type:square    
 Epoch: 252   Episode: 18  type:square    
 Epoch: 252   Episode: 19  type:square    
-triangles: 0, squares: 250
-comp: 0.6217135190963745
+triangles: 0, squares: 221
+comp: 0.8786871433258057
 epoch: 253
 Epoch: 253   Episode: 0   type:square    
 Epoch: 253   Episode: 1   type:square    
@@ -5838,8 +5838,8 @@ Epoch: 253   Episode: 16  type:square
 Epoch: 253   Episode: 17  type:square    
 Epoch: 253   Episode: 18  type:square    
 Epoch: 253   Episode: 19  type:square    
-triangles: 0, squares: 174
-comp: 0.6222015619277954
+triangles: 0, squares: 221
+comp: 0.8791015148162842
 epoch: 254
 Epoch: 254   Episode: 0   type:square    
 Epoch: 254   Episode: 1   type:square    
@@ -5861,8 +5861,8 @@ Epoch: 254   Episode: 16  type:square
 Epoch: 254   Episode: 17  type:square    
 Epoch: 254   Episode: 18  type:square    
 Epoch: 254   Episode: 19  type:square    
-triangles: 0, squares: 264
-comp: 0.6228829622268677
+triangles: 0, squares: 232
+comp: 0.8795121908187866
 epoch: 255
 Epoch: 255   Episode: 0   type:square    
 Epoch: 255   Episode: 1   type:square    
@@ -5884,8 +5884,8 @@ Epoch: 255   Episode: 16  type:square
 Epoch: 255   Episode: 17  type:square    
 Epoch: 255   Episode: 18  type:square    
 Epoch: 255   Episode: 19  type:square    
-triangles: 0, squares: 246
-comp: 0.6236361265182495
+triangles: 0, squares: 225
+comp: 0.8799313306808472
 epoch: 256
 Epoch: 256   Episode: 0   type:square    
 Epoch: 256   Episode: 1   type:square    
@@ -5907,8 +5907,8 @@ Epoch: 256   Episode: 16  type:square
 Epoch: 256   Episode: 17  type:square    
 Epoch: 256   Episode: 18  type:square    
 Epoch: 256   Episode: 19  type:square    
-triangles: 0, squares: 262
-comp: 0.6244668960571289
+triangles: 0, squares: 239
+comp: 0.8803436756134033
 epoch: 257
 Epoch: 257   Episode: 0   type:square    
 Epoch: 257   Episode: 1   type:square    
@@ -5930,8 +5930,8 @@ Epoch: 257   Episode: 16  type:square
 Epoch: 257   Episode: 17  type:square    
 Epoch: 257   Episode: 18  type:square    
 Epoch: 257   Episode: 19  type:square    
-triangles: 0, squares: 272
-comp: 0.6252681016921997
+triangles: 0, squares: 218
+comp: 0.8807717561721802
 epoch: 258
 Epoch: 258   Episode: 0   type:square    
 Epoch: 258   Episode: 1   type:square    
@@ -5953,8 +5953,8 @@ Epoch: 258   Episode: 16  type:square
 Epoch: 258   Episode: 17  type:square    
 Epoch: 258   Episode: 18  type:square    
 Epoch: 258   Episode: 19  type:square    
-triangles: 0, squares: 217
-comp: 0.6260278224945068
+triangles: 0, squares: 251
+comp: 0.8812063932418823
 epoch: 259
 Epoch: 259   Episode: 0   type:square    
 Epoch: 259   Episode: 1   type:square    
@@ -5976,8 +5976,8 @@ Epoch: 259   Episode: 16  type:square
 Epoch: 259   Episode: 17  type:square    
 Epoch: 259   Episode: 18  type:square    
 Epoch: 259   Episode: 19  type:square    
-triangles: 0, squares: 288
-comp: 0.6268860101699829
+triangles: 0, squares: 237
+comp: 0.8816450834274292
 epoch: 260
 Epoch: 260   Episode: 0   type:square    
 Epoch: 260   Episode: 1   type:square    
@@ -5999,8 +5999,8 @@ Epoch: 260   Episode: 16  type:square
 Epoch: 260   Episode: 17  type:square    
 Epoch: 260   Episode: 18  type:square    
 Epoch: 260   Episode: 19  type:square    
-triangles: 0, squares: 271
-comp: 0.6277508735656738
+triangles: 0, squares: 232
+comp: 0.8820812702178955
 epoch: 261
 Epoch: 261   Episode: 0   type:square    
 Epoch: 261   Episode: 1   type:square    
@@ -6022,8 +6022,8 @@ Epoch: 261   Episode: 16  type:square
 Epoch: 261   Episode: 17  type:square    
 Epoch: 261   Episode: 18  type:square    
 Epoch: 261   Episode: 19  type:square    
-triangles: 0, squares: 279
-comp: 0.6286568641662598
+triangles: 0, squares: 225
+comp: 0.8825254440307617
 epoch: 262
 Epoch: 262   Episode: 0   type:square    
 Epoch: 262   Episode: 1   type:square    
@@ -6045,8 +6045,8 @@ Epoch: 262   Episode: 16  type:square
 Epoch: 262   Episode: 17  type:square    
 Epoch: 262   Episode: 18  type:square    
 Epoch: 262   Episode: 19  type:square    
-triangles: 0, squares: 243
-comp: 0.6296637058258057
+triangles: 0, squares: 234
+comp: 0.882972002029419
 epoch: 263
 Epoch: 263   Episode: 0   type:square    
 Epoch: 263   Episode: 1   type:square    
@@ -6068,8 +6068,8 @@ Epoch: 263   Episode: 16  type:square
 Epoch: 263   Episode: 17  type:square    
 Epoch: 263   Episode: 18  type:square    
 Epoch: 263   Episode: 19  type:square    
-triangles: 0, squares: 183
-comp: 0.630628228187561
+triangles: 0, squares: 249
+comp: 0.8834174871444702
 epoch: 264
 Epoch: 264   Episode: 0   type:square    
 Epoch: 264   Episode: 1   type:square    
@@ -6091,8 +6091,8 @@ Epoch: 264   Episode: 16  type:square
 Epoch: 264   Episode: 17  type:square    
 Epoch: 264   Episode: 18  type:square    
 Epoch: 264   Episode: 19  type:square    
-triangles: 0, squares: 292
-comp: 0.631696343421936
+triangles: 0, squares: 226
+comp: 0.8838578462600708
 epoch: 265
 Epoch: 265   Episode: 0   type:square    
 Epoch: 265   Episode: 1   type:square    
@@ -6114,8 +6114,8 @@ Epoch: 265   Episode: 16  type:square
 Epoch: 265   Episode: 17  type:square    
 Epoch: 265   Episode: 18  type:square    
 Epoch: 265   Episode: 19  type:square    
-triangles: 0, squares: 312
-comp: 0.6327236890792847
+triangles: 0, squares: 210
+comp: 0.8842952251434326
 epoch: 266
 Epoch: 266   Episode: 0   type:square    
 Epoch: 266   Episode: 1   type:square    
@@ -6137,8 +6137,8 @@ Epoch: 266   Episode: 16  type:square
 Epoch: 266   Episode: 17  type:square    
 Epoch: 266   Episode: 18  type:square    
 Epoch: 266   Episode: 19  type:square    
-triangles: 0, squares: 252
-comp: 0.6337219476699829
+triangles: 0, squares: 243
+comp: 0.8847230672836304
 epoch: 267
 Epoch: 267   Episode: 0   type:square    
 Epoch: 267   Episode: 1   type:square    
@@ -6160,8 +6160,8 @@ Epoch: 267   Episode: 16  type:square
 Epoch: 267   Episode: 17  type:square    
 Epoch: 267   Episode: 18  type:square    
 Epoch: 267   Episode: 19  type:square    
-triangles: 0, squares: 248
-comp: 0.6347290277481079
+triangles: 0, squares: 239
+comp: 0.8851374387741089
 epoch: 268
 Epoch: 268   Episode: 0   type:square    
 Epoch: 268   Episode: 1   type:square    
@@ -6183,8 +6183,8 @@ Epoch: 268   Episode: 16  type:square
 Epoch: 268   Episode: 17  type:square    
 Epoch: 268   Episode: 18  type:square    
 Epoch: 268   Episode: 19  type:square    
-triangles: 0, squares: 212
-comp: 0.635726809501648
+triangles: 0, squares: 239
+comp: 0.8855462074279785
 epoch: 269
 Epoch: 269   Episode: 0   type:square    
 Epoch: 269   Episode: 1   type:square    
@@ -6206,8 +6206,8 @@ Epoch: 269   Episode: 16  type:square
 Epoch: 269   Episode: 17  type:square    
 Epoch: 269   Episode: 18  type:square    
 Epoch: 269   Episode: 19  type:square    
-triangles: 0, squares: 226
-comp: 0.6369235515594482
+triangles: 0, squares: 233
+comp: 0.8859540224075317
 epoch: 270
 Epoch: 270   Episode: 0   type:square    
 Epoch: 270   Episode: 1   type:square    
@@ -6229,8 +6229,8 @@ Epoch: 270   Episode: 16  type:square
 Epoch: 270   Episode: 17  type:square    
 Epoch: 270   Episode: 18  type:square    
 Epoch: 270   Episode: 19  type:square    
-triangles: 0, squares: 230
-comp: 0.6381915807723999
+triangles: 0, squares: 244
+comp: 0.8863543272018433
 epoch: 271
 Epoch: 271   Episode: 0   type:square    
 Epoch: 271   Episode: 1   type:square    
@@ -6252,8 +6252,8 @@ Epoch: 271   Episode: 16  type:square
 Epoch: 271   Episode: 17  type:square    
 Epoch: 271   Episode: 18  type:square    
 Epoch: 271   Episode: 19  type:square    
-triangles: 0, squares: 292
-comp: 0.6395165920257568
+triangles: 0, squares: 212
+comp: 0.8867466449737549
 epoch: 272
 Epoch: 272   Episode: 0   type:square    
 Epoch: 272   Episode: 1   type:square    
@@ -6275,8 +6275,8 @@ Epoch: 272   Episode: 16  type:square
 Epoch: 272   Episode: 17  type:square    
 Epoch: 272   Episode: 18  type:square    
 Epoch: 272   Episode: 19  type:square    
-triangles: 0, squares: 306
-comp: 0.6408095359802246
+triangles: 0, squares: 231
+comp: 0.887137770652771
 epoch: 273
 Epoch: 273   Episode: 0   type:square    
 Epoch: 273   Episode: 1   type:square    
@@ -6298,8 +6298,8 @@ Epoch: 273   Episode: 16  type:square
 Epoch: 273   Episode: 17  type:square    
 Epoch: 273   Episode: 18  type:square    
 Epoch: 273   Episode: 19  type:square    
-triangles: 0, squares: 303
-comp: 0.6419932842254639
+triangles: 0, squares: 226
+comp: 0.8875144720077515
 epoch: 274
 Epoch: 274   Episode: 0   type:square    
 Epoch: 274   Episode: 1   type:square    
@@ -6321,8 +6321,8 @@ Epoch: 274   Episode: 16  type:square
 Epoch: 274   Episode: 17  type:square    
 Epoch: 274   Episode: 18  type:square    
 Epoch: 274   Episode: 19  type:square    
-triangles: 0, squares: 272
-comp: 0.6431845426559448
+triangles: 0, squares: 214
+comp: 0.8878769874572754
 epoch: 275
 Epoch: 275   Episode: 0   type:square    
 Epoch: 275   Episode: 1   type:square    
@@ -6344,8 +6344,8 @@ Epoch: 275   Episode: 16  type:square
 Epoch: 275   Episode: 17  type:square    
 Epoch: 275   Episode: 18  type:square    
 Epoch: 275   Episode: 19  type:square    
-triangles: 0, squares: 302
-comp: 0.6444615125656128
+triangles: 0, squares: 210
+comp: 0.8882266283035278
 epoch: 276
 Epoch: 276   Episode: 0   type:square    
 Epoch: 276   Episode: 1   type:square    
@@ -6367,8 +6367,8 @@ Epoch: 276   Episode: 16  type:square
 Epoch: 276   Episode: 17  type:square    
 Epoch: 276   Episode: 18  type:square    
 Epoch: 276   Episode: 19  type:square    
-triangles: 0, squares: 207
-comp: 0.6456401348114014
+triangles: 0, squares: 224
+comp: 0.8885703086853027
 epoch: 277
 Epoch: 277   Episode: 0   type:square    
 Epoch: 277   Episode: 1   type:square    
@@ -6390,8 +6390,8 @@ Epoch: 277   Episode: 16  type:square
 Epoch: 277   Episode: 17  type:square    
 Epoch: 277   Episode: 18  type:square    
 Epoch: 277   Episode: 19  type:square    
-triangles: 0, squares: 286
-comp: 0.6468877792358398
+triangles: 0, squares: 251
+comp: 0.8889105319976807
 epoch: 278
 Epoch: 278   Episode: 0   type:square    
 Epoch: 278   Episode: 1   type:square    
@@ -6413,8 +6413,8 @@ Epoch: 278   Episode: 16  type:square
 Epoch: 278   Episode: 17  type:square    
 Epoch: 278   Episode: 18  type:square    
 Epoch: 278   Episode: 19  type:square    
-triangles: 0, squares: 318
-comp: 0.6480286121368408
+triangles: 0, squares: 232
+comp: 0.8892523050308228
 epoch: 279
 Epoch: 279   Episode: 0   type:square    
 Epoch: 279   Episode: 1   type:square    
@@ -6436,8 +6436,8 @@ Epoch: 279   Episode: 16  type:square
 Epoch: 279   Episode: 17  type:square    
 Epoch: 279   Episode: 18  type:square    
 Epoch: 279   Episode: 19  type:square    
-triangles: 0, squares: 255
-comp: 0.6491259336471558
+triangles: 0, squares: 268
+comp: 0.8895962238311768
 epoch: 280
 Epoch: 280   Episode: 0   type:square    
 Epoch: 280   Episode: 1   type:square    
@@ -6459,8 +6459,8 @@ Epoch: 280   Episode: 16  type:square
 Epoch: 280   Episode: 17  type:square    
 Epoch: 280   Episode: 18  type:square    
 Epoch: 280   Episode: 19  type:square    
-triangles: 0, squares: 222
-comp: 0.6502128839492798
+triangles: 0, squares: 236
+comp: 0.8899427652359009
 epoch: 281
 Epoch: 281   Episode: 0   type:square    
 Epoch: 281   Episode: 1   type:square    
@@ -6482,8 +6482,8 @@ Epoch: 281   Episode: 16  type:square
 Epoch: 281   Episode: 17  type:square    
 Epoch: 281   Episode: 18  type:square    
 Epoch: 281   Episode: 19  type:square    
-triangles: 0, squares: 313
-comp: 0.6513537168502808
+triangles: 0, squares: 241
+comp: 0.8902783393859863
 epoch: 282
 Epoch: 282   Episode: 0   type:square    
 Epoch: 282   Episode: 1   type:square    
@@ -6505,8 +6505,8 @@ Epoch: 282   Episode: 16  type:square
 Epoch: 282   Episode: 17  type:square    
 Epoch: 282   Episode: 18  type:square    
 Epoch: 282   Episode: 19  type:square    
-triangles: 0, squares: 152
-comp: 0.6524554491043091
+triangles: 0, squares: 249
+comp: 0.8906066417694092
 epoch: 283
 Epoch: 283   Episode: 0   type:square    
 Epoch: 283   Episode: 1   type:square    
@@ -6528,8 +6528,8 @@ Epoch: 283   Episode: 16  type:square
 Epoch: 283   Episode: 17  type:square    
 Epoch: 283   Episode: 18  type:square    
 Epoch: 283   Episode: 19  type:square    
-triangles: 0, squares: 206
-comp: 0.6538461446762085
+triangles: 0, squares: 212
+comp: 0.8909280300140381
 epoch: 284
 Epoch: 284   Episode: 0   type:square    
 Epoch: 284   Episode: 1   type:square    
@@ -6551,8 +6551,8 @@ Epoch: 284   Episode: 16  type:square
 Epoch: 284   Episode: 17  type:square    
 Epoch: 284   Episode: 18  type:square    
 Epoch: 284   Episode: 19  type:square    
-triangles: 0, squares: 239
-comp: 0.6552178859710693
+triangles: 0, squares: 195
+comp: 0.8912352323532104
 epoch: 285
 Epoch: 285   Episode: 0   type:square    
 Epoch: 285   Episode: 1   type:square    
@@ -6574,8 +6574,8 @@ Epoch: 285   Episode: 16  type:square
 Epoch: 285   Episode: 17  type:square    
 Epoch: 285   Episode: 18  type:square    
 Epoch: 285   Episode: 19  type:square    
-triangles: 0, squares: 384
-comp: 0.6565659046173096
+triangles: 0, squares: 207
+comp: 0.8915324211120605
 epoch: 286
 Epoch: 286   Episode: 0   type:square    
 Epoch: 286   Episode: 1   type:square    
@@ -6597,8 +6597,8 @@ Epoch: 286   Episode: 16  type:square
 Epoch: 286   Episode: 17  type:square    
 Epoch: 286   Episode: 18  type:square    
 Epoch: 286   Episode: 19  type:square    
-triangles: 0, squares: 384
-comp: 0.6576923131942749
+triangles: 0, squares: 219
+comp: 0.89182448387146
 epoch: 287
 Epoch: 287   Episode: 0   type:square    
 Epoch: 287   Episode: 1   type:square    
@@ -6620,8 +6620,8 @@ Epoch: 287   Episode: 16  type:square
 Epoch: 287   Episode: 17  type:square    
 Epoch: 287   Episode: 18  type:square    
 Epoch: 287   Episode: 19  type:square    
-triangles: 0, squares: 344
-comp: 0.6586053371429443
+triangles: 0, squares: 233
+comp: 0.8921098709106445
 epoch: 288
 Epoch: 288   Episode: 0   type:square    
 Epoch: 288   Episode: 1   type:square    
@@ -6643,8 +6643,8 @@ Epoch: 288   Episode: 16  type:square
 Epoch: 288   Episode: 17  type:square    
 Epoch: 288   Episode: 18  type:square    
 Epoch: 288   Episode: 19  type:square    
-triangles: 0, squares: 277
-comp: 0.6593523025512695
+triangles: 0, squares: 218
+comp: 0.8923907279968262
 epoch: 289
 Epoch: 289   Episode: 0   type:square    
 Epoch: 289   Episode: 1   type:square    
@@ -6666,8 +6666,8 @@ Epoch: 289   Episode: 16  type:square
 Epoch: 289   Episode: 17  type:square    
 Epoch: 289   Episode: 18  type:square    
 Epoch: 289   Episode: 19  type:square    
-triangles: 0, squares: 205
-comp: 0.6600373983383179
+triangles: 0, squares: 250
+comp: 0.892674446105957
 epoch: 290
 Epoch: 290   Episode: 0   type:square    
 Epoch: 290   Episode: 1   type:square    
@@ -6689,8 +6689,8 @@ Epoch: 290   Episode: 16  type:square
 Epoch: 290   Episode: 17  type:square    
 Epoch: 290   Episode: 18  type:square    
 Epoch: 290   Episode: 19  type:square    
-triangles: 0, squares: 258
-comp: 0.6607223749160767
+triangles: 0, squares: 228
+comp: 0.8929640054702759
 epoch: 291
 Epoch: 291   Episode: 0   type:square    
 Epoch: 291   Episode: 1   type:square    
@@ -6712,8 +6712,8 @@ Epoch: 291   Episode: 16  type:square
 Epoch: 291   Episode: 17  type:square    
 Epoch: 291   Episode: 18  type:square    
 Epoch: 291   Episode: 19  type:square    
-triangles: 0, squares: 310
-comp: 0.6614274978637695
+triangles: 0, squares: 232
+comp: 0.8932507038116455
 epoch: 292
 Epoch: 292   Episode: 0   type:square    
 Epoch: 292   Episode: 1   type:square    
@@ -6735,8 +6735,8 @@ Epoch: 292   Episode: 16  type:square
 Epoch: 292   Episode: 17  type:square    
 Epoch: 292   Episode: 18  type:square    
 Epoch: 292   Episode: 19  type:square    
-triangles: 0, squares: 306
-comp: 0.6620734930038452
+triangles: 0, squares: 221
+comp: 0.8935414552688599
 epoch: 293
 Epoch: 293   Episode: 0   type:square    
 Epoch: 293   Episode: 1   type:square    
@@ -6758,8 +6758,8 @@ Epoch: 293   Episode: 16  type:square
 Epoch: 293   Episode: 17  type:square    
 Epoch: 293   Episode: 18  type:square    
 Epoch: 293   Episode: 19  type:square    
-triangles: 0, squares: 143
-comp: 0.662645697593689
+triangles: 0, squares: 195
+comp: 0.8938345909118652
 epoch: 294
 Epoch: 294   Episode: 0   type:square    
 Epoch: 294   Episode: 1   type:square    
@@ -6781,8 +6781,8 @@ Epoch: 294   Episode: 16  type:square
 Epoch: 294   Episode: 17  type:square    
 Epoch: 294   Episode: 18  type:square    
 Epoch: 294   Episode: 19  type:square    
-triangles: 0, squares: 211
-comp: 0.6633926630020142
+triangles: 0, squares: 230
+comp: 0.8941301107406616
 epoch: 295
 Epoch: 295   Episode: 0   type:square    
 Epoch: 295   Episode: 1   type:square    
@@ -6804,8 +6804,8 @@ Epoch: 295   Episode: 16  type:square
 Epoch: 295   Episode: 17  type:square    
 Epoch: 295   Episode: 18  type:square    
 Epoch: 295   Episode: 19  type:square    
-triangles: 0, squares: 219
-comp: 0.6641244888305664
+triangles: 0, squares: 203
+comp: 0.8944272994995117
 epoch: 296
 Epoch: 296   Episode: 0   type:square    
 Epoch: 296   Episode: 1   type:square    
@@ -6827,8 +6827,8 @@ Epoch: 296   Episode: 16  type:square
 Epoch: 296   Episode: 17  type:square    
 Epoch: 296   Episode: 18  type:square    
 Epoch: 296   Episode: 19  type:square    
-triangles: 0, squares: 217
-comp: 0.66481614112854
+triangles: 0, squares: 207
+comp: 0.8947144746780396
 epoch: 297
 Epoch: 297   Episode: 0   type:square    
 Epoch: 297   Episode: 1   type:square    
@@ -6850,8 +6850,8 @@ Epoch: 297   Episode: 16  type:square
 Epoch: 297   Episode: 17  type:square    
 Epoch: 297   Episode: 18  type:square    
 Epoch: 297   Episode: 19  type:square    
-triangles: 0, squares: 202
-comp: 0.6656068563461304
+triangles: 0, squares: 239
+comp: 0.8950037956237793
 epoch: 298
 Epoch: 298   Episode: 0   type:square    
 Epoch: 298   Episode: 1   type:square    
@@ -6873,8 +6873,8 @@ Epoch: 298   Episode: 16  type:square
 Epoch: 298   Episode: 17  type:square    
 Epoch: 298   Episode: 18  type:square    
 Epoch: 298   Episode: 19  type:square    
-triangles: 0, squares: 344
-comp: 0.6665294170379639
+triangles: 0, squares: 226
+comp: 0.8952924013137817
 epoch: 299
 Epoch: 299   Episode: 0   type:square    
 Epoch: 299   Episode: 1   type:square    
@@ -6896,8 +6896,8 @@ Epoch: 299   Episode: 16  type:square
 Epoch: 299   Episode: 17  type:square    
 Epoch: 299   Episode: 18  type:square    
 Epoch: 299   Episode: 19  type:square    
-triangles: 0, squares: 167
-comp: 0.667284369468689
+triangles: 0, squares: 217
+comp: 0.895574688911438
 epoch: 300
 Epoch: 300   Episode: 0   type:triangle  
 Epoch: 300   Episode: 1   type:triangle  
@@ -6919,8 +6919,8 @@ Epoch: 300   Episode: 16  type:triangle
 Epoch: 300   Episode: 17  type:triangle  
 Epoch: 300   Episode: 18  type:triangle  
 Epoch: 300   Episode: 19  type:triangle  
-triangles: 412, squares: 0
-comp: 0.6681442260742188
+triangles: 163, squares: 0
+comp: 0.8958499431610107
 epoch: 301
 Epoch: 301   Episode: 0   type:triangle  
 Epoch: 301   Episode: 1   type:triangle  
@@ -6942,8 +6942,8 @@ Epoch: 301   Episode: 16  type:triangle
 Epoch: 301   Episode: 17  type:triangle  
 Epoch: 301   Episode: 18  type:triangle  
 Epoch: 301   Episode: 19  type:triangle  
-triangles: 536, squares: 0
-comp: 0.668914794921875
+triangles: 177, squares: 0
+comp: 0.8961319923400879
 epoch: 302
 Epoch: 302   Episode: 0   type:triangle  
 Epoch: 302   Episode: 1   type:triangle  
@@ -6965,8 +6965,8 @@ Epoch: 302   Episode: 16  type:triangle
 Epoch: 302   Episode: 17  type:triangle  
 Epoch: 302   Episode: 18  type:triangle  
 Epoch: 302   Episode: 19  type:triangle  
-triangles: 405, squares: 0
-comp: 0.669594407081604
+triangles: 130, squares: 0
+comp: 0.8964288234710693
 epoch: 303
 Epoch: 303   Episode: 0   type:triangle  
 Epoch: 303   Episode: 1   type:triangle  
@@ -6988,8 +6988,8 @@ Epoch: 303   Episode: 16  type:triangle
 Epoch: 303   Episode: 17  type:triangle  
 Epoch: 303   Episode: 18  type:triangle  
 Epoch: 303   Episode: 19  type:triangle  
-triangles: 486, squares: 0
-comp: 0.6702064275741577
+triangles: 180, squares: 0
+comp: 0.8967291116714478
 epoch: 304
 Epoch: 304   Episode: 0   type:triangle  
 Epoch: 304   Episode: 1   type:triangle  
@@ -7011,8 +7011,8 @@ Epoch: 304   Episode: 16  type:triangle
 Epoch: 304   Episode: 17  type:triangle  
 Epoch: 304   Episode: 18  type:triangle  
 Epoch: 304   Episode: 19  type:triangle  
-triangles: 430, squares: 0
-comp: 0.6705833673477173
+triangles: 144, squares: 0
+comp: 0.8970346450805664
 epoch: 305
 Epoch: 305   Episode: 0   type:triangle  
 Epoch: 305   Episode: 1   type:triangle  
@@ -7034,8 +7034,8 @@ Epoch: 305   Episode: 16  type:triangle
 Epoch: 305   Episode: 17  type:triangle  
 Epoch: 305   Episode: 18  type:triangle  
 Epoch: 305   Episode: 19  type:triangle  
-triangles: 471, squares: 0
-comp: 0.670749306678772
+triangles: 168, squares: 0
+comp: 0.897337794303894
 epoch: 306
 Epoch: 306   Episode: 0   type:triangle  
 Epoch: 306   Episode: 1   type:triangle  
@@ -7057,8 +7057,8 @@ Epoch: 306   Episode: 16  type:triangle
 Epoch: 306   Episode: 17  type:triangle  
 Epoch: 306   Episode: 18  type:triangle  
 Epoch: 306   Episode: 19  type:triangle  
-triangles: 447, squares: 0
-comp: 0.670850396156311
+triangles: 187, squares: 0
+comp: 0.8976379632949829
 epoch: 307
 Epoch: 307   Episode: 0   type:triangle  
 Epoch: 307   Episode: 1   type:triangle  
@@ -7080,8 +7080,8 @@ Epoch: 307   Episode: 16  type:triangle
 Epoch: 307   Episode: 17  type:triangle  
 Epoch: 307   Episode: 18  type:triangle  
 Epoch: 307   Episode: 19  type:triangle  
-triangles: 439, squares: 0
-comp: 0.6708440780639648
+triangles: 185, squares: 0
+comp: 0.8979430198669434
 epoch: 308
 Epoch: 308   Episode: 0   type:triangle  
 Epoch: 308   Episode: 1   type:triangle  
@@ -7103,8 +7103,8 @@ Epoch: 308   Episode: 16  type:triangle
 Epoch: 308   Episode: 17  type:triangle  
 Epoch: 308   Episode: 18  type:triangle  
 Epoch: 308   Episode: 19  type:triangle  
-triangles: 367, squares: 0
-comp: 0.670728325843811
+triangles: 168, squares: 0
+comp: 0.898247241973877
 epoch: 309
 Epoch: 309   Episode: 0   type:triangle  
 Epoch: 309   Episode: 1   type:triangle  
@@ -7126,8 +7126,8 @@ Epoch: 309   Episode: 16  type:triangle
 Epoch: 309   Episode: 17  type:triangle  
 Epoch: 309   Episode: 18  type:triangle  
 Epoch: 309   Episode: 19  type:triangle  
-triangles: 300, squares: 0
-comp: 0.6705789566040039
+triangles: 192, squares: 0
+comp: 0.8985499143600464
 epoch: 310
 Epoch: 310   Episode: 0   type:triangle  
 Epoch: 310   Episode: 1   type:triangle  
@@ -7149,8 +7149,8 @@ Epoch: 310   Episode: 16  type:triangle
 Epoch: 310   Episode: 17  type:triangle  
 Epoch: 310   Episode: 18  type:triangle  
 Epoch: 310   Episode: 19  type:triangle  
-triangles: 396, squares: 0
-comp: 0.6705520153045654
+triangles: 194, squares: 0
+comp: 0.8988548517227173
 epoch: 311
 Epoch: 311   Episode: 0   type:triangle  
 Epoch: 311   Episode: 1   type:triangle  
@@ -7172,8 +7172,8 @@ Epoch: 311   Episode: 16  type:triangle
 Epoch: 311   Episode: 17  type:triangle  
 Epoch: 311   Episode: 18  type:triangle  
 Epoch: 311   Episode: 19  type:triangle  
-triangles: 388, squares: 0
-comp: 0.6704773902893066
+triangles: 203, squares: 0
+comp: 0.8991633653640747
 epoch: 312
 Epoch: 312   Episode: 0   type:triangle  
 Epoch: 312   Episode: 1   type:triangle  
@@ -7195,8 +7195,8 @@ Epoch: 312   Episode: 16  type:triangle
 Epoch: 312   Episode: 17  type:triangle  
 Epoch: 312   Episode: 18  type:triangle  
 Epoch: 312   Episode: 19  type:triangle  
-triangles: 417, squares: 0
-comp: 0.6703572273254395
+triangles: 204, squares: 0
+comp: 0.899477481842041
 epoch: 313
 Epoch: 313   Episode: 0   type:triangle  
 Epoch: 313   Episode: 1   type:triangle  
@@ -7218,8 +7218,8 @@ Epoch: 313   Episode: 16  type:triangle
 Epoch: 313   Episode: 17  type:triangle  
 Epoch: 313   Episode: 18  type:triangle  
 Epoch: 313   Episode: 19  type:triangle  
-triangles: 337, squares: 0
-comp: 0.6702250242233276
+triangles: 174, squares: 0
+comp: 0.8997894525527954
 epoch: 314
 Epoch: 314   Episode: 0   type:triangle  
 Epoch: 314   Episode: 1   type:triangle  
@@ -7241,8 +7241,8 @@ Epoch: 314   Episode: 16  type:triangle
 Epoch: 314   Episode: 17  type:triangle  
 Epoch: 314   Episode: 18  type:triangle  
 Epoch: 314   Episode: 19  type:triangle  
-triangles: 329, squares: 0
-comp: 0.6702865362167358
+triangles: 180, squares: 0
+comp: 0.9000964164733887
 epoch: 315
 Epoch: 315   Episode: 0   type:triangle  
 Epoch: 315   Episode: 1   type:triangle  
@@ -7264,8 +7264,8 @@ Epoch: 315   Episode: 16  type:triangle
 Epoch: 315   Episode: 17  type:triangle  
 Epoch: 315   Episode: 18  type:triangle  
 Epoch: 315   Episode: 19  type:triangle  
-triangles: 333, squares: 0
-comp: 0.6703181266784668
+triangles: 184, squares: 0
+comp: 0.9004000425338745
 epoch: 316
 Epoch: 316   Episode: 0   type:triangle  
 Epoch: 316   Episode: 1   type:triangle  
@@ -7287,8 +7287,8 @@ Epoch: 316   Episode: 16  type:triangle
 Epoch: 316   Episode: 17  type:triangle  
 Epoch: 316   Episode: 18  type:triangle  
 Epoch: 316   Episode: 19  type:triangle  
-triangles: 311, squares: 0
-comp: 0.670395016670227
+triangles: 175, squares: 0
+comp: 0.9007024765014648
 epoch: 317
 Epoch: 317   Episode: 0   type:triangle  
 Epoch: 317   Episode: 1   type:triangle  
@@ -7310,8 +7310,8 @@ Epoch: 317   Episode: 16  type:triangle
 Epoch: 317   Episode: 17  type:triangle  
 Epoch: 317   Episode: 18  type:triangle  
 Epoch: 317   Episode: 19  type:triangle  
-triangles: 404, squares: 0
-comp: 0.6705539226531982
+triangles: 180, squares: 0
+comp: 0.9010071754455566
 epoch: 318
 Epoch: 318   Episode: 0   type:triangle  
 Epoch: 318   Episode: 1   type:triangle  
@@ -7333,8 +7333,8 @@ Epoch: 318   Episode: 16  type:triangle
 Epoch: 318   Episode: 17  type:triangle  
 Epoch: 318   Episode: 18  type:triangle  
 Epoch: 318   Episode: 19  type:triangle  
-triangles: 358, squares: 0
-comp: 0.670717716217041
+triangles: 201, squares: 0
+comp: 0.9013152122497559
 epoch: 319
 Epoch: 319   Episode: 0   type:triangle  
 Epoch: 319   Episode: 1   type:triangle  
@@ -7356,8 +7356,8 @@ Epoch: 319   Episode: 16  type:triangle
 Epoch: 319   Episode: 17  type:triangle  
 Epoch: 319   Episode: 18  type:triangle  
 Epoch: 319   Episode: 19  type:triangle  
-triangles: 431, squares: 0
-comp: 0.6708765029907227
+triangles: 167, squares: 0
+comp: 0.9016232490539551
 epoch: 320
 Epoch: 320   Episode: 0   type:triangle  
 Epoch: 320   Episode: 1   type:triangle  
@@ -7379,8 +7379,8 @@ Epoch: 320   Episode: 16  type:triangle
 Epoch: 320   Episode: 17  type:triangle  
 Epoch: 320   Episode: 18  type:triangle  
 Epoch: 320   Episode: 19  type:triangle  
-triangles: 357, squares: 0
-comp: 0.671017050743103
+triangles: 184, squares: 0
+comp: 0.9019274711608887
 epoch: 321
 Epoch: 321   Episode: 0   type:triangle  
 Epoch: 321   Episode: 1   type:triangle  
@@ -7402,8 +7402,8 @@ Epoch: 321   Episode: 16  type:triangle
 Epoch: 321   Episode: 17  type:triangle  
 Epoch: 321   Episode: 18  type:triangle  
 Epoch: 321   Episode: 19  type:triangle  
-triangles: 463, squares: 0
-comp: 0.6710989475250244
+triangles: 172, squares: 0
+comp: 0.9022389650344849
 epoch: 322
 Epoch: 322   Episode: 0   type:triangle  
 Epoch: 322   Episode: 1   type:triangle  
@@ -7425,8 +7425,8 @@ Epoch: 322   Episode: 16  type:triangle
 Epoch: 322   Episode: 17  type:triangle  
 Epoch: 322   Episode: 18  type:triangle  
 Epoch: 322   Episode: 19  type:triangle  
-triangles: 481, squares: 0
-comp: 0.6711002588272095
+triangles: 156, squares: 0
+comp: 0.902544379234314
 epoch: 323
 Epoch: 323   Episode: 0   type:triangle  
 Epoch: 323   Episode: 1   type:triangle  
@@ -7448,8 +7448,8 @@ Epoch: 323   Episode: 16  type:triangle
 Epoch: 323   Episode: 17  type:triangle  
 Epoch: 323   Episode: 18  type:triangle  
 Epoch: 323   Episode: 19  type:triangle  
-triangles: 422, squares: 0
-comp: 0.6711102724075317
+triangles: 145, squares: 0
+comp: 0.9028456211090088
 epoch: 324
 Epoch: 324   Episode: 0   type:triangle  
 Epoch: 324   Episode: 1   type:triangle  
@@ -7471,8 +7471,8 @@ Epoch: 324   Episode: 16  type:triangle
 Epoch: 324   Episode: 17  type:triangle  
 Epoch: 324   Episode: 18  type:triangle  
 Epoch: 324   Episode: 19  type:triangle  
-triangles: 390, squares: 0
-comp: 0.6711373329162598
+triangles: 164, squares: 0
+comp: 0.9031413793563843
 epoch: 325
 Epoch: 325   Episode: 0   type:triangle  
 Epoch: 325   Episode: 1   type:triangle  
@@ -7494,8 +7494,8 @@ Epoch: 325   Episode: 16  type:triangle
 Epoch: 325   Episode: 17  type:triangle  
 Epoch: 325   Episode: 18  type:triangle  
 Epoch: 325   Episode: 19  type:triangle  
-triangles: 399, squares: 0
-comp: 0.6711956262588501
+triangles: 186, squares: 0
+comp: 0.9034347534179688
 epoch: 326
 Epoch: 326   Episode: 0   type:triangle  
 Epoch: 326   Episode: 1   type:triangle  
@@ -7517,8 +7517,8 @@ Epoch: 326   Episode: 16  type:triangle
 Epoch: 326   Episode: 17  type:triangle  
 Epoch: 326   Episode: 18  type:triangle  
 Epoch: 326   Episode: 19  type:triangle  
-triangles: 405, squares: 0
-comp: 0.6712651252746582
+triangles: 188, squares: 0
+comp: 0.9037280082702637
 epoch: 327
 Epoch: 327   Episode: 0   type:triangle  
 Epoch: 327   Episode: 1   type:triangle  
@@ -7540,8 +7540,8 @@ Epoch: 327   Episode: 16  type:triangle
 Epoch: 327   Episode: 17  type:triangle  
 Epoch: 327   Episode: 18  type:triangle  
 Epoch: 327   Episode: 19  type:triangle  
-triangles: 480, squares: 0
-comp: 0.6712652444839478
+triangles: 161, squares: 0
+comp: 0.9040229320526123
 epoch: 328
 Epoch: 328   Episode: 0   type:triangle  
 Epoch: 328   Episode: 1   type:triangle  
@@ -7563,8 +7563,8 @@ Epoch: 328   Episode: 16  type:triangle
 Epoch: 328   Episode: 17  type:triangle  
 Epoch: 328   Episode: 18  type:triangle  
 Epoch: 328   Episode: 19  type:triangle  
-triangles: 485, squares: 0
-comp: 0.6712757349014282
+triangles: 179, squares: 0
+comp: 0.9043185710906982
 epoch: 329
 Epoch: 329   Episode: 0   type:triangle  
 Epoch: 329   Episode: 1   type:triangle  
@@ -7586,8 +7586,8 @@ Epoch: 329   Episode: 16  type:triangle
 Epoch: 329   Episode: 17  type:triangle  
 Epoch: 329   Episode: 18  type:triangle  
 Epoch: 329   Episode: 19  type:triangle  
-triangles: 448, squares: 0
-comp: 0.6712005138397217
+triangles: 145, squares: 0
+comp: 0.9046149253845215
 epoch: 330
 Epoch: 330   Episode: 0   type:triangle  
 Epoch: 330   Episode: 1   type:triangle  
@@ -7609,8 +7609,8 @@ Epoch: 330   Episode: 16  type:triangle
 Epoch: 330   Episode: 17  type:triangle  
 Epoch: 330   Episode: 18  type:triangle  
 Epoch: 330   Episode: 19  type:triangle  
-triangles: 485, squares: 0
-comp: 0.6711015701293945
+triangles: 184, squares: 0
+comp: 0.9049054384231567
 epoch: 331
 Epoch: 331   Episode: 0   type:triangle  
 Epoch: 331   Episode: 1   type:triangle  
@@ -7632,8 +7632,8 @@ Epoch: 331   Episode: 16  type:triangle
 Epoch: 331   Episode: 17  type:triangle  
 Epoch: 331   Episode: 18  type:triangle  
 Epoch: 331   Episode: 19  type:triangle  
-triangles: 462, squares: 0
-comp: 0.6708824634552002
+triangles: 160, squares: 0
+comp: 0.9052010774612427
 epoch: 332
 Epoch: 332   Episode: 0   type:triangle  
 Epoch: 332   Episode: 1   type:triangle  
@@ -7655,8 +7655,8 @@ Epoch: 332   Episode: 16  type:triangle
 Epoch: 332   Episode: 17  type:triangle  
 Epoch: 332   Episode: 18  type:triangle  
 Epoch: 332   Episode: 19  type:triangle  
-triangles: 369, squares: 0
-comp: 0.6706628799438477
+triangles: 177, squares: 0
+comp: 0.9054855108261108
 epoch: 333
 Epoch: 333   Episode: 0   type:triangle  
 Epoch: 333   Episode: 1   type:triangle  
@@ -7678,8 +7678,8 @@ Epoch: 333   Episode: 16  type:triangle
 Epoch: 333   Episode: 17  type:triangle  
 Epoch: 333   Episode: 18  type:triangle  
 Epoch: 333   Episode: 19  type:triangle  
-triangles: 315, squares: 0
-comp: 0.6705784797668457
+triangles: 150, squares: 0
+comp: 0.9057620763778687
 epoch: 334
 Epoch: 334   Episode: 0   type:triangle  
 Epoch: 334   Episode: 1   type:triangle  
@@ -7701,8 +7701,8 @@ Epoch: 334   Episode: 16  type:triangle
 Epoch: 334   Episode: 17  type:triangle  
 Epoch: 334   Episode: 18  type:triangle  
 Epoch: 334   Episode: 19  type:triangle  
-triangles: 367, squares: 0
-comp: 0.6707991361618042
+triangles: 161, squares: 0
+comp: 0.9060297012329102
 epoch: 335
 Epoch: 335   Episode: 0   type:triangle  
 Epoch: 335   Episode: 1   type:triangle  
@@ -7724,8 +7724,8 @@ Epoch: 335   Episode: 16  type:triangle
 Epoch: 335   Episode: 17  type:triangle  
 Epoch: 335   Episode: 18  type:triangle  
 Epoch: 335   Episode: 19  type:triangle  
-triangles: 413, squares: 0
-comp: 0.6712274551391602
+triangles: 168, squares: 0
+comp: 0.9062914848327637
 epoch: 336
 Epoch: 336   Episode: 0   type:triangle  
 Epoch: 336   Episode: 1   type:triangle  
@@ -7747,8 +7747,8 @@ Epoch: 336   Episode: 16  type:triangle
 Epoch: 336   Episode: 17  type:triangle  
 Epoch: 336   Episode: 18  type:triangle  
 Epoch: 336   Episode: 19  type:triangle  
-triangles: 394, squares: 0
-comp: 0.6716059446334839
+triangles: 147, squares: 0
+comp: 0.9065498113632202
 epoch: 337
 Epoch: 337   Episode: 0   type:triangle  
 Epoch: 337   Episode: 1   type:triangle  
@@ -7770,8 +7770,8 @@ Epoch: 337   Episode: 16  type:triangle
 Epoch: 337   Episode: 17  type:triangle  
 Epoch: 337   Episode: 18  type:triangle  
 Epoch: 337   Episode: 19  type:triangle  
-triangles: 367, squares: 0
-comp: 0.6719402074813843
+triangles: 154, squares: 0
+comp: 0.9068084955215454
 epoch: 338
 Epoch: 338   Episode: 0   type:triangle  
 Epoch: 338   Episode: 1   type:triangle  
@@ -7793,8 +7793,8 @@ Epoch: 338   Episode: 16  type:triangle
 Epoch: 338   Episode: 17  type:triangle  
 Epoch: 338   Episode: 18  type:triangle  
 Epoch: 338   Episode: 19  type:triangle  
-triangles: 353, squares: 0
-comp: 0.6724621057510376
+triangles: 144, squares: 0
+comp: 0.9070590734481812
 epoch: 339
 Epoch: 339   Episode: 0   type:triangle  
 Epoch: 339   Episode: 1   type:triangle  
@@ -7816,8 +7816,8 @@ Epoch: 339   Episode: 16  type:triangle
 Epoch: 339   Episode: 17  type:triangle  
 Epoch: 339   Episode: 18  type:triangle  
 Epoch: 339   Episode: 19  type:triangle  
-triangles: 343, squares: 0
-comp: 0.6730645895004272
+triangles: 145, squares: 0
+comp: 0.9073004722595215
 epoch: 340
 Epoch: 340   Episode: 0   type:triangle  
 Epoch: 340   Episode: 1   type:triangle  
@@ -7839,8 +7839,8 @@ Epoch: 340   Episode: 16  type:triangle
 Epoch: 340   Episode: 17  type:triangle  
 Epoch: 340   Episode: 18  type:triangle  
 Epoch: 340   Episode: 19  type:triangle  
-triangles: 326, squares: 0
-comp: 0.6736116409301758
+triangles: 172, squares: 0
+comp: 0.9075424671173096
 epoch: 341
 Epoch: 341   Episode: 0   type:triangle  
 Epoch: 341   Episode: 1   type:triangle  
@@ -7862,8 +7862,8 @@ Epoch: 341   Episode: 16  type:triangle
 Epoch: 341   Episode: 17  type:triangle  
 Epoch: 341   Episode: 18  type:triangle  
 Epoch: 341   Episode: 19  type:triangle  
-triangles: 367, squares: 0
-comp: 0.6742287874221802
+triangles: 124, squares: 0
+comp: 0.9077866077423096
 epoch: 342
 Epoch: 342   Episode: 0   type:triangle  
 Epoch: 342   Episode: 1   type:triangle  
@@ -7885,8 +7885,8 @@ Epoch: 342   Episode: 16  type:triangle
 Epoch: 342   Episode: 17  type:triangle  
 Epoch: 342   Episode: 18  type:triangle  
 Epoch: 342   Episode: 19  type:triangle  
-triangles: 397, squares: 0
-comp: 0.6746933460235596
+triangles: 173, squares: 0
+comp: 0.9080260992050171
 epoch: 343
 Epoch: 343   Episode: 0   type:triangle  
 Epoch: 343   Episode: 1   type:triangle  
@@ -7908,8 +7908,8 @@ Epoch: 343   Episode: 16  type:triangle
 Epoch: 343   Episode: 17  type:triangle  
 Epoch: 343   Episode: 18  type:triangle  
 Epoch: 343   Episode: 19  type:triangle  
-triangles: 338, squares: 0
-comp: 0.6750717163085938
+triangles: 154, squares: 0
+comp: 0.9082696437835693
 epoch: 344
 Epoch: 344   Episode: 0   type:triangle  
 Epoch: 344   Episode: 1   type:triangle  
@@ -7931,8 +7931,8 @@ Epoch: 344   Episode: 16  type:triangle
 Epoch: 344   Episode: 17  type:triangle  
 Epoch: 344   Episode: 18  type:triangle  
 Epoch: 344   Episode: 19  type:triangle  
-triangles: 275, squares: 0
-comp: 0.6754884719848633
+triangles: 157, squares: 0
+comp: 0.9085164070129395
 epoch: 345
 Epoch: 345   Episode: 0   type:triangle  
 Epoch: 345   Episode: 1   type:triangle  
@@ -7954,8 +7954,8 @@ Epoch: 345   Episode: 16  type:triangle
 Epoch: 345   Episode: 17  type:triangle  
 Epoch: 345   Episode: 18  type:triangle  
 Epoch: 345   Episode: 19  type:triangle  
-triangles: 357, squares: 0
-comp: 0.6759610176086426
+triangles: 147, squares: 0
+comp: 0.908758282661438
 epoch: 346
 Epoch: 346   Episode: 0   type:triangle  
 Epoch: 346   Episode: 1   type:triangle  
@@ -7977,8 +7977,8 @@ Epoch: 346   Episode: 16  type:triangle
 Epoch: 346   Episode: 17  type:triangle  
 Epoch: 346   Episode: 18  type:triangle  
 Epoch: 346   Episode: 19  type:triangle  
-triangles: 327, squares: 0
-comp: 0.6764695644378662
+triangles: 160, squares: 0
+comp: 0.9090018272399902
 epoch: 347
 Epoch: 347   Episode: 0   type:triangle  
 Epoch: 347   Episode: 1   type:triangle  
@@ -8000,8 +8000,8 @@ Epoch: 347   Episode: 16  type:triangle
 Epoch: 347   Episode: 17  type:triangle  
 Epoch: 347   Episode: 18  type:triangle  
 Epoch: 347   Episode: 19  type:triangle  
-triangles: 377, squares: 0
-comp: 0.6770647764205933
+triangles: 115, squares: 0
+comp: 0.9092389345169067
 epoch: 348
 Epoch: 348   Episode: 0   type:triangle  
 Epoch: 348   Episode: 1   type:triangle  
@@ -8023,8 +8023,8 @@ Epoch: 348   Episode: 16  type:triangle
 Epoch: 348   Episode: 17  type:triangle  
 Epoch: 348   Episode: 18  type:triangle  
 Epoch: 348   Episode: 19  type:triangle  
-triangles: 424, squares: 0
-comp: 0.6776734590530396
+triangles: 133, squares: 0
+comp: 0.9094661474227905
 epoch: 349
 Epoch: 349   Episode: 0   type:triangle  
 Epoch: 349   Episode: 1   type:triangle  
@@ -8046,8 +8046,8 @@ Epoch: 349   Episode: 16  type:triangle
 Epoch: 349   Episode: 17  type:triangle  
 Epoch: 349   Episode: 18  type:triangle  
 Epoch: 349   Episode: 19  type:triangle  
-triangles: 303, squares: 0
-comp: 0.6780444383621216
+triangles: 174, squares: 0
+comp: 0.9096899032592773
 epoch: 350
 Epoch: 350   Episode: 0   type:square    
 Epoch: 350   Episode: 1   type:square    
@@ -8069,8 +8069,8 @@ Epoch: 350   Episode: 16  type:square
 Epoch: 350   Episode: 17  type:square    
 Epoch: 350   Episode: 18  type:square    
 Epoch: 350   Episode: 19  type:square    
-triangles: 0, squares: 310
-comp: 0.6785796880722046
+triangles: 0, squares: 231
+comp: 0.9099078178405762
 epoch: 351
 Epoch: 351   Episode: 0   type:square    
 Epoch: 351   Episode: 1   type:square    
@@ -8092,8 +8092,8 @@ Epoch: 351   Episode: 16  type:square
 Epoch: 351   Episode: 17  type:square    
 Epoch: 351   Episode: 18  type:square    
 Epoch: 351   Episode: 19  type:square    
-triangles: 0, squares: 242
-comp: 0.6791634559631348
+triangles: 0, squares: 220
+comp: 0.9101279973983765
 epoch: 352
 Epoch: 352   Episode: 0   type:square    
 Epoch: 352   Episode: 1   type:square    
@@ -8115,8 +8115,8 @@ Epoch: 352   Episode: 16  type:square
 Epoch: 352   Episode: 17  type:square    
 Epoch: 352   Episode: 18  type:square    
 Epoch: 352   Episode: 19  type:square    
-triangles: 0, squares: 187
-comp: 0.6799296140670776
+triangles: 0, squares: 201
+comp: 0.9103466272354126
 epoch: 353
 Epoch: 353   Episode: 0   type:square    
 Epoch: 353   Episode: 1   type:square    
@@ -8138,8 +8138,8 @@ Epoch: 353   Episode: 16  type:square
 Epoch: 353   Episode: 17  type:square    
 Epoch: 353   Episode: 18  type:square    
 Epoch: 353   Episode: 19  type:square    
-triangles: 0, squares: 276
-comp: 0.6807881593704224
+triangles: 0, squares: 219
+comp: 0.9105648994445801
 epoch: 354
 Epoch: 354   Episode: 0   type:square    
 Epoch: 354   Episode: 1   type:square    
@@ -8161,8 +8161,8 @@ Epoch: 354   Episode: 16  type:square
 Epoch: 354   Episode: 17  type:square    
 Epoch: 354   Episode: 18  type:square    
 Epoch: 354   Episode: 19  type:square    
-triangles: 0, squares: 270
-comp: 0.6816235780715942
+triangles: 0, squares: 226
+comp: 0.910772442817688
 epoch: 355
 Epoch: 355   Episode: 0   type:square    
 Epoch: 355   Episode: 1   type:square    
@@ -8184,8 +8184,8 @@ Epoch: 355   Episode: 16  type:square
 Epoch: 355   Episode: 17  type:square    
 Epoch: 355   Episode: 18  type:square    
 Epoch: 355   Episode: 19  type:square    
-triangles: 0, squares: 238
-comp: 0.6824522018432617
+triangles: 0, squares: 225
+comp: 0.9109758138656616
 epoch: 356
 Epoch: 356   Episode: 0   type:square    
 Epoch: 356   Episode: 1   type:square    
@@ -8207,8 +8207,8 @@ Epoch: 356   Episode: 16  type:square
 Epoch: 356   Episode: 17  type:square    
 Epoch: 356   Episode: 18  type:square    
 Epoch: 356   Episode: 19  type:square    
-triangles: 0, squares: 230
-comp: 0.6833059787750244
+triangles: 0, squares: 232
+comp: 0.9111695289611816
 epoch: 357
 Epoch: 357   Episode: 0   type:square    
 Epoch: 357   Episode: 1   type:square    
@@ -8230,8 +8230,8 @@ Epoch: 357   Episode: 16  type:square
 Epoch: 357   Episode: 17  type:square    
 Epoch: 357   Episode: 18  type:square    
 Epoch: 357   Episode: 19  type:square    
-triangles: 0, squares: 351
-comp: 0.6841129064559937
+triangles: 0, squares: 222
+comp: 0.9113585948944092
 epoch: 358
 Epoch: 358   Episode: 0   type:square    
 Epoch: 358   Episode: 1   type:square    
@@ -8253,8 +8253,8 @@ Epoch: 358   Episode: 16  type:square
 Epoch: 358   Episode: 17  type:square    
 Epoch: 358   Episode: 18  type:square    
 Epoch: 358   Episode: 19  type:square    
-triangles: 0, squares: 199
-comp: 0.6848491430282593
+triangles: 0, squares: 234
+comp: 0.911537766456604
 epoch: 359
 Epoch: 359   Episode: 0   type:square    
 Epoch: 359   Episode: 1   type:square    
@@ -8276,8 +8276,8 @@ Epoch: 359   Episode: 16  type:square
 Epoch: 359   Episode: 17  type:square    
 Epoch: 359   Episode: 18  type:square    
 Epoch: 359   Episode: 19  type:square    
-triangles: 0, squares: 218
-comp: 0.6857098340988159
+triangles: 0, squares: 248
+comp: 0.9117095470428467
 epoch: 360
 Epoch: 360   Episode: 0   type:square    
 Epoch: 360   Episode: 1   type:square    
@@ -8299,8 +8299,8 @@ Epoch: 360   Episode: 16  type:square
 Epoch: 360   Episode: 17  type:square    
 Epoch: 360   Episode: 18  type:square    
 Epoch: 360   Episode: 19  type:square    
-triangles: 0, squares: 216
-comp: 0.686683177947998
+triangles: 0, squares: 235
+comp: 0.9118897914886475
 epoch: 361
 Epoch: 361   Episode: 0   type:square    
 Epoch: 361   Episode: 1   type:square    
@@ -8322,8 +8322,8 @@ Epoch: 361   Episode: 16  type:square
 Epoch: 361   Episode: 17  type:square    
 Epoch: 361   Episode: 18  type:square    
 Epoch: 361   Episode: 19  type:square    
-triangles: 0, squares: 269
-comp: 0.6876071691513062
+triangles: 0, squares: 248
+comp: 0.9120708703994751
 epoch: 362
 Epoch: 362   Episode: 0   type:square    
 Epoch: 362   Episode: 1   type:square    
@@ -8345,8 +8345,8 @@ Epoch: 362   Episode: 16  type:square
 Epoch: 362   Episode: 17  type:square    
 Epoch: 362   Episode: 18  type:square    
 Epoch: 362   Episode: 19  type:square    
-triangles: 0, squares: 242
-comp: 0.6885484457015991
+triangles: 0, squares: 234
+comp: 0.912244439125061
 epoch: 363
 Epoch: 363   Episode: 0   type:square    
 Epoch: 363   Episode: 1   type:square    
@@ -8368,8 +8368,8 @@ Epoch: 363   Episode: 16  type:square
 Epoch: 363   Episode: 17  type:square    
 Epoch: 363   Episode: 18  type:square    
 Epoch: 363   Episode: 19  type:square    
-triangles: 0, squares: 355
-comp: 0.6893788576126099
+triangles: 0, squares: 231
+comp: 0.9124207496643066
 epoch: 364
 Epoch: 364   Episode: 0   type:square    
 Epoch: 364   Episode: 1   type:square    
@@ -8391,8 +8391,8 @@ Epoch: 364   Episode: 16  type:square
 Epoch: 364   Episode: 17  type:square    
 Epoch: 364   Episode: 18  type:square    
 Epoch: 364   Episode: 19  type:square    
-triangles: 0, squares: 337
-comp: 0.6901928186416626
+triangles: 0, squares: 228
+comp: 0.9125924110412598
 epoch: 365
 Epoch: 365   Episode: 0   type:square    
 Epoch: 365   Episode: 1   type:square    
@@ -8414,8 +8414,8 @@ Epoch: 365   Episode: 16  type:square
 Epoch: 365   Episode: 17  type:square    
 Epoch: 365   Episode: 18  type:square    
 Epoch: 365   Episode: 19  type:square    
-triangles: 0, squares: 303
-comp: 0.6908968687057495
+triangles: 0, squares: 236
+comp: 0.9127669334411621
 epoch: 366
 Epoch: 366   Episode: 0   type:square    
 Epoch: 366   Episode: 1   type:square    
@@ -8437,8 +8437,8 @@ Epoch: 366   Episode: 16  type:square
 Epoch: 366   Episode: 17  type:square    
 Epoch: 366   Episode: 18  type:square    
 Epoch: 366   Episode: 19  type:square    
-triangles: 0, squares: 275
-comp: 0.6916235685348511
+triangles: 0, squares: 219
+comp: 0.9129424095153809
 epoch: 367
 Epoch: 367   Episode: 0   type:square    
 Epoch: 367   Episode: 1   type:square    
@@ -8460,8 +8460,8 @@ Epoch: 367   Episode: 16  type:square
 Epoch: 367   Episode: 17  type:square    
 Epoch: 367   Episode: 18  type:square    
 Epoch: 367   Episode: 19  type:square    
-triangles: 0, squares: 217
-comp: 0.6923450231552124
+triangles: 0, squares: 224
+comp: 0.9131190776824951
 epoch: 368
 Epoch: 368   Episode: 0   type:square    
 Epoch: 368   Episode: 1   type:square    
@@ -8483,8 +8483,8 @@ Epoch: 368   Episode: 16  type:square
 Epoch: 368   Episode: 17  type:square    
 Epoch: 368   Episode: 18  type:square    
 Epoch: 368   Episode: 19  type:square    
-triangles: 0, squares: 269
-comp: 0.6933071613311768
+triangles: 0, squares: 232
+comp: 0.9132952690124512
 epoch: 369
 Epoch: 369   Episode: 0   type:square    
 Epoch: 369   Episode: 1   type:square    
@@ -8506,8 +8506,8 @@ Epoch: 369   Episode: 16  type:square
 Epoch: 369   Episode: 17  type:square    
 Epoch: 369   Episode: 18  type:square    
 Epoch: 369   Episode: 19  type:square    
-triangles: 0, squares: 239
-comp: 0.6941395998001099
+triangles: 0, squares: 231
+comp: 0.9134700298309326
 epoch: 370
 Epoch: 370   Episode: 0   type:square    
 Epoch: 370   Episode: 1   type:square    
@@ -8529,8 +8529,8 @@ Epoch: 370   Episode: 16  type:square
 Epoch: 370   Episode: 17  type:square    
 Epoch: 370   Episode: 18  type:square    
 Epoch: 370   Episode: 19  type:square    
-triangles: 0, squares: 370
-comp: 0.6949975490570068
+triangles: 0, squares: 229
+comp: 0.9136391878128052
 epoch: 371
 Epoch: 371   Episode: 0   type:square    
 Epoch: 371   Episode: 1   type:square    
@@ -8552,8 +8552,8 @@ Epoch: 371   Episode: 16  type:square
 Epoch: 371   Episode: 17  type:square    
 Epoch: 371   Episode: 18  type:square    
 Epoch: 371   Episode: 19  type:square    
-triangles: 0, squares: 235
-comp: 0.6956993341445923
+triangles: 0, squares: 219
+comp: 0.9138062000274658
 epoch: 372
 Epoch: 372   Episode: 0   type:square    
 Epoch: 372   Episode: 1   type:square    
@@ -8575,8 +8575,8 @@ Epoch: 372   Episode: 16  type:square
 Epoch: 372   Episode: 17  type:square    
 Epoch: 372   Episode: 18  type:square    
 Epoch: 372   Episode: 19  type:square    
-triangles: 0, squares: 287
-comp: 0.6963766813278198
+triangles: 0, squares: 233
+comp: 0.9139693975448608
 epoch: 373
 Epoch: 373   Episode: 0   type:square    
 Epoch: 373   Episode: 1   type:square    
@@ -8598,8 +8598,8 @@ Epoch: 373   Episode: 16  type:square
 Epoch: 373   Episode: 17  type:square    
 Epoch: 373   Episode: 18  type:square    
 Epoch: 373   Episode: 19  type:square    
-triangles: 0, squares: 298
-comp: 0.6970309019088745
+triangles: 0, squares: 224
+comp: 0.9141325950622559
 epoch: 374
 Epoch: 374   Episode: 0   type:square    
 Epoch: 374   Episode: 1   type:square    
@@ -8621,8 +8621,8 @@ Epoch: 374   Episode: 16  type:square
 Epoch: 374   Episode: 17  type:square    
 Epoch: 374   Episode: 18  type:square    
 Epoch: 374   Episode: 19  type:square    
-triangles: 0, squares: 258
-comp: 0.6977243423461914
+triangles: 0, squares: 253
+comp: 0.9142923355102539
 epoch: 375
 Epoch: 375   Episode: 0   type:square    
 Epoch: 375   Episode: 1   type:square    
@@ -8644,8 +8644,8 @@ Epoch: 375   Episode: 16  type:square
 Epoch: 375   Episode: 17  type:square    
 Epoch: 375   Episode: 18  type:square    
 Epoch: 375   Episode: 19  type:square    
-triangles: 0, squares: 270
-comp: 0.6984859704971313
+triangles: 0, squares: 227
+comp: 0.91444993019104
 epoch: 376
 Epoch: 376   Episode: 0   type:square    
 Epoch: 376   Episode: 1   type:square    
@@ -8667,8 +8667,8 @@ Epoch: 376   Episode: 16  type:square
 Epoch: 376   Episode: 17  type:square    
 Epoch: 376   Episode: 18  type:square    
 Epoch: 376   Episode: 19  type:square    
-triangles: 0, squares: 278
-comp: 0.6992300748825073
+triangles: 0, squares: 235
+comp: 0.9146058559417725
 epoch: 377
 Epoch: 377   Episode: 0   type:square    
 Epoch: 377   Episode: 1   type:square    
@@ -8690,8 +8690,8 @@ Epoch: 377   Episode: 16  type:square
 Epoch: 377   Episode: 17  type:square    
 Epoch: 377   Episode: 18  type:square    
 Epoch: 377   Episode: 19  type:square    
-triangles: 0, squares: 212
-comp: 0.6999156475067139
+triangles: 0, squares: 234
+comp: 0.9147676229476929
 epoch: 378
 Epoch: 378   Episode: 0   type:square    
 Epoch: 378   Episode: 1   type:square    
@@ -8713,8 +8713,8 @@ Epoch: 378   Episode: 16  type:square
 Epoch: 378   Episode: 17  type:square    
 Epoch: 378   Episode: 18  type:square    
 Epoch: 378   Episode: 19  type:square    
-triangles: 0, squares: 233
-comp: 0.7006977796554565
+triangles: 0, squares: 237
+comp: 0.9149284362792969
 epoch: 379
 Epoch: 379   Episode: 0   type:square    
 Epoch: 379   Episode: 1   type:square    
@@ -8736,8 +8736,8 @@ Epoch: 379   Episode: 16  type:square
 Epoch: 379   Episode: 17  type:square    
 Epoch: 379   Episode: 18  type:square    
 Epoch: 379   Episode: 19  type:square    
-triangles: 0, squares: 222
-comp: 0.7014594078063965
+triangles: 0, squares: 248
+comp: 0.9150928258895874
 epoch: 380
 Epoch: 380   Episode: 0   type:square    
 Epoch: 380   Episode: 1   type:square    
@@ -8759,8 +8759,8 @@ Epoch: 380   Episode: 16  type:square
 Epoch: 380   Episode: 17  type:square    
 Epoch: 380   Episode: 18  type:square    
 Epoch: 380   Episode: 19  type:square    
-triangles: 0, squares: 227
-comp: 0.7021881341934204
+triangles: 0, squares: 239
+comp: 0.9152591228485107
 epoch: 381
 Epoch: 381   Episode: 0   type:square    
 Epoch: 381   Episode: 1   type:square    
@@ -8782,8 +8782,8 @@ Epoch: 381   Episode: 16  type:square
 Epoch: 381   Episode: 17  type:square    
 Epoch: 381   Episode: 18  type:square    
 Epoch: 381   Episode: 19  type:square    
-triangles: 0, squares: 291
-comp: 0.7028779983520508
+triangles: 0, squares: 216
+comp: 0.9154223203659058
 epoch: 382
 Epoch: 382   Episode: 0   type:square    
 Epoch: 382   Episode: 1   type:square    
@@ -8805,8 +8805,8 @@ Epoch: 382   Episode: 16  type:square
 Epoch: 382   Episode: 17  type:square    
 Epoch: 382   Episode: 18  type:square    
 Epoch: 382   Episode: 19  type:square    
-triangles: 0, squares: 301
-comp: 0.7035940885543823
+triangles: 0, squares: 239
+comp: 0.9155789613723755
 epoch: 383
 Epoch: 383   Episode: 0   type:square    
 Epoch: 383   Episode: 1   type:square    
@@ -8828,8 +8828,8 @@ Epoch: 383   Episode: 16  type:square
 Epoch: 383   Episode: 17  type:square    
 Epoch: 383   Episode: 18  type:square    
 Epoch: 383   Episode: 19  type:square    
-triangles: 0, squares: 160
-comp: 0.7041232585906982
+triangles: 0, squares: 234
+comp: 0.9157357215881348
 epoch: 384
 Epoch: 384   Episode: 0   type:square    
 Epoch: 384   Episode: 1   type:square    
@@ -8851,8 +8851,8 @@ Epoch: 384   Episode: 16  type:square
 Epoch: 384   Episode: 17  type:square    
 Epoch: 384   Episode: 18  type:square    
 Epoch: 384   Episode: 19  type:square    
-triangles: 0, squares: 360
-comp: 0.7047919034957886
+triangles: 0, squares: 242
+comp: 0.9158949851989746
 epoch: 385
 Epoch: 385   Episode: 0   type:square    
 Epoch: 385   Episode: 1   type:square    
@@ -8874,8 +8874,8 @@ Epoch: 385   Episode: 16  type:square
 Epoch: 385   Episode: 17  type:square    
 Epoch: 385   Episode: 18  type:square    
 Epoch: 385   Episode: 19  type:square    
-triangles: 0, squares: 175
-comp: 0.7054018974304199
+triangles: 0, squares: 206
+comp: 0.9160557985305786
 epoch: 386
 Epoch: 386   Episode: 0   type:square    
 Epoch: 386   Episode: 1   type:square    
@@ -8897,8 +8897,8 @@ Epoch: 386   Episode: 16  type:square
 Epoch: 386   Episode: 17  type:square    
 Epoch: 386   Episode: 18  type:square    
 Epoch: 386   Episode: 19  type:square    
-triangles: 0, squares: 204
-comp: 0.706085205078125
+triangles: 0, squares: 214
+comp: 0.9162074327468872
 epoch: 387
 Epoch: 387   Episode: 0   type:square    
 Epoch: 387   Episode: 1   type:square    
@@ -8920,8 +8920,8 @@ Epoch: 387   Episode: 16  type:square
 Epoch: 387   Episode: 17  type:square    
 Epoch: 387   Episode: 18  type:square    
 Epoch: 387   Episode: 19  type:square    
-triangles: 0, squares: 289
-comp: 0.7067714929580688
+triangles: 0, squares: 219
+comp: 0.9163613319396973
 epoch: 388
 Epoch: 388   Episode: 0   type:square    
 Epoch: 388   Episode: 1   type:square    
@@ -8943,8 +8943,8 @@ Epoch: 388   Episode: 16  type:square
 Epoch: 388   Episode: 17  type:square    
 Epoch: 388   Episode: 18  type:square    
 Epoch: 388   Episode: 19  type:square    
-triangles: 0, squares: 326
-comp: 0.7074882984161377
+triangles: 0, squares: 229
+comp: 0.9165157079696655
 epoch: 389
 Epoch: 389   Episode: 0   type:square    
 Epoch: 389   Episode: 1   type:square    
@@ -8966,8 +8966,8 @@ Epoch: 389   Episode: 16  type:square
 Epoch: 389   Episode: 17  type:square    
 Epoch: 389   Episode: 18  type:square    
 Epoch: 389   Episode: 19  type:square    
-triangles: 0, squares: 195
-comp: 0.708053708076477
+triangles: 0, squares: 246
+comp: 0.9166693687438965
 epoch: 390
 Epoch: 390   Episode: 0   type:square    
 Epoch: 390   Episode: 1   type:square    
@@ -8989,8 +8989,8 @@ Epoch: 390   Episode: 16  type:square
 Epoch: 390   Episode: 17  type:square    
 Epoch: 390   Episode: 18  type:square    
 Epoch: 390   Episode: 19  type:square    
-triangles: 0, squares: 199
-comp: 0.7087221145629883
+triangles: 0, squares: 211
+comp: 0.9168188571929932
 epoch: 391
 Epoch: 391   Episode: 0   type:square    
 Epoch: 391   Episode: 1   type:square    
@@ -9012,8 +9012,8 @@ Epoch: 391   Episode: 16  type:square
 Epoch: 391   Episode: 17  type:square    
 Epoch: 391   Episode: 18  type:square    
 Epoch: 391   Episode: 19  type:square    
-triangles: 0, squares: 213
-comp: 0.7092629671096802
+triangles: 0, squares: 236
+comp: 0.9169639348983765
 epoch: 392
 Epoch: 392   Episode: 0   type:square    
 Epoch: 392   Episode: 1   type:square    
@@ -9035,8 +9035,8 @@ Epoch: 392   Episode: 16  type:square
 Epoch: 392   Episode: 17  type:square    
 Epoch: 392   Episode: 18  type:square    
 Epoch: 392   Episode: 19  type:square    
-triangles: 0, squares: 246
-comp: 0.7099004983901978
+triangles: 0, squares: 248
+comp: 0.9171090126037598
 epoch: 393
 Epoch: 393   Episode: 0   type:square    
 Epoch: 393   Episode: 1   type:square    
@@ -9058,8 +9058,8 @@ Epoch: 393   Episode: 16  type:square
 Epoch: 393   Episode: 17  type:square    
 Epoch: 393   Episode: 18  type:square    
 Epoch: 393   Episode: 19  type:square    
-triangles: 0, squares: 245
-comp: 0.710484504699707
+triangles: 0, squares: 208
+comp: 0.9172549247741699
 epoch: 394
 Epoch: 394   Episode: 0   type:square    
 Epoch: 394   Episode: 1   type:square    
@@ -9081,8 +9081,8 @@ Epoch: 394   Episode: 16  type:square
 Epoch: 394   Episode: 17  type:square    
 Epoch: 394   Episode: 18  type:square    
 Epoch: 394   Episode: 19  type:square    
-triangles: 0, squares: 250
-comp: 0.7111043930053711
+triangles: 0, squares: 218
+comp: 0.9173955917358398
 epoch: 395
 Epoch: 395   Episode: 0   type:square    
 Epoch: 395   Episode: 1   type:square    
@@ -9104,8 +9104,8 @@ Epoch: 395   Episode: 16  type:square
 Epoch: 395   Episode: 17  type:square    
 Epoch: 395   Episode: 18  type:square    
 Epoch: 395   Episode: 19  type:square    
-triangles: 0, squares: 293
-comp: 0.7118120193481445
+triangles: 0, squares: 216
+comp: 0.9175339937210083
 epoch: 396
 Epoch: 396   Episode: 0   type:square    
 Epoch: 396   Episode: 1   type:square    
@@ -9127,8 +9127,8 @@ Epoch: 396   Episode: 16  type:square
 Epoch: 396   Episode: 17  type:square    
 Epoch: 396   Episode: 18  type:square    
 Epoch: 396   Episode: 19  type:square    
-triangles: 0, squares: 335
-comp: 0.712440013885498
+triangles: 0, squares: 224
+comp: 0.9176681041717529
 epoch: 397
 Epoch: 397   Episode: 0   type:square    
 Epoch: 397   Episode: 1   type:square    
@@ -9150,8 +9150,8 @@ Epoch: 397   Episode: 16  type:square
 Epoch: 397   Episode: 17  type:square    
 Epoch: 397   Episode: 18  type:square    
 Epoch: 397   Episode: 19  type:square    
-triangles: 0, squares: 244
-comp: 0.7129772901535034
+triangles: 0, squares: 224
+comp: 0.9177993535995483
 epoch: 398
 Epoch: 398   Episode: 0   type:square    
 Epoch: 398   Episode: 1   type:square    
@@ -9173,8 +9173,8 @@ Epoch: 398   Episode: 16  type:square
 Epoch: 398   Episode: 17  type:square    
 Epoch: 398   Episode: 18  type:square    
 Epoch: 398   Episode: 19  type:square    
-triangles: 0, squares: 225
-comp: 0.7136926651000977
+triangles: 0, squares: 227
+comp: 0.9179304838180542
 epoch: 399
 Epoch: 399   Episode: 0   type:square    
 Epoch: 399   Episode: 1   type:square    
@@ -9196,8 +9196,8 @@ Epoch: 399   Episode: 16  type:square
 Epoch: 399   Episode: 17  type:square    
 Epoch: 399   Episode: 18  type:square    
 Epoch: 399   Episode: 19  type:square    
-triangles: 0, squares: 272
-comp: 0.7144796848297119
+triangles: 0, squares: 222
+comp: 0.9180679321289062
 epoch: 400
 Epoch: 400   Episode: 0   type:triangle  
 Epoch: 400   Episode: 1   type:triangle  
@@ -9219,8 +9219,8 @@ Epoch: 400   Episode: 16  type:triangle
 Epoch: 400   Episode: 17  type:triangle  
 Epoch: 400   Episode: 18  type:triangle  
 Epoch: 400   Episode: 19  type:triangle  
-triangles: 380, squares: 0
-comp: 0.7152345180511475
+triangles: 159, squares: 0
+comp: 0.9182028770446777
 epoch: 401
 Epoch: 401   Episode: 0   type:triangle  
 Epoch: 401   Episode: 1   type:triangle  
@@ -9242,8 +9242,8 @@ Epoch: 401   Episode: 16  type:triangle
 Epoch: 401   Episode: 17  type:triangle  
 Epoch: 401   Episode: 18  type:triangle  
 Epoch: 401   Episode: 19  type:triangle  
-triangles: 366, squares: 0
-comp: 0.7158209085464478
+triangles: 161, squares: 0
+comp: 0.9183424711227417
 epoch: 402
 Epoch: 402   Episode: 0   type:triangle  
 Epoch: 402   Episode: 1   type:triangle  
@@ -9265,8 +9265,8 @@ Epoch: 402   Episode: 16  type:triangle
 Epoch: 402   Episode: 17  type:triangle  
 Epoch: 402   Episode: 18  type:triangle  
 Epoch: 402   Episode: 19  type:triangle  
-triangles: 448, squares: 0
-comp: 0.7162460088729858
+triangles: 149, squares: 0
+comp: 0.9184832572937012
 epoch: 403
 Epoch: 403   Episode: 0   type:triangle  
 Epoch: 403   Episode: 1   type:triangle  
@@ -9288,8 +9288,8 @@ Epoch: 403   Episode: 16  type:triangle
 Epoch: 403   Episode: 17  type:triangle  
 Epoch: 403   Episode: 18  type:triangle  
 Epoch: 403   Episode: 19  type:triangle  
-triangles: 347, squares: 0
-comp: 0.7165861129760742
+triangles: 165, squares: 0
+comp: 0.9186221361160278
 epoch: 404
 Epoch: 404   Episode: 0   type:triangle  
 Epoch: 404   Episode: 1   type:triangle  
@@ -9311,8 +9311,8 @@ Epoch: 404   Episode: 16  type:triangle
 Epoch: 404   Episode: 17  type:triangle  
 Epoch: 404   Episode: 18  type:triangle  
 Epoch: 404   Episode: 19  type:triangle  
-triangles: 393, squares: 0
-comp: 0.7169572114944458
+triangles: 152, squares: 0
+comp: 0.9187666177749634
 epoch: 405
 Epoch: 405   Episode: 0   type:triangle  
 Epoch: 405   Episode: 1   type:triangle  
@@ -9334,8 +9334,8 @@ Epoch: 405   Episode: 16  type:triangle
 Epoch: 405   Episode: 17  type:triangle  
 Epoch: 405   Episode: 18  type:triangle  
 Epoch: 405   Episode: 19  type:triangle  
-triangles: 473, squares: 0
-comp: 0.7172049283981323
+triangles: 134, squares: 0
+comp: 0.9189062118530273
 epoch: 406
 Epoch: 406   Episode: 0   type:triangle  
 Epoch: 406   Episode: 1   type:triangle  
@@ -9357,8 +9357,8 @@ Epoch: 406   Episode: 16  type:triangle
 Epoch: 406   Episode: 17  type:triangle  
 Epoch: 406   Episode: 18  type:triangle  
 Epoch: 406   Episode: 19  type:triangle  
-triangles: 296, squares: 0
-comp: 0.7172962427139282
+triangles: 128, squares: 0
+comp: 0.9190435409545898
 epoch: 407
 Epoch: 407   Episode: 0   type:triangle  
 Epoch: 407   Episode: 1   type:triangle  
@@ -9380,8 +9380,8 @@ Epoch: 407   Episode: 16  type:triangle
 Epoch: 407   Episode: 17  type:triangle  
 Epoch: 407   Episode: 18  type:triangle  
 Epoch: 407   Episode: 19  type:triangle  
-triangles: 439, squares: 0
-comp: 0.7174704074859619
+triangles: 152, squares: 0
+comp: 0.9191830158233643
 epoch: 408
 Epoch: 408   Episode: 0   type:triangle  
 Epoch: 408   Episode: 1   type:triangle  
@@ -9403,8 +9403,8 @@ Epoch: 408   Episode: 16  type:triangle
 Epoch: 408   Episode: 17  type:triangle  
 Epoch: 408   Episode: 18  type:triangle  
 Epoch: 408   Episode: 19  type:triangle  
-triangles: 460, squares: 0
-comp: 0.7176229953765869
+triangles: 141, squares: 0
+comp: 0.9193196296691895
 epoch: 409
 Epoch: 409   Episode: 0   type:triangle  
 Epoch: 409   Episode: 1   type:triangle  
@@ -9426,8 +9426,8 @@ Epoch: 409   Episode: 16  type:triangle
 Epoch: 409   Episode: 17  type:triangle  
 Epoch: 409   Episode: 18  type:triangle  
 Epoch: 409   Episode: 19  type:triangle  
-triangles: 369, squares: 0
-comp: 0.7176223993301392
+triangles: 150, squares: 0
+comp: 0.9194619655609131
 epoch: 410
 Epoch: 410   Episode: 0   type:triangle  
 Epoch: 410   Episode: 1   type:triangle  
@@ -9449,8 +9449,8 @@ Epoch: 410   Episode: 16  type:triangle
 Epoch: 410   Episode: 17  type:triangle  
 Epoch: 410   Episode: 18  type:triangle  
 Epoch: 410   Episode: 19  type:triangle  
-triangles: 420, squares: 0
-comp: 0.7176637649536133
+triangles: 160, squares: 0
+comp: 0.9195983409881592
 epoch: 411
 Epoch: 411   Episode: 0   type:triangle  
 Epoch: 411   Episode: 1   type:triangle  
@@ -9472,8 +9472,8 @@ Epoch: 411   Episode: 16  type:triangle
 Epoch: 411   Episode: 17  type:triangle  
 Epoch: 411   Episode: 18  type:triangle  
 Epoch: 411   Episode: 19  type:triangle  
-triangles: 453, squares: 0
-comp: 0.7175129652023315
+triangles: 133, squares: 0
+comp: 0.9197276830673218
 epoch: 412
 Epoch: 412   Episode: 0   type:triangle  
 Epoch: 412   Episode: 1   type:triangle  
@@ -9495,8 +9495,8 @@ Epoch: 412   Episode: 16  type:triangle
 Epoch: 412   Episode: 17  type:triangle  
 Epoch: 412   Episode: 18  type:triangle  
 Epoch: 412   Episode: 19  type:triangle  
-triangles: 326, squares: 0
-comp: 0.7172077894210815
+triangles: 147, squares: 0
+comp: 0.9198511838912964
 epoch: 413
 Epoch: 413   Episode: 0   type:triangle  
 Epoch: 413   Episode: 1   type:triangle  
@@ -9518,8 +9518,8 @@ Epoch: 413   Episode: 16  type:triangle
 Epoch: 413   Episode: 17  type:triangle  
 Epoch: 413   Episode: 18  type:triangle  
 Epoch: 413   Episode: 19  type:triangle  
-triangles: 386, squares: 0
-comp: 0.7170196771621704
+triangles: 110, squares: 0
+comp: 0.919974684715271
 epoch: 414
 Epoch: 414   Episode: 0   type:triangle  
 Epoch: 414   Episode: 1   type:triangle  
@@ -9541,8 +9541,8 @@ Epoch: 414   Episode: 16  type:triangle
 Epoch: 414   Episode: 17  type:triangle  
 Epoch: 414   Episode: 18  type:triangle  
 Epoch: 414   Episode: 19  type:triangle  
-triangles: 422, squares: 0
-comp: 0.7167935371398926
+triangles: 121, squares: 0
+comp: 0.92010498046875
 epoch: 415
 Epoch: 415   Episode: 0   type:triangle  
 Epoch: 415   Episode: 1   type:triangle  
@@ -9564,8 +9564,8 @@ Epoch: 415   Episode: 16  type:triangle
 Epoch: 415   Episode: 17  type:triangle  
 Epoch: 415   Episode: 18  type:triangle  
 Epoch: 415   Episode: 19  type:triangle  
-triangles: 290, squares: 0
-comp: 0.7164947986602783
+triangles: 129, squares: 0
+comp: 0.9202388525009155
 epoch: 416
 Epoch: 416   Episode: 0   type:triangle  
 Epoch: 416   Episode: 1   type:triangle  
@@ -9587,8 +9587,8 @@ Epoch: 416   Episode: 16  type:triangle
 Epoch: 416   Episode: 17  type:triangle  
 Epoch: 416   Episode: 18  type:triangle  
 Epoch: 416   Episode: 19  type:triangle  
-triangles: 414, squares: 0
-comp: 0.7162995338439941
+triangles: 124, squares: 0
+comp: 0.9203667640686035
 epoch: 417
 Epoch: 417   Episode: 0   type:triangle  
 Epoch: 417   Episode: 1   type:triangle  
@@ -9610,8 +9610,8 @@ Epoch: 417   Episode: 16  type:triangle
 Epoch: 417   Episode: 17  type:triangle  
 Epoch: 417   Episode: 18  type:triangle  
 Epoch: 417   Episode: 19  type:triangle  
-triangles: 305, squares: 0
-comp: 0.7160682678222656
+triangles: 113, squares: 0
+comp: 0.9204962253570557
 epoch: 418
 Epoch: 418   Episode: 0   type:triangle  
 Epoch: 418   Episode: 1   type:triangle  
@@ -9633,8 +9633,8 @@ Epoch: 418   Episode: 16  type:triangle
 Epoch: 418   Episode: 17  type:triangle  
 Epoch: 418   Episode: 18  type:triangle  
 Epoch: 418   Episode: 19  type:triangle  
-triangles: 350, squares: 0
-comp: 0.7160736322402954
+triangles: 124, squares: 0
+comp: 0.9206254482269287
 epoch: 419
 Epoch: 419   Episode: 0   type:triangle  
 Epoch: 419   Episode: 1   type:triangle  
@@ -9656,8 +9656,8 @@ Epoch: 419   Episode: 16  type:triangle
 Epoch: 419   Episode: 17  type:triangle  
 Epoch: 419   Episode: 18  type:triangle  
 Epoch: 419   Episode: 19  type:triangle  
-triangles: 287, squares: 0
-comp: 0.7160868644714355
+triangles: 139, squares: 0
+comp: 0.9207524061203003
 epoch: 420
 Epoch: 420   Episode: 0   type:triangle  
 Epoch: 420   Episode: 1   type:triangle  
@@ -9679,8 +9679,8 @@ Epoch: 420   Episode: 16  type:triangle
 Epoch: 420   Episode: 17  type:triangle  
 Epoch: 420   Episode: 18  type:triangle  
 Epoch: 420   Episode: 19  type:triangle  
-triangles: 368, squares: 0
-comp: 0.7161154747009277
+triangles: 155, squares: 0
+comp: 0.9208842515945435
 epoch: 421
 Epoch: 421   Episode: 0   type:triangle  
 Epoch: 421   Episode: 1   type:triangle  
@@ -9702,8 +9702,8 @@ Epoch: 421   Episode: 16  type:triangle
 Epoch: 421   Episode: 17  type:triangle  
 Epoch: 421   Episode: 18  type:triangle  
 Epoch: 421   Episode: 19  type:triangle  
-triangles: 343, squares: 0
-comp: 0.7159687280654907
+triangles: 118, squares: 0
+comp: 0.9210208654403687
 epoch: 422
 Epoch: 422   Episode: 0   type:triangle  
 Epoch: 422   Episode: 1   type:triangle  
@@ -9725,8 +9725,8 @@ Epoch: 422   Episode: 16  type:triangle
 Epoch: 422   Episode: 17  type:triangle  
 Epoch: 422   Episode: 18  type:triangle  
 Epoch: 422   Episode: 19  type:triangle  
-triangles: 318, squares: 0
-comp: 0.7159678936004639
+triangles: 124, squares: 0
+comp: 0.9211584329605103
 epoch: 423
 Epoch: 423   Episode: 0   type:triangle  
 Epoch: 423   Episode: 1   type:triangle  
@@ -9748,8 +9748,8 @@ Epoch: 423   Episode: 16  type:triangle
 Epoch: 423   Episode: 17  type:triangle  
 Epoch: 423   Episode: 18  type:triangle  
 Epoch: 423   Episode: 19  type:triangle  
-triangles: 232, squares: 0
-comp: 0.7159985303878784
+triangles: 126, squares: 0
+comp: 0.9212971925735474
 epoch: 424
 Epoch: 424   Episode: 0   type:triangle  
 Epoch: 424   Episode: 1   type:triangle  
@@ -9771,8 +9771,8 @@ Epoch: 424   Episode: 16  type:triangle
 Epoch: 424   Episode: 17  type:triangle  
 Epoch: 424   Episode: 18  type:triangle  
 Epoch: 424   Episode: 19  type:triangle  
-triangles: 319, squares: 0
-comp: 0.7161397933959961
+triangles: 135, squares: 0
+comp: 0.9214379787445068
 epoch: 425
 Epoch: 425   Episode: 0   type:triangle  
 Epoch: 425   Episode: 1   type:triangle  
@@ -9794,8 +9794,8 @@ Epoch: 425   Episode: 16  type:triangle
 Epoch: 425   Episode: 17  type:triangle  
 Epoch: 425   Episode: 18  type:triangle  
 Epoch: 425   Episode: 19  type:triangle  
-triangles: 363, squares: 0
-comp: 0.7162938117980957
+triangles: 120, squares: 0
+comp: 0.9215834140777588
 epoch: 426
 Epoch: 426   Episode: 0   type:triangle  
 Epoch: 426   Episode: 1   type:triangle  
@@ -9817,8 +9817,8 @@ Epoch: 426   Episode: 16  type:triangle
 Epoch: 426   Episode: 17  type:triangle  
 Epoch: 426   Episode: 18  type:triangle  
 Epoch: 426   Episode: 19  type:triangle  
-triangles: 329, squares: 0
-comp: 0.7164616584777832
+triangles: 120, squares: 0
+comp: 0.9217274188995361
 epoch: 427
 Epoch: 427   Episode: 0   type:triangle  
 Epoch: 427   Episode: 1   type:triangle  
@@ -9840,8 +9840,8 @@ Epoch: 427   Episode: 16  type:triangle
 Epoch: 427   Episode: 17  type:triangle  
 Epoch: 427   Episode: 18  type:triangle  
 Epoch: 427   Episode: 19  type:triangle  
-triangles: 467, squares: 0
-comp: 0.7167248725891113
+triangles: 135, squares: 0
+comp: 0.9218655824661255
 epoch: 428
 Epoch: 428   Episode: 0   type:triangle  
 Epoch: 428   Episode: 1   type:triangle  
@@ -9863,8 +9863,8 @@ Epoch: 428   Episode: 16  type:triangle
 Epoch: 428   Episode: 17  type:triangle  
 Epoch: 428   Episode: 18  type:triangle  
 Epoch: 428   Episode: 19  type:triangle  
-triangles: 285, squares: 0
-comp: 0.7167167663574219
+triangles: 136, squares: 0
+comp: 0.9220058917999268
 epoch: 429
 Epoch: 429   Episode: 0   type:triangle  
 Epoch: 429   Episode: 1   type:triangle  
@@ -9886,8 +9886,8 @@ Epoch: 429   Episode: 16  type:triangle
 Epoch: 429   Episode: 17  type:triangle  
 Epoch: 429   Episode: 18  type:triangle  
 Epoch: 429   Episode: 19  type:triangle  
-triangles: 263, squares: 0
-comp: 0.7167903184890747
+triangles: 123, squares: 0
+comp: 0.9221435785293579
 epoch: 430
 Epoch: 430   Episode: 0   type:triangle  
 Epoch: 430   Episode: 1   type:triangle  
@@ -9909,8 +9909,8 @@ Epoch: 430   Episode: 16  type:triangle
 Epoch: 430   Episode: 17  type:triangle  
 Epoch: 430   Episode: 18  type:triangle  
 Epoch: 430   Episode: 19  type:triangle  
-triangles: 307, squares: 0
-comp: 0.7169033288955688
+triangles: 108, squares: 0
+comp: 0.9222830533981323
 epoch: 431
 Epoch: 431   Episode: 0   type:triangle  
 Epoch: 431   Episode: 1   type:triangle  
@@ -9932,8 +9932,8 @@ Epoch: 431   Episode: 16  type:triangle
 Epoch: 431   Episode: 17  type:triangle  
 Epoch: 431   Episode: 18  type:triangle  
 Epoch: 431   Episode: 19  type:triangle  
-triangles: 284, squares: 0
-comp: 0.717072606086731
+triangles: 124, squares: 0
+comp: 0.9224182367324829
 epoch: 432
 Epoch: 432   Episode: 0   type:triangle  
 Epoch: 432   Episode: 1   type:triangle  
@@ -9955,8 +9955,8 @@ Epoch: 432   Episode: 16  type:triangle
 Epoch: 432   Episode: 17  type:triangle  
 Epoch: 432   Episode: 18  type:triangle  
 Epoch: 432   Episode: 19  type:triangle  
-triangles: 326, squares: 0
-comp: 0.7171450853347778
+triangles: 121, squares: 0
+comp: 0.922552227973938
 epoch: 433
 Epoch: 433   Episode: 0   type:triangle  
 Epoch: 433   Episode: 1   type:triangle  
@@ -9978,8 +9978,8 @@ Epoch: 433   Episode: 16  type:triangle
 Epoch: 433   Episode: 17  type:triangle  
 Epoch: 433   Episode: 18  type:triangle  
 Epoch: 433   Episode: 19  type:triangle  
-triangles: 376, squares: 0
-comp: 0.7170292139053345
+triangles: 112, squares: 0
+comp: 0.9226861000061035
 epoch: 434
 Epoch: 434   Episode: 0   type:triangle  
 Epoch: 434   Episode: 1   type:triangle  
@@ -10001,8 +10001,8 @@ Epoch: 434   Episode: 16  type:triangle
 Epoch: 434   Episode: 17  type:triangle  
 Epoch: 434   Episode: 18  type:triangle  
 Epoch: 434   Episode: 19  type:triangle  
-triangles: 312, squares: 0
-comp: 0.7169430255889893
+triangles: 121, squares: 0
+comp: 0.9228143692016602
 epoch: 435
 Epoch: 435   Episode: 0   type:triangle  
 Epoch: 435   Episode: 1   type:triangle  
@@ -10024,8 +10024,8 @@ Epoch: 435   Episode: 16  type:triangle
 Epoch: 435   Episode: 17  type:triangle  
 Epoch: 435   Episode: 18  type:triangle  
 Epoch: 435   Episode: 19  type:triangle  
-triangles: 285, squares: 0
-comp: 0.7169196605682373
+triangles: 119, squares: 0
+comp: 0.9229389429092407
 epoch: 436
 Epoch: 436   Episode: 0   type:triangle  
 Epoch: 436   Episode: 1   type:triangle  
@@ -10047,8 +10047,8 @@ Epoch: 436   Episode: 16  type:triangle
 Epoch: 436   Episode: 17  type:triangle  
 Epoch: 436   Episode: 18  type:triangle  
 Epoch: 436   Episode: 19  type:triangle  
-triangles: 330, squares: 0
-comp: 0.7170337438583374
+triangles: 117, squares: 0
+comp: 0.9230623245239258
 epoch: 437
 Epoch: 437   Episode: 0   type:triangle  
 Epoch: 437   Episode: 1   type:triangle  
@@ -10070,8 +10070,8 @@ Epoch: 437   Episode: 16  type:triangle
 Epoch: 437   Episode: 17  type:triangle  
 Epoch: 437   Episode: 18  type:triangle  
 Epoch: 437   Episode: 19  type:triangle  
-triangles: 327, squares: 0
-comp: 0.7172303199768066
+triangles: 131, squares: 0
+comp: 0.9231823682785034
 epoch: 438
 Epoch: 438   Episode: 0   type:triangle  
 Epoch: 438   Episode: 1   type:triangle  
@@ -10093,8 +10093,8 @@ Epoch: 438   Episode: 16  type:triangle
 Epoch: 438   Episode: 17  type:triangle  
 Epoch: 438   Episode: 18  type:triangle  
 Epoch: 438   Episode: 19  type:triangle  
-triangles: 314, squares: 0
-comp: 0.7174999713897705
+triangles: 113, squares: 0
+comp: 0.9233037233352661
 epoch: 439
 Epoch: 439   Episode: 0   type:triangle  
 Epoch: 439   Episode: 1   type:triangle  
@@ -10116,8 +10116,8 @@ Epoch: 439   Episode: 16  type:triangle
 Epoch: 439   Episode: 17  type:triangle  
 Epoch: 439   Episode: 18  type:triangle  
 Epoch: 439   Episode: 19  type:triangle  
-triangles: 308, squares: 0
-comp: 0.7178317308425903
+triangles: 127, squares: 0
+comp: 0.9234210252761841
 epoch: 440
 Epoch: 440   Episode: 0   type:triangle  
 Epoch: 440   Episode: 1   type:triangle  
@@ -10139,8 +10139,8 @@ Epoch: 440   Episode: 16  type:triangle
 Epoch: 440   Episode: 17  type:triangle  
 Epoch: 440   Episode: 18  type:triangle  
 Epoch: 440   Episode: 19  type:triangle  
-triangles: 378, squares: 0
-comp: 0.7181048393249512
+triangles: 111, squares: 0
+comp: 0.9235391616821289
 epoch: 441
 Epoch: 441   Episode: 0   type:triangle  
 Epoch: 441   Episode: 1   type:triangle  
@@ -10162,8 +10162,8 @@ Epoch: 441   Episode: 16  type:triangle
 Epoch: 441   Episode: 17  type:triangle  
 Epoch: 441   Episode: 18  type:triangle  
 Epoch: 441   Episode: 19  type:triangle  
-triangles: 343, squares: 0
-comp: 0.7183223962783813
+triangles: 134, squares: 0
+comp: 0.9236468076705933
 epoch: 442
 Epoch: 442   Episode: 0   type:triangle  
 Epoch: 442   Episode: 1   type:triangle  
@@ -10185,8 +10185,8 @@ Epoch: 442   Episode: 16  type:triangle
 Epoch: 442   Episode: 17  type:triangle  
 Epoch: 442   Episode: 18  type:triangle  
 Epoch: 442   Episode: 19  type:triangle  
-triangles: 353, squares: 0
-comp: 0.7184065580368042
+triangles: 125, squares: 0
+comp: 0.923744797706604
 epoch: 443
 Epoch: 443   Episode: 0   type:triangle  
 Epoch: 443   Episode: 1   type:triangle  
@@ -10208,8 +10208,8 @@ Epoch: 443   Episode: 16  type:triangle
 Epoch: 443   Episode: 17  type:triangle  
 Epoch: 443   Episode: 18  type:triangle  
 Epoch: 443   Episode: 19  type:triangle  
-triangles: 275, squares: 0
-comp: 0.7182883024215698
+triangles: 116, squares: 0
+comp: 0.9238464832305908
 epoch: 444
 Epoch: 444   Episode: 0   type:triangle  
 Epoch: 444   Episode: 1   type:triangle  
@@ -10231,8 +10231,8 @@ Epoch: 444   Episode: 16  type:triangle
 Epoch: 444   Episode: 17  type:triangle  
 Epoch: 444   Episode: 18  type:triangle  
 Epoch: 444   Episode: 19  type:triangle  
-triangles: 402, squares: 0
-comp: 0.7183635234832764
+triangles: 122, squares: 0
+comp: 0.923943281173706
 epoch: 445
 Epoch: 445   Episode: 0   type:triangle  
 Epoch: 445   Episode: 1   type:triangle  
@@ -10254,8 +10254,8 @@ Epoch: 445   Episode: 16  type:triangle
 Epoch: 445   Episode: 17  type:triangle  
 Epoch: 445   Episode: 18  type:triangle  
 Epoch: 445   Episode: 19  type:triangle  
-triangles: 403, squares: 0
-comp: 0.7184057235717773
+triangles: 121, squares: 0
+comp: 0.924036979675293
 epoch: 446
 Epoch: 446   Episode: 0   type:triangle  
 Epoch: 446   Episode: 1   type:triangle  
@@ -10277,8 +10277,8 @@ Epoch: 446   Episode: 16  type:triangle
 Epoch: 446   Episode: 17  type:triangle  
 Epoch: 446   Episode: 18  type:triangle  
 Epoch: 446   Episode: 19  type:triangle  
-triangles: 278, squares: 0
-comp: 0.7183003425598145
+triangles: 118, squares: 0
+comp: 0.9241311550140381
 epoch: 447
 Epoch: 447   Episode: 0   type:triangle  
 Epoch: 447   Episode: 1   type:triangle  
@@ -10300,8 +10300,8 @@ Epoch: 447   Episode: 16  type:triangle
 Epoch: 447   Episode: 17  type:triangle  
 Epoch: 447   Episode: 18  type:triangle  
 Epoch: 447   Episode: 19  type:triangle  
-triangles: 369, squares: 0
-comp: 0.7181352376937866
+triangles: 94, squares: 0
+comp: 0.9242286682128906
 epoch: 448
 Epoch: 448   Episode: 0   type:triangle  
 Epoch: 448   Episode: 1   type:triangle  
@@ -10323,8 +10323,8 @@ Epoch: 448   Episode: 16  type:triangle
 Epoch: 448   Episode: 17  type:triangle  
 Epoch: 448   Episode: 18  type:triangle  
 Epoch: 448   Episode: 19  type:triangle  
-triangles: 339, squares: 0
-comp: 0.7179381847381592
+triangles: 85, squares: 0
+comp: 0.9243226051330566
 epoch: 449
 Epoch: 449   Episode: 0   type:triangle  
 Epoch: 449   Episode: 1   type:triangle  
@@ -10346,8 +10346,8 @@ Epoch: 449   Episode: 16  type:triangle
 Epoch: 449   Episode: 17  type:triangle  
 Epoch: 449   Episode: 18  type:triangle  
 Epoch: 449   Episode: 19  type:triangle  
-triangles: 313, squares: 0
-comp: 0.7176944017410278
+triangles: 105, squares: 0
+comp: 0.9244227409362793
 epoch: 450
 Epoch: 450   Episode: 0   type:square    
 Epoch: 450   Episode: 1   type:square    
@@ -10369,8 +10369,8 @@ Epoch: 450   Episode: 16  type:square
 Epoch: 450   Episode: 17  type:square    
 Epoch: 450   Episode: 18  type:square    
 Epoch: 450   Episode: 19  type:square    
-triangles: 0, squares: 223
-comp: 0.7173582315444946
+triangles: 0, squares: 220
+comp: 0.9245247840881348
 epoch: 451
 Epoch: 451   Episode: 0   type:square    
 Epoch: 451   Episode: 1   type:square    
@@ -10392,8 +10392,8 @@ Epoch: 451   Episode: 16  type:square
 Epoch: 451   Episode: 17  type:square    
 Epoch: 451   Episode: 18  type:square    
 Epoch: 451   Episode: 19  type:square    
-triangles: 0, squares: 224
-comp: 0.7171217203140259
+triangles: 0, squares: 222
+comp: 0.9246217012405396
 epoch: 452
 Epoch: 452   Episode: 0   type:square    
 Epoch: 452   Episode: 1   type:square    
@@ -10415,8 +10415,8 @@ Epoch: 452   Episode: 16  type:square
 Epoch: 452   Episode: 17  type:square    
 Epoch: 452   Episode: 18  type:square    
 Epoch: 452   Episode: 19  type:square    
-triangles: 0, squares: 204
-comp: 0.7170999050140381
+triangles: 0, squares: 228
+comp: 0.9247176647186279
 epoch: 453
 Epoch: 453   Episode: 0   type:square    
 Epoch: 453   Episode: 1   type:square    
@@ -10438,8 +10438,8 @@ Epoch: 453   Episode: 16  type:square
 Epoch: 453   Episode: 17  type:square    
 Epoch: 453   Episode: 18  type:square    
 Epoch: 453   Episode: 19  type:square    
-triangles: 0, squares: 264
-comp: 0.717261791229248
+triangles: 0, squares: 236
+comp: 0.9248156547546387
 epoch: 454
 Epoch: 454   Episode: 0   type:square    
 Epoch: 454   Episode: 1   type:square    
@@ -10461,8 +10461,8 @@ Epoch: 454   Episode: 16  type:square
 Epoch: 454   Episode: 17  type:square    
 Epoch: 454   Episode: 18  type:square    
 Epoch: 454   Episode: 19  type:square    
-triangles: 0, squares: 222
-comp: 0.7174248695373535
+triangles: 0, squares: 212
+comp: 0.9249132871627808
 epoch: 455
 Epoch: 455   Episode: 0   type:square    
 Epoch: 455   Episode: 1   type:square    
@@ -10484,8 +10484,8 @@ Epoch: 455   Episode: 16  type:square
 Epoch: 455   Episode: 17  type:square    
 Epoch: 455   Episode: 18  type:square    
 Epoch: 455   Episode: 19  type:square    
-triangles: 0, squares: 263
-comp: 0.7177386283874512
+triangles: 0, squares: 231
+comp: 0.9250075817108154
 epoch: 456
 Epoch: 456   Episode: 0   type:square    
 Epoch: 456   Episode: 1   type:square    
@@ -10507,8 +10507,8 @@ Epoch: 456   Episode: 16  type:square
 Epoch: 456   Episode: 17  type:square    
 Epoch: 456   Episode: 18  type:square    
 Epoch: 456   Episode: 19  type:square    
-triangles: 0, squares: 230
-comp: 0.7179995775222778
+triangles: 0, squares: 235
+comp: 0.9251067638397217
 epoch: 457
 Epoch: 457   Episode: 0   type:square    
 Epoch: 457   Episode: 1   type:square    
@@ -10530,8 +10530,8 @@ Epoch: 457   Episode: 16  type:square
 Epoch: 457   Episode: 17  type:square    
 Epoch: 457   Episode: 18  type:square    
 Epoch: 457   Episode: 19  type:square    
-triangles: 0, squares: 257
-comp: 0.7183103561401367
+triangles: 0, squares: 234
+comp: 0.9252080917358398
 epoch: 458
 Epoch: 458   Episode: 0   type:square    
 Epoch: 458   Episode: 1   type:square    
@@ -10553,8 +10553,8 @@ Epoch: 458   Episode: 16  type:square
 Epoch: 458   Episode: 17  type:square    
 Epoch: 458   Episode: 18  type:square    
 Epoch: 458   Episode: 19  type:square    
-triangles: 0, squares: 324
-comp: 0.7186019420623779
+triangles: 0, squares: 215
+comp: 0.925308346748352
 epoch: 459
 Epoch: 459   Episode: 0   type:square    
 Epoch: 459   Episode: 1   type:square    
@@ -10576,8 +10576,8 @@ Epoch: 459   Episode: 16  type:square
 Epoch: 459   Episode: 17  type:square    
 Epoch: 459   Episode: 18  type:square    
 Epoch: 459   Episode: 19  type:square    
-triangles: 0, squares: 245
-comp: 0.7188405990600586
+triangles: 0, squares: 251
+comp: 0.9254066944122314
 epoch: 460
 Epoch: 460   Episode: 0   type:square    
 Epoch: 460   Episode: 1   type:square    
@@ -10599,8 +10599,8 @@ Epoch: 460   Episode: 16  type:square
 Epoch: 460   Episode: 17  type:square    
 Epoch: 460   Episode: 18  type:square    
 Epoch: 460   Episode: 19  type:square    
-triangles: 0, squares: 315
-comp: 0.7191531658172607
+triangles: 0, squares: 253
+comp: 0.9255037307739258
 epoch: 461
 Epoch: 461   Episode: 0   type:square    
 Epoch: 461   Episode: 1   type:square    
@@ -10622,8 +10622,8 @@ Epoch: 461   Episode: 16  type:square
 Epoch: 461   Episode: 17  type:square    
 Epoch: 461   Episode: 18  type:square    
 Epoch: 461   Episode: 19  type:square    
-triangles: 0, squares: 310
-comp: 0.719406247138977
+triangles: 0, squares: 255
+comp: 0.9256067276000977
 epoch: 462
 Epoch: 462   Episode: 0   type:square    
 Epoch: 462   Episode: 1   type:square    
@@ -10645,8 +10645,8 @@ Epoch: 462   Episode: 16  type:square
 Epoch: 462   Episode: 17  type:square    
 Epoch: 462   Episode: 18  type:square    
 Epoch: 462   Episode: 19  type:square    
-triangles: 0, squares: 232
-comp: 0.7197012901306152
+triangles: 0, squares: 243
+comp: 0.9257125854492188
 epoch: 463
 Epoch: 463   Episode: 0   type:square    
 Epoch: 463   Episode: 1   type:square    
@@ -10668,8 +10668,8 @@ Epoch: 463   Episode: 16  type:square
 Epoch: 463   Episode: 17  type:square    
 Epoch: 463   Episode: 18  type:square    
 Epoch: 463   Episode: 19  type:square    
-triangles: 0, squares: 210
-comp: 0.7199941873550415
+triangles: 0, squares: 226
+comp: 0.9258190393447876
 epoch: 464
 Epoch: 464   Episode: 0   type:square    
 Epoch: 464   Episode: 1   type:square    
@@ -10691,8 +10691,8 @@ Epoch: 464   Episode: 16  type:square
 Epoch: 464   Episode: 17  type:square    
 Epoch: 464   Episode: 18  type:square    
 Epoch: 464   Episode: 19  type:square    
-triangles: 0, squares: 301
-comp: 0.7204800844192505
+triangles: 0, squares: 258
+comp: 0.925927996635437
 epoch: 465
 Epoch: 465   Episode: 0   type:square    
 Epoch: 465   Episode: 1   type:square    
@@ -10714,8 +10714,8 @@ Epoch: 465   Episode: 16  type:square
 Epoch: 465   Episode: 17  type:square    
 Epoch: 465   Episode: 18  type:square    
 Epoch: 465   Episode: 19  type:square    
-triangles: 0, squares: 273
-comp: 0.7209770679473877
+triangles: 0, squares: 226
+comp: 0.9260369539260864
 epoch: 466
 Epoch: 466   Episode: 0   type:square    
 Epoch: 466   Episode: 1   type:square    
@@ -10737,8 +10737,8 @@ Epoch: 466   Episode: 16  type:square
 Epoch: 466   Episode: 17  type:square    
 Epoch: 466   Episode: 18  type:square    
 Epoch: 466   Episode: 19  type:square    
-triangles: 0, squares: 324
-comp: 0.721565842628479
+triangles: 0, squares: 223
+comp: 0.926145076751709
 epoch: 467
 Epoch: 467   Episode: 0   type:square    
 Epoch: 467   Episode: 1   type:square    
@@ -10760,8 +10760,8 @@ Epoch: 467   Episode: 16  type:square
 Epoch: 467   Episode: 17  type:square    
 Epoch: 467   Episode: 18  type:square    
 Epoch: 467   Episode: 19  type:square    
-triangles: 0, squares: 299
-comp: 0.7219463586807251
+triangles: 0, squares: 220
+comp: 0.9262489080429077
 epoch: 468
 Epoch: 468   Episode: 0   type:square    
 Epoch: 468   Episode: 1   type:square    
@@ -10783,8 +10783,8 @@ Epoch: 468   Episode: 16  type:square
 Epoch: 468   Episode: 17  type:square    
 Epoch: 468   Episode: 18  type:square    
 Epoch: 468   Episode: 19  type:square    
-triangles: 0, squares: 369
-comp: 0.7222878932952881
+triangles: 0, squares: 243
+comp: 0.9263492822647095
 epoch: 469
 Epoch: 469   Episode: 0   type:square    
 Epoch: 469   Episode: 1   type:square    
@@ -10806,8 +10806,8 @@ Epoch: 469   Episode: 16  type:square
 Epoch: 469   Episode: 17  type:square    
 Epoch: 469   Episode: 18  type:square    
 Epoch: 469   Episode: 19  type:square    
-triangles: 0, squares: 258
-comp: 0.7225732803344727
+triangles: 0, squares: 229
+comp: 0.9264477491378784
 epoch: 470
 Epoch: 470   Episode: 0   type:square    
 Epoch: 470   Episode: 1   type:square    
@@ -10829,8 +10829,8 @@ Epoch: 470   Episode: 16  type:square
 Epoch: 470   Episode: 17  type:square    
 Epoch: 470   Episode: 18  type:square    
 Epoch: 470   Episode: 19  type:square    
-triangles: 0, squares: 165
-comp: 0.7228738069534302
+triangles: 0, squares: 220
+comp: 0.9265443086624146
 epoch: 471
 Epoch: 471   Episode: 0   type:square    
 Epoch: 471   Episode: 1   type:square    
@@ -10852,8 +10852,8 @@ Epoch: 471   Episode: 16  type:square
 Epoch: 471   Episode: 17  type:square    
 Epoch: 471   Episode: 18  type:square    
 Epoch: 471   Episode: 19  type:square    
-triangles: 0, squares: 406
-comp: 0.7234071493148804
+triangles: 0, squares: 249
+comp: 0.9266432523727417
 epoch: 472
 Epoch: 472   Episode: 0   type:square    
 Epoch: 472   Episode: 1   type:square    
@@ -10875,8 +10875,8 @@ Epoch: 472   Episode: 16  type:square
 Epoch: 472   Episode: 17  type:square    
 Epoch: 472   Episode: 18  type:square    
 Epoch: 472   Episode: 19  type:square    
-triangles: 0, squares: 322
-comp: 0.7239465713500977
+triangles: 0, squares: 259
+comp: 0.9267470836639404
 epoch: 473
 Epoch: 473   Episode: 0   type:square    
 Epoch: 473   Episode: 1   type:square    
@@ -10898,8 +10898,8 @@ Epoch: 473   Episode: 16  type:square
 Epoch: 473   Episode: 17  type:square    
 Epoch: 473   Episode: 18  type:square    
 Epoch: 473   Episode: 19  type:square    
-triangles: 0, squares: 424
-comp: 0.7245386838912964
+triangles: 0, squares: 243
+comp: 0.9268476963043213
 epoch: 474
 Epoch: 474   Episode: 0   type:square    
 Epoch: 474   Episode: 1   type:square    
@@ -10921,8 +10921,8 @@ Epoch: 474   Episode: 16  type:square
 Epoch: 474   Episode: 17  type:square    
 Epoch: 474   Episode: 18  type:square    
 Epoch: 474   Episode: 19  type:square    
-triangles: 0, squares: 389
-comp: 0.7250708341598511
+triangles: 0, squares: 256
+comp: 0.9269537925720215
 epoch: 475
 Epoch: 475   Episode: 0   type:square    
 Epoch: 475   Episode: 1   type:square    
@@ -10944,8 +10944,8 @@ Epoch: 475   Episode: 16  type:square
 Epoch: 475   Episode: 17  type:square    
 Epoch: 475   Episode: 18  type:square    
 Epoch: 475   Episode: 19  type:square    
-triangles: 0, squares: 365
-comp: 0.7254805564880371
+triangles: 0, squares: 219
+comp: 0.9270608425140381
 epoch: 476
 Epoch: 476   Episode: 0   type:square    
 Epoch: 476   Episode: 1   type:square    
@@ -10967,8 +10967,8 @@ Epoch: 476   Episode: 16  type:square
 Epoch: 476   Episode: 17  type:square    
 Epoch: 476   Episode: 18  type:square    
 Epoch: 476   Episode: 19  type:square    
-triangles: 0, squares: 391
-comp: 0.7258306741714478
+triangles: 0, squares: 232
+comp: 0.9271590709686279
 epoch: 477
 Epoch: 477   Episode: 0   type:square    
 Epoch: 477   Episode: 1   type:square    
@@ -10990,8 +10990,8 @@ Epoch: 477   Episode: 16  type:square
 Epoch: 477   Episode: 17  type:square    
 Epoch: 477   Episode: 18  type:square    
 Epoch: 477   Episode: 19  type:square    
-triangles: 0, squares: 328
-comp: 0.7260943651199341
+triangles: 0, squares: 241
+comp: 0.9272663593292236
 epoch: 478
 Epoch: 478   Episode: 0   type:square    
 Epoch: 478   Episode: 1   type:square    
@@ -11013,8 +11013,8 @@ Epoch: 478   Episode: 16  type:square
 Epoch: 478   Episode: 17  type:square    
 Epoch: 478   Episode: 18  type:square    
 Epoch: 478   Episode: 19  type:square    
-triangles: 0, squares: 385
-comp: 0.72635817527771
+triangles: 0, squares: 216
+comp: 0.9273644685745239
 epoch: 479
 Epoch: 479   Episode: 0   type:square    
 Epoch: 479   Episode: 1   type:square    
@@ -11036,8 +11036,8 @@ Epoch: 479   Episode: 16  type:square
 Epoch: 479   Episode: 17  type:square    
 Epoch: 479   Episode: 18  type:square    
 Epoch: 479   Episode: 19  type:square    
-triangles: 0, squares: 250
-comp: 0.7265821695327759
+triangles: 0, squares: 229
+comp: 0.9274553060531616
 epoch: 480
 Epoch: 480   Episode: 0   type:square    
 Epoch: 480   Episode: 1   type:square    
@@ -11059,8 +11059,8 @@ Epoch: 480   Episode: 16  type:square
 Epoch: 480   Episode: 17  type:square    
 Epoch: 480   Episode: 18  type:square    
 Epoch: 480   Episode: 19  type:square    
-triangles: 0, squares: 291
-comp: 0.7268118858337402
+triangles: 0, squares: 237
+comp: 0.9275416135787964
 epoch: 481
 Epoch: 481   Episode: 0   type:square    
 Epoch: 481   Episode: 1   type:square    
@@ -11082,8 +11082,8 @@ Epoch: 481   Episode: 16  type:square
 Epoch: 481   Episode: 17  type:square    
 Epoch: 481   Episode: 18  type:square    
 Epoch: 481   Episode: 19  type:square    
-triangles: 0, squares: 354
-comp: 0.7270721197128296
+triangles: 0, squares: 229
+comp: 0.9276182651519775
 epoch: 482
 Epoch: 482   Episode: 0   type:square    
 Epoch: 482   Episode: 1   type:square    
@@ -11105,8 +11105,8 @@ Epoch: 482   Episode: 16  type:square
 Epoch: 482   Episode: 17  type:square    
 Epoch: 482   Episode: 18  type:square    
 Epoch: 482   Episode: 19  type:square    
-triangles: 0, squares: 335
-comp: 0.7272037267684937
+triangles: 0, squares: 226
+comp: 0.9276880025863647
 epoch: 483
 Epoch: 483   Episode: 0   type:square    
 Epoch: 483   Episode: 1   type:square    
@@ -11128,8 +11128,8 @@ Epoch: 483   Episode: 16  type:square
 Epoch: 483   Episode: 17  type:square    
 Epoch: 483   Episode: 18  type:square    
 Epoch: 483   Episode: 19  type:square    
-triangles: 0, squares: 305
-comp: 0.7272502183914185
+triangles: 0, squares: 217
+comp: 0.9277594089508057
 epoch: 484
 Epoch: 484   Episode: 0   type:square    
 Epoch: 484   Episode: 1   type:square    
@@ -11151,8 +11151,8 @@ Epoch: 484   Episode: 16  type:square
 Epoch: 484   Episode: 17  type:square    
 Epoch: 484   Episode: 18  type:square    
 Epoch: 484   Episode: 19  type:square    
-triangles: 0, squares: 313
-comp: 0.7273678779602051
+triangles: 0, squares: 234
+comp: 0.9278362989425659
 epoch: 485
 Epoch: 485   Episode: 0   type:square    
 Epoch: 485   Episode: 1   type:square    
@@ -11174,8 +11174,8 @@ Epoch: 485   Episode: 16  type:square
 Epoch: 485   Episode: 17  type:square    
 Epoch: 485   Episode: 18  type:square    
 Epoch: 485   Episode: 19  type:square    
-triangles: 0, squares: 309
-comp: 0.7274585962295532
+triangles: 0, squares: 201
+comp: 0.927919864654541
 epoch: 486
 Epoch: 486   Episode: 0   type:square    
 Epoch: 486   Episode: 1   type:square    
@@ -11197,8 +11197,8 @@ Epoch: 486   Episode: 16  type:square
 Epoch: 486   Episode: 17  type:square    
 Epoch: 486   Episode: 18  type:square    
 Epoch: 486   Episode: 19  type:square    
-triangles: 0, squares: 413
-comp: 0.7276124954223633
+triangles: 0, squares: 205
+comp: 0.9280025959014893
 epoch: 487
 Epoch: 487   Episode: 0   type:square    
 Epoch: 487   Episode: 1   type:square    
@@ -11220,8 +11220,8 @@ Epoch: 487   Episode: 16  type:square
 Epoch: 487   Episode: 17  type:square    
 Epoch: 487   Episode: 18  type:square    
 Epoch: 487   Episode: 19  type:square    
-triangles: 0, squares: 369
-comp: 0.7276049852371216
+triangles: 0, squares: 245
+comp: 0.9280838966369629
 epoch: 488
 Epoch: 488   Episode: 0   type:square    
 Epoch: 488   Episode: 1   type:square    
@@ -11243,8 +11243,8 @@ Epoch: 488   Episode: 16  type:square
 Epoch: 488   Episode: 17  type:square    
 Epoch: 488   Episode: 18  type:square    
 Epoch: 488   Episode: 19  type:square    
-triangles: 0, squares: 297
-comp: 0.7276310920715332
+triangles: 0, squares: 185
+comp: 0.9281637668609619
 epoch: 489
 Epoch: 489   Episode: 0   type:square    
 Epoch: 489   Episode: 1   type:square    
@@ -11266,8 +11266,8 @@ Epoch: 489   Episode: 16  type:square
 Epoch: 489   Episode: 17  type:square    
 Epoch: 489   Episode: 18  type:square    
 Epoch: 489   Episode: 19  type:square    
-triangles: 0, squares: 293
-comp: 0.7276097536087036
+triangles: 0, squares: 213
+comp: 0.9282424449920654
 epoch: 490
 Epoch: 490   Episode: 0   type:square    
 Epoch: 490   Episode: 1   type:square    
@@ -11289,8 +11289,8 @@ Epoch: 490   Episode: 16  type:square
 Epoch: 490   Episode: 17  type:square    
 Epoch: 490   Episode: 18  type:square    
 Epoch: 490   Episode: 19  type:square    
-triangles: 0, squares: 419
-comp: 0.727562427520752
+triangles: 0, squares: 177
+comp: 0.9283207654953003
 epoch: 491
 Epoch: 491   Episode: 0   type:square    
 Epoch: 491   Episode: 1   type:square    
@@ -11312,8 +11312,8 @@ Epoch: 491   Episode: 16  type:square
 Epoch: 491   Episode: 17  type:square    
 Epoch: 491   Episode: 18  type:square    
 Epoch: 491   Episode: 19  type:square    
-triangles: 0, squares: 373
-comp: 0.727441668510437
+triangles: 0, squares: 251
+comp: 0.928398609161377
 epoch: 492
 Epoch: 492   Episode: 0   type:square    
 Epoch: 492   Episode: 1   type:square    
@@ -11335,8 +11335,8 @@ Epoch: 492   Episode: 16  type:square
 Epoch: 492   Episode: 17  type:square    
 Epoch: 492   Episode: 18  type:square    
 Epoch: 492   Episode: 19  type:square    
-triangles: 0, squares: 304
-comp: 0.7273155450820923
+triangles: 0, squares: 219
+comp: 0.928482174873352
 epoch: 493
 Epoch: 493   Episode: 0   type:square    
 Epoch: 493   Episode: 1   type:square    
@@ -11358,8 +11358,8 @@ Epoch: 493   Episode: 16  type:square
 Epoch: 493   Episode: 17  type:square    
 Epoch: 493   Episode: 18  type:square    
 Epoch: 493   Episode: 19  type:square    
-triangles: 0, squares: 349
-comp: 0.7272305488586426
+triangles: 0, squares: 243
+comp: 0.9285635948181152
 epoch: 494
 Epoch: 494   Episode: 0   type:square    
 Epoch: 494   Episode: 1   type:square    
@@ -11381,8 +11381,8 @@ Epoch: 494   Episode: 16  type:square
 Epoch: 494   Episode: 17  type:square    
 Epoch: 494   Episode: 18  type:square    
 Epoch: 494   Episode: 19  type:square    
-triangles: 0, squares: 341
-comp: 0.727170467376709
+triangles: 0, squares: 238
+comp: 0.9286395311355591
 epoch: 495
 Epoch: 495   Episode: 0   type:square    
 Epoch: 495   Episode: 1   type:square    
@@ -11404,8 +11404,8 @@ Epoch: 495   Episode: 16  type:square
 Epoch: 495   Episode: 17  type:square    
 Epoch: 495   Episode: 18  type:square    
 Epoch: 495   Episode: 19  type:square    
-triangles: 0, squares: 273
-comp: 0.7270596027374268
+triangles: 0, squares: 226
+comp: 0.9287118911743164
 epoch: 496
 Epoch: 496   Episode: 0   type:square    
 Epoch: 496   Episode: 1   type:square    
@@ -11427,8 +11427,8 @@ Epoch: 496   Episode: 16  type:square
 Epoch: 496   Episode: 17  type:square    
 Epoch: 496   Episode: 18  type:square    
 Epoch: 496   Episode: 19  type:square    
-triangles: 0, squares: 320
-comp: 0.7270843982696533
+triangles: 0, squares: 254
+comp: 0.9287850856781006
 epoch: 497
 Epoch: 497   Episode: 0   type:square    
 Epoch: 497   Episode: 1   type:square    
@@ -11450,8 +11450,8 @@ Epoch: 497   Episode: 16  type:square
 Epoch: 497   Episode: 17  type:square    
 Epoch: 497   Episode: 18  type:square    
 Epoch: 497   Episode: 19  type:square    
-triangles: 0, squares: 311
-comp: 0.727129340171814
+triangles: 0, squares: 263
+comp: 0.9288619756698608
 epoch: 498
 Epoch: 498   Episode: 0   type:square    
 Epoch: 498   Episode: 1   type:square    
@@ -11473,8 +11473,8 @@ Epoch: 498   Episode: 16  type:square
 Epoch: 498   Episode: 17  type:square    
 Epoch: 498   Episode: 18  type:square    
 Epoch: 498   Episode: 19  type:square    
-triangles: 0, squares: 353
-comp: 0.7273032665252686
+triangles: 0, squares: 220
+comp: 0.9289407730102539
 epoch: 499
 Epoch: 499   Episode: 0   type:square    
 Epoch: 499   Episode: 1   type:square    
@@ -11496,5 +11496,5 @@ Epoch: 499   Episode: 16  type:square
 Epoch: 499   Episode: 17  type:square    
 Epoch: 499   Episode: 18  type:square    
 Epoch: 499   Episode: 19  type:square    
-triangles: 0, squares: 355
-comp: 0.7274024486541748
+triangles: 0, squares: 224
+comp: 0.9290231466293335
