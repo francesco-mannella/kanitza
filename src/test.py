@@ -131,6 +131,7 @@ def run_episode(
         saccade, goal = off_control.get_action_from_condition(condition)
 
         if time_step % 4 == 0:
+
             print("ts: ", time_step)
             agent.set_parameters(saccade)
             off_control.goals["world"].append(env.info["world"])
@@ -139,6 +140,15 @@ def run_episode(
             saccade_id = f"{episode:04d}-{time_step:04d}"
             off_control.goals["saccade_id"].append(saccade_id)
             off_control.goals["goal"].append(goal)
+
+        elif time_step % 4 == 1:
+
+            # Reset saccade
+            if saccade is not None and np.array_equal(
+                saccade, np.array([0.5, 0.5])
+            ):
+                saccade = np.array([0.5, 0.5])
+                agent.set_parameters(saccade)
 
         update_environment_position(env, time_step, params)
 

@@ -1,9 +1,9 @@
 #!/bin/bash
 
-seeds="1 2 3"
-decay_speeds="$(seq 3.0 0.5 4.5)"
-local_decay_speeds="$(seq 0.5 0.5 1.5)"
-wandb=true
+seeds="1"
+decay_speeds="3.0"
+local_decay_speeds="0.5"
+wandb=false
 series=new_pred
 CURR_DIR=$(pwd)
 CURR_SIMS=$(ls | grep sim_ | grep $series)

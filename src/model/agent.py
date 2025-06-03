@@ -176,7 +176,7 @@ class Agent:
     """
 
     def __init__(
-        self, environment, sampling_threshold=0.07, max_variance=3, seed=None
+        self, environment, sampling_threshold=0.07, max_variance=1, seed=None
     ):
         """
         Initialize the Agent with the environment and a saliency mapper.
@@ -220,8 +220,11 @@ class Agent:
             self.params = np.copy(params)
 
             env_size = np.array([self.env_height, self.env_width])
+            scale = 0.02 + 0.98 * (
+                1 - np.tanh(3 * np.linalg.norm(params - 0.5))
+            )
+
             params *= env_size
-            scale = 0.02 * np.linalg.norm(params - env_size / 2)
 
             self.attentional_mask = gaussian_mask(
                 (self.env_height, self.env_width),
@@ -251,7 +254,7 @@ class Agent:
         if self.attentional_mask is None:
             self.attentional_mask = np.ones_like(saliency_map)
 
-        saliency_map *= self.attentional_mask
+        saliency_map = saliency_map * self.attentional_mask
         salient_point = sampling(
             saliency_map, self.sampling_threshold, self.rng
         )

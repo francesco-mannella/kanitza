@@ -300,9 +300,18 @@ class SimulationTest:
                         self.update_mask(self.mask_params)
                         mask_updated = True
 
-            action, saliency_map, salient_point = self.agent.get_action(
-                observation
-            )
+            elif time_step % 4 == 1:
+
+                # Reset saccade
+                if saccade is not None and np.array_equal(
+                    saccade, np.array([0.5, 0.5])
+                ):
+                    saccade = np.array([0.5, 0.5])
+                    self.agent.set_parameters(saccade)
+
+                action, saliency_map, salient_point = self.agent.get_action(
+                    observation
+                )
             observation, *_ = self.env.step(action)
 
             if is_plotting_epoch:
