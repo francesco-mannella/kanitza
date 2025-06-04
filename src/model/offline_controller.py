@@ -29,7 +29,7 @@ class OfflineController:
 
         # Param inits
         self.epoch = 0
-        self.competence = torch.tensor(0.0)
+        self.competence = 0.0
         self.competences = torch.tensor(0.0)
         self.local_incompetence = torch.tensor(0.0)
         self.match_std = self.params.match_std

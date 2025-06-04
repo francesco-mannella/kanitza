@@ -1,10 +1,13 @@
 #!/bin/bash
 
 seeds="1"
-decay_speeds="3.0"
+decay_speeds="3.5"
 local_decay_speeds="0.5"
 wandb=false
-series=new_pred
+# decay_speeds="3.5 4.0"
+# local_decay_speeds="0.5 1.0"
+# wandb=true
+series=saccade_reset
 CURR_DIR=$(pwd)
 CURR_SIMS=$(ls | grep sim_ | grep $series)
 EXE=$(dirname "$0" | xargs realpath | sed -e "s/scripts/src\/main.py/")
