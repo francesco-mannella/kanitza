@@ -168,6 +168,22 @@ def gaussian_mask(shape, mean, v1, v2, angle):
     return np.exp(-0.5 * result).reshape(*shape)
 
 
+class ShuntingInibitionManager:
+
+    def __init__(self, rows, cols, decay):
+        self.rows = rows
+        self.cols = cols
+        self.ue = np.zeros([self.rows, self.cols])
+        self.ui = np.zeros([self.rows, self.cols])
+        self.decay = decay
+
+    def step(self, inp):
+
+        self.ue += self.decay(inp - self.ui - self.ue)
+        self.ui += self.decay(inp - self.ui)
+        return np.maximum(0, self.ue)
+
+
 # %% AGENT CLASS
 class Agent:
     """
@@ -220,9 +236,7 @@ class Agent:
             self.params = np.copy(params)
 
             env_size = np.array([self.env_height, self.env_width])
-            scale = 0.02 + 0.3 * (
-                1 - np.tanh(np.linalg.norm(params - 0.5))
-            )
+            scale = 0.02 + 0.3 * (1 - np.tanh(np.linalg.norm(params - 0.5)))
 
             params *= env_size
 

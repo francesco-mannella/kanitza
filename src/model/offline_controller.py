@@ -236,9 +236,9 @@ class OfflineController:
             )
             saccade = saccade.flatten().tolist()
         else:
-            r = 0.5 + 0.5 * self.rng.rand()
+            r = 0.2 + 0.2 * self.rng.rand()
             a = 2 * np.pi * self.rng.rand()
-            saccade = r * np.array([np.cos(a), np.sin(a)])
+            saccade = [0.5, 0.5] + r * np.array([np.cos(a), np.sin(a)])
 
         return saccade, competence
 

@@ -244,7 +244,6 @@ def execute_saccade(
             )
             agent.set_parameters(saccade)
             attention = np.copy(saccade)
-            saccade_triggered = 1
         else:
             # Reset saccade
             if saccade is not None and not np.array_equal(
@@ -252,7 +251,6 @@ def execute_saccade(
             ):
                 saccade = np.array([0.5, 0.5])
                 agent.set_parameters(saccade)
-            saccade_triggered = 0
         action, saliency_map, salient_point = agent.get_action(observation)
 
         # # TODO: code for debug
@@ -273,8 +271,6 @@ def execute_saccade(
             )
 
         state = {
-            "ts": time_step,
-            "saccade": saccade_triggered,
             "world": env.world,
             "vision": observation["FOVEA"],
             "action": action,
