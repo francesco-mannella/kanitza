@@ -126,6 +126,7 @@ def run_episode(
     episode,
 ):
 
+    saccade = None
     for time_step in range(params.saccade_time * params.saccade_num):
         condition = observation["FOVEA"].copy()
         saccade, goal = off_control.get_action_from_condition(condition)
@@ -144,7 +145,7 @@ def run_episode(
         elif time_step % 4 == 1:
 
             # Reset saccade
-            if saccade is not None and np.array_equal(
+            if saccade is not None and not np.array_equal(
                 saccade, np.array([0.5, 0.5])
             ):
                 saccade = np.array([0.5, 0.5])

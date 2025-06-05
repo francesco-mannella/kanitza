@@ -236,7 +236,9 @@ class OfflineController:
             )
             saccade = saccade.flatten().tolist()
         else:
-            saccade = self.rng.rand(2)
+            r = 0.5 + 0.5 * self.rng.rand()
+            a = 2 * np.pi * self.rng.rand()
+            saccade = r * np.array([np.cos(a), np.sin(a)])
 
         return saccade, competence
 
@@ -530,9 +532,7 @@ class OfflineController:
         return norms
 
     def arbitrate_goals(self, offcontrol_goal, rnn_goal, w):
-        hov_oc_goal = self.recurrent_model.linearize(
-            offcontrol_goal.flatten()
-        )
+        hov_oc_goal = self.recurrent_model.linearize(offcontrol_goal.flatten())
         hov_rnn_goal = self.recurrent_model.linearize(rnn_goal)
         hov_goal = w * hov_rnn_goal + (1 - w) * hov_oc_goal
         # TODO: add noise

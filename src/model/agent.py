@@ -220,8 +220,8 @@ class Agent:
             self.params = np.copy(params)
 
             env_size = np.array([self.env_height, self.env_width])
-            scale = 0.02 + 0.98 * (
-                1 - np.tanh(3 * np.linalg.norm(params - 0.5))
+            scale = 0.02 + 0.3 * (
+                1 - np.tanh(np.linalg.norm(params - 0.5))
             )
 
             params *= env_size

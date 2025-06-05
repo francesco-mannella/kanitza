@@ -234,22 +234,25 @@ def execute_saccade(
 
     competence = None
     saccade = None
+    attention = None
     salient_point, action = [0, 0], [0.0, 0.0]
     for time_step in range(params.saccade_time):
+        observation, *_ = env.step(action)
         if time_step == int(0.5 * params.saccade_time):
             saccade, competence = off_control.generate_saccade(
                 observation["FOVEA"]
             )
             agent.set_parameters(saccade)
+            attention = np.copy(saccade)
+            saccade_triggered = 1
         else:
             # Reset saccade
-            if saccade is not None and np.array_equal(
+            if saccade is not None and not np.array_equal(
                 saccade, np.array([0.5, 0.5])
             ):
                 saccade = np.array([0.5, 0.5])
                 agent.set_parameters(saccade)
-
-        observation, *_ = env.step(action)
+            saccade_triggered = 0
         action, saliency_map, salient_point = agent.get_action(observation)
 
         # # TODO: code for debug
@@ -270,10 +273,12 @@ def execute_saccade(
             )
 
         state = {
+            "ts": time_step,
+            "saccade": saccade_triggered,
             "world": env.world,
             "vision": observation["FOVEA"],
             "action": action,
-            "attention": np.copy(agent.params),
+            "attention": attention,
             "competence": competence,
         }
         off_control.record_states(episode, saccade_idx, time_step, state)

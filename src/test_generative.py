@@ -208,6 +208,7 @@ class SimulationTest:
             episode (int): The current episode number.
         """
 
+        saccade = None
         goal = None
         mask_updated = False
 
@@ -303,7 +304,7 @@ class SimulationTest:
             elif time_step % 4 == 1:
 
                 # Reset saccade
-                if saccade is not None and np.array_equal(
+                if saccade is not None and not np.array_equal(
                     saccade, np.array([0.5, 0.5])
                 ):
                     saccade = np.array([0.5, 0.5])
