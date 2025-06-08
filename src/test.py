@@ -226,6 +226,16 @@ def test(params, seed, world=None, object_params=None):
     plt.close("all")
     torch.manual_seed(seed)
 
+    test_name = slugify(
+        f"goals_{world}_"
+        f"{object_params['pos']}_"
+        f"{object_params['rot']:06.2f}"
+    )
+
+    if os.path.exists(test_name + ".npy"):
+        print(f"test {test_name} already done. Skip")
+        return None
+
     env = init_environment(params, seed)
     agent = Agent(
         env, sampling_threshold=params.agent_sampling_threshold, seed=seed
@@ -259,11 +269,7 @@ def test(params, seed, world=None, object_params=None):
         )
 
         np.save(
-            slugify(
-                f"goals_{world}_"
-                f"{object_params['pos']}_"
-                f"{object_params['rot']:06.2f}"
-            ),
+            test_name,
             [off_control.goals],
         )
 

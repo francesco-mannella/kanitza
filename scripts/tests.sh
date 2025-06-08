@@ -8,7 +8,7 @@ INITIAL_DIR=$(pwd)
 
 # Iterate through directories matching the pattern "s_1*00"
 #for EXPERIMENT_DIR in s_1*00; do
-for EXPERIMENT_DIR in sim_new*; do
+for EXPERIMENT_DIR in sim_polar*; do
     echo $EXPERIMENT_DIR
 	# Check if the directory contains a file named "goal"
 	if [[ -z "$(ls "$EXPERIMENT_DIR" | grep goal)" ]]; then
@@ -19,11 +19,12 @@ for EXPERIMENT_DIR in sim_new*; do
 		for SHAPE in triangle square; do
 			# Iterate through rotation values from 0 to 1 with a step of 0.2
 			for ROTATION in $(seq 0 0.2 1.6); do
+
 				# Disable wandb (Weights & Biases)
 				wandb disabled
 
 				# Execute the Python script with specified parameters
-				python ${TEST_APP} --posrot 20 20 "$ROTATION" --world "$SHAPE"
+				python ${TEST_APP} --posrot 40 40 "$ROTATION" --world "$SHAPE"
 			done
 		done
 
