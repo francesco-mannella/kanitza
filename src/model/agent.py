@@ -315,11 +315,11 @@ class Agent:
         saliency_map = self.saliency_mapper(inverted_retina)
         if self.attentional_mask is None:
             self.attentional_mask = np.ones_like(saliency_map)
-        saliency_map = self.adaptation_manager(
+        saliency_map_adapted = self.adaptation_manager(
             saliency_map * self.attentional_mask
         )
         salient_point = sampling(
-            saliency_map, self.sampling_threshold, self.rng
+            saliency_map_adapted, self.sampling_threshold, self.rng
         )
 
         normalized_action = salient_point / self.environment.retina_size
@@ -328,4 +328,4 @@ class Agent:
             normalized_action - 0.5
         ) * self.environment.retina_scale
 
-        return centered_action, saliency_map, salient_point
+        return centered_action, saliency_map_adapted, salient_point

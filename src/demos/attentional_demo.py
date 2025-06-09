@@ -25,7 +25,11 @@ if __name__ == "__main__":
     env = env.unwrapped
     agent = Agent(env, sampling_threshold=1e-20)
 
-    worlds = ["triangle", "square", "circle", ]
+    worlds = [
+        "triangle",
+        "square",
+        "circle",
+    ]
 
     # Run the simulation for a fixed number of episodes
     for episode in range(3):
@@ -48,7 +52,9 @@ if __name__ == "__main__":
 
         # Generate random means for Gaussian masks
         a = np.linspace(0, 2 * np.pi, 15)
-        attention_centers = 0.5 + 0.2 * np.array([[np.cos(x), np.sin(x)] for x in a])
+        attention_centers = 0.5 + 0.2 * np.array(
+            [[np.cos(x), np.sin(x)] for x in a]
+        )
 
         for center in attention_centers:
             # Set agent parameters based on the current attention center
