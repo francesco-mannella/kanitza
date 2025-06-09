@@ -24,7 +24,7 @@ if __name__ == "__main__":
     env = env.unwrapped
     agent = Agent(env, sampling_threshold=0.01)
 
-    worlds = ["circle", "triangle", "square"]
+    worlds = ["triangle", "square", "circle" ]
 
     # Run the simulation for a fixed number of episodes
     for episode in range(3):
@@ -34,7 +34,7 @@ if __name__ == "__main__":
             if world == worlds[episode]
         )
 
-        object_params = {"pos": [20.0, 20.0], "rot": 0.5}
+        object_params = {"pos": [40.0, 40.0], "rot": 0.5}
 
         env.init_world(world=world_id, object_params=object_params)
         _, env_info = env.reset()

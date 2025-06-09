@@ -1,5 +1,6 @@
 # %% IMPORTS
 
+import matplotlib
 import numpy as np
 from scipy.signal import convolve2d
 from scipy.special import softmax
@@ -168,20 +169,55 @@ def gaussian_mask(shape, mean, v1, v2, angle):
     return np.exp(-0.5 * result).reshape(*shape)
 
 
-class ShuntingInibitionManager:
+class AdaptationManager:
 
-    def __init__(self, rows, cols, decay):
+    def __init__(self, rows, cols, decay=0.3):
         self.rows = rows
         self.cols = cols
         self.ue = np.zeros([self.rows, self.cols])
         self.ui = np.zeros([self.rows, self.cols])
         self.decay = decay
 
-    def step(self, inp):
+    def __call__(self, inp):
 
-        self.ue += self.decay(inp - self.ui - self.ue)
-        self.ui += self.decay(inp - self.ui)
+        self.ue += self.decay * (inp - self.ui - self.ue)
+        self.ui += self.decay * (inp - self.ui)
         return np.maximum(0, self.ue)
+
+
+def test_Shunting():
+
+    n = 10
+
+    sm = AdaptationManager(n, n, 0.5)
+
+    inp1 = 1 * np.random.rand(n, n) > 0.7
+    inp2 = 1 * np.random.rand(n, n) > 0.7
+    frames = [sm(inp1 if t < 5 else inp2) for t in range(10)]
+
+    fig, ax = matplotlib.pyplot.subplots()
+    im = ax.imshow(np.zeros([n, n]), vmin=0, vmax=1)
+
+    def init():
+        ax.set_axis_off()
+        return (im,)
+
+    def update(frame):
+        im.set_array(frame)
+        return (im,)
+
+    ani = matplotlib.animation.FuncAnimation(
+        fig,
+        update,
+        frames=frames,
+        init_func=init,
+        blit=True,
+        interval=50,
+    )
+
+    matplotlib.pyplot.show()
+
+    return ani
 
 
 # %% AGENT CLASS
@@ -217,6 +253,9 @@ class Agent:
         self.vertical_variance = max_variance * self.env_height
         self.horizontal_variance = max_variance * self.env_width
         self.attentional_mask = None
+        self.adaptation_manager = AdaptationManager(
+            self.env_height, self.env_width
+        )
 
         self.params = None
 
@@ -236,7 +275,16 @@ class Agent:
             self.params = np.copy(params)
 
             env_size = np.array([self.env_height, self.env_width])
-            scale = 0.02 + 0.3 * (1 - np.tanh(np.linalg.norm(params - 0.5)))
+
+            MAX_VARIANCE = 3
+            FIXED_VARIANCE_PROP = 0.02
+            CENTER_DISTANCE_VARIANCE_PROP = 0.98
+            center = 0.5
+            scale = MAX_VARIANCE * (
+                FIXED_VARIANCE_PROP
+                + CENTER_DISTANCE_VARIANCE_PROP
+                * (1 - np.tanh(2 * np.linalg.norm(params - center)))
+            )
 
             params *= env_size
 
@@ -267,8 +315,10 @@ class Agent:
         saliency_map = self.saliency_mapper(inverted_retina)
         if self.attentional_mask is None:
             self.attentional_mask = np.ones_like(saliency_map)
-
-        saliency_map = saliency_map * self.attentional_mask
+        saliency_map = self.adaptation_manager(
+        saliency_map = self.shunting_manager(
+            saliency_map * self.attentional_mask
+        )
         salient_point = sampling(
             saliency_map, self.sampling_threshold, self.rng
         )
