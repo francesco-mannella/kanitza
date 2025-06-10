@@ -185,7 +185,7 @@ class AdaptationManager:
         return np.maximum(0, self.ue)
 
 
-def test_Shunting():
+def test_adaptation():
 
     n = 10
 
