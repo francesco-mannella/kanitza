@@ -15,7 +15,7 @@ class Parameters:
         plot_sim=False,
         plot_maps=True,
         plotting_epochs_interval=50,
-        agent_sampling_threshold=0.001,
+        agent_sampling_threshold=0.000001,
         maps_output_size=100,
         action_size=2,
         attention_size=2,

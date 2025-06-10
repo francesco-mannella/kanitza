@@ -9,6 +9,7 @@ import seaborn.objects as so
 import slugify
 from seaborn import axes_style
 
+plt.ion()
 
 # Configuration
 SIMULATION_DIR_PATTERN = "sim*"

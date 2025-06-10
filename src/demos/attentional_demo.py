@@ -23,7 +23,7 @@ if __name__ == "__main__":
     # Set up the environment and agent
     env = gym.make("EyeSim/EyeSim-v0", colors=True)
     env = env.unwrapped
-    agent = Agent(env, sampling_threshold=1e-20)
+    agent = Agent(env, sampling_threshold=1e-2)
 
     worlds = [
         "triangle",
@@ -52,7 +52,7 @@ if __name__ == "__main__":
 
         # Generate random means for Gaussian masks
         a = np.linspace(0, 2 * np.pi, 15)
-        attention_centers = 0.5 + 0.2 * np.array(
+        attention_centers = 0.5 + 0.3 * np.array(
             [[np.cos(x), np.sin(x)] for x in a]
         )
 

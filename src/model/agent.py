@@ -122,7 +122,7 @@ def sampling(array, precision=0.01, rng=None):
 
     flattened_array = array.flatten()
     probabilities = softmax(flattened_array / precision)
-    probabilities[probabilities < probabilities.max() * 0.9] = 0
+    probabilities[probabilities < probabilities.max() * 0.999] = 0
     probabilities /= probabilities.sum()
 
     sampled_flat_index = rng.choice(a=flattened_array.size, p=probabilities)
@@ -315,9 +315,9 @@ class Agent:
         saliency_map = self.saliency_mapper(inverted_retina)
         if self.attentional_mask is None:
             self.attentional_mask = np.ones_like(saliency_map)
-        saliency_map_adapted = self.adaptation_manager(
-            saliency_map * self.attentional_mask
-        )
+        saliency_map_adapted = self.adaptation_manager(saliency_map)
+        saliency_map_adapted *= self.attentional_mask
+
         salient_point = sampling(
             saliency_map_adapted, self.sampling_threshold, self.rng
         )

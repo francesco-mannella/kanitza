@@ -2,14 +2,14 @@
 
 set -e
 
-TEST_APP=${HOME}/Projects/current/kanizsa_tests/src/test.py
+TEST_APP=$(dirname "$0" | xargs realpath | sed -e "s/scripts/src\/test.py/")
 # Store the initial working directory
 INITIAL_DIR=$(pwd)
 
 # Iterate through directories matching the pattern "s_1*00"
 #for EXPERIMENT_DIR in s_1*00; do
-for EXPERIMENT_DIR in sim_polar*; do
-    echo $EXPERIMENT_DIR
+for EXPERIMENT_DIR in *_s_*_m_*; do
+	echo $EXPERIMENT_DIR
 	# Check if the directory contains a file named "goal"
 	if [[ -z "$(ls "$EXPERIMENT_DIR" | grep goal)" ]]; then
 		# Change the current directory to the experiment directory
