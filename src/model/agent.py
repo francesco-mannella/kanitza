@@ -171,7 +171,7 @@ def gaussian_mask(shape, mean, v1, v2, angle):
 
 class AdaptationManager:
 
-    def __init__(self, rows, cols, decay=0.3):
+    def __init__(self, rows, cols, decay=1):
         self.rows = rows
         self.cols = cols
         self.ue = np.zeros([self.rows, self.cols])
@@ -277,8 +277,8 @@ class Agent:
             env_size = np.array([self.env_height, self.env_width])
 
             MAX_VARIANCE = 3
-            FIXED_VARIANCE_PROP = 0.02
-            CENTER_DISTANCE_VARIANCE_PROP = 0.98
+            FIXED_VARIANCE_PROP = 0.04
+            CENTER_DISTANCE_VARIANCE_PROP = 0.00
             center = 0.5
             scale = MAX_VARIANCE * (
                 FIXED_VARIANCE_PROP
