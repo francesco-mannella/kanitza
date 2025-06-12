@@ -12,7 +12,7 @@ from seaborn import axes_style
 plt.ion()
 
 # Configuration
-SIMULATION_DIR_PATTERN = "sim*"
+SIMULATION_DIR_PATTERN = "sim*big*d_03000_l_01000"
 OUTPUT_CSV_FILENAME = "paths.csv"
 sns.set_style("whitegrid")
 so.Plot.config.display["scaling"] = 0.7

@@ -2,6 +2,7 @@
 
 import matplotlib
 import numpy as np
+from matplotlib.animation import FuncAnimation
 from scipy.signal import convolve2d
 from scipy.special import softmax
 
@@ -171,7 +172,7 @@ def gaussian_mask(shape, mean, v1, v2, angle):
 
 class AdaptationManager:
 
-    def __init__(self, rows, cols, decay=1):
+    def __init__(self, rows, cols, decay=0.2):
         self.rows = rows
         self.cols = cols
         self.ue = np.zeros([self.rows, self.cols])
@@ -189,11 +190,11 @@ def test_adaptation():
 
     n = 10
 
-    sm = AdaptationManager(n, n, 0.5)
+    sm = AdaptationManager(n, n)
 
-    inp1 = 1 * np.random.rand(n, n) > 0.7
-    inp2 = 1 * np.random.rand(n, n) > 0.7
-    frames = [sm(inp1 if t < 5 else inp2) for t in range(10)]
+    inp1 = 1 * (np.random.rand(n, n) > 0.94)
+    inp2 = 1 * (np.random.rand(n, n) > 0.94)
+    frames = [sm(inp1 if t < 20 else inp2) for t in range(40)]
 
     fig, ax = matplotlib.pyplot.subplots()
     im = ax.imshow(np.zeros([n, n]), vmin=0, vmax=1)
@@ -206,7 +207,7 @@ def test_adaptation():
         im.set_array(frame)
         return (im,)
 
-    ani = matplotlib.animation.FuncAnimation(
+    ani = FuncAnimation(
         fig,
         update,
         frames=frames,
@@ -276,9 +277,9 @@ class Agent:
 
             env_size = np.array([self.env_height, self.env_width])
 
-            MAX_VARIANCE = 3
-            FIXED_VARIANCE_PROP = 0.04
-            CENTER_DISTANCE_VARIANCE_PROP = 0.00
+            MAX_VARIANCE = 5
+            FIXED_VARIANCE_PROP = 1.0
+            CENTER_DISTANCE_VARIANCE_PROP = 0.0
             center = 0.5
             scale = MAX_VARIANCE * (
                 FIXED_VARIANCE_PROP
@@ -315,7 +316,7 @@ class Agent:
         saliency_map = self.saliency_mapper(inverted_retina)
         if self.attentional_mask is None:
             self.attentional_mask = np.ones_like(saliency_map)
-        saliency_map_adapted = self.adaptation_manager(saliency_map)
+        saliency_map_adapted = saliency_map # self.adaptation_manager(saliency_map)
         saliency_map_adapted *= self.attentional_mask
 
         salient_point = sampling(

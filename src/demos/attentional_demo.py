@@ -74,6 +74,7 @@ if __name__ == "__main__":
                 plotter.step(
                     saliency_map, salient_point, agent.attentional_mask
                 )
+                plt.pause(0.5)
 
         # Save the plot for the current episode as a gif
         gif_file = f"episode_{episode:04d}"
