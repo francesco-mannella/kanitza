@@ -1,5 +1,8 @@
 # %% IMPORTS
+
+import matplotlib
 import numpy as np
+from matplotlib.animation import FuncAnimation
 from scipy.signal import convolve2d
 from scipy.special import softmax
 
@@ -120,6 +123,9 @@ def sampling(array, precision=0.01, rng=None):
 
     flattened_array = array.flatten()
     probabilities = softmax(flattened_array / precision)
+    probabilities[probabilities < probabilities.max() * 0.999] = 0
+    probabilities /= probabilities.sum()
+
     sampled_flat_index = rng.choice(a=flattened_array.size, p=probabilities)
     sampled_index = np.unravel_index(
         sampled_flat_index, array.shape, order="F"
@@ -164,6 +170,57 @@ def gaussian_mask(shape, mean, v1, v2, angle):
     return np.exp(-0.5 * result).reshape(*shape)
 
 
+class AdaptationManager:
+
+    def __init__(self, rows, cols, decay=0.2):
+        self.rows = rows
+        self.cols = cols
+        self.ue = np.zeros([self.rows, self.cols])
+        self.ui = np.zeros([self.rows, self.cols])
+        self.decay = decay
+
+    def __call__(self, inp):
+
+        self.ue += self.decay * (inp - self.ui - self.ue)
+        self.ui += self.decay * (inp - self.ui)
+        return np.maximum(0, self.ue)
+
+
+def test_adaptation():
+
+    n = 10
+
+    sm = AdaptationManager(n, n)
+
+    inp1 = 1 * (np.random.rand(n, n) > 0.94)
+    inp2 = 1 * (np.random.rand(n, n) > 0.94)
+    frames = [sm(inp1 if t < 20 else inp2) for t in range(40)]
+
+    fig, ax = matplotlib.pyplot.subplots()
+    im = ax.imshow(np.zeros([n, n]), vmin=0, vmax=1)
+
+    def init():
+        ax.set_axis_off()
+        return (im,)
+
+    def update(frame):
+        im.set_array(frame)
+        return (im,)
+
+    ani = FuncAnimation(
+        fig,
+        update,
+        frames=frames,
+        init_func=init,
+        blit=True,
+        interval=50,
+    )
+
+    matplotlib.pyplot.show()
+
+    return ani
+
+
 # %% AGENT CLASS
 class Agent:
     """
@@ -172,7 +229,7 @@ class Agent:
     """
 
     def __init__(
-        self, environment, sampling_threshold=0.07, max_variance=3, seed=None
+        self, environment, sampling_threshold=0.07, max_variance=1, seed=None
     ):
         """
         Initialize the Agent with the environment and a saliency mapper.
@@ -197,6 +254,9 @@ class Agent:
         self.vertical_variance = max_variance * self.env_height
         self.horizontal_variance = max_variance * self.env_width
         self.attentional_mask = None
+        self.adaptation_manager = AdaptationManager(
+            self.env_height, self.env_width
+        )
 
         self.params = None
 
@@ -216,8 +276,18 @@ class Agent:
             self.params = np.copy(params)
 
             env_size = np.array([self.env_height, self.env_width])
+
+            MAX_VARIANCE = 5
+            FIXED_VARIANCE_PROP = 1.0
+            CENTER_DISTANCE_VARIANCE_PROP = 0.0
+            center = 0.5
+            scale = MAX_VARIANCE * (
+                FIXED_VARIANCE_PROP
+                + CENTER_DISTANCE_VARIANCE_PROP
+                * (1 - np.tanh(2 * np.linalg.norm(params - center)))
+            )
+
             params *= env_size
-            scale = 0.04 * np.linalg.norm(params - env_size / 2)
 
             self.attentional_mask = gaussian_mask(
                 (self.env_height, self.env_width),
@@ -246,10 +316,11 @@ class Agent:
         saliency_map = self.saliency_mapper(inverted_retina)
         if self.attentional_mask is None:
             self.attentional_mask = np.ones_like(saliency_map)
+        saliency_map_adapted = saliency_map # self.adaptation_manager(saliency_map)
+        saliency_map_adapted *= self.attentional_mask
 
-        saliency_map *= self.attentional_mask
         salient_point = sampling(
-            saliency_map, self.sampling_threshold, self.rng
+            saliency_map_adapted, self.sampling_threshold, self.rng
         )
 
         normalized_action = salient_point / self.environment.retina_size
@@ -258,4 +329,4 @@ class Agent:
             normalized_action - 0.5
         ) * self.environment.retina_scale
 
-        return centered_action, saliency_map, salient_point
+        return centered_action, saliency_map_adapted, salient_point

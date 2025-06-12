@@ -157,6 +157,10 @@ class TopologicalMap(torch.nn.Module):
         """
         return torch.argmin(x, dim=-1).detach()
 
+    def get_bmu_from_points(self, point):
+
+        return point[..., 0] * self.radial.side + point[..., 1]
+
     def get_representation(self, x, rtype="point", neighborhood_std=None):
         """
         Generates the representation of the Best Matching Unit (BMU) based on
@@ -209,12 +213,75 @@ class TopologicalMap(torch.nn.Module):
         if neighborhood_std is None:
             neighborhood_std = self.curr_neighborhood_std
         phi = self.radial(point, neighborhood_std, as_point=True)
-        max_idx = phi.argmax()
+        max_idx = phi.argmax(-1)
         hov_phi = torch.nn.functional.one_hot(
             max_idx, self.output_size
         ).float()
         output = torch.matmul(hov_phi, self.weights.T)
         return output
+
+
+class FilteredTopologicalMap(TopologicalMap):
+    """
+    A FilteredTopologicalMap extends the functionality of a TopologicalMap by
+    introducing a filtering mechanism to identify the Best Matching Unit (BMU).
+
+    Attributes:
+        - bmu_filter (torch.Tensor): A tensor representing the filter applied
+          to the inputs when identifying the BMU.
+    """
+
+    def __init__(self, *args, **kargs):
+        super().__init__(*args, **kargs)
+        self.bmu_filter = None
+
+    def find_bmu(self, x):
+        """
+        Identifies the index of the Best Matching Unit (BMU) for a given input
+        by applying the filter to the input tensor.
+
+        Args:
+            - x (torch.Tensor): Input tensor representing the data.
+
+        Returns:
+            - torch.Tensor: A tensor containing the index of the BMU for the
+              input.
+        """
+        if self.bmu_filter is None:
+            return super().find_bmu(x)
+
+        return torch.argmin(x * self.bmu_filter, dim=-1).detach()
+
+    def set_filter(self, representations, magnitude):
+        """
+        Sets the filter that will be applied to inputs in the BMU
+        identification process.
+
+        The filter is calculated by blending a uniform filter (1-magnitude)
+        with a normalized version of the input filter (magnitude).
+
+        Args:
+            - representations (torch.Tensor): A tensor of point representations.
+            - magnitude (float): The blending magnitude. 0 means uniform
+              filtering, 1 means full application of the input filter.
+
+        Returns:
+            - torch.Tensor: The updated filter tensor.
+        """
+
+        side = self.radial.side
+        chosen_bmus = torch.tensor(
+            [x[0] * side + x[1] for x in representations]
+        )
+
+        # Create a one-hot encoded tensor for the chosen BMUs
+        chosen_bmus = chosen_bmus.clone().detach()
+        input_filter = torch.nn.functional.one_hot(
+            chosen_bmus, num_classes=self.output_size
+        ).float()
+
+        # Compute the BMU filter
+        self.bmu_filter = 1.0 - magnitude * input_filter
 
 
 class Updater:

@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 import wandb
+from slugify import slugify
 
 from merge_gifs import merge_gifs
 from model.agent import Agent
@@ -30,7 +31,7 @@ def signal_handler(signum, frame):
 
 
 def init_environment(params, seed):
-    env = gym.make(params.env_name)
+    env = gym.make(params.env_name, colors=True)
     env = env.unwrapped
     env.set_seed(seed)
     env.rotation = 0.0
@@ -66,6 +67,7 @@ def execute_simulation(
 
         env.init_world(world=world_id, object_params=object_params)
         observation, info = env.reset()
+        env.info = info
 
         for k, v in info.items():
             print(f"{k}: {v}", end="  ")
@@ -89,7 +91,13 @@ def execute_simulation(
         )
 
         if is_plotting_epoch:
-            log_simulations(params, episode, fovea_plotter, maps_plotter)
+            log_simulations(
+                params,
+                episode,
+                fovea_plotter,
+                maps_plotter,
+                env.info,
+            )
 
         print(f"Episode: {episode}")
 
@@ -117,18 +125,31 @@ def run_episode(
     maps_plotter,
     episode,
 ):
-    # TODO: redundnt
-    condition = observation["FOVEA"].copy()
-    saccade, goal = off_control.get_action_from_condition(condition)
-    agent.set_parameters(saccade)
 
+    saccade = None
     for time_step in range(params.saccade_time * params.saccade_num):
         condition = observation["FOVEA"].copy()
         saccade, goal = off_control.get_action_from_condition(condition)
 
-        if time_step % 1 == 0:
+        if time_step % 4 == 0:
+
             print("ts: ", time_step)
             agent.set_parameters(saccade)
+            off_control.goals["world"].append(env.info["world"])
+            off_control.goals["angle"].append(env.info["angle"])
+            off_control.goals["position"].append(env.info["position"])
+            saccade_id = f"{episode:04d}-{time_step:04d}"
+            off_control.goals["saccade_id"].append(saccade_id)
+            off_control.goals["goal"].append(goal)
+
+        elif time_step % 4 == 1:
+
+            # Reset saccade
+            if saccade is not None and not np.array_equal(
+                saccade, np.array([0.5, 0.5])
+            ):
+                saccade = np.array([0.5, 0.5])
+                agent.set_parameters(saccade)
 
         update_environment_position(env, time_step, params)
 
@@ -169,9 +190,12 @@ def update_plotters(
         maps_plotter.step(goal)
 
 
-def log_simulations(params, episode, fovea_plotter, maps_plotter):
+def log_simulations(params, episode, fovea_plotter, maps_plotter, info):
+
+    tag = slugify(f"{info['world']}_{info['angle']}_{info['position']}")
+
     if params.plot_sim:
-        gif_file = f"sim_test_{episode:04d}"
+        gif_file = f"sim_test_{tag}"
         fovea_plotter.close(gif_file)
         wandb.log(
             {"Simulation": wandb.Video(f"{gif_file}.gif", format="gif")},
@@ -179,7 +203,7 @@ def log_simulations(params, episode, fovea_plotter, maps_plotter):
         )
 
     if params.plot_maps:
-        gif_file = f"maps_test_{episode:04d}"
+        gif_file = f"maps_test_{tag}"
         maps_plotter.close(gif_file)
         wandb.log(
             {"Maps": wandb.Video(f"{gif_file}.gif", format="gif")},
@@ -187,8 +211,13 @@ def log_simulations(params, episode, fovea_plotter, maps_plotter):
         )
 
     if params.plot_sim and params.plot_maps:
-        gif_file = f"merged_test_{episode:04d}"
-        merge_gifs(fovea_plotter.vm.frames, maps_plotter.vm.frames, gif_file)
+        gif_file = f"merged_test_{tag}"
+        merge_gifs(
+            fovea_plotter.vm.frames,
+            maps_plotter.vm.frames,
+            gif_file,
+            frame_duration=80,
+        )
 
 
 def test(params, seed, world=None, object_params=None):
@@ -196,6 +225,16 @@ def test(params, seed, world=None, object_params=None):
     plt.ion()
     plt.close("all")
     torch.manual_seed(seed)
+
+    test_name = slugify(
+        f"goals_{world}_"
+        f"{object_params['pos']}_"
+        f"{object_params['rot']:06.2f}"
+    )
+
+    if os.path.exists(test_name + ".npy"):
+        print(f"test {test_name} already done. Skip")
+        return None
 
     env = init_environment(params, seed)
     agent = Agent(
@@ -208,6 +247,13 @@ def test(params, seed, world=None, object_params=None):
     for epoch in range(off_control.epoch, off_control.epoch + params.epochs):
         off_control.epoch = epoch
         off_control.reset_states()
+        off_control.goals = {
+            "world": [],
+            "position": [],
+            "angle": [],
+            "saccade_id": [],
+            "goal": [],
+        }
 
         is_plotting_epoch = (epoch % params.plotting_epochs_interval == 0) or (
             epoch == params.epochs - 1
@@ -220,6 +266,11 @@ def test(params, seed, world=None, object_params=None):
             is_plotting_epoch,
             world,
             object_params,
+        )
+
+        np.save(
+            test_name,
+            [off_control.goals],
         )
 
         print(f"Epoch: {epoch}")
@@ -268,6 +319,11 @@ def main():
 
     # Create an instance of Parameters with default or param_list values
     params = Parameters()
+    try:
+        params.load("loaded_params")
+    except FileNotFoundError:
+        print("no local parameters")
+
     seed = args.seed
     world = args.world
 
@@ -281,8 +337,8 @@ def main():
     params.plot_maps = True
     params.plot_sim = True
     params.epochs = 1
-    params.saccade_num = 4
-    params.episodes = 3
+    params.saccade_num = 16
+    params.episodes = 1
     params.plotting_epochs_interval = 1
 
     # Generate initial name without dots or special characters
