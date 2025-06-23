@@ -557,6 +557,14 @@ def format_name(param_name, value):
 def main():
     """Main function to run the simulation test."""
     matplotlib.use("agg")
+    
+    if torch.cuda.is_available():
+        torch.set_default_device("cuda")
+        print("Running on CUDA")
+    else:
+        torch.set_default_device("cpu")
+        print("Running on CPU")
+
 
     # Parse arguments
     args = parse_arguments()
