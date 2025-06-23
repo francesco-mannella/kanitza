@@ -211,6 +211,7 @@ class SimulationTest:
         saccade = None
         goal = None
         mask_updated = False
+        action = (0, 0)
 
         for time_step in range(
             self.params.saccade_time * self.params.saccade_num
@@ -315,7 +316,7 @@ class SimulationTest:
                 )
             observation, *_ = self.env.step(action)
 
-            if is_plotting_epoch:
+            if time_step % 4 == 1 and is_plotting_epoch:
                 self.update_plotters(
                     fovea_plotter,
                     maps_plotter,
