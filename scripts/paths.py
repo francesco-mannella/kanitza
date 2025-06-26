@@ -9,10 +9,9 @@ import seaborn.objects as so
 import slugify
 from seaborn import axes_style
 
-plt.ion()
 
 # Configuration
-SIMULATION_DIR_PATTERN = "sim*big*d_03000_l_01000"
+SIMULATION_DIR_PATTERN = "*_d_*_l_*"
 OUTPUT_CSV_FILENAME = "paths.csv"
 sns.set_style("whitegrid")
 so.Plot.config.display["scaling"] = 0.7
@@ -127,3 +126,6 @@ processed_df["saccade_num"] = processed_df.groupby(["trial", "trial", "rot"])[
 ].transform(lambda x: np.arange(len(x)))
 
 processed_df.to_csv(OUTPUT_CSV_FILENAME, index=False)
+
+
+plt.show()
