@@ -229,17 +229,28 @@ class Agent:
     """
 
     def __init__(
-        self, environment, sampling_threshold=0.07, max_variance=1, seed=None
+        self,
+        environment,
+        sampling_threshold=0.07,
+        max_variance=1,
+        seed=None,
+        attention_max_variance=1.0,
+        attention_fixed_variance_prop=0.1,
+        attention_center_distance_variance_prop=0.9,
+        attention_center_distance_slope=3.0,
     ):
         """
-        Initialize the Agent with the environment and a saliency mapper.
+        Initialize the Agent.
 
         Args:
-        - environment: The environment in which the agent operates.
-        - sampling_threshold (float): The threshold value used in the sampling
-          function. Default is 0.07.
-        - max_variance (float): max std of the attentional field
-        - seed (int): Seed for the random number generator
+        - environment: The environment.
+        - sampling_threshold (float): Threshold for sampling.
+        - max_variance (float): Max std of attentional field.
+        - seed (int): Seed for the random number generator.
+        - attention_max_variance (float): Max variance of attention.
+        - attention_fixed_variance_prop (float): Fixed variance prop.
+        - attention_center_distance_variance_prop (float): Center dist prop.
+        - attention_center_distance_slope (float): Center dist variance slope.
         """
 
         seed = seed or 0
@@ -256,6 +267,15 @@ class Agent:
         self.attentional_mask = None
         self.adaptation_manager = AdaptationManager(
             self.env_height, self.env_width
+        )
+        
+        self.MAX_VARIANCE = attention_max_variance
+        self.FIXED_VARIANCE_PROP = attention_fixed_variance_prop
+        self.CENTER_DISTANCE_VARIANCE_PROP = (
+            attention_center_distance_variance_prop
+        )
+        self.CENTER_DISTANCE_SLOPE = (
+            attention_center_distance_slope
         )
 
         self.params = None
@@ -277,14 +297,11 @@ class Agent:
 
             env_size = np.array([self.env_height, self.env_width])
 
-            MAX_VARIANCE = 5
-            FIXED_VARIANCE_PROP = 1.0
-            CENTER_DISTANCE_VARIANCE_PROP = 0.0
             center = 0.5
-            scale = MAX_VARIANCE * (
-                FIXED_VARIANCE_PROP
-                + CENTER_DISTANCE_VARIANCE_PROP
-                * (1 - np.tanh(2 * np.linalg.norm(params - center)))
+            scale = self.MAX_VARIANCE * (
+                self.FIXED_VARIANCE_PROP
+                + self.CENTER_DISTANCE_VARIANCE_PROP
+                * (1 - np.tanh(self.CENTER_DISTANCE_SLOPE * np.linalg.norm(params - center)))
             )
 
             params *= env_size
@@ -316,7 +333,9 @@ class Agent:
         saliency_map = self.saliency_mapper(inverted_retina)
         if self.attentional_mask is None:
             self.attentional_mask = np.ones_like(saliency_map)
-        saliency_map_adapted = saliency_map # self.adaptation_manager(saliency_map)
+        saliency_map_adapted = (
+            saliency_map  # self.adaptation_manager(saliency_map)
+        )
         saliency_map_adapted *= self.attentional_mask
 
         salient_point = sampling(

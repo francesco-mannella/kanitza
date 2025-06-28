@@ -317,7 +317,7 @@ class SimulationTest:
                 )
             observation, *_ = self.env.step(action)
 
-        if is_plotting_epoch :
+        if is_plotting_epoch and saliency_map is not None:
             self.update_plotters(
                 fovea_plotter,
                 maps_plotter,
@@ -425,6 +425,10 @@ class SimulationTest:
             self.env,
             sampling_threshold=self.params.agent_sampling_threshold,
             seed=self.seed,
+            attention_max_variance=self.params.attention_max_variance,
+            attention_fixed_variance_prop=self.params.attention_fixed_variance_prop,
+            attention_center_distance_variance_prop=self.params.attention_center_distance_variance_prop,
+            attention_center_distance_slope=self.params.attention_center_distance_slope,
         )
 
         controller_path = "off_control_store"

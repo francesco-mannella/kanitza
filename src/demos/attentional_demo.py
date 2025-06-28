@@ -23,7 +23,13 @@ if __name__ == "__main__":
     # Set up the environment and agent
     env = gym.make("EyeSim/EyeSim-v0", colors=True)
     env = env.unwrapped
-    agent = Agent(env, sampling_threshold=1e-20)
+    agent = Agent(env, sampling_threshold=1e-20,
+            attention_max_variance=50,
+            attention_fixed_variance_prop=0.01,
+            attention_center_distance_variance_prop=0.2,
+            attention_center_distance_slope=6,
+
+                  )
 
     worlds = [
         "triangle",

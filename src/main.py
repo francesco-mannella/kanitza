@@ -107,14 +107,20 @@ def setup_agent(env, params, seed):
 
     Parameters:
     - env (gym.Env): Gym environment object.
-    - params (Parameters): Parameters object with 'agent_sampling_threshold'.
+    - params (Parameters): object containing the general parameters.
     - seed (int): Random seed for agent setup.
 
     Returns:
     - agent (Agent): Initialized Agent object.
     """
     return Agent(
-        env, sampling_threshold=params.agent_sampling_threshold, seed=seed
+        env,
+        sampling_threshold=params.agent_sampling_threshold,
+        seed=seed,
+        attention_max_variance=params.attention_max_variance,
+        attention_fixed_variance_prop=params.attention_fixed_variance_prop,
+        attention_center_distance_variance_prop=params.attention_center_distance_variance_prop,
+        attention_center_distance_slope=params.attention_center_distance_slope,
     )
 
 

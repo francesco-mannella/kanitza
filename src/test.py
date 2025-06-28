@@ -238,7 +238,13 @@ def test(params, seed, world=None, object_params=None):
 
     env = init_environment(params, seed)
     agent = Agent(
-        env, sampling_threshold=params.agent_sampling_threshold, seed=seed
+        env,
+        sampling_threshold=params.agent_sampling_threshold,
+        seed=seed,
+        attention_max_variance=params.attention_max_variance,
+        attention_fixed_variance_prop=params.attention_fixed_variance_prop,
+        attention_center_distance_variance_prop=params.attention_center_distance_variance_prop,
+        attention_center_distance_slope=params.attention_center_distance_slope,
     )
 
     file_path = "off_control_store"
