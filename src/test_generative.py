@@ -34,6 +34,10 @@ def signal_handler(signum, frame):
     sys.exit(0)
 
 
+def radians_to_degrees(radians):
+    return np.array(radians) * (180.0 / np.pi)
+
+
 class SimulationTest:
     """
     A class for running and testing the eye movement simulation.
@@ -563,14 +567,13 @@ def format_name(param_name, value):
 def main():
     """Main function to run the simulation test."""
     matplotlib.use("agg")
-    
+
     if torch.cuda.is_available():
         torch.set_default_device("cuda")
         print("Running on CUDA")
     else:
         torch.set_default_device("cpu")
         print("Running on CPU")
-
 
     # Parse arguments
     args = parse_arguments()
@@ -588,7 +591,10 @@ def main():
     object_params = (
         None
         if args.posrot[0] is None
-        else {"pos": args.posrot[:2], "rot": args.posrot[2]}
+        else {
+            "pos": args.posrot[:2],
+            "rot": radians_to_degrees(args.posrot[2]),
+        }
     )
     mask_params = (
         None

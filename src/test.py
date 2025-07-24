@@ -24,6 +24,9 @@ from plotter import FoveaPlotter, MapsPlotter
 _ = EyeSim  # avoid fixer erase EyeSim import
 
 
+def radians_to_degrees(radians):
+    return np.array(radians) * (180.0 / np.pi)
+
 def signal_handler(signum, frame):
     signal.signal(signum, signal.SIG_IGN)  # ignore additional signals
     wandb.finish()
@@ -336,7 +339,10 @@ def main():
     object_params = (
         None
         if args.posrot[0] is None
-        else {"pos": args.posrot[:2], "rot": args.posrot[2]}
+        else {
+            "pos": args.posrot[:2],
+            "rot": radians_to_degrees(args.posrot[2]),
+        }
     )
 
     # Set additional parameters
