@@ -246,7 +246,7 @@ class SimulationTest:
 
                 # Recurrent model step (next saccade prediction)
                 rnn_goal = self.off_control.recurrent_model.step(
-                    goal,
+                    offcontrol_goal.reshape(-1),
                     reservoir_influence=goal_influence,
                 )
 
@@ -316,19 +316,19 @@ class SimulationTest:
                     saccade = np.array([0.5, 0.5])
                     self.agent.set_parameters(saccade)
 
-                action, saliency_map, salient_point = self.agent.get_action(
-                    observation
-                )
+            action, saliency_map, salient_point = self.agent.get_action(
+                observation
+            )
             observation, *_ = self.env.step(action)
 
-        if is_plotting_epoch and saliency_map is not None:
-            self.update_plotters(
-                fovea_plotter,
-                maps_plotter,
-                saliency_map,
-                salient_point,
-                goal,
-            )
+            if is_plotting_epoch and saliency_map is not None:
+                self.update_plotters(
+                    fovea_plotter,
+                    maps_plotter,
+                    saliency_map,
+                    salient_point,
+                    goal,
+                )
 
     def update_environment_position(self, time_step):
         """Placeholder for updating the environment position during the
@@ -498,6 +498,12 @@ def parse_arguments():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
+        "--plot",
+        action="store_true",
+        help="Plot animations.",
+    )
+
+    parser.add_argument(
         "--seed",
         type=int,
         default=0,
@@ -587,6 +593,7 @@ def main():
 
     seed = args.seed
     world = args.world
+    plot = args.plot
 
     object_params = (
         None
@@ -608,7 +615,7 @@ def main():
     params.epochs = 1
     params.saccade_num = 10
     params.episodes = 1
-    params.plotting_epochs_interval = 1
+    params.plotting_epochs_interval = 1 if plot else 1e100
     params.mask_start = args.mask_start
     params.rnn_arbitration_before_mask = 4
     params.arbitration_weight = 1 if args.arbitration is True else 0
