@@ -317,14 +317,14 @@ class SimulationTest:
             )
             observation, *_ = self.env.step(action)
 
-        if is_plotting_epoch and saliency_map is not None:
-            self.update_plotters(
-                fovea_plotter,
-                maps_plotter,
-                saliency_map,
-                salient_point,
-                goal,
-            )
+            if is_plotting_epoch and saliency_map is not None:
+                self.update_plotters(
+                    fovea_plotter,
+                    maps_plotter,
+                    saliency_map,
+                    salient_point,
+                    goal,
+                )
 
     def update_environment_position(self, time_step):
         """Placeholder for updating the environment position during the
@@ -494,6 +494,12 @@ def parse_arguments():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
+        "--plot",
+        action="store_true",
+        help="Plot animations.",
+    )
+
+    parser.add_argument(
         "--seed",
         type=int,
         default=0,
@@ -563,14 +569,13 @@ def format_name(param_name, value):
 def main():
     """Main function to run the simulation test."""
     matplotlib.use("agg")
-    
+
     if torch.cuda.is_available():
         torch.set_default_device("cuda")
         print("Running on CUDA")
     else:
         torch.set_default_device("cpu")
         print("Running on CPU")
-
 
     # Parse arguments
     args = parse_arguments()
@@ -584,6 +589,7 @@ def main():
 
     seed = args.seed
     world = args.world
+    plot = args.plot
 
     object_params = (
         None
@@ -602,7 +608,7 @@ def main():
     params.epochs = 1
     params.saccade_num = 10
     params.episodes = 1
-    params.plotting_epochs_interval = 1
+    params.plotting_epochs_interval = 1 if plot else 1e100
     params.mask_start = args.mask_start
     params.rnn_arbitration_before_mask = 4
     params.arbitration_weight = 1 if args.arbitration is True else 0
