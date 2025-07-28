@@ -312,9 +312,9 @@ class SimulationTest:
                     saccade = np.array([0.5, 0.5])
                     self.agent.set_parameters(saccade)
 
-                action, saliency_map, salient_point = self.agent.get_action(
-                    observation
-                )
+            action, saliency_map, salient_point = self.agent.get_action(
+                observation
+            )
             observation, *_ = self.env.step(action)
 
         if is_plotting_epoch and saliency_map is not None:
