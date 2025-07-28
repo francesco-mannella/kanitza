@@ -15,7 +15,7 @@ class Parameters:
         plot_sim=False,
         plot_maps=True,
         plotting_epochs_interval=50,
-        agent_sampling_threshold=0.001,
+        agent_sampling_threshold=0.000001,
         maps_output_size=100,
         action_size=2,
         attention_size=2,
@@ -34,6 +34,10 @@ class Parameters:
         triangles_percent=50,
         colors=True,
         magnitude_decay=1e-10,
+        attention_max_variance=5,
+        attention_fixed_variance_prop=1.0,
+        attention_center_distance_variance_prop=0.0,
+        attention_center_distance_slope=5.0,
     ):
         self.project_name = project_name
         self.entity_name = entity_name
@@ -69,6 +73,10 @@ class Parameters:
         self.triangles_percent = triangles_percent
         self.colors = colors
         self.magnitude_decay = magnitude_decay
+        self.attention_max_variance = attention_max_variance
+        self.attention_fixed_variance_prop = attention_fixed_variance_prop
+        self.attention_center_distance_variance_prop = attention_center_distance_variance_prop
+        self.attention_center_distance_slope = attention_center_distance_slope
 
         self.param_types = {
             "project_name": str,
@@ -101,6 +109,10 @@ class Parameters:
             "triangles_percent": float,
             "colors": bool,
             "magnitude_decay": float,
+            "attention_max_variance": float,
+            "attention_fixed_variance_prop": float,
+            "attention_center_distance_variance_prop": float,
+            "attention_center_distance_slope": float,
         }
 
     def string_to_params(self, param_list):

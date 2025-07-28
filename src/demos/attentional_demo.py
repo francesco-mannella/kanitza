@@ -23,9 +23,19 @@ if __name__ == "__main__":
     # Set up the environment and agent
     env = gym.make("EyeSim/EyeSim-v0", colors=True)
     env = env.unwrapped
-    agent = Agent(env, sampling_threshold=0.0001)
+    agent = Agent(env, sampling_threshold=1e-20,
+            attention_max_variance=50,
+            attention_fixed_variance_prop=0.01,
+            attention_center_distance_variance_prop=0.2,
+            attention_center_distance_slope=6,
 
-    worlds = ["circle", "triangle", "square"]
+                  )
+
+    worlds = [
+        "triangle",
+        "square",
+        "circle",
+    ]
 
     # Run the simulation for a fixed number of episodes
     for episode in range(3):
@@ -35,7 +45,7 @@ if __name__ == "__main__":
             if world == worlds[episode]
         )
 
-        object_params = {"pos": [20.0, 20.0], "rot": 0.5}
+        object_params = {"pos": [40.0, 40.0], "rot": 0.5}
 
         env.init_world(world=world_id, object_params=object_params)
         _, env_info = env.reset()
@@ -47,24 +57,30 @@ if __name__ == "__main__":
         plotter = FoveaPlotter(env, offline=False)
 
         # Generate random means for Gaussian masks
-        a = np.linspace(0, 2 * np.pi, 5)
-        attention_centers = 0.6 * np.array([[np.cos(x), np.sin(x)] for x in a])
+        a = np.linspace(0, 2 * np.pi, 15)
+        attention_centers = 0.5 + 0.3 * np.array(
+            [[np.cos(x), np.sin(x)] for x in a]
+        )
 
         for center in attention_centers:
             # Set agent parameters based on the current attention center
             agent.set_parameters(center)
 
             # Simulate for a fixed number of time steps
-            for time_step in range(10):
+            for time_step in range(5):
                 observation, *_ = env.step(action)
                 action, saliency_map, salient_point = agent.get_action(
                     observation
                 )
+                if time_step > 1:
+                    agent.set_parameters([0.5, 0.5])
+
                 # Update the plotter with the current saliency map and salient
                 # point
                 plotter.step(
                     saliency_map, salient_point, agent.attentional_mask
                 )
+                plt.pause(0.5)
 
         # Save the plot for the current episode as a gif
         gif_file = f"episode_{episode:04d}"

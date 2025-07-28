@@ -208,8 +208,11 @@ class SimulationTest:
             episode (int): The current episode number.
         """
 
+        saccade = None
         goal = None
         mask_updated = False
+        action = (0, 0)
+        saliency_map = None
 
         for time_step in range(
             self.params.saccade_time * self.params.saccade_num
@@ -239,7 +242,7 @@ class SimulationTest:
 
                 # Recurrent model step (next saccade prediction)
                 rnn_goal = self.off_control.recurrent_model.step(
-                    goal,
+                    offcontrol_goal.reshape(-1),
                     reservoir_influence=goal_influence,
                 )
 
@@ -300,12 +303,21 @@ class SimulationTest:
                         self.update_mask(self.mask_params)
                         mask_updated = True
 
+            elif time_step % 4 == 1:
+
+                # Reset saccade
+                if saccade is not None and not np.array_equal(
+                    saccade, np.array([0.5, 0.5])
+                ):
+                    saccade = np.array([0.5, 0.5])
+                    self.agent.set_parameters(saccade)
+
             action, saliency_map, salient_point = self.agent.get_action(
                 observation
             )
             observation, *_ = self.env.step(action)
 
-            if is_plotting_epoch:
+            if is_plotting_epoch and saliency_map is not None:
                 self.update_plotters(
                     fovea_plotter,
                     maps_plotter,
@@ -413,6 +425,10 @@ class SimulationTest:
             self.env,
             sampling_threshold=self.params.agent_sampling_threshold,
             seed=self.seed,
+            attention_max_variance=self.params.attention_max_variance,
+            attention_fixed_variance_prop=self.params.attention_fixed_variance_prop,
+            attention_center_distance_variance_prop=self.params.attention_center_distance_variance_prop,
+            attention_center_distance_slope=self.params.attention_center_distance_slope,
         )
 
         controller_path = "off_control_store"
@@ -476,6 +492,12 @@ def parse_arguments():
         argparse.Namespace: An object containing the parsed arguments.
     """
     parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "--plot",
+        action="store_true",
+        help="Plot animations.",
+    )
 
     parser.add_argument(
         "--seed",
@@ -548,6 +570,13 @@ def main():
     """Main function to run the simulation test."""
     matplotlib.use("agg")
 
+    if torch.cuda.is_available():
+        torch.set_default_device("cuda")
+        print("Running on CUDA")
+    else:
+        torch.set_default_device("cpu")
+        print("Running on CPU")
+
     # Parse arguments
     args = parse_arguments()
 
@@ -560,6 +589,7 @@ def main():
 
     seed = args.seed
     world = args.world
+    plot = args.plot
 
     object_params = (
         None
@@ -578,7 +608,7 @@ def main():
     params.epochs = 1
     params.saccade_num = 10
     params.episodes = 1
-    params.plotting_epochs_interval = 1
+    params.plotting_epochs_interval = 1 if plot else 1e100
     params.mask_start = args.mask_start
     params.rnn_arbitration_before_mask = 4
     params.arbitration_weight = 1 if args.arbitration is True else 0

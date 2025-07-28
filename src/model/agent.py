@@ -1,6 +1,8 @@
 # %% IMPORTS
 
+import matplotlib
 import numpy as np
+from matplotlib.animation import FuncAnimation
 from scipy.signal import convolve2d
 from scipy.special import softmax
 
@@ -121,7 +123,7 @@ def sampling(array, precision=0.01, rng=None):
 
     flattened_array = array.flatten()
     probabilities = softmax(flattened_array / precision)
-    probabilities[probabilities < probabilities.max() * 0.9] = 0
+    probabilities[probabilities < probabilities.max() * 0.999] = 0
     probabilities /= probabilities.sum()
 
     sampled_flat_index = rng.choice(a=flattened_array.size, p=probabilities)
@@ -168,6 +170,57 @@ def gaussian_mask(shape, mean, v1, v2, angle):
     return np.exp(-0.5 * result).reshape(*shape)
 
 
+class AdaptationManager:
+
+    def __init__(self, rows, cols, decay=0.2):
+        self.rows = rows
+        self.cols = cols
+        self.ue = np.zeros([self.rows, self.cols])
+        self.ui = np.zeros([self.rows, self.cols])
+        self.decay = decay
+
+    def __call__(self, inp):
+
+        self.ue += self.decay * (inp - self.ui - self.ue)
+        self.ui += self.decay * (inp - self.ui)
+        return np.maximum(0, self.ue)
+
+
+def test_adaptation():
+
+    n = 10
+
+    sm = AdaptationManager(n, n)
+
+    inp1 = 1 * (np.random.rand(n, n) > 0.94)
+    inp2 = 1 * (np.random.rand(n, n) > 0.94)
+    frames = [sm(inp1 if t < 20 else inp2) for t in range(40)]
+
+    fig, ax = matplotlib.pyplot.subplots()
+    im = ax.imshow(np.zeros([n, n]), vmin=0, vmax=1)
+
+    def init():
+        ax.set_axis_off()
+        return (im,)
+
+    def update(frame):
+        im.set_array(frame)
+        return (im,)
+
+    ani = FuncAnimation(
+        fig,
+        update,
+        frames=frames,
+        init_func=init,
+        blit=True,
+        interval=50,
+    )
+
+    matplotlib.pyplot.show()
+
+    return ani
+
+
 # %% AGENT CLASS
 class Agent:
     """
@@ -176,17 +229,28 @@ class Agent:
     """
 
     def __init__(
-        self, environment, sampling_threshold=0.07, max_variance=3, seed=None
+        self,
+        environment,
+        sampling_threshold=0.07,
+        max_variance=1,
+        seed=None,
+        attention_max_variance=1.0,
+        attention_fixed_variance_prop=0.1,
+        attention_center_distance_variance_prop=0.9,
+        attention_center_distance_slope=3.0,
     ):
         """
-        Initialize the Agent with the environment and a saliency mapper.
+        Initialize the Agent.
 
         Args:
-        - environment: The environment in which the agent operates.
-        - sampling_threshold (float): The threshold value used in the sampling
-          function. Default is 0.07.
-        - max_variance (float): max std of the attentional field
-        - seed (int): Seed for the random number generator
+        - environment: The environment.
+        - sampling_threshold (float): Threshold for sampling.
+        - max_variance (float): Max std of attentional field.
+        - seed (int): Seed for the random number generator.
+        - attention_max_variance (float): Max variance of attention.
+        - attention_fixed_variance_prop (float): Fixed variance prop.
+        - attention_center_distance_variance_prop (float): Center dist prop.
+        - attention_center_distance_slope (float): Center dist variance slope.
         """
 
         seed = seed or 0
@@ -201,6 +265,18 @@ class Agent:
         self.vertical_variance = max_variance * self.env_height
         self.horizontal_variance = max_variance * self.env_width
         self.attentional_mask = None
+        self.adaptation_manager = AdaptationManager(
+            self.env_height, self.env_width
+        )
+        
+        self.MAX_VARIANCE = attention_max_variance
+        self.FIXED_VARIANCE_PROP = attention_fixed_variance_prop
+        self.CENTER_DISTANCE_VARIANCE_PROP = (
+            attention_center_distance_variance_prop
+        )
+        self.CENTER_DISTANCE_SLOPE = (
+            attention_center_distance_slope
+        )
 
         self.params = None
 
@@ -220,8 +296,15 @@ class Agent:
             self.params = np.copy(params)
 
             env_size = np.array([self.env_height, self.env_width])
+
+            center = 0.5
+            scale = self.MAX_VARIANCE * (
+                self.FIXED_VARIANCE_PROP
+                + self.CENTER_DISTANCE_VARIANCE_PROP
+                * (1 - np.tanh(self.CENTER_DISTANCE_SLOPE * np.linalg.norm(params - center)))
+            )
+
             params *= env_size
-            scale = 0.02 * np.linalg.norm(params - env_size / 2)
 
             self.attentional_mask = gaussian_mask(
                 (self.env_height, self.env_width),
@@ -250,10 +333,13 @@ class Agent:
         saliency_map = self.saliency_mapper(inverted_retina)
         if self.attentional_mask is None:
             self.attentional_mask = np.ones_like(saliency_map)
+        saliency_map_adapted = (
+            saliency_map  # self.adaptation_manager(saliency_map)
+        )
+        saliency_map_adapted *= self.attentional_mask
 
-        saliency_map *= self.attentional_mask
         salient_point = sampling(
-            saliency_map, self.sampling_threshold, self.rng
+            saliency_map_adapted, self.sampling_threshold, self.rng
         )
 
         normalized_action = salient_point / self.environment.retina_size
@@ -262,4 +348,4 @@ class Agent:
             normalized_action - 0.5
         ) * self.environment.retina_scale
 
-        return centered_action, saliency_map, salient_point
+        return centered_action, saliency_map_adapted, salient_point

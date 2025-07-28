@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 import wandb
+from skimage.transform import resize
 
 from model.agent import Agent
 from model.offline_controller import OfflineController
@@ -18,6 +19,33 @@ from plotter import FoveaPlotter, MapsPlotter
 
 
 es = EyeSim
+
+
+# TODO: code for debug
+def ascii_imshow(matrix, nrows, ncols):
+    """Prints an ASCII art representation of a numpy array."""
+    levels = (
+        r"$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|"
+        r"()1{}[]?-_+~<>i!lI;:,\"^`'."
+    )[::-1]
+
+    matrix = resize(matrix, (nrows, ncols), anti_aliasing=True)
+    min_val = matrix.min()
+    max_val = matrix.max()
+    value_range = max_val - min_val
+
+    print()
+    for row in matrix:
+        for value in row:
+            if value_range == 0:
+                index = 0
+            else:
+                index = int(
+                    (value - min_val) / value_range * (len(levels) - 1)
+                )
+            print(levels[index], end="")
+        print()
+    print()
 
 
 def signal_handler(signum, frame):
@@ -79,14 +107,20 @@ def setup_agent(env, params, seed):
 
     Parameters:
     - env (gym.Env): Gym environment object.
-    - params (Parameters): Parameters object with 'agent_sampling_threshold'.
+    - params (Parameters): object containing the general parameters.
     - seed (int): Random seed for agent setup.
 
     Returns:
     - agent (Agent): Initialized Agent object.
     """
     return Agent(
-        env, sampling_threshold=params.agent_sampling_threshold, seed=seed
+        env,
+        sampling_threshold=params.agent_sampling_threshold,
+        seed=seed,
+        attention_max_variance=params.attention_max_variance,
+        attention_fixed_variance_prop=params.attention_fixed_variance_prop,
+        attention_center_distance_variance_prop=params.attention_center_distance_variance_prop,
+        attention_center_distance_slope=params.attention_center_distance_slope,
     )
 
 
@@ -205,15 +239,37 @@ def execute_saccade(
     observation, *_ = env.step(np.zeros(params.action_size))
 
     competence = None
+    saccade = None
+    attention = None
+    salient_point, action = [0, 0], [0.0, 0.0]
     for time_step in range(params.saccade_time):
+        observation, *_ = env.step(action)
         if time_step == int(0.5 * params.saccade_time):
             saccade, competence = off_control.generate_saccade(
                 observation["FOVEA"]
             )
             agent.set_parameters(saccade)
-
-        observation, *_ = env.step(action)
+            attention = np.copy(saccade)
+        else:
+            # Reset saccade
+            if saccade is not None and not np.array_equal(
+                saccade, np.array([0.5, 0.5])
+            ):
+                saccade = np.array([0.5, 0.5])
+                agent.set_parameters(saccade)
         action, saliency_map, salient_point = agent.get_action(observation)
+
+        # # TODO: code for debug
+        # if time_step == int(0.5 * params.saccade_time):
+        #     saliency = saliency_map[salient_point[0], salient_point[1]]
+        #     ascii_imshow(saliency_map, 15, 30)
+        #     print(
+        #         "+++ {:<7.3f} {:<7.3f}   {:>7.3f} {:>3d} {:>3d}".format(
+        #             *action,
+        #             saliency,
+        #             *salient_point,
+        #         )
+        #     )
 
         if fovea_plotter:
             fovea_plotter.step(
@@ -224,7 +280,7 @@ def execute_saccade(
             "world": env.world,
             "vision": observation["FOVEA"],
             "action": action,
-            "attention": np.copy(agent.params),
+            "attention": attention,
             "competence": competence,
         }
         off_control.record_states(episode, saccade_idx, time_step, state)
@@ -354,6 +410,9 @@ def save_maps_gif(maps_plotter, epoch):
 
 
 if __name__ == "__main__":
+
+    if torch.cuda.is_available():
+        torch.set_default_device("cuda")
 
     matplotlib.use("agg")
 
