@@ -606,7 +606,7 @@ def main():
     params.plot_maps = True
     params.plot_sim = True
     params.epochs = 1
-    params.saccade_num = 10
+    params.saccade_num = 30
     params.episodes = 1
     params.plotting_epochs_interval = 1 if plot else 1e100
     params.mask_start = args.mask_start
