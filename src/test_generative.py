@@ -242,7 +242,7 @@ class SimulationTest:
 
                 # Recurrent model step (next saccade prediction)
                 rnn_goal = self.off_control.recurrent_model.step(
-                    goal,
+                    offcontrol_goal.reshape(-1),
                     reservoir_influence=goal_influence,
                 )
 
