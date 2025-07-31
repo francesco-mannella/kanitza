@@ -106,7 +106,7 @@ class SimulationTest:
             self.env.update_position_and_rotation(
                 position=mask_params["pos"],
                 rotation=mask_params["rot"],
-                obj="mask",
+                obj=self.params.mask_type,
             )
 
     def execute_simulation(self, is_plotting_epoch):
@@ -514,6 +514,16 @@ def parse_arguments():
     )
 
     parser.add_argument(
+        "--mask_type",
+        type=str,
+        default="grey_small_mask",
+        help=(
+            "Set the mask type. It must be one of 'white_big_mask' "
+            "'grey_big_mask', 'white_small_mask', 'grey_small_mask'. "
+        ),
+    )
+
+    parser.add_argument(
         "--posrot",
         nargs=3,
         type=float,
@@ -590,6 +600,7 @@ def main():
     seed = args.seed
     world = args.world
     plot = args.plot
+    mask_type = args.mask_type
 
     object_params = (
         None
@@ -612,6 +623,7 @@ def main():
     params.mask_start = args.mask_start
     params.rnn_arbitration_before_mask = 4
     params.arbitration_weight = 1 if args.arbitration is True else 0
+    params.mask_type = mask_type
 
     # Generate initial name without dots or special characters
     seed_str = format_name("seed", seed)

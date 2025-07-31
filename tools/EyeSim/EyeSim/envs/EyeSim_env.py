@@ -38,22 +38,16 @@ class EyeSimEnv(gym.Env):
         self.retina_sim = None
         self.retina_sim_pos = None
         self.world_labels = ["triangle", "square", "circle"]
+        self.world_files = [
+            "worlds.json",
+        ]
         if colors:
-            self.world_files = [
-                "eyesim_red_triangle.json",
-                "eyesim_blue_square.json",
-                "eyesim_green_circle.json",
-            ]
             self.world_objects = [
                 "red_triangle",
                 "blue_square",
                 "green_circle",
             ]
         else:
-            self.world_files = [
-                "eyesim_triangle.json",
-                "eyesim_square.json",
-            ]
             self.world_objects = [
                 "triangle",
                 "square",
@@ -96,7 +90,7 @@ class EyeSimEnv(gym.Env):
         if world is not None:
             self.world = world
         self.world_file = get_resource(
-            "EyeSim", "models", self.world_files[self.world]
+            "EyeSim", "models", self.world_files[0]
         )
         self.world_dict = Sim.loadWorldJson(self.world_file)
         self.object_params = object_params

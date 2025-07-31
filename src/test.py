@@ -345,10 +345,7 @@ class SimulationTest:
         )
 
         controller_path = "off_control_store"
-        rnn_path = "rnn_store.npy"
         self.off_control = self.load_offline_controller(controller_path)
-        self.off_control.recurrent_model = RecurrentGenerativeModel()
-        self.off_control.recurrent_model.load(rnn_path)
 
         for epoch in range(
             self.off_control.epoch, self.off_control.epoch + self.params.epochs
