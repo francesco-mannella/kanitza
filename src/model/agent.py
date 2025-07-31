@@ -268,15 +268,13 @@ class Agent:
         self.adaptation_manager = AdaptationManager(
             self.env_height, self.env_width
         )
-        
+
         self.MAX_VARIANCE = attention_max_variance
         self.FIXED_VARIANCE_PROP = attention_fixed_variance_prop
         self.CENTER_DISTANCE_VARIANCE_PROP = (
             attention_center_distance_variance_prop
         )
-        self.CENTER_DISTANCE_SLOPE = (
-            attention_center_distance_slope
-        )
+        self.CENTER_DISTANCE_SLOPE = attention_center_distance_slope
 
         self.params = None
 
@@ -301,7 +299,13 @@ class Agent:
             scale = self.MAX_VARIANCE * (
                 self.FIXED_VARIANCE_PROP
                 + self.CENTER_DISTANCE_VARIANCE_PROP
-                * (1 - np.tanh(self.CENTER_DISTANCE_SLOPE * np.linalg.norm(params - center)))
+                * (
+                    1
+                    - np.tanh(
+                        self.CENTER_DISTANCE_SLOPE
+                        * np.linalg.norm(params - center)
+                    )
+                )
             )
 
             params *= env_size
@@ -316,17 +320,7 @@ class Agent:
         else:
             self.attentional_mask = np.ones([self.env_height, self.env_width])
 
-    def get_action(self, observation):
-        """Determine the action to take based on the provided observation.
-
-        Args:
-        - observation (dict): A dictionary representing the current state of
-          the environment.  Must contain a key 'RETINA' which provides the
-          necessary visual input data.
-
-        Returns:
-        - tuple: A tuple containing the action to take, the generated saliency
-          map, and the selected salient point."""
+    def get_retinal_saliency(self, observation):
         retina_image = observation["RETINA"].mean(-1) / 255
         inverted_retina = 1 - retina_image
 
@@ -340,6 +334,23 @@ class Agent:
 
         salient_point = sampling(
             saliency_map_adapted, self.sampling_threshold, self.rng
+        )
+        return saliency_map_adapted, salient_point
+
+    def get_action(self, observation):
+        """Determine the action to take based on the provided observation.
+
+        Args:
+        - observation (dict): A dictionary representing the current state of
+          the environment.  Must contain a key 'RETINA' which provides the
+          necessary visual input data.
+
+        Returns:
+        - tuple: A tuple containing the action to take, the generated saliency
+          map, and the selected salient point."""
+
+        saliency_map_adapted, salient_point = self.get_retinal_saliency(
+            observation
         )
 
         normalized_action = salient_point / self.environment.retina_size
