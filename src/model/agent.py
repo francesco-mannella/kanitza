@@ -1,51 +1,9 @@
 # %% IMPORTS
 
-import matplotlib
 import numpy as np
-from matplotlib.animation import FuncAnimation
-from scipy.signal import convolve2d
 from scipy.special import softmax
 
-
-# %% GABOR FILTER FUNCTION
-def gabor_filter(
-    frequency, orientation, sigma, sigma_y=None, phase_offset=0, size=5
-):
-    """
-    Generate a Gabor filter.
-
-    Args:
-    - frequency (float): Spatial frequency of the harmonics.
-    - orientation (float): Orientation of the Gabor filter in radians.
-    - sigma (float): Standard deviation of the Gaussian envelope.
-    - sigma_y (float): Standard deviation of the Gaussian envelope in the 2nd
-      dimension.
-    - phase_offset (float): Phase offset of the sine wave.
-    - size (int): Size of the filter.
-
-    Returns:
-    - np.ndarray: The generated Gabor filter.
-    """
-
-    if sigma_y is None:
-        sigma_y = sigma
-
-    half_size = size // 2
-    x_grid, y_grid = np.ogrid[
-        -half_size : (half_size + 1), -half_size : (half_size + 1)
-    ]
-    rotated_x = x_grid * np.cos(orientation) + y_grid * np.sin(orientation)
-    rotated_y = -x_grid * np.sin(orientation) + y_grid * np.cos(orientation)
-    gabor = np.exp(
-        -(rotated_x**2 / (2 * sigma**2) + rotated_y**2 / (2 * sigma_y**2))
-    ) * np.cos(2 * np.pi * frequency * rotated_x + phase_offset)
-
-    # Normalize the Gabor filter by dividing it by the sum of its non-negative
-    # elements
-    non_negative_sum = np.sum(np.maximum(gabor, 0))
-    gabor /= non_negative_sum
-
-    return gabor
+from model.gabor_filtering import ChannelGaborFilter
 
 
 # %% SALIENCY MAP CLASS
@@ -55,22 +13,28 @@ class SaliencyMap:
     """
 
     def __init__(self):
-        filter_size = 10
-        spatial_frequency = 0.1
-        gaussian_sigma = 4
-        phase_offset = 0
-        orientations = np.linspace(0, 1, 9)[:-1] * np.pi
-
-        self.gabor_filters = [
-            gabor_filter(
-                frequency=spatial_frequency,
-                orientation=orientation,
-                sigma=gaussian_sigma,
-                phase_offset=phase_offset,
-                size=filter_size,
-            )
-            for orientation in orientations
-        ]
+        scales = [10]
+        orientations = np.pi * np.linspace(0, 360, 10) / 180.0
+        frequency = 0.006
+        phase_offset = -np.pi * (0.5 - 9e-4)
+        kernel_size = 3
+        filter_slope = 0.8
+        sigma_y_multiplier = 6
+        bw_channel_ratio = 2.0
+        rgb_prop = 1.5
+        bright_prop = 0.5
+        self.gabor_manager = ChannelGaborFilter(
+            scales,
+            orientations,
+            frequency,
+            phase_offset,
+            kernel_size,
+            filter_slope=filter_slope,
+            sigma_y_multiplier=sigma_y_multiplier,
+            bw_channel_ratio=bw_channel_ratio,
+            rgb_prop=rgb_prop,
+            bright_prop=bright_prop,
+        )
 
     def __call__(self, input_image):
         """
@@ -83,25 +47,10 @@ class SaliencyMap:
         Returns:
         - np.ndarray: The generated saliency map.
         """
-        accumulated_response = np.zeros_like(input_image)
 
-        for gabor in self.gabor_filters:
-            accumulated_response += (
-                convolve2d(input_image, gabor, mode="same") / 8
-            )
+        rgb, brightness, adjusted_response = self.gabor_manager(input_image)
 
-        accumulated_response /= accumulated_response.max() + 1e-4
-        clipped_response = np.clip(accumulated_response, 0.4, 1)
-
-        response_range = clipped_response.max() - clipped_response.min()
-        if response_range > 1e-30:
-            adjusted_response = (
-                clipped_response - clipped_response.min()
-            ) / response_range
-        else:
-            adjusted_response = np.zeros_like(clipped_response)
-
-        return adjusted_response
+        return rgb, brightness, adjusted_response
 
 
 # %% SAMPLE FUNCTION
@@ -170,57 +119,6 @@ def gaussian_mask(shape, mean, v1, v2, angle):
     return np.exp(-0.5 * result).reshape(*shape)
 
 
-class AdaptationManager:
-
-    def __init__(self, rows, cols, decay=0.2):
-        self.rows = rows
-        self.cols = cols
-        self.ue = np.zeros([self.rows, self.cols])
-        self.ui = np.zeros([self.rows, self.cols])
-        self.decay = decay
-
-    def __call__(self, inp):
-
-        self.ue += self.decay * (inp - self.ui - self.ue)
-        self.ui += self.decay * (inp - self.ui)
-        return np.maximum(0, self.ue)
-
-
-def test_adaptation():
-
-    n = 10
-
-    sm = AdaptationManager(n, n)
-
-    inp1 = 1 * (np.random.rand(n, n) > 0.94)
-    inp2 = 1 * (np.random.rand(n, n) > 0.94)
-    frames = [sm(inp1 if t < 20 else inp2) for t in range(40)]
-
-    fig, ax = matplotlib.pyplot.subplots()
-    im = ax.imshow(np.zeros([n, n]), vmin=0, vmax=1)
-
-    def init():
-        ax.set_axis_off()
-        return (im,)
-
-    def update(frame):
-        im.set_array(frame)
-        return (im,)
-
-    ani = FuncAnimation(
-        fig,
-        update,
-        frames=frames,
-        init_func=init,
-        blit=True,
-        interval=50,
-    )
-
-    matplotlib.pyplot.show()
-
-    return ani
-
-
 # %% AGENT CLASS
 class Agent:
     """
@@ -265,9 +163,6 @@ class Agent:
         self.vertical_variance = max_variance * self.env_height
         self.horizontal_variance = max_variance * self.env_width
         self.attentional_mask = None
-        self.adaptation_manager = AdaptationManager(
-            self.env_height, self.env_width
-        )
 
         self.MAX_VARIANCE = attention_max_variance
         self.FIXED_VARIANCE_PROP = attention_fixed_variance_prop
@@ -321,15 +216,12 @@ class Agent:
             self.attentional_mask = np.ones([self.env_height, self.env_width])
 
     def get_retinal_saliency(self, observation):
-        retina_image = observation["RETINA"].mean(-1) / 255
-        inverted_retina = 1 - retina_image
+        retina_image = observation["RETINA"] / 255
 
-        saliency_map = self.saliency_mapper(inverted_retina)
+        _, saliency_map, _ = self.saliency_mapper(retina_image)
         if self.attentional_mask is None:
             self.attentional_mask = np.ones_like(saliency_map)
-        saliency_map_adapted = (
-            saliency_map  # self.adaptation_manager(saliency_map)
-        )
+        saliency_map_adapted = saliency_map
         saliency_map_adapted *= self.attentional_mask
 
         salient_point = sampling(
