@@ -56,12 +56,14 @@ for s in $seeds; do
 				#
 				mkdir -p $dirname
 				cd $dirname
-				if [[ $wandb == false ]]; then wandb disabled; fi
+
+                USE_WANDB=-w
+				if [[ $wandb == false ]]; then USE_WANDB=; fi
 				#
 				param_list="${params};decaying_speed=${ds}"
 				param_list="${param_list};local_decaying_speed=${lds}"
 				#
-				(python $EXE --variant=$series --seed=$s --param_list="${param_list}")
+				(python $EXE --variant=$series $USE_WANDB --seed=$s --param_list="${param_list}")
 				#
 				dirname_final=$(cat NAME)
 				cd $CURR_DIR

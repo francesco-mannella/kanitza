@@ -48,7 +48,7 @@ def ascii_imshow(matrix, nrows, ncols):
     print()
 
 
-def signal_handler(signum, frame):
+def signal_handler(signum, frame, params):
     """
     Handle incoming signals to gracefully terminate the program.
 
@@ -57,7 +57,8 @@ def signal_handler(signum, frame):
     - frame (frame object): Current stack frame.
     """
     signal.signal(signum, signal.SIG_IGN)
-    wandb.finish()
+    if params.use_wandb:
+        wandb.finish()
     sys.exit(0)
 
 
@@ -84,233 +85,179 @@ class Logger:
         print(log)
 
 
-def setup_environment(seed, params):
+class SimulationManager:
+    """Manages the simulation, including environment, agent, and offline control.
+
+    Args:
+        params: Configuration parameters for the simulation.
+        seed: Random seed for reproducibility.
     """
-    Set up the gym environment with a specified seed.
 
-    Parameters:
-    - seed (int): Random seed to use for environment initialization.
-    - params (Parameters): Parameters object containing 'env_name'.
+    def __init__(self, params, seed):
+        self.params = params
+        self.seed = seed
+        self.env = self._setup_environment()
+        self.agent = self._setup_agent()
+        self.off_control = None
 
-    Returns:
-    - env (gym.Env): Gym environment object.
-    """
-    env = gym.make(params.env_name, colors=params.colors)
-    env = env.unwrapped
-    env.set_seed(seed)
-    return env
+    def _setup_environment(self):
+        """Initializes and configures the simulation environment."""
+        env = gym.make(self.params.env_name, colors=self.params.colors)
+        env = env.unwrapped
+        env.set_seed(self.seed)
+        return env
 
-
-def setup_agent(env, params, seed):
-    """
-    Set up the agent with environment and specific parameters.
-
-    Parameters:
-    - env (gym.Env): Gym environment object.
-    - params (Parameters): object containing the general parameters.
-    - seed (int): Random seed for agent setup.
-
-    Returns:
-    - agent (Agent): Initialized Agent object.
-    """
-    return Agent(
-        env,
-        sampling_threshold=params.agent_sampling_threshold,
-        seed=seed,
-        attention_max_variance=params.attention_max_variance,
-        attention_fixed_variance_prop=params.attention_fixed_variance_prop,
-        attention_center_distance_variance_prop=params.attention_center_distance_variance_prop,
-        attention_center_distance_slope=params.attention_center_distance_slope,
-    )
-
-
-def setup_offline_controller(file_path, env, params, seed):
-    """
-    Set up the offline controller, loading from file if it exists.
-
-    Parameters:
-    - file_path (str): Path to check for existing controller data.
-    - env (gym.Env): Gym environment object.
-    - params (Parameters): Parameters for the offline controller.
-    - seed (int): Random seed for controller setup.
-
-    Returns:
-    - off_controller (OfflineController): Loaded or new OfflineController
-      object.
-
-    """
-    if os.path.exists(file_path):
-        return OfflineController.load(file_path, env, params, seed)
-    else:
-        return OfflineController(env, params, seed)
-
-
-def run_epoch(agent, env, off_control, params, epoch, log):
-    """
-    Perform multiple episodes of simulation for a single epoch.
-
-    Parameters:
-    - agent (Agent): Agent object to execute actions.
-    - env (gym.Env): Gym environment object.
-    - off_control (OfflineController): OfflineController for state management.
-    - params (Parameters): Parameters object containing simulation settings.
-    - epoch (int): Current epoch number for logging and control.
-    - log (Logger): controls logging
-    """
-    for episode in range(params.episodes):
-        info = run_episode(agent, env, off_control, params, episode, epoch)
-        log(
-            f"Epoch: {epoch:<5d} "
-            f"Episode: {episode:<3d} "
-            f"type:{info['world']:10s}"
+    def _setup_agent(self):
+        """Initializes the agent with parameters from self.params."""
+        return Agent(
+            self.env,
+            sampling_threshold=self.params.agent_sampling_threshold,
+            seed=self.seed,
+            attention_max_variance=self.params.attention_max_variance,
+            attention_fixed_variance_prop=self.params.attention_fixed_variance_prop,
+            attention_center_distance_variance_prop=self.params.attention_center_distance_variance_prop,
+            attention_center_distance_slope=self.params.attention_center_distance_slope,
         )
 
-
-def run_episode(agent, env, off_control, params, episode, epoch):
-    """
-    Execute a single episode of simulation.
-
-    Parameters:
-    - agent (Agent): Agent object.
-    - env (gym.Env): Gym environment object.
-    - off_control (OfflineController): OfflineController object.
-    - params (Parameters): Parameters object with simulation details.
-    - episode (int): Current episode number.
-    - epoch (int): Current epoch number.
-    """
-    env.init_world(
-        world=0 if epoch % 100 < params.triangles_percent else 1,
-    )
-    _, env_info = env.reset()
-
-    plt_enabled = (
-        params.plot_sim is True
-        and episode == params.episodes - 1
-        and is_plotting_epoch(epoch, params)
-    )
-
-    fovea_plotter = (
-        FoveaPlotter(env, offline=True) if plt_enabled is True else None
-    )
-
-    action = np.zeros(env.action_space.shape)
-
-    for saccade_idx in range(params.saccade_num):
-        execute_saccade(
-            agent,
-            env,
-            off_control,
-            params,
-            action,
-            episode,
-            saccade_idx,
-            fovea_plotter,
-        )
-
-    if plt_enabled is True:
-        save_simulation_gif(fovea_plotter, epoch)
-
-    return env_info
-
-
-def execute_saccade(
-    agent,
-    env,
-    off_control,
-    params,
-    action,
-    episode,
-    saccade_idx,
-    fovea_plotter,
-):
-    """
-    Execute the attentional saccade phase of an episode.
-
-    Parameters:
-    - agent (Agent): Agent object.
-    - env (gym.Env): Gym environment object.
-    - off_control (OfflineController): OfflineController object.
-    - params (Parameters): Parameters object.
-    - action (np.ndarray): Initial action configuration.
-    - episode (int): Current episode number.
-    - saccade_idx (int): Current saccade index.
-    - fovea_plotter (FoveaPlotter or None): Optional plotter for visual output.
-    """
-    observation, *_ = env.step(np.zeros(params.action_size))
-
-    competence = None
-    saccade = None
-    attention = None
-    salient_point, action = [0, 0], [0.0, 0.0]
-    for time_step in range(params.saccade_time):
-        observation, *_ = env.step(action)
-        if time_step == int(0.5 * params.saccade_time):
-            saccade, competence = off_control.generate_saccade(
-                observation["FOVEA"]
+    def setup_offline_controller(self, file_path):
+        """Sets up the offline controller, loading from file if it exists."""
+        if os.path.exists(file_path):
+            self.off_control = OfflineController.load(
+                file_path, self.env, self.params, self.seed
             )
-            agent.set_parameters(saccade)
-            attention = np.copy(saccade)
         else:
-            # Reset saccade
-            if saccade is not None and not np.array_equal(
-                saccade, np.array([0.5, 0.5])
-            ):
-                saccade = np.array([0.5, 0.5])
-                agent.set_parameters(saccade)
-
-        action, saliency_map, salient_point = agent.get_action(observation)
-
-        if fovea_plotter:
-            fovea_plotter.step(
-                saliency_map, salient_point, agent.attentional_mask
+            self.off_control = OfflineController(
+                self.env, self.params, self.seed
             )
 
-        state = {
-            "world": env.world,
-            "vision": observation["FOVEA"],
-            "action": action,
-            "attention": attention,
-            "competence": competence,
-        }
-        off_control.record_states(episode, saccade_idx, time_step, state)
+    def run_epoch(self, epoch, log):
+        """Runs a full epoch, iterating through all episodes.
 
+        Args:
+            epoch: Current epoch number.
+            log: Logging function.
+        """
+        for episode in range(self.params.episodes):
+            info = self.run_episode(episode, epoch)
+            log(
+                f"Epoch: {epoch:<5d} "
+                f"Episode: {episode:<3d} "
+                f"type:{info['world']:10s}"
+            )
 
-def is_plotting_epoch(epoch, params):
-    """
-    Determine if the current epoch is a plotting epoch.
+    def run_episode(self, episode, epoch):
+        """Runs a single episode, handling plotting and environment reset.
 
-    Parameters:
-    - epoch (int): Current epoch number.
-    - params (Parameters): Parameters object containing
-      'plotting_epochs_interval' and 'epochs'.
+        Args:
+            episode: Current episode number.
+            epoch: Current epoch number.
 
-    Returns:
-    - is_plotting (bool): True if the current epoch is a plotting epoch;
-      otherwise False.
+        Returns:
+            dict: Information about the environment after reset.
+        """
+        # Select world type based on epoch and triangles_percent parameter
+        self.env.init_world(
+            world=0 if epoch % 100 < self.params.triangles_percent else 1,
+        )
+        _, env_info = self.env.reset()
+        # Enable plotting only for the last episode of plotting epochs
+        plt_enabled = (
+            self.params.plot_sim is True
+            and episode == self.params.episodes - 1
+            and self.is_plotting_epoch(epoch)
+        )
+        fovea_plotter = (
+            FoveaPlotter(self.env, offline=True) if plt_enabled else None
+        )
+        action = np.zeros(self.env.action_space.shape)
+        # Execute all saccades for this episode
+        for saccade_idx in range(self.params.saccade_num):
+            self.execute_saccade(action, episode, saccade_idx, fovea_plotter)
+        if plt_enabled:
+            self.save_simulation_gif(fovea_plotter, epoch)
+        return env_info
 
-    """
-    return (
-        epoch % params.plotting_epochs_interval == 0
-        or epoch == params.epochs - 1
-    )
+    def execute_saccade(self, action, episode, saccade_idx, fovea_plotter):
+        """Executes a single saccade, updating agent and offline controller.
 
+        Args:
+            action: Initial action for the saccade.
+            episode: Current episode number.
+            saccade_idx: Index of the current saccade.
+            fovea_plotter: Optional plotter for visualization.
+        """
+        # Step once to get initial observation
+        observation, *_ = self.env.step(np.zeros(self.params.action_size))
+        competence = None
+        saccade = None
+        attention = None
+        salient_point, action = [0, 0], [0.0, 0.0]
+        # Iterate through all time steps of the saccade
+        for time_step in range(self.params.saccade_time):
+            observation, *_ = self.env.step(action)
+            # At midpoint, generate new saccade and update agent parameters
+            if time_step == int(0.5 * self.params.saccade_time):
+                saccade, competence = self.off_control.generate_saccade(
+                    observation["FOVEA"]
+                )
+                self.agent.set_parameters(saccade)
+                attention = np.copy(saccade)
+            else:
+                # After midpoint, reset saccade if not at default
+                if saccade is not None and not np.array_equal(
+                    saccade, np.array([0.5, 0.5])
+                ):
+                    saccade = np.array([0.5, 0.5])
+                    self.agent.set_parameters(saccade)
+            # Get agent action, saliency map, and salient point
+            action, saliency_map, salient_point = self.agent.get_action(
+                observation
+            )
+            # Update plotter if enabled
+            if fovea_plotter:
+                fovea_plotter.step(
+                    saliency_map, salient_point, self.agent.attentional_mask
+                )
+            # Record state for offline controller
+            state = {
+                "world": self.env.world,
+                "vision": observation["FOVEA"],
+                "action": action,
+                "attention": attention,
+                "competence": competence,
+            }
+            self.off_control.record_states(
+                episode, saccade_idx, time_step, state
+            )
 
-def save_simulation_gif(fovea_plotter, epoch):
-    """
-    Save the simulation output as a GIF and log it to WandB.
+    def is_plotting_epoch(self, epoch):
+        """Determines if the current epoch should trigger plotting.
 
-    Parameters:
-    - fovea_plotter (FoveaPlotter): FoveaPlotter object for visualizing data.
-    - epoch (int): Current epoch number.
-    """
-    gif_file = f"sim_{epoch:04d}"
-    fovea_plotter.close(gif_file)
-    wandb.log(
-        {"Simulations": wandb.Video(f"{gif_file}.gif", format="gif")},
-        step=epoch,
-    )
+        Args:
+            epoch: Current epoch number.
 
+        Returns:
+            bool: True if plotting should occur, False otherwise.
+        """
+        return (
+            epoch % self.params.plotting_epochs_interval == 0
+            or epoch == self.params.epochs - 1
+        )
 
+    def save_simulation_gif(self, fovea_plotter, epoch):
+        """Saves the simulation as a GIF and logs it if using wandb.
+
+        Args:
+            fovea_plotter: The plotter used for visualization.
+            epoch: Current epoch number.
+        """
+        gif_file = f"sim_{epoch:04d}"
+        fovea_plotter.close(gif_file)
+        if self.params.use_wandb:
+            wandb.log(
+                {"Simulations": wandb.Video(f"{gif_file}.gif", format="gif")},
+                step=epoch,
+            )
 def main(params):
     """
     Main function to execute the simulation process.
@@ -324,30 +271,35 @@ def main(params):
 
     torch.manual_seed(seed)
 
-    env = setup_environment(seed, params)
-    agent = setup_agent(env, params, seed)
-    off_control = setup_offline_controller(
-        "off_control_store", env, params, seed
-    )
+    sim_manager = SimulationManager(params, seed)
+
+    sim_manager.setup_offline_controller("off_control_store")
 
     if params.plot_maps:
-        maps_plotter = MapsPlotter(env, off_control, offline=True)
+        maps_plotter = MapsPlotter(
+            sim_manager.env, sim_manager.off_control, offline=True
+        )
 
-    for epoch in range(off_control.epoch, off_control.epoch + params.epochs):
+    for epoch in range(
+        sim_manager.off_control.epoch,
+        sim_manager.off_control.epoch + params.epochs,
+    ):
         main_log(f"epoch: {epoch}")
-        off_control.epoch = epoch
-        off_control.reset_states()
+        sim_manager.off_control.epoch = epoch
+        sim_manager.off_control.reset_states()
 
-        run_epoch(agent, env, off_control, params, epoch, main_log)
-        off_control.filter_salient_states()
+        sim_manager.run_epoch(epoch, main_log)
+        sim_manager.off_control.filter_salient_states()
 
         # count world types
         world_dict = {"triangle": 0, "square": 0}
-        for idx in np.array(off_control.filtered_idcs).T:
-            world = int(off_control.world_states[idx[0], idx[1], idx[2]][0])
-            if env.world_labels[world] == "triangle":
+        for idx in np.array(sim_manager.off_control.filtered_idcs).T:
+            world = int(
+                sim_manager.off_control.world_states[idx[0], idx[1], idx[2]][0]
+            )
+            if sim_manager.env.world_labels[world] == "triangle":
                 world_dict["triangle"] += 1
-            elif env.world_labels[world] == "square":
+            elif sim_manager.env.world_labels[world] == "square":
                 world_dict["square"] += 1
 
         main_log(
@@ -355,31 +307,35 @@ def main(params):
             f"squares: {world_dict['square']}"
         )
 
-        off_control.update()
+        sim_manager.off_control.update()
 
         # Logs
 
         # Log to file
-        main_log(f"comp: {off_control.competence}")
+        main_log(f"comp: {sim_manager.off_control.competence}")
 
         # log to wandb
-        wandb.log(
-            dict(
-                competence=off_control.competence, **off_control.weight_change
-            ),
-            step=epoch,
-        )
+        if params.use_wandb:
+            wandb.log(
+                dict(
+                    competence=sim_manager.off_control.competence,
+                    **sim_manager.off_control.weight_change,
+                ),
+                step=epoch,
+            )
 
         if params.plot_maps:
             maps_plotter.step()
-            if is_plotting_epoch(epoch, params):
-                save_maps_gif(maps_plotter, epoch)
-                maps_plotter = MapsPlotter(env, off_control, offline=True)
+            if sim_manager.is_plotting_epoch(epoch, params):
+                save_maps_gif(maps_plotter, epoch, params)
+                maps_plotter = MapsPlotter(
+                    sim_manager.env, sim_manager.off_control, offline=True
+                )
 
-        off_control.save("off_control_store")
+        sim_manager.off_control.save("off_control_store")
 
 
-def save_maps_gif(maps_plotter, epoch):
+def save_maps_gif(maps_plotter, epoch, params):
     """
     Save and log the maps as both GIF and PNG files.
 
@@ -389,24 +345,18 @@ def save_maps_gif(maps_plotter, epoch):
     """
     file = f"maps_{epoch:04d}"
     maps_plotter.close(file)
-    wandb.log(
-        {
-            "history": wandb.Image(f"{file}.gif"),
-            "last": wandb.Image(f"{file}.png"),
-        },
-        step=epoch,
-    )
+    if params.use_wandb:
+        wandb.log(
+            {
+                "history": wandb.Image(f"{file}.gif"),
+                "last": wandb.Image(f"{file}.png"),
+            },
+            step=epoch,
+        )
 
 
-if __name__ == "__main__":
-
-    if torch.cuda.is_available():
-        torch.set_default_device("cuda")
-
-    matplotlib.use("agg")
-
+def parse_args():
     parser = argparse.ArgumentParser()
-
     parser.add_argument(
         "--seed",
         type=int,
@@ -428,12 +378,28 @@ if __name__ == "__main__":
             "'param1=value1;param2=value2;...'."
         ),
     )
+    parser.add_argument(
+        "-w",
+        "--wandb",
+        action="store_true",
+        help="Enable wandb logging.",
+    )
+    return parser.parse_args()
 
-    args = parser.parse_args()
+
+if __name__ == "__main__":
+
+    if torch.cuda.is_available():
+        torch.set_default_device("cuda")
+
+    matplotlib.use("agg")
+
+    args = parse_args()
 
     params = Parameters()
     seed = args.seed
     variant = args.variant
+    params.use_wandb = args.wandb
 
     try:
         params.load("loaded_params")
@@ -443,18 +409,13 @@ if __name__ == "__main__":
         params.string_to_params(param_list)
         params.save("loaded_params")
 
-    seed_str = str(seed).replace(".", "_")
-    decaying_speed_str = str(params.decaying_speed).replace(".", "_")
-    local_decaying_speed_str = str(params.local_decaying_speed).replace(
-        ".", "_"
-    )
-
     def format_scalar(x):
         return f"{x:06.3f}".replace(".", "")
 
+    seed_str = str(seed).replace(".", "_")
+
     params.init_name = (
-        "sim_"
-        f"{variant}_"
+        f"sim_{variant}_"
         f"{str(hex(np.abs(hash(params))))[:6]}_"
         f"s_{seed_str}_"
         f"m_{format_scalar(params.match_std)}_"
@@ -466,12 +427,14 @@ if __name__ == "__main__":
     with open("NAME", "w") as fname:
         fname.write(f"{params.init_name}\n")
 
-    wandb.init(
-        project=params.project_name,
-        entity=params.entity_name,
-        name=params.init_name,
-    )
+    if args.wandb:
+        wandb.init(
+            project=params.project_name,
+            entity=params.entity_name,
+            name=params.init_name,
+        )
 
     main(params)
 
-    wandb.finish()
+    if args.wandb:
+        wandb.finish()
