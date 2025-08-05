@@ -257,19 +257,8 @@ def execute_saccade(
             ):
                 saccade = np.array([0.5, 0.5])
                 agent.set_parameters(saccade)
-        action, saliency_map, salient_point = agent.get_action(observation)
 
-        # # TODO: code for debug
-        # if time_step == int(0.5 * params.saccade_time):
-        #     saliency = saliency_map[salient_point[0], salient_point[1]]
-        #     ascii_imshow(saliency_map, 15, 30)
-        #     print(
-        #         "+++ {:<7.3f} {:<7.3f}   {:>7.3f} {:>3d} {:>3d}".format(
-        #             *action,
-        #             saliency,
-        #             *salient_point,
-        #         )
-        #     )
+        action, saliency_map, salient_point = agent.get_action(observation)
 
         if fovea_plotter:
             fovea_plotter.step(
