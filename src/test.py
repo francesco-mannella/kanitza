@@ -15,7 +15,7 @@ from slugify import slugify
 from merge_gifs import merge_gifs
 from model.agent import Agent
 from model.offline_controller import OfflineController
-from model.recurrent_generative_model import RecurrentGenerativeModel
+from model.visual_processing import SaliencyMap
 from params import Parameters
 from plotter import FoveaPlotter, MapsPlotter
 
@@ -29,6 +29,7 @@ _ = EyeSim  # avoid fixer erase EyeSim import
 
 def radians_to_degrees(radians):
     return np.array(radians) * (180.0 / np.pi)
+
 
 def signal_handler(signum, frame):
     """Handles signals for graceful shutdown, e.g., on Ctrl+C."""
@@ -197,11 +198,12 @@ class SimulationTest:
             self.params.saccade_time * self.params.saccade_num
         ):
 
+            # Get info for saccade
+            _, _, saliency = self.visual_map(observation["RETINA"])
+            _, _, condition = self.visual_map(observation["FOVEA"])
             if time_step % 4 == 0:
                 print(f"ts: {time_step:>3d}  ")
 
-                # Get info for saccade
-                condition = observation["FOVEA"].copy()
                 # Compute saccade
                 saccade, goal = self.off_control.get_action_from_condition(
                     condition
@@ -230,7 +232,7 @@ class SimulationTest:
 
             self.update_environment_position(time_step)
             action, saliency_map, salient_point = self.agent.get_action(
-                observation
+                saliency
             )
             observation, *_ = self.env.step(action)
 
@@ -238,6 +240,7 @@ class SimulationTest:
                 self.update_plotters(
                     fovea_plotter,
                     maps_plotter,
+                    condition,
                     saliency_map,
                     salient_point,
                     goal,
@@ -264,20 +267,38 @@ class SimulationTest:
         pass
 
     def update_plotters(
-        self, fovea_plotter, maps_plotter, saliency_map, salient_point, goal
+        self,
+        fovea_plotter,
+        maps_plotter,
+        color_saliency_map,
+        saliency_map,
+        salient_point,
+        goal,
     ):
-        """Updates the plotters with the latest data from the simulation.
+        """
+        Updates the plotters with the latest data from the simulation.
 
         Args:
-            fovea_plotter (FoveaPlotter): The fovea plotter object.
-            maps_plotter (MapsPlotter): The maps plotter object.
-            saliency_map (numpy.ndarray): The saliency map from the agent.
-            salient_point (tuple): The salient point from the agent.
-            goal (numpy.ndarray): The goal for the current time step.
+            fovea_plotter (FoveaPlotter): The fovea plotter object responsible
+                for displaying foveal vision data.
+            maps_plotter (MapsPlotter): The maps plotter object responsible for
+                displaying various map data.
+            color_saliency_map (numpy.ndarray): The color saliency map from the
+                agent, indicating areas of interest based on color.
+            saliency_map (numpy.ndarray): The saliency map from the agent,
+                highlighting areas of interest.
+            salient_point (tuple): The salient point from the agent,
+                represented as a coordinate tuple (x, y).
+            goal (numpy.ndarray): The goal for the current time step,
+                represented as an array.
         """
+
         if fovea_plotter:
             fovea_plotter.step(
-                saliency_map, salient_point, self.agent.attentional_mask
+                color_saliency_map,
+                saliency_map,
+                salient_point,
+                self.agent.attentional_mask,
             )
         if maps_plotter:
             maps_plotter.step(goal)
@@ -331,6 +352,7 @@ class SimulationTest:
         Returns:
             list: A list of plotters used during the simulation.
         """
+        # %%
         signal.signal(signal.SIGINT, signal_handler)
         plt.ion()
         plt.close("all")
@@ -346,12 +368,10 @@ class SimulationTest:
             attention_center_distance_variance_prop=self.params.attention_center_distance_variance_prop,
             attention_center_distance_slope=self.params.attention_center_distance_slope,
         )
+        self.visual_map = SaliencyMap(self.params)
 
         controller_path = "off_control_store"
-        rnn_path = "rnn_store.npy"
         self.off_control = self.load_offline_controller(controller_path)
-        self.off_control.recurrent_model = RecurrentGenerativeModel()
-        self.off_control.recurrent_model.load(rnn_path)
 
         for epoch in range(
             self.off_control.epoch, self.off_control.epoch + self.params.epochs
@@ -522,6 +542,9 @@ def main():
     # Close Weights & Biases logging
     if args.wandb:
         wandb.finish()
+
+
+# %%
 
 
 if __name__ == "__main__":

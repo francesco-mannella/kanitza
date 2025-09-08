@@ -16,6 +16,7 @@ from merge_gifs import merge_gifs
 from model.agent import Agent
 from model.offline_controller import OfflineController
 from model.recurrent_generative_model import RecurrentGenerativeModel
+from model.visual_processing import SaliencyMap
 from params import Parameters
 from plotter import FoveaPlotter, MapsPlotter
 
@@ -27,15 +28,15 @@ from plotter import FoveaPlotter, MapsPlotter
 _ = EyeSim  # avoid fixer erase EyeSim import
 
 
+def radians_to_degrees(radians):
+    return np.array(radians) * (180.0 / np.pi)
+
+
 def signal_handler(signum, frame):
     """Handles signals for graceful shutdown, e.g., on Ctrl+C."""
     signal.signal(signum, signal.SIG_IGN)  # ignore additional signals
     wandb.finish()
     sys.exit(0)
-
-
-def radians_to_degrees(radians):
-    return np.array(radians) * (180.0 / np.pi)
 
 
 class SimulationTest:
@@ -316,8 +317,10 @@ class SimulationTest:
                     saccade = np.array([0.5, 0.5])
                     self.agent.set_parameters(saccade)
 
+            self.update_environment_position(time_step)
+            rgb, brightness, saliency = self.visual_map(observation["RETINA"])
             action, saliency_map, salient_point = self.agent.get_action(
-                observation
+                saliency
             )
             observation, *_ = self.env.step(action)
 
@@ -434,6 +437,7 @@ class SimulationTest:
             attention_center_distance_variance_prop=self.params.attention_center_distance_variance_prop,
             attention_center_distance_slope=self.params.attention_center_distance_slope,
         )
+        self.visual_map = SaliencyMap(self.params)
 
         controller_path = "off_control_store"
         rnn_path = "rnn_store.npy"

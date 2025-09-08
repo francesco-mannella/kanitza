@@ -5,6 +5,8 @@ import gymnasium as gym
 import matplotlib.pyplot as plt
 import numpy as np
 from model.agent import Agent
+from model.visual_processing import SaliencyMap
+from params import Parameters
 from plotter import FoveaPlotter
 
 
@@ -23,6 +25,8 @@ if __name__ == "__main__":
     # Set up the environment and agent
     env = gym.make("EyeSim/EyeSim-v0", colors=True)
     env = env.unwrapped
+    params = Parameters()
+    visual_map = SaliencyMap(params)
     agent = Agent(
         env,
         sampling_threshold=1e-20,
@@ -70,8 +74,9 @@ if __name__ == "__main__":
             # Simulate for a fixed number of time steps
             for time_step in range(5):
                 observation, *_ = env.step(action)
-                action, saliency_map, salient_point = agent.get_action(
-                    observation
+                _, _, saliency = visual_map(observation["RETINA"])
+                action, attentional_map, attention_point = agent.get_action(
+                    saliency
                 )
                 if time_step > 1:
                     agent.set_parameters([0.5, 0.5])
@@ -79,7 +84,7 @@ if __name__ == "__main__":
                 # Update the plotter with the current saliency map and salient
                 # point
                 plotter.step(
-                    saliency_map, salient_point, agent.attentional_mask
+                    attentional_map, attention_point, agent.attentional_mask
                 )
                 plt.pause(0.5)
 

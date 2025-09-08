@@ -1,7 +1,7 @@
-import sys
+from parameter_manager import ParameterManager
 
 
-class Parameters:
+class Parameters(ParameterManager):
     def __init__(
         self,
         project_name="eye-simulation",
@@ -21,8 +21,8 @@ class Parameters:
         attention_size=2,
         maps_learning_rate=0.1,
         predictor_learning_rate=0.01,
-        saccade_threshold=12,
-        neighborhood_modulation=10,
+        saccade_threshold=12.0,
+        neighborhood_modulation=10.0,
         neighborhood_modulation_baseline=0.8,
         learningrate_modulation=0.8,
         learningrate_modulation_baseline=0.02,
@@ -31,13 +31,24 @@ class Parameters:
         anchor_std=8.0,
         decaying_speed=5.0,
         local_decaying_speed=1.0,
-        triangles_percent=50,
+        triangles_percent=50.0,
         colors=True,
         magnitude_decay=1e-10,
-        attention_max_variance=5,
+        attention_max_variance=6.0,
         attention_fixed_variance_prop=1.0,
         attention_center_distance_variance_prop=0.0,
         attention_center_distance_slope=5.0,
+        gabor_scales=[10.0],
+        gabor_orientation_bins=10,
+        gabor_frequency=0.006,
+        gabor_phase_offset=-3.141592653589793 * (0.5 - 9e-4),
+        gabor_kernel_size=3,
+        gabor_filter_slope=0.8,
+        gabor_sigma_y_multiplier=6.0,
+        gabor_bw_channel_ratio=2.0,
+        gabor_rgb_prop=0.7,
+        gabor_bright_prop=0.3,
+        use_wandb=False,
     ):
         self.project_name = project_name
         self.entity_name = entity_name
@@ -75,117 +86,26 @@ class Parameters:
         self.magnitude_decay = magnitude_decay
         self.attention_max_variance = attention_max_variance
         self.attention_fixed_variance_prop = attention_fixed_variance_prop
-        self.attention_center_distance_variance_prop = attention_center_distance_variance_prop
+        self.attention_center_distance_variance_prop = (
+            attention_center_distance_variance_prop
+        )
         self.attention_center_distance_slope = attention_center_distance_slope
+        self.gabor_scales = gabor_scales
+        self.gabor_orientation_bins = gabor_orientation_bins
+        self.gabor_frequency = gabor_frequency
+        self.gabor_phase_offset = gabor_phase_offset
+        self.gabor_kernel_size = gabor_kernel_size
+        self.gabor_filter_slope = gabor_filter_slope
+        self.gabor_sigma_y_multiplier = gabor_sigma_y_multiplier
+        self.gabor_bw_channel_ratio = gabor_bw_channel_ratio
+        self.gabor_rgb_prop = gabor_rgb_prop
+        self.gabor_bright_prop = gabor_bright_prop
+        self.use_wandb = use_wandb
 
-        self.param_types = {
-            "project_name": str,
-            "entity_name": str,
-            "init_name": str,
-            "env_name": str,
-            "episodes": int,
-            "epochs": int,
-            "saccade_num": int,
-            "saccade_time": int,
-            "plot_sim": bool,
-            "plot_maps": bool,
-            "plotting_epochs_interval": int,
-            "agent_sampling_threshold": float,
-            "maps_output_size": int,
-            "action_size": int,
-            "attention_size": int,
-            "predictor_learning_rate": float,
-            "maps_learning_rate": float,
-            "saccade_threshold": float,
-            "neighborhood_modulation": float,
-            "neighborhood_modulation_baseline": float,
-            "learningrate_modulation": float,
-            "learningrate_modulation_baseline": float,
-            "match_std": float,
-            "match_std_baseline": float,
-            "anchor_std": float,
-            "decaying_speed": float,
-            "local_decaying_speed": float,
-            "triangles_percent": float,
-            "colors": bool,
-            "magnitude_decay": float,
-            "attention_max_variance": float,
-            "attention_fixed_variance_prop": float,
-            "attention_center_distance_variance_prop": float,
-            "attention_center_distance_slope": float,
-        }
+        super(Parameters, self).__init__()
 
-    def string_to_params(self, param_list):
-        """
-        Read parameter values from a semicolon-separated string of key-value
-        pairs.
 
-        Parameters:
-            - param_list (str): A semicolon-separated string where each element
-              is a key-value pair in the format 'key=value'.
+if __name__ == "__main__":
 
-        Example:
-            If `self` has attributes `a` and `b`, calling:
-
-            self.string_to_dict("a=1;b=2")
-
-            will set:
-            self.a = 1
-            self.b = 2
-        """
-        if not param_list:
-            return
-
-        param_dict = dict(
-            item.split("=", 1) for item in param_list.split(";") if "=" in item
-        )
-
-        for key, value in param_dict.items():
-            if key in dir(self):
-                converter = self.param_types[key]
-                if converter is not bool:
-                    setattr(self, key, converter(value))
-                else:
-                    setattr(self, key, value == "True")
-
-            else:
-                print(f"There's no parameter named {key}")
-                sys.exit(1)
-
-    def save(self, filepath):
-        with open(filepath, "w") as file:
-            for key in self.__dict__:
-                if key != "param_types":
-                    file.write(f"{key}={getattr(self, key)}\n")
-
-    def load(self, filepath):
-        with open(filepath, "r") as file:
-            param_list = "".join([line.strip() + ";" for line in file])
-        self.string_to_params(param_list)
-
-    def __hash__(self):
-        # Using a tuple comprehension to collect all non-callable and
-        # non-private attributes (those not starting with "_") into a tuple
-        attr_values = tuple(
-            (attr, self._make_hashable(getattr(self, attr)))
-            for attr in dir(self)
-            if not callable(getattr(self, attr)) and not attr.startswith("_")
-        )
-        hashid = hash(attr_values)
-        # Create a unique string from the tuple and return its hash
-        return hashid
-
-    def _make_hashable(self, value):
-        if isinstance(value, dict):
-            # Convert dictionary to a frozenset of its items (key-value pairs)
-            return frozenset(
-                (key, self._make_hashable(v)) for key, v in value.items()
-            )
-        elif isinstance(value, list):
-            # Convert list to a tuple of its elements
-            return tuple(self._make_hashable(v) for v in value)
-        elif isinstance(value, set):
-            # Convert set to a frozenset of its elements
-            return frozenset(self._make_hashable(v) for v in value)
-        # Add other types like list, set, etc., if needed
-        return value
+    params = Parameters()
+    params.save("/tmp/params")

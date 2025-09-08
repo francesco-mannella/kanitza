@@ -14,6 +14,7 @@ from skimage.transform import resize
 
 from model.agent import Agent
 from model.offline_controller import OfflineController
+from model.visual_processing import SaliencyMap
 from params import Parameters
 from plotter import FoveaPlotter, MapsPlotter
 
@@ -21,7 +22,7 @@ from plotter import FoveaPlotter, MapsPlotter
 es = EyeSim
 
 
-# TODO: code for debug
+# TODO: function for debug
 def ascii_imshow(matrix, nrows, ncols):
     """Prints an ASCII art representation of a numpy array."""
     levels = (
@@ -86,19 +87,23 @@ class Logger:
 
 
 class SimulationManager:
-    """Manages the simulation, including environment, agent, and offline control.
+    """Manages the simulation, including environment, agent, and offline
+        control.
 
     Args:
         params: Configuration parameters for the simulation.
         seed: Random seed for reproducibility.
     """
 
-    def __init__(self, params, seed):
+    def __init__(self, params, seed, offcontrol_storage_file):
         self.params = params
         self.seed = seed
         self.env = self._setup_environment()
         self.agent = self._setup_agent()
         self.off_control = None
+        self.setup_offline_controller(offcontrol_storage_file)
+        self.visual_map = SaliencyMap(params)
+        self.fovea_data = open("fovea_data", "w")
 
     def _setup_environment(self):
         """Initializes and configures the simulation environment."""
@@ -166,40 +171,54 @@ class SimulationManager:
             and episode == self.params.episodes - 1
             and self.is_plotting_epoch(epoch)
         )
+
+        if self.params.online_plot:
+            plt.close("all")
+
         fovea_plotter = (
-            FoveaPlotter(self.env, offline=True) if plt_enabled else None
+            FoveaPlotter(self.env, offline=True)
+            if plt_enabled or self.params.online_plot
+            else None
         )
-        action = np.zeros(self.env.action_space.shape)
+        if fovea_plotter is not None:
+            fovea_plotter.online = self.params.online_plot
+
         # Execute all saccades for this episode
         for saccade_idx in range(self.params.saccade_num):
-            self.execute_saccade(action, episode, saccade_idx, fovea_plotter)
+            self.execute_saccade(episode, saccade_idx, fovea_plotter)
         if plt_enabled:
             self.save_simulation_gif(fovea_plotter, epoch)
+
         return env_info
 
-    def execute_saccade(self, action, episode, saccade_idx, fovea_plotter):
+    def execute_saccade(self, episode, saccade_idx, fovea_plotter):
         """Executes a single saccade, updating agent and offline controller.
 
         Args:
-            action: Initial action for the saccade.
             episode: Current episode number.
             saccade_idx: Index of the current saccade.
             fovea_plotter: Optional plotter for visualization.
         """
         # Step once to get initial observation
         observation, *_ = self.env.step(np.zeros(self.params.action_size))
+        # visual processing
+        _, _, saliency = self.visual_map(observation["RETINA"])
+        _, _, fovea = self.visual_map(observation["FOVEA"])
+
         competence = None
-        saccade = None
+        saccade = (0.5, 0.5)
         attention = None
         salient_point, action = [0, 0], [0.0, 0.0]
+        self.agent.set_parameters(saccade)
         # Iterate through all time steps of the saccade
         for time_step in range(self.params.saccade_time):
             observation, *_ = self.env.step(action)
+            # visual processing
+            _, _, saliency = self.visual_map(observation["RETINA"])
+            _, _, fovea = self.visual_map(observation["FOVEA"])
             # At midpoint, generate new saccade and update agent parameters
             if time_step == int(0.5 * self.params.saccade_time):
-                saccade, competence = self.off_control.generate_saccade(
-                    observation["FOVEA"]
-                )
+                saccade, competence = self.off_control.generate_saccade(fovea)
                 self.agent.set_parameters(saccade)
                 attention = np.copy(saccade)
             else:
@@ -209,23 +228,35 @@ class SimulationManager:
                 ):
                     saccade = np.array([0.5, 0.5])
                     self.agent.set_parameters(saccade)
-            # Get agent action, saliency map, and salient point
+
             action, saliency_map, salient_point = self.agent.get_action(
-                observation
+                saliency
             )
             # Update plotter if enabled
             if fovea_plotter:
                 fovea_plotter.step(
-                    saliency_map, salient_point, self.agent.attentional_mask
+                    fovea,
+                    saliency_map,
+                    salient_point,
+                    self.agent.attentional_mask,
                 )
+                if fovea_plotter.online:
+                    plt.pause(0.01)
             # Record state for offline controller
             state = {
                 "world": self.env.world,
-                "vision": observation["FOVEA"],
+                "vision": fovea,
                 "action": action,
                 "attention": attention,
                 "competence": competence,
             }
+
+            row = " ".join(
+                map(str, np.hstack([episode, time_step, fovea.flatten()]))
+            )
+            self.fovea_data.write(f"{row}\n")
+            self.fovea_data.flush()
+
             self.off_control.record_states(
                 episode, saccade_idx, time_step, state
             )
@@ -258,6 +289,8 @@ class SimulationManager:
                 {"Simulations": wandb.Video(f"{gif_file}.gif", format="gif")},
                 step=epoch,
             )
+
+
 def main(params):
     """
     Main function to execute the simulation process.
@@ -271,9 +304,7 @@ def main(params):
 
     torch.manual_seed(seed)
 
-    sim_manager = SimulationManager(params, seed)
-
-    sim_manager.setup_offline_controller("off_control_store")
+    sim_manager = SimulationManager(params, seed, "off_control_store")
 
     if params.plot_maps:
         maps_plotter = MapsPlotter(
@@ -326,7 +357,7 @@ def main(params):
 
         if params.plot_maps:
             maps_plotter.step()
-            if sim_manager.is_plotting_epoch(epoch, params):
+            if sim_manager.is_plotting_epoch(epoch):
                 save_maps_gif(maps_plotter, epoch, params)
                 maps_plotter = MapsPlotter(
                     sim_manager.env, sim_manager.off_control, offline=True
@@ -358,18 +389,21 @@ def save_maps_gif(maps_plotter, epoch, params):
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
+        "-s",
         "--seed",
         type=int,
         default=0,
         help="Set the seed for random number generation.",
     )
     parser.add_argument(
+        "-r",
         "--variant",
         type=str,
         default="base",
         help="A string describing this particular simulation",
     )
     parser.add_argument(
+        "-p",
         "--param_list",
         type=str,
         default=None,
@@ -384,6 +418,12 @@ def parse_args():
         action="store_true",
         help="Enable wandb logging.",
     )
+    parser.add_argument(
+        "-o",
+        "--online",
+        action="store_true",
+        help="Plot online",
+    )
     return parser.parse_args()
 
 
@@ -392,21 +432,25 @@ if __name__ == "__main__":
     if torch.cuda.is_available():
         torch.set_default_device("cuda")
 
-    matplotlib.use("agg")
-
     args = parse_args()
 
     params = Parameters()
     seed = args.seed
     variant = args.variant
     params.use_wandb = args.wandb
+    params.online_plot = args.online
+
+    if not params.online_plot:
+        matplotlib.use("agg")
 
     try:
         params.load("loaded_params")
     except FileNotFoundError:
-        print("no local parameters")
+        print("no further parameter file found.")
+        if args.param_list is not None:
+            print("reading parameters from the given list")
         param_list = args.param_list
-        params.string_to_params(param_list)
+        params.update(param_list)
         params.save("loaded_params")
 
     def format_scalar(x):
@@ -427,7 +471,7 @@ if __name__ == "__main__":
     with open("NAME", "w") as fname:
         fname.write(f"{params.init_name}\n")
 
-    if args.wandb:
+    if params.use_wandb:
         wandb.init(
             project=params.project_name,
             entity=params.entity_name,
@@ -436,5 +480,5 @@ if __name__ == "__main__":
 
     main(params)
 
-    if args.wandb:
+    if params.use_wandb:
         wandb.finish()

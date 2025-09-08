@@ -86,24 +86,35 @@ class FoveaPlotter(EyeSim.envs.Simulator.TestPlotter):
         self.saliency_ax.set_axis_off()
         self.filter_ax.set_axis_off()
 
-    def step(self, saliency_map, salient_point, attentional_mask=None):
+    def step(
+        self,
+        color_saliency_map,
+        saliency_map,
+        salient_point,
+        attentional_mask=None,
+    ):
         """
-        Renders the current state of the environment, updating the saliency
-        map, fovea image, and highlights salient points.
+        Renders the current state of the environment by updating the saliency
+        map, fovea image, and highlighting salient points.
 
-        Parameters:
-        - saliency_map (np.array): The current saliency map to display.
-        - salient_point (tuple): Coordinates of the salient point to highlight.
-        - attentional_mask (np.array, optional): The current attentional mask
-          of salience, defaults to None.
-
+        Args:
+            color_saliency_map (np.array): The current color saliency map to
+                display.
+            saliency_map (np.array): The current saliency map to display.
+            salient_point (tuple): Coordinates of the salient point to
+                highlight.
+            attentional_mask (np.array, optional): The current attentional mask
+                of salience. Defaults to None.
         """
+
         self.saliency_image.set_array(saliency_map)
         if attentional_mask is not None:
             self.attentional_mask.set_array(attentional_mask)
         self.highlight_dot.set_offsets(salient_point)
 
-        self.fovea_image.set_array(self.env.observation["FOVEA"])
+        x = color_saliency_map
+        x = (x - x.min()) / (x.max() - x.min())
+        self.fovea_image.set_array(x)
 
         self._update_rect_positions()
 
@@ -411,7 +422,6 @@ class MapsPlotter:
     def _normalize_weights(self, weights):
         """
         Normalize the given weights to the range [0, 1].
-
         Parameters:
         - weights (np.array): The weights to normalize.
 
@@ -439,14 +449,19 @@ class MapsPlotter:
         inp_side1, inp_side2 = self.env.fovea_size.astype(int)
         out_side1 = out_side2 = self.side
 
+        weights = weights.cpu().detach().numpy()
+
+        channels = int(
+            np.prod(weights.shape)
+            / ((inp_side1 * inp_side2) * (out_side1 * out_side2))
+        )
         reshaped_weights = (
-            weights.cpu()
-            .detach()
-            .numpy()
-            .reshape(inp_side1, inp_side2, 3, out_side1, out_side2)
+            weights.reshape(
+                inp_side1, inp_side2, channels, out_side1, out_side2
+            )
         )[::-1, :, :, :, :]
         transposed_weights = reshaped_weights.transpose(3, 0, 4, 1, 2).reshape(
-            inp_side1 * out_side1, inp_side2 * out_side2, 3
+            inp_side1 * out_side1, inp_side2 * out_side2, channels
         )
 
         return transposed_weights

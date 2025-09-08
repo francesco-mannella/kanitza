@@ -3,55 +3,6 @@
 import numpy as np
 from scipy.special import softmax
 
-from model.gabor_filtering import ChannelGaborFilter
-
-
-# %% SALIENCY MAP CLASS
-class SaliencyMap:
-    """
-    Generates a saliency map using Gabor filters.
-    """
-
-    def __init__(self):
-        scales = [10]
-        orientations = np.pi * np.linspace(0, 360, 10) / 180.0
-        frequency = 0.006
-        phase_offset = -np.pi * (0.5 - 9e-4)
-        kernel_size = 3
-        filter_slope = 0.8
-        sigma_y_multiplier = 6
-        bw_channel_ratio = 2.0
-        rgb_prop = 1.5
-        bright_prop = 0.5
-        self.gabor_manager = ChannelGaborFilter(
-            scales,
-            orientations,
-            frequency,
-            phase_offset,
-            kernel_size,
-            filter_slope=filter_slope,
-            sigma_y_multiplier=sigma_y_multiplier,
-            bw_channel_ratio=bw_channel_ratio,
-            rgb_prop=rgb_prop,
-            bright_prop=bright_prop,
-        )
-
-    def __call__(self, input_image):
-        """
-        Apply the Gabor filters to the input image to generate the saliency
-        map.
-
-        Args:
-        - input_image (np.ndarray): The input image.
-
-        Returns:
-        - np.ndarray: The generated saliency map.
-        """
-
-        rgb, brightness, adjusted_response = self.gabor_manager(input_image)
-
-        return rgb, brightness, adjusted_response
-
 
 # %% SAMPLE FUNCTION
 def sampling(array, precision=0.01, rng=None):
@@ -155,7 +106,6 @@ class Agent:
         self.rng = np.random.RandomState(seed)
 
         self.environment = environment
-        self.saliency_mapper = SaliencyMap()
         self.sampling_threshold = sampling_threshold
         self.env_height, self.env_width = environment.observation_space[
             "RETINA"
@@ -215,10 +165,8 @@ class Agent:
         else:
             self.attentional_mask = np.ones([self.env_height, self.env_width])
 
-    def get_retinal_saliency(self, observation):
-        retina_image = observation["RETINA"] / 255
-
-        _, saliency_map, _ = self.saliency_mapper(retina_image)
+    def get_attentional_map_and_point(self, saliency_map):
+        saliency_map = saliency_map.max(-1)
         if self.attentional_mask is None:
             self.attentional_mask = np.ones_like(saliency_map)
         saliency_map_adapted = saliency_map
@@ -229,26 +177,32 @@ class Agent:
         )
         return saliency_map_adapted, salient_point
 
-    def get_action(self, observation):
-        """Determine the action to take based on the provided observation.
+    def get_action(self, saliency):
+        """Calculates and returns the next action based on the given saliency.
+
+        This method processes the input saliency to generate an attentional map,
+        selects a salient point, and computes a normalized and centered action
+        for the environment.
 
         Args:
-        - observation (dict): A dictionary representing the current state of
-          the environment.  Must contain a key 'RETINA' which provides the
-          necessary visual input data.
+            saliency (dict): Dictionary representing the current state of the
+                environment, typically containing saliency information.
 
         Returns:
-        - tuple: A tuple containing the action to take, the generated saliency
-          map, and the selected salient point."""
-
-        saliency_map_adapted, salient_point = self.get_retinal_saliency(
-            observation
+            tuple: A tuple containing:
+                - centered_action (np.ndarray): The normalized and centered
+                action to take.
+                - attentional_map (np.ndarray): The generated saliency map.
+                - attention_point (np.ndarray): The selected salient point.
+        """
+        attentional_map, attention_point = self.get_attentional_map_and_point(
+            saliency
         )
 
-        normalized_action = salient_point / self.environment.retina_size
+        normalized_action = attention_point / self.environment.retina_size
         normalized_action[1] = 1 - normalized_action[1]
         centered_action = (
             normalized_action - 0.5
         ) * self.environment.retina_scale
 
-        return centered_action, saliency_map_adapted, salient_point
+        return centered_action, attentional_map, attention_point
