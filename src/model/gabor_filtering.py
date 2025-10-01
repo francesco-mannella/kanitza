@@ -226,6 +226,8 @@ if __name__ == "__main__":
     # Collect all jpg image file paths from the specified directory
     # image_files = glob.glob("photos_no_class/*jpg")
     # image_files = glob.glob("base_imgs/*jpg")
+
+
     images = [
         "https://elements-resized.envatousercontent.com/envato-dam-assets-production/EVA/TRX/f0/df/51/9b/a2/v1_E10/E108QOQX.jpg?w=1600&cf_fit=scale-down&mark-alpha=18&mark=https%3A%2F%2Felements-assets.envato.com%2Fstatic%2Fwatermark4.png&q=85&format=auto&s=cf8933d911882d0def266f4f7ecc7111e3834ec380fc4104713c97a270a45902",
         "https://www.astrofilifiemme.it/wp-content/uploads/2021/04/Jupiter-1536x864.jpg",
@@ -311,3 +313,5 @@ if __name__ == "__main__":
 
         # Show the figure with all visualizations
         plt.show()
+        input("Press any key for next image")
+    print("Done")
