@@ -281,6 +281,7 @@ class Agent:
         if self.attentional_mask is None:
             self.attentional_mask = np.ones_like(saliency_map)
         saliency_map_adapted = saliency_map
+        saliency_map_adapted += 1e-5
         saliency_map_adapted *= self.attentional_mask
 
         salient_point = sampling(
