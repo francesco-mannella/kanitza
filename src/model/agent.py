@@ -1,8 +1,6 @@
 # %% IMPORTS
 
-import matplotlib
 import numpy as np
-from matplotlib.animation import FuncAnimation
 from scipy.signal import convolve2d
 from scipy.special import softmax
 
@@ -170,57 +168,6 @@ def gaussian_mask(shape, mean, v1, v2, angle):
     return np.exp(-0.5 * result).reshape(*shape)
 
 
-class AdaptationManager:
-
-    def __init__(self, rows, cols, decay=0.2):
-        self.rows = rows
-        self.cols = cols
-        self.ue = np.zeros([self.rows, self.cols])
-        self.ui = np.zeros([self.rows, self.cols])
-        self.decay = decay
-
-    def __call__(self, inp):
-
-        self.ue += self.decay * (inp - self.ui - self.ue)
-        self.ui += self.decay * (inp - self.ui)
-        return np.maximum(0, self.ue)
-
-
-def test_adaptation():
-
-    n = 10
-
-    sm = AdaptationManager(n, n)
-
-    inp1 = 1 * (np.random.rand(n, n) > 0.94)
-    inp2 = 1 * (np.random.rand(n, n) > 0.94)
-    frames = [sm(inp1 if t < 20 else inp2) for t in range(40)]
-
-    fig, ax = matplotlib.pyplot.subplots()
-    im = ax.imshow(np.zeros([n, n]), vmin=0, vmax=1)
-
-    def init():
-        ax.set_axis_off()
-        return (im,)
-
-    def update(frame):
-        im.set_array(frame)
-        return (im,)
-
-    ani = FuncAnimation(
-        fig,
-        update,
-        frames=frames,
-        init_func=init,
-        blit=True,
-        interval=50,
-    )
-
-    matplotlib.pyplot.show()
-
-    return ani
-
-
 # %% AGENT CLASS
 class Agent:
     """
@@ -265,18 +212,12 @@ class Agent:
         self.vertical_variance = max_variance * self.env_height
         self.horizontal_variance = max_variance * self.env_width
         self.attentional_mask = None
-        self.adaptation_manager = AdaptationManager(
-            self.env_height, self.env_width
-        )
-        
         self.MAX_VARIANCE = attention_max_variance
         self.FIXED_VARIANCE_PROP = attention_fixed_variance_prop
         self.CENTER_DISTANCE_VARIANCE_PROP = (
             attention_center_distance_variance_prop
         )
-        self.CENTER_DISTANCE_SLOPE = (
-            attention_center_distance_slope
-        )
+        self.CENTER_DISTANCE_SLOPE = attention_center_distance_slope
 
         self.params = None
 
@@ -301,7 +242,13 @@ class Agent:
             scale = self.MAX_VARIANCE * (
                 self.FIXED_VARIANCE_PROP
                 + self.CENTER_DISTANCE_VARIANCE_PROP
-                * (1 - np.tanh(self.CENTER_DISTANCE_SLOPE * np.linalg.norm(params - center)))
+                * (
+                    1
+                    - np.tanh(
+                        self.CENTER_DISTANCE_SLOPE
+                        * np.linalg.norm(params - center)
+                    )
+                )
             )
 
             params *= env_size
@@ -333,9 +280,7 @@ class Agent:
         saliency_map = self.saliency_mapper(inverted_retina)
         if self.attentional_mask is None:
             self.attentional_mask = np.ones_like(saliency_map)
-        saliency_map_adapted = (
-            saliency_map  # self.adaptation_manager(saliency_map)
-        )
+        saliency_map_adapted = saliency_map
         saliency_map_adapted *= self.attentional_mask
 
         salient_point = sampling(
