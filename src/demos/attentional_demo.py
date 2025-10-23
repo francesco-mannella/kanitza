@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from model.agent import Agent
 from plotter import FoveaPlotter
+import pandas as pd
 
 
 _ = EyeSim
@@ -23,13 +24,14 @@ if __name__ == "__main__":
     # Set up the environment and agent
     env = gym.make("EyeSim/EyeSim-v0", colors=True)
     env = env.unwrapped
-    agent = Agent(env, sampling_threshold=1e-20,
-            attention_max_variance=50,
-            attention_fixed_variance_prop=0.01,
-            attention_center_distance_variance_prop=0.2,
-            attention_center_distance_slope=6,
-
-                  )
+    agent = Agent(
+        env,
+        sampling_threshold=1e-2,
+        attention_max_variance=5,
+        attention_fixed_variance_prop=1.0,
+        attention_center_distance_variance_prop=0.0,
+        attention_center_distance_slope=1,
+    )
 
     worlds = [
         "triangle",
@@ -37,6 +39,8 @@ if __name__ == "__main__":
         "circle",
     ]
 
+    data = []
+        
     # Run the simulation for a fixed number of episodes
     for episode in range(3):
         world_id = next(
@@ -51,7 +55,7 @@ if __name__ == "__main__":
         _, env_info = env.reset()
 
         # Precompute some constants
-        action = [30, 30]
+        action = [0, 0]
 
         # Create a plotting object for the current episode
         plotter = FoveaPlotter(env, offline=False)
@@ -61,18 +65,25 @@ if __name__ == "__main__":
         attention_centers = 0.5 + 0.3 * np.array(
             [[np.cos(x), np.sin(x)] for x in a]
         )
-
+        
+        pos = env.retina_sim_pos
         for center in attention_centers:
             # Set agent parameters based on the current attention center
             agent.set_parameters(center)
 
             # Simulate for a fixed number of time steps
-            for time_step in range(5):
+            for time_step in range(3):
                 observation, *_ = env.step(action)
+                pos_prev, pos = pos, env.retina_sim_pos
+                mov = np.array(pos) - pos_prev 
+
+                data.append([world_id, *list(mov)])
+
+                print(mov)
                 action, saliency_map, salient_point = agent.get_action(
                     observation
                 )
-                if time_step > 1:
+                if time_step != 0:
                     agent.set_parameters([0.5, 0.5])
 
                 # Update the plotter with the current saliency map and salient
@@ -80,8 +91,10 @@ if __name__ == "__main__":
                 plotter.step(
                     saliency_map, salient_point, agent.attentional_mask
                 )
-                plt.pause(0.5)
+                plt.pause(0.1)
 
         # Save the plot for the current episode as a gif
         gif_file = f"episode_{episode:04d}"
         plotter.close(gif_file)
+
+        # np.save("retina_poses", data )
