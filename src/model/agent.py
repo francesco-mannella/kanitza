@@ -121,7 +121,6 @@ def sampling(array, precision=0.01, rng=None):
 
     flattened_array = array.flatten()
     probabilities = softmax(flattened_array / precision)
-    probabilities[probabilities < probabilities.max() * 0.999] = 0
     probabilities /= probabilities.sum()
 
     sampled_flat_index = rng.choice(a=flattened_array.size, p=probabilities)
@@ -129,7 +128,7 @@ def sampling(array, precision=0.01, rng=None):
         sampled_flat_index, array.shape, order="F"
     )
 
-    return sampled_index
+    return sampled_index, probabilities
 
 
 def gaussian_mask(shape, mean, v1, v2, angle):
@@ -263,7 +262,7 @@ class Agent:
         else:
             self.attentional_mask = np.ones([self.env_height, self.env_width])
 
-    def get_action(self, observation):
+    def get_action(self, observation, get_probs=False):
         """Determine the action to take based on the provided observation.
 
         Args:
@@ -281,17 +280,37 @@ class Agent:
         if self.attentional_mask is None:
             self.attentional_mask = np.ones_like(saliency_map)
         saliency_map_adapted = saliency_map
-        saliency_map_adapted += 1e-5
-        saliency_map_adapted *= self.attentional_mask
 
-        salient_point = sampling(
+        # border_filter = np.ones_like(saliency_map_adapted)
+        # border_filter = scipy.signal.convolve2d(
+        #     border_filter,
+        #     np.ones([5, 5]) / (5 * 5),
+        #     mode="same",
+        # )
+        # border_filter = np.exp(-(0.1**-2) * (1 - border_filter) ** 2)
+        saliency_map_adapted += 1e-5
+        # saliency_map_adapted *= border_filter
+
+        saliency_map_adapted *= self.attentional_mask
+        # saliency_map_adapted += self.attentional_mask
+
+        salient_point, probabilities = sampling(
             saliency_map_adapted, self.sampling_threshold, self.rng
         )
 
         normalized_action = salient_point / self.environment.retina_size
+
         normalized_action[1] = 1 - normalized_action[1]
         centered_action = (
             normalized_action - 0.5
         ) * self.environment.retina_scale
 
-        return centered_action, saliency_map_adapted, salient_point
+        if get_probs:
+            return (
+                centered_action,
+                saliency_map_adapted,
+                probabilities,
+                salient_point,
+            )
+        else:
+            return centered_action, saliency_map_adapted, salient_point
