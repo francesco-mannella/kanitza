@@ -29,8 +29,8 @@ if __name__ == "__main__":
     agent = Agent(
         env,
         seed=seed,
-        sampling_threshold=1e-2,
-        attention_max_variance=3,
+        sampling_precision=0.8,
+        attention_max_variance=1,
         attention_fixed_variance_prop=1.0,
         attention_center_distance_variance_prop=0.0,
         attention_center_distance_slope=1,
@@ -88,15 +88,15 @@ if __name__ == "__main__":
 
                     observation, *_ = env.step(action)
 
-                    # the obect is bservable at the beginning
+                    # the object is observable at the beginning
                     if not (k == 0 and c < 3):
                         observation["RETINA"] *= 0
                     action, saliency_map, salient_point = agent.get_action(
                         observation
                     )
 
-                    # Update the plotter with the current saliency map and salient
-                    # point
+                    # Update the plotter with the current saliency map and
+                    # salient point
                     plotter.step(
                         saliency_map, salient_point, agent.attentional_mask
                     )

@@ -115,7 +115,7 @@ def setup_agent(env, params, seed):
     """
     return Agent(
         env,
-        sampling_threshold=params.agent_sampling_threshold,
+        sampling_precision=params.agent_sampling_precision,
         seed=seed,
         attention_max_variance=params.attention_max_variance,
         attention_fixed_variance_prop=params.attention_fixed_variance_prop,

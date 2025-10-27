@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 from model.agent import Agent
 from plotter import FoveaPlotter
-import pandas as pd
 
 
 _ = EyeSim
@@ -26,7 +25,7 @@ if __name__ == "__main__":
     env = env.unwrapped
     agent = Agent(
         env,
-        sampling_threshold=1e-2,
+        sampling_precision=1e-2,
         attention_max_variance=5,
         attention_fixed_variance_prop=1.0,
         attention_center_distance_variance_prop=0.0,
@@ -40,7 +39,7 @@ if __name__ == "__main__":
     ]
 
     data = []
-        
+
     # Run the simulation for a fixed number of episodes
     for episode in range(3):
         world_id = next(
@@ -65,7 +64,7 @@ if __name__ == "__main__":
         attention_centers = 0.5 + 0.3 * np.array(
             [[np.cos(x), np.sin(x)] for x in a]
         )
-        
+
         pos = env.retina_sim_pos
         for center in attention_centers:
             # Set agent parameters based on the current attention center
@@ -75,7 +74,7 @@ if __name__ == "__main__":
             for time_step in range(3):
                 observation, *_ = env.step(action)
                 pos_prev, pos = pos, env.retina_sim_pos
-                mov = np.array(pos) - pos_prev 
+                mov = np.array(pos) - pos_prev
 
                 data.append([world_id, *list(mov)])
 

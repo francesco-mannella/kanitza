@@ -2,7 +2,6 @@
 
 import numpy as np
 from scipy.signal import convolve2d
-from scipy.special import softmax
 
 
 # %% GABOR FILTER FUNCTION
@@ -120,7 +119,9 @@ def sampling(array, precision=0.01, rng=None):
     rng = rng or np.random.RandomState(0)
 
     flattened_array = array.flatten()
-    probabilities = softmax(flattened_array / precision)
+    probabilities = np.maximum(
+        0, flattened_array - flattened_array.max() * precision
+    )
     probabilities /= probabilities.sum()
 
     sampled_flat_index = rng.choice(a=flattened_array.size, p=probabilities)
@@ -177,7 +178,7 @@ class Agent:
     def __init__(
         self,
         environment,
-        sampling_threshold=0.07,
+        sampling_precision=0.07,
         max_variance=1,
         seed=None,
         attention_max_variance=1.0,
@@ -190,7 +191,7 @@ class Agent:
 
         Args:
         - environment: The environment.
-        - sampling_threshold (float): Threshold for sampling.
+        - sampling_precision (float): Precision for sampling ( [0,1[ ).
         - max_variance (float): Max std of attentional field.
         - seed (int): Seed for the random number generator.
         - attention_max_variance (float): Max variance of attention.
@@ -204,7 +205,7 @@ class Agent:
 
         self.environment = environment
         self.saliency_mapper = SaliencyMap()
-        self.sampling_threshold = sampling_threshold
+        self.sampling_precision = sampling_precision
         self.env_height, self.env_width = environment.observation_space[
             "RETINA"
         ].shape[:-1]
@@ -295,7 +296,7 @@ class Agent:
         # saliency_map_adapted += self.attentional_mask
 
         salient_point, probabilities = sampling(
-            saliency_map_adapted, self.sampling_threshold, self.rng
+            saliency_map_adapted, self.sampling_precision, self.rng
         )
 
         normalized_action = salient_point / self.environment.retina_size
