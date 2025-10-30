@@ -451,7 +451,7 @@ if __name__ == "__main__":
     except FileNotFoundError:
         print("no local parameters")
         param_list = args.param_list
-        params.string_to_params(param_list)
+        params.update(param_list)
         params.save("loaded_params")
 
     seed_str = str(seed).replace(".", "_")
@@ -464,14 +464,7 @@ if __name__ == "__main__":
         return f"{x:06.3f}".replace(".", "")
 
     params.init_name = (
-        "sim_"
-        f"{variant}_"
-        f"{str(hex(np.abs(hash(params))))[:6]}_"
-        f"s_{seed_str}_"
-        f"m_{format_scalar(params.match_std)}_"
-        f"a_{format_scalar(params.anchor_std)}_"
-        f"d_{format_scalar(params.decaying_speed)}_"
-        f"l_{format_scalar(params.local_decaying_speed)}"
+        f"{variant}"
     )
 
     with open("NAME", "w") as fname:
@@ -481,6 +474,7 @@ if __name__ == "__main__":
         project=params.project_name,
         entity=params.entity_name,
         name=params.init_name,
+        config=params._params_to_dict()
     )
 
     main(params)
