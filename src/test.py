@@ -357,8 +357,6 @@ class SimulationTest:
                 "position": [],
                 "angle": [],
                 "saccade_id": [],
-                "offcontrol_goal": [],
-                "rnn_goal": [],
                 "goal": [],
             }
 

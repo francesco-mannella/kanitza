@@ -26,7 +26,7 @@ for EXPERIMENT_DIR in $search_dir; do
 					wandb disabled
 
 					# Execute the Python script with specified parameters
-					python ${TEST_APP} --posrot 40 40 "$ROTATION" --world "$SHAPE"
+					python ${TEST_APP} --plot --posrot 40 40 "$ROTATION" --world "$SHAPE"
 				done
 			done
 
