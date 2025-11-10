@@ -62,11 +62,7 @@ class ParameterManager:
 
         params = self.check_json_format(params)
 
-        try:
-            param_dict = json.loads(params)
-        except ValueError as e:
-            print(f"Error decoding JSON: {e}")
-            sys.exit(1)
+        param_dict = json.loads(params)
 
         return param_dict
 

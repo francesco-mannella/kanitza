@@ -541,6 +541,66 @@ class OfflineController:
 
         return goal
 
+    def get_representation_from_condition(self, condition):
+        """Converts a visual condition to a goal representation.
+
+        Args:
+            condition (array): The visual condition to be converted, an array
+                of FOVEA activation.
+
+        Returns:
+            array: The representation derived from the condition.
+        """
+        # Convert condition to a normalized tensor
+        condition_tensor = (
+            torch.tensor(condition.ravel().reshape(1, -1), dtype=torch.float32)
+            / 255.0
+        )
+        # Get normalized output from the visual conditions map
+        som_output_norm = self.visual_conditions_map(condition_tensor)
+
+        # Retrieve the representation using the normalized output
+        representation = self.visual_conditions_map.get_representation(
+            som_output_norm,
+            rtype="point",
+            neighborhood_std=self.params.neighborhood_modulation_baseline,
+        )
+
+        return representation
+
+    def apply_filter_to_map(self, map_object, target_goal, filter_strength):
+        """Applies a filter to the map object based on the target goal.
+
+        Args:
+            map_object: The map object to which the filter will be applied.
+            target_goal: The goal used to filter the map. If None, no filter
+                will be applied.
+            filter_strength: The strength of the filter to be applied.
+        """
+        if target_goal is not None:
+            map_object.set_filter(
+                [target_goal],
+                magnitude=filter_strength,
+            )
+
+    def get_saccade_from_representation(self, representation):
+        """Calculate the attentional focus from a given representation.
+
+        This function uses the attention map to compute the attentional focus
+        based on the provided representation and neighborhood modulation
+        baseline.
+
+        Args:
+            representation: The input representation to process.
+
+        Returns:
+            numpy.ndarray: The computed attentional focus as a NumPy array.
+        """
+        attentional_focus = self.attention_map.backward(
+            representation, self.params.neighborhood_modulation_baseline
+        )
+        return attentional_focus.cpu().detach().numpy()
+
     def get_action_from_condition(
         self,
         condition,
