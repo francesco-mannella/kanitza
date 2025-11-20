@@ -25,8 +25,8 @@ if __name__ == "__main__":
     env = env.unwrapped
     agent = Agent(
         env,
-        sampling_precision=1e-2,
-        attention_max_variance=5,
+        sampling_precision=0.999,
+        attention_max_variance=1,
         attention_fixed_variance_prop=1.0,
         attention_center_distance_variance_prop=0.0,
         attention_center_distance_slope=1,

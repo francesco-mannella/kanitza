@@ -178,9 +178,8 @@ class Agent:
     def __init__(
         self,
         environment,
-        sampling_precision=0.07,
-        max_variance=1,
         seed=None,
+        sampling_precision=0.07,
         attention_max_variance=1.0,
         attention_fixed_variance_prop=0.1,
         attention_center_distance_variance_prop=0.9,
@@ -209,8 +208,8 @@ class Agent:
         self.env_height, self.env_width = environment.observation_space[
             "RETINA"
         ].shape[:-1]
-        self.vertical_variance = max_variance * self.env_height
-        self.horizontal_variance = max_variance * self.env_width
+        self.vertical_variance = attention_max_variance * self.env_height
+        self.horizontal_variance = attention_max_variance * self.env_width
         self.attentional_mask = None
         self.MAX_VARIANCE = attention_max_variance
         self.FIXED_VARIANCE_PROP = attention_fixed_variance_prop
