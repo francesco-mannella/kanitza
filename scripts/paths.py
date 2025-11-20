@@ -11,7 +11,7 @@ from seaborn import axes_style
 
 
 # Configuration
-SIMULATION_DIR_PATTERN = "*_d_*_l_*"
+SIMULATION_DIR_PATTERN = "*_s_*_m_*"
 OUTPUT_CSV_FILENAME = "paths.csv"
 sns.set_style("whitegrid")
 so.Plot.config.display["scaling"] = 0.7

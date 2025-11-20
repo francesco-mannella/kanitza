@@ -326,18 +326,18 @@ class MapsPlotter:
         self.visual_effects_map_ax.set_axis_off()
         self.attention_map_ax.set_axis_off()
 
-    def step(self, saccade=None):
+    def step(self, goal=None):
         """
         Updates the displayed fovea map with the latest weights from the
         controller.
 
         Parameters:
-        - saccade (np.array, optional): saccade point in the fovea weights,
+        - goal (np.array, optional): goal point in the fovea weights,
           defaults to None.
 
         """
-        if saccade is not None:
-            self.saccade = saccade.ravel().astype(int)
+        if goal is not None:
+            self.saccade = goal.ravel().astype(int)
         self._update_maps()
         self.fig.canvas.draw_idle()
         self.vm.save_frame()

@@ -95,45 +95,10 @@ class SimulationManager:
         seed: Random seed for reproducibility.
     """
 
-    def __init__(self, params, seed, offcontrol_storage_file):
-        self.params = params
-        self.seed = seed
-        self.env = self._setup_environment()
-        self.agent = self._setup_agent()
-        self.off_control = None
-        self.setup_offline_controller(offcontrol_storage_file)
-        self.visual_map = SaliencyMap(params)
-        self.fovea_data = open("fovea_data", "w")
 
-    def _setup_environment(self):
-        """Initializes and configures the simulation environment."""
-        env = gym.make(self.params.env_name, colors=self.params.colors)
-        env = env.unwrapped
-        env.set_seed(self.seed)
-        return env
-
-    def _setup_agent(self):
-        """Initializes the agent with parameters from self.params."""
-        return Agent(
-            self.env,
-            sampling_threshold=self.params.agent_sampling_threshold,
-            seed=self.seed,
-            attention_max_variance=self.params.attention_max_variance,
-            attention_fixed_variance_prop=self.params.attention_fixed_variance_prop,
-            attention_center_distance_variance_prop=self.params.attention_center_distance_variance_prop,
-            attention_center_distance_slope=self.params.attention_center_distance_slope,
-        )
-
-    def setup_offline_controller(self, file_path):
-        """Sets up the offline controller, loading from file if it exists."""
-        if os.path.exists(file_path):
-            self.off_control = OfflineController.load(
-                file_path, self.env, self.params, self.seed
-            )
-        else:
-            self.off_control = OfflineController(
-                self.env, self.params, self.seed
-            )
+def setup_agent(env, params, seed):
+    """
+    Set up the agent with environment and specific parameters.
 
     def run_epoch(self, epoch, log):
         """Runs a full epoch, iterating through all episodes.
@@ -459,24 +424,18 @@ if __name__ == "__main__":
     seed_str = str(seed).replace(".", "_")
 
     params.init_name = (
-        f"sim_{variant}_"
-        f"{str(hex(np.abs(hash(params))))[:6]}_"
-        f"s_{seed_str}_"
-        f"m_{format_scalar(params.match_std)}_"
-        f"a_{format_scalar(params.anchor_std)}_"
-        f"d_{format_scalar(params.decaying_speed)}_"
-        f"l_{format_scalar(params.local_decaying_speed)}"
+        f"{variant}"
     )
 
     with open("NAME", "w") as fname:
         fname.write(f"{params.init_name}\n")
 
-    if params.use_wandb:
-        wandb.init(
-            project=params.project_name,
-            entity=params.entity_name,
-            name=params.init_name,
-        )
+    wandb.init(
+        project=params.project_name,
+        entity=params.entity_name,
+        name=params.init_name,
+        config=params._params_to_dict()
+    )
 
     main(params)
 

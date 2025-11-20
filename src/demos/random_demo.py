@@ -24,9 +24,7 @@ if __name__ == "__main__":
     # Set up the environment and agent
     env = gym.make("EyeSim/EyeSim-v0", colors=True)
     env = env.unwrapped
-    params = Parameters()
-    visual_map = SaliencyMap(params)
-    agent = Agent(env, sampling_threshold=0.01)
+    agent = Agent(env, sampling_precision=0.01)
 
     worlds = ["triangle", "square", "circle"]
 

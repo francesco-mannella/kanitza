@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # %%
 
 import json
@@ -8,18 +9,37 @@ import numpy
 
 def str2bool(v):
   return v.lower() in ("yes", "true", "t", "1")
+=======
+import json
+import sys
+
+import numpy as np
+
+>>>>>>> main
 
 class ParameterManager:
 
     def __init__(self):
         self._set_param_types()
 
+<<<<<<< HEAD
+=======
+    def __getstate__(self):
+        return self._params_to_dict()
+
+    def __setstate__(self, state):
+
+        for key, value in state.items():
+            setattr(self, key, value)
+
+>>>>>>> main
     def _set_param_types(self):
         self.param_types = {
             k: type(v)
             for k, v in self.__dict__.items()
             if not k.startswith("__") and not callable(v)
         }
+<<<<<<< HEAD
         self.param_types = {
             k: v if v is not list else numpy.array
             for k, v in self.param_types.items()
@@ -28,6 +48,8 @@ class ParameterManager:
             k: v if v is not bool else str2bool
             for k, v in self.param_types.items()
         }
+=======
+>>>>>>> main
 
     def check_json_format(self, json_string):
         json_string = (
@@ -36,7 +58,10 @@ class ParameterManager:
             .replace("True", "true")
             .replace("False", "false")
         )
+<<<<<<< HEAD
         json_string = re.sub(r"array\(\"([^\"]+)\",[^\)]+\)", r"\1", json_string)
+=======
+>>>>>>> main
         return json_string
 
     def _string_to_json(self, param_string, mode="user"):
@@ -60,6 +85,7 @@ class ParameterManager:
             params = dict(
                 s.split("=", 1) for s in param_string.split(";") if "=" in s
             )
+<<<<<<< HEAD
 
             params = {
                 k: (
@@ -72,17 +98,26 @@ class ParameterManager:
 
             # Format the key-value pairs into a JSON string
             params = str(params)
+=======
+            # Format the key-value pairs into a JSON string
+            params = ",".join(f'"{k.strip()}":{v}' for k, v in params.items())
+            params = "{" + params + "}"
+>>>>>>> main
         else:
             params = param_string
 
         params = self.check_json_format(params)
 
+<<<<<<< HEAD
         try:
             param_dict = json.loads(params)
         except ValueError as e:
             print(f"Error decoding JSON: {e}")
             print(params)
             sys.exit(1)
+=======
+        param_dict = json.loads(params)
+>>>>>>> main
 
         return param_dict
 
@@ -141,6 +176,11 @@ class ParameterManager:
         with open(filepath, "w") as file:
             if mode == "user":
                 for key, value in self._params_to_dict().items():
+<<<<<<< HEAD
+=======
+                    if isinstance(value, str):
+                        value = f'"{value}"'
+>>>>>>> main
                     file.write(f"{key} = {value}\n")
             elif mode == "json":
                 params = self._params_to_dict()
@@ -192,6 +232,7 @@ class ParameterManager:
         # Add other types like list, set, etc., if needed
         return value
 
+<<<<<<< HEAD
 
 # %%
 if __name__ == "__main__":
@@ -221,3 +262,5 @@ if __name__ == "__main__":
     # %%
     # Use case 3: Update parameters using a JSON string.
     p1.update(repr(p2), mode="json")
+=======
+>>>>>>> main

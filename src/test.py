@@ -361,7 +361,7 @@ class SimulationTest:
         self.env = self.init_environment()
         self.agent = Agent(
             self.env,
-            sampling_threshold=self.params.agent_sampling_threshold,
+            sampling_precision=self.params.agent_sampling_precision,
             seed=self.seed,
             attention_max_variance=self.params.attention_max_variance,
             attention_fixed_variance_prop=self.params.attention_fixed_variance_prop,
@@ -383,8 +383,6 @@ class SimulationTest:
                 "position": [],
                 "angle": [],
                 "saccade_id": [],
-                "offcontrol_goal": [],
-                "rnn_goal": [],
                 "goal": [],
             }
 

@@ -15,7 +15,7 @@ class Parameters(ParameterManager):
         plot_sim=False,
         plot_maps=True,
         plotting_epochs_interval=50,
-        agent_sampling_threshold=0.000001,
+        agent_sampling_precision=0.999,
         maps_output_size=100,
         action_size=2,
         attention_size=2,
@@ -61,7 +61,7 @@ class Parameters(ParameterManager):
         self.plot_sim = plot_sim
         self.plot_maps = plot_maps
         self.plotting_epochs_interval = plotting_epochs_interval
-        self.agent_sampling_threshold = agent_sampling_threshold
+        self.agent_sampling_precision = agent_sampling_precision
         self.maps_output_size = maps_output_size
         self.action_size = action_size
         self.attention_size = attention_size
@@ -103,9 +103,3 @@ class Parameters(ParameterManager):
         self.use_wandb = use_wandb
 
         super(Parameters, self).__init__()
-
-
-if __name__ == "__main__":
-
-    params = Parameters()
-    params.save("/tmp/params")

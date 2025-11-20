@@ -223,7 +223,7 @@ class SimulationTest:
             self.params.saccade_time * self.params.saccade_num
         ):
 
-            goal_influence = (
+            rnn_goal_influence = (
                 0
                 if time_step
                 < self.params.mask_start
@@ -231,49 +231,49 @@ class SimulationTest:
                 else self.params.arbitration_weight
             )
 
-            if time_step % 4 == 0:
+            if time_step % self.params.rnn_arbitration_before_mask == 0:
                 print(f"ts: {time_step:>3d}  ", end="")
 
                 # Get info for saccade
                 condition = observation["FOVEA"].copy()
-                # Compute saccade
-                saccade, offcontrol_goal = (
-                    self.off_control.get_action_from_condition(
-                        condition,
-                        condition_filter=goal,
-                        filter_magnitude=goal_influence,
-                    )
-                )
-
-                # Recurrent model step (next saccade prediction)
-                rnn_goal = self.off_control.recurrent_model.step(
-                    offcontrol_goal.reshape(-1),
-                    reservoir_influence=goal_influence,
-                )
 
                 # Goal Arbitration:
                 # This section arbitrates between two potential goals:
-                # 1. `offcontrol_goal`: The goal suggested by the offline
-                # controller based on the current condition.
+                # 1. `offcontrol_goal`: The goal suggested by the topological
+                #    alignment mechanism based on the current condition.
                 # 2. `rnn_goal`: The goal predicted by the recurrent neural
-                # network (RNN), providing a sense of anticipation or
-                # prediction.
-                #
-                # The arbitration is controlled by a weight `w`.
-                # - When `w` is 0, the `offcontrol_goal` is used directly.
-                # - When `w` is 1, the `rnn_goal` fully replaces the
-                # `offcontrol_goal`.
-                # - Values between 0 and 1 represent a blend of the two goals.
-                #
-                # The weight `w` is often modulated based on the time step
-                # within the episode, allowing the system to shift its reliance
-                # from immediate sensory input to internal predictions as
-                # needed.
-                goal = self.off_control.arbitrate_goals(
-                    offcontrol_goal,
-                    rnn_goal,
-                    w=goal_influence,
+                #    network (RNN), providing a sense of anticipation or
+                #    prediction.
+
+                # topological alignment goal selection
+                offcontrol_goal = (
+                    self.off_control.get_representation_from_condition(
+                        condition
+                    )
                 )
+
+                # Recurrent model step
+                rnn_goal = self.off_control.recurrent_model.step(
+                    goal=offcontrol_goal.reshape(-1),
+                    reservoir_influence=rnn_goal_influence,
+                )
+
+                # Apply bias from rnn to the visual map
+                self.off_control.apply_filter_to_map(
+                    map_object=self.off_control.visual_conditions_map,
+                    target_goal=rnn_goal,
+                    filter_strength=rnn_goal_influence,
+                )
+
+                # Compute again the goal after RNN bias
+                goal = self.off_control.get_representation_from_condition(
+                    condition
+                )
+                saccade = self.off_control.get_saccade_from_representation(
+                    goal
+                )
+
+                goal = goal.cpu().detach().numpy()
 
                 # print time_step and goals
                 gs = ["SOM", "RNN", "goal"]
@@ -308,7 +308,7 @@ class SimulationTest:
                         self.update_mask(self.mask_params)
                         mask_updated = True
 
-            elif time_step % 4 == 1:
+            elif time_step % self.params.rnn_arbitration_before_mask == 1:
 
                 # Reset saccade
                 if saccade is not None and not np.array_equal(
@@ -430,7 +430,7 @@ class SimulationTest:
         self.env = self.init_environment()
         self.agent = Agent(
             self.env,
-            sampling_threshold=self.params.agent_sampling_threshold,
+            sampling_precision=self.params.agent_sampling_precision,
             seed=self.seed,
             attention_max_variance=self.params.attention_max_variance,
             attention_fixed_variance_prop=self.params.attention_fixed_variance_prop,

@@ -5,8 +5,6 @@ import gymnasium as gym
 import matplotlib.pyplot as plt
 import numpy as np
 from model.agent import Agent
-from model.visual_processing import SaliencyMap
-from params import Parameters
 from plotter import FoveaPlotter
 
 
@@ -18,29 +16,43 @@ _ = EyeSim
 # %% MAIN LOOP AND VISUALIZATION
 if __name__ == "__main__":
 
+    # %%
     # Enable interactive mode and close any previously opened plots
     plt.ion()
     plt.close("all")
 
     # Set up the environment and agent
+    seed = 15
     env = gym.make("EyeSim/EyeSim-v0", colors=True)
     env = env.unwrapped
+    env.set_seed(seed)
     agent = Agent(
         env,
-        sampling_precision=1e-2,
-        attention_max_variance=5,
+        seed=seed,
+        sampling_precision=0.8,
+        attention_max_variance=1,
         attention_fixed_variance_prop=1.0,
         attention_center_distance_variance_prop=0.0,
         attention_center_distance_slope=1,
     )
+
+    focuses = np.load("retina_poses.npy")
+    mask = np.linalg.norm(focuses[:, 1:], axis=1).round(1) > 3
+    focuses = focuses[mask]
+    focuses[:, 1:] += env.retina_size // 2
+
+    # %%
+    focuses[:, 2] = 80 - focuses[:, 2]
+
+    focuses[:, 1:] /= env.retina_size
+
+    print(focuses)
 
     worlds = [
         "triangle",
         "square",
         "circle",
     ]
-
-    data = []
 
     # Run the simulation for a fixed number of episodes
     for episode in range(3):
@@ -61,41 +73,35 @@ if __name__ == "__main__":
         # Create a plotting object for the current episode
         plotter = FoveaPlotter(env, offline=False)
 
-        # Generate random means for Gaussian masks
-        a = np.linspace(0, 2 * np.pi, 15)
-        attention_centers = 0.5 + 0.3 * np.array(
-            [[np.cos(x), np.sin(x)] for x in a]
-        )
+        for k in range(4):
+            for c, center in enumerate(
+                focuses[focuses[:, 0] == world_id, 1:][(0 if k == 0 else 1) :]
+            ):
+                # Set agent parameters based on the current attention center
+                agent.set_parameters(center)
 
-        pos = env.retina_sim_pos
-        for center in attention_centers:
-            # Set agent parameters based on the current attention center
-            agent.set_parameters(center)
+                # Simulate for a fixed number of time steps
+                for time_step in range(2):
 
-            # Simulate for a fixed number of time steps
-            for time_step in range(3):
-                observation, *_ = env.step(action)
-                pos_prev, pos = pos, env.retina_sim_pos
-                mov = np.array(pos) - pos_prev
+                    if time_step != 0:
+                        agent.set_parameters([0.5, 0.5])
 
-                data.append([world_id, *list(mov)])
+                    observation, *_ = env.step(action)
 
-                print(mov)
-                action, saliency_map, salient_point = agent.get_action(
-                    observation
-                )
-                if time_step != 0:
-                    agent.set_parameters([0.5, 0.5])
+                    # the object is observable at the beginning
+                    if not (k == 0 and c < 3):
+                        observation["RETINA"] *= 0
+                    action, saliency_map, salient_point = agent.get_action(
+                        observation
+                    )
 
-                # Update the plotter with the current saliency map and salient
-                # point
-                plotter.step(
-                    attentional_map, attention_point, agent.attentional_mask
-                )
-                plt.pause(0.1)
+                    # Update the plotter with the current saliency map and
+                    # salient point
+                    plotter.step(
+                        saliency_map, salient_point, agent.attentional_mask
+                    )
+                    plt.pause(0.5)
 
         # Save the plot for the current episode as a gif
         gif_file = f"episode_{episode:04d}"
         plotter.close(gif_file)
-
-        # np.save("retina_poses", data )

@@ -2,6 +2,7 @@
 
 import numpy as np
 from scipy.special import softmax
+from scipy.signal import convolve2d
 
 
 # %% SAMPLE FUNCTION
@@ -22,8 +23,9 @@ def sampling(array, precision=0.01, rng=None):
     rng = rng or np.random.RandomState(0)
 
     flattened_array = array.flatten()
-    probabilities = softmax(flattened_array / precision)
-    probabilities[probabilities < probabilities.max() * 0.999] = 0
+    probabilities = np.maximum(
+        0, flattened_array - flattened_array.max() * precision
+    )
     probabilities /= probabilities.sum()
 
     sampled_flat_index = rng.choice(a=flattened_array.size, p=probabilities)
@@ -31,7 +33,7 @@ def sampling(array, precision=0.01, rng=None):
         sampled_flat_index, array.shape, order="F"
     )
 
-    return sampled_index
+    return sampled_index, probabilities
 
 
 def gaussian_mask(shape, mean, v1, v2, angle):
@@ -80,7 +82,7 @@ class Agent:
     def __init__(
         self,
         environment,
-        sampling_threshold=0.07,
+        sampling_precision=0.07,
         max_variance=1,
         seed=None,
         attention_max_variance=1.0,
@@ -93,7 +95,7 @@ class Agent:
 
         Args:
         - environment: The environment.
-        - sampling_threshold (float): Threshold for sampling.
+        - sampling_precision (float): Precision for sampling ( [0,1[ ).
         - max_variance (float): Max std of attentional field.
         - seed (int): Seed for the random number generator.
         - attention_max_variance (float): Max variance of attention.
@@ -106,14 +108,14 @@ class Agent:
         self.rng = np.random.RandomState(seed)
 
         self.environment = environment
-        self.sampling_threshold = sampling_threshold
+        self.saliency_mapper = SaliencyMap()
+        self.sampling_precision = sampling_precision
         self.env_height, self.env_width = environment.observation_space[
             "RETINA"
         ].shape[:-1]
         self.vertical_variance = max_variance * self.env_height
         self.horizontal_variance = max_variance * self.env_width
         self.attentional_mask = None
-
         self.MAX_VARIANCE = attention_max_variance
         self.FIXED_VARIANCE_PROP = attention_fixed_variance_prop
         self.CENTER_DISTANCE_VARIANCE_PROP = (
@@ -165,44 +167,55 @@ class Agent:
         else:
             self.attentional_mask = np.ones([self.env_height, self.env_width])
 
-    def get_attentional_map_and_point(self, saliency_map):
-        saliency_map = saliency_map.max(-1)
+    def get_action(self, observation, get_probs=False):
+        """Determine the action to take based on the provided observation.
+
+        Args:
+        - observation (dict): A dictionary representing the current state of
+          the environment.  Must contain a key 'RETINA' which provides the
+          necessary visual input data.
+
+        Returns:
+        - tuple: A tuple containing the action to take, the generated saliency
+          map, and the selected salient point."""
+        retina_image = observation["RETINA"].mean(-1) / 255
+        inverted_retina = 1 - retina_image
+
+        saliency_map = self.saliency_mapper(inverted_retina)
         if self.attentional_mask is None:
             self.attentional_mask = np.ones_like(saliency_map)
         saliency_map_adapted = saliency_map
+
+        # border_filter = np.ones_like(saliency_map_adapted)
+        # border_filter = scipy.signal.convolve2d(
+        #     border_filter,
+        #     np.ones([5, 5]) / (5 * 5),
+        #     mode="same",
+        # )
+        # border_filter = np.exp(-(0.1**-2) * (1 - border_filter) ** 2)
+        saliency_map_adapted += 1e-5
+        # saliency_map_adapted *= border_filter
+
         saliency_map_adapted *= self.attentional_mask
+        # saliency_map_adapted += self.attentional_mask
 
-        salient_point = sampling(
-            saliency_map_adapted, self.sampling_threshold, self.rng
-        )
-        return saliency_map_adapted, salient_point
-
-    def get_action(self, saliency):
-        """Calculates and returns the next action based on the given saliency.
-
-        This method processes the input saliency to generate an attentional map,
-        selects a salient point, and computes a normalized and centered action
-        for the environment.
-
-        Args:
-            saliency (dict): Dictionary representing the current state of the
-                environment, typically containing saliency information.
-
-        Returns:
-            tuple: A tuple containing:
-                - centered_action (np.ndarray): The normalized and centered
-                action to take.
-                - attentional_map (np.ndarray): The generated saliency map.
-                - attention_point (np.ndarray): The selected salient point.
-        """
-        attentional_map, attention_point = self.get_attentional_map_and_point(
-            saliency
+        salient_point, probabilities = sampling(
+            saliency_map_adapted, self.sampling_precision, self.rng
         )
 
-        normalized_action = attention_point / self.environment.retina_size
+        normalized_action = salient_point / self.environment.retina_size
+
         normalized_action[1] = 1 - normalized_action[1]
         centered_action = (
             normalized_action - 0.5
         ) * self.environment.retina_scale
 
-        return centered_action, attentional_map, attention_point
+        if get_probs:
+            return (
+                centered_action,
+                saliency_map_adapted,
+                probabilities,
+                salient_point,
+            )
+        else:
+            return centered_action, saliency_map_adapted, salient_point
