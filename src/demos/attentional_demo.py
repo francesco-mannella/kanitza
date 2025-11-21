@@ -5,6 +5,7 @@ import gymnasium as gym
 import matplotlib.pyplot as plt
 import numpy as np
 from model.agent import Agent
+from params import Parameters
 from plotter import FoveaPlotter
 
 
@@ -23,13 +24,17 @@ if __name__ == "__main__":
     # Set up the environment and agent
     env = gym.make("EyeSim/EyeSim-v0", colors=True)
     env = env.unwrapped
+    
+    params = Parameters()
+    params.agent_sampling_precision = 1 - 1e-10
+    params.attention_max_variance = 1
+    params.attention_fixed_variance_prop = 0.3
+    params.attention_center_distance_variance_prop = 0.7
+    params.attention_center_distance_slope = 2
+
     agent = Agent(
         env,
-        sampling_precision=0.999,
-        attention_max_variance=1,
-        attention_fixed_variance_prop=1.0,
-        attention_center_distance_variance_prop=0.0,
-        attention_center_distance_slope=1,
+        focus_params=params,
     )
 
     worlds = [

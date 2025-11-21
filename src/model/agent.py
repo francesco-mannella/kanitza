@@ -175,28 +175,25 @@ class Agent:
     saliency maps.
     """
 
-    def __init__(
-        self,
-        environment,
-        seed=None,
-        sampling_precision=0.07,
-        attention_max_variance=1.0,
-        attention_fixed_variance_prop=0.1,
-        attention_center_distance_variance_prop=0.9,
-        attention_center_distance_slope=3.0,
-    ):
+    def __init__(self, environment, focus_params, seed=None):
         """
         Initialize the Agent.
 
         Args:
-        - environment: The environment.
-        - sampling_precision (float): Precision for sampling ( [0,1[ ).
-        - max_variance (float): Max std of attentional field.
-        - seed (int): Seed for the random number generator.
-        - attention_max_variance (float): Max variance of attention.
-        - attention_fixed_variance_prop (float): Fixed variance prop.
-        - attention_center_distance_variance_prop (float): Center dist prop.
-        - attention_center_distance_slope (float): Center dist variance slope.
+            environment: The environment in which the agent operates.
+            focus_params: An object containing parameters that define the
+                attentional focus, including:
+                - sampling_precision: Precision of sampling within the focus.
+                - attention_max_variance: Maximum variance allowed for
+                  attention.
+                - attention_fixed_variance_prop: Proportion of variance that
+                  is fixed.
+                - attention_center_distance_variance_prop: Proportion of
+                  variance based on distance from the center.
+                - attention_center_distance_slope: Slope affecting variance
+                  based on center distance.
+            seed (int, optional): Seed for the random number generator.
+                Defaults to 0 if not provided.
         """
 
         seed = seed or 0
@@ -204,19 +201,25 @@ class Agent:
 
         self.environment = environment
         self.saliency_mapper = SaliencyMap()
-        self.sampling_precision = sampling_precision
+        self.sampling_precision = focus_params.agent_sampling_precision
         self.env_height, self.env_width = environment.observation_space[
             "RETINA"
         ].shape[:-1]
-        self.vertical_variance = attention_max_variance * self.env_height
-        self.horizontal_variance = attention_max_variance * self.env_width
-        self.attentional_mask = None
-        self.MAX_VARIANCE = attention_max_variance
-        self.FIXED_VARIANCE_PROP = attention_fixed_variance_prop
-        self.CENTER_DISTANCE_VARIANCE_PROP = (
-            attention_center_distance_variance_prop
+        self.vertical_variance = (
+            focus_params.attention_max_variance * self.env_height
         )
-        self.CENTER_DISTANCE_SLOPE = attention_center_distance_slope
+        self.horizontal_variance = (
+            focus_params.attention_max_variance * self.env_width
+        )
+        self.attentional_mask = None
+        self.MAX_VARIANCE = focus_params.attention_max_variance
+        self.FIXED_VARIANCE_PROP = focus_params.attention_fixed_variance_prop
+        self.CENTER_DISTANCE_VARIANCE_PROP = (
+            focus_params.attention_center_distance_variance_prop
+        )
+        self.CENTER_DISTANCE_SLOPE = (
+            focus_params.attention_center_distance_slope
+        )
 
         self.params = None
 
@@ -224,19 +227,32 @@ class Agent:
         """
         Set the parameters for the attentional mask.
 
+        This method configures the attentional mask by setting its parameters
+        based on the provided coordinates. The mask focuses on a specific area
+        of the environment, modulating its amplitude according to the distance
+        from the center of the retina.
+
         Args:
-        - params (list or array-like): The parameters to set for the
-          attentional mask.
+            params (list or array-like, optional): A pair of coordinates
+                defining the center of the attentional focus. The coordinates
+                should be in a normalized range [0, 1]. If `None`, the
+                attentional mask defaults to a uniform distribution. This
+                parameter allows modulation of the amplitude of the radial
+                focus based on the distance from the center of the retina.
         """
 
         if params is not None:
-
+            # Ensure parameters are within the valid range and reshape them
             params = np.clip(params, 0, 1).reshape(-1)
 
+            # Store a copy of the parameters
             self.params = np.copy(params)
 
+            # Calculate the environment size
             env_size = np.array([self.env_height, self.env_width])
 
+            # Calculate the scale of the variance based on the distance from
+            # the center of the retina
             center = 0.5
             scale = self.MAX_VARIANCE * (
                 self.FIXED_VARIANCE_PROP
@@ -250,8 +266,10 @@ class Agent:
                 )
             )
 
+            # Adjust parameters to the environment size
             params *= env_size
 
+            # Create the attentional mask using a Gaussian distribution
             self.attentional_mask = gaussian_mask(
                 (self.env_height, self.env_width),
                 params,
@@ -260,6 +278,7 @@ class Agent:
                 angle=0,
             )
         else:
+            # Default to a uniform distribution if no parameters are provided
             self.attentional_mask = np.ones([self.env_height, self.env_width])
 
     def get_action(self, observation, get_probs=False):
@@ -267,12 +286,16 @@ class Agent:
 
         Args:
         - observation (dict): A dictionary representing the current state of
-          the environment.  Must contain a key 'RETINA' which provides the
+          the environment. Must contain a key 'RETINA' which provides the
           necessary visual input data.
+        - get_probs (bool, optional): If True, return probabilities of
+          selection.
 
         Returns:
         - tuple: A tuple containing the action to take, the generated saliency
-          map, and the selected salient point."""
+          map, and the selected salient point. If `get_probs` is True, also
+          returns the probabilities.
+        """
         retina_image = observation["RETINA"].mean(-1) / 255
         inverted_retina = 1 - retina_image
 
@@ -281,18 +304,9 @@ class Agent:
             self.attentional_mask = np.ones_like(saliency_map)
         saliency_map_adapted = saliency_map
 
-        # border_filter = np.ones_like(saliency_map_adapted)
-        # border_filter = scipy.signal.convolve2d(
-        #     border_filter,
-        #     np.ones([5, 5]) / (5 * 5),
-        #     mode="same",
-        # )
-        # border_filter = np.exp(-(0.1**-2) * (1 - border_filter) ** 2)
         saliency_map_adapted += 1e-5
-        # saliency_map_adapted *= border_filter
 
         saliency_map_adapted *= self.attentional_mask
-        # saliency_map_adapted += self.attentional_mask
 
         salient_point, probabilities = sampling(
             saliency_map_adapted, self.sampling_precision, self.rng
