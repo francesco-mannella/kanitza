@@ -6,6 +6,9 @@ from model.topological_maps import FilteredTopologicalMap as TopologicalMap
 from model.topological_maps import Updater
 
 
+import sys
+
+
 class OfflineController:
     """
     Manages the update of topological maps using sensory inputs from an
@@ -74,9 +77,7 @@ class OfflineController:
 
     def _init_maps(self):
         """Initialize the topological maps and their updaters."""
-        input_size = np.prod(
-            self.env.observation_space["FOVEA"].sample().shape
-        )
+        input_size = np.prod(self.env.observation_space["FOVEA"].sample().shape)
         output_size = self.params.maps_output_size
 
         # Visual conditions map
@@ -108,15 +109,11 @@ class OfflineController:
         output_size = self.params.maps_output_size
         lr = self.params.predictor_learning_rate
         self.predictor = Predictor(output_size)
-        self.predictor_updater = PredictorUpdater(
-            self.predictor, learning_rate=lr
-        )
+        self.predictor_updater = PredictorUpdater(self.predictor, learning_rate=lr)
 
     def _init_storage(self):
         """Initialize storage for visual, action, and attention states."""
-        visual_size = np.prod(
-            self.env.observation_space["FOVEA"].sample().shape
-        )
+        visual_size = np.prod(self.env.observation_space["FOVEA"].sample().shape)
         self.params.visual_size = visual_size
 
         self.visual_states = np.zeros(
@@ -171,9 +168,7 @@ class OfflineController:
     def set_hyperparams(self):
         """Set the controller's hyperparameters based on current competence."""
         decay = np.tanh(self.params.decaying_speed * self.competence)
-        local_decay = torch.tanh(
-            self.params.local_decaying_speed * self.competences
-        )
+        local_decay = torch.tanh(self.params.local_decaying_speed * self.competences)
 
         self.incompetence = 1 - decay
         self.local_incompetence = (1 - local_decay).reshape(-1, 1)
@@ -192,9 +187,7 @@ class OfflineController:
             * self.local_incompetence
         )
 
-        self.neighborhood_modulation = self.neighborhood_modulation.reshape(
-            -1, 1
-        )
+        self.neighborhood_modulation = self.neighborhood_modulation.reshape(-1, 1)
 
         self.match_std = self.params.match_std
 
@@ -253,9 +246,11 @@ class OfflineController:
         - state: The state dictionary containing 'vision', 'action',
           'attention' and 'competence' keys.
         """
-        self.visual_states[episode, saccade, ts] = (
-            state["vision"].ravel() / 255.0
-        )
+
+        print(self.visual_states.shape)
+        sys.exit()
+
+        self.visual_states[episode, saccade, ts] = state["vision"].ravel() / 255.0
         self.action_states[episode, saccade, ts] = state["action"]
         self.attention_states[episode, saccade, ts] = state["attention"]
         self.world_states[episode, saccade, ts] = state["world"]
@@ -278,9 +273,7 @@ class OfflineController:
         offset = 2
         # Only consider saccades that are not on the time-limits edges
         idcs = self.filtered_idcs
-        ts_cond = (offset < idcs[2]) & (
-            idcs[2] < (self.params.saccade_time - offset)
-        )
+        ts_cond = (offset < idcs[2]) & (idcs[2] < (self.params.saccade_time - offset))
         idcs = idcs[:, ts_cond]
 
         # Get states for attention, visual conditions, and visual effects
@@ -341,9 +334,7 @@ class OfflineController:
             ),
         }
 
-    def get_representations(
-        self, attention_states, visual_conditions, visual_effects
-    ):
+    def get_representations(self, attention_states, visual_conditions, visual_effects):
         """
         Compute representations of states in the maps.
 
@@ -400,9 +391,7 @@ class OfflineController:
 
         # Spread map outputs for the update graph
         attention_output = self.attention_map(attention_states)
-        visual_conditions_output = self.visual_conditions_map(
-            visual_conditions
-        )
+        visual_conditions_output = self.visual_conditions_map(visual_conditions)
         visual_effects_output = self.visual_effects_map(visual_effects)
 
         # define common vars
@@ -453,8 +442,7 @@ class OfflineController:
         # Determine the positional difference between the "pa" and "pa"
         # representations
         pa_pg_difference = (
-            self.representations["pa"]["point"]
-            - self.representations["pg"]["point"]
+            self.representations["pa"]["point"] - self.representations["pg"]["point"]
         )
         # Compute the Euclidean norm of the above difference, resulting in a
         # distance measure
@@ -463,8 +451,7 @@ class OfflineController:
         # Determine the positional difference between the "pve" and "pa"
         # representations
         pve_pg_difference = (
-            self.representations["pve"]["point"]
-            - self.representations["pg"]["point"]
+            self.representations["pve"]["point"] - self.representations["pg"]["point"]
         )
         # Compute the Euclidean norm of the above difference, resulting in a
         # distance measure
@@ -473,8 +460,7 @@ class OfflineController:
         # Determine the positional difference between the "pvc" and "pa"
         # representations
         pvc_pg_difference = (
-            self.representations["pvc"]["point"]
-            - self.representations["pg"]["point"]
+            self.representations["pvc"]["point"] - self.representations["pg"]["point"]
         )
         # Compute the Euclidean norm of the  above difference for distance
         # measurement
@@ -513,8 +499,7 @@ class OfflineController:
         # Initialize weight_dict if it doesn't exist
         if not hasattr(self, "weight_dict"):
             self.weight_dict = {
-                key: torch.zeros_like(getattr(self, f"{key}_map").weights)
-                for key in keys
+                key: torch.zeros_like(getattr(self, f"{key}_map").weights) for key in keys
             }
 
         weight_dict_curr = {
@@ -524,9 +509,7 @@ class OfflineController:
         # Calculate norms and update weight_dict in a single loop
         norms = {}
         for key in keys:
-            norms[key] = torch.norm(
-                self.weight_dict[key] - weight_dict_curr[key]
-            )
+            norms[key] = torch.norm(self.weight_dict[key] - weight_dict_curr[key])
             self.weight_dict[key] = weight_dict_curr[key]
 
         return norms
@@ -553,8 +536,7 @@ class OfflineController:
         """
         # Convert condition to a normalized tensor
         condition_tensor = (
-            torch.tensor(condition.ravel().reshape(1, -1), dtype=torch.float32)
-            / 255.0
+            torch.tensor(condition.ravel().reshape(1, -1), dtype=torch.float32) / 255.0
         )
         # Get normalized output from the visual conditions map
         som_output_norm = self.visual_conditions_map(condition_tensor)
@@ -619,8 +601,7 @@ class OfflineController:
         - A tuple containing the focus point and representation.
         """
         condition_tensor = (
-            torch.tensor(condition.ravel().reshape(1, -1), dtype=torch.float32)
-            / 255.0
+            torch.tensor(condition.ravel().reshape(1, -1), dtype=torch.float32) / 255.0
         )
 
         if condition_filter is not None:
@@ -657,15 +638,11 @@ class OfflineController:
             "competence": self.competence,
             "competences": self.competences,
             "local_incompetence": self.local_incompetence,
-            "visual_conditions_map_state_dict": (
-                self.visual_conditions_map.state_dict()
-            ),
+            "visual_conditions_map_state_dict": (self.visual_conditions_map.state_dict()),
             "visual_conditions_updater_optimizer_state_dict": (
                 self.visual_conditions_updater.optimizer.state_dict()
             ),
-            "visual_effects_map_state_dict": (
-                self.visual_effects_map.state_dict()
-            ),
+            "visual_effects_map_state_dict": (self.visual_effects_map.state_dict()),
             "visual_effects_updater_optimizer_state_dict": (
                 self.visual_effects_updater.optimizer.state_dict()
             ),
@@ -724,9 +701,7 @@ class OfflineController:
         offline_controller.attention_updater.optimizer.load_state_dict(
             state["attention_updater_optimizer_state_dict"]
         )
-        offline_controller.predictor.load_state_dict(
-            state["predictor_state_dict"]
-        )
+        offline_controller.predictor.load_state_dict(state["predictor_state_dict"])
         offline_controller.predictor_updater.optimizer.load_state_dict(
             state["predictor_updater_optimizer_state_dict"]
         )

@@ -238,7 +238,9 @@ class Main:
                 ):
                     saccade = np.array([0.5, 0.5])
                     self.agent.set_parameters(saccade)
-            action, saliency_map, salient_point = self.agent.get_action(observation)
+            action, saliency_map, salient_point, color_saliency = self.agent.get_action(
+                observation
+            )
 
             if fovea_plotter:
                 fovea_plotter.step(
@@ -257,10 +259,6 @@ class Main:
                 "attention": attention,
                 "competence": competence,
             }
-
-            row = " ".join(map(str, np.hstack([episode, time_step, fovea.flatten()])))
-            self.fovea_data.write(f"{row}\n")
-            self.fovea_data.flush()
 
             self.off_control.record_states(episode, saccade_idx, time_step, state)
 
@@ -313,22 +311,24 @@ class Main:
                 elif self.env.world_labels[world] == "square":
                     world_dict["square"] += 1
 
-            self.main_log(
-                f"triangles: {world_dict['triangle']}, "
-                f"squares: {world_dict['square']}"
-            )
+            if self.params.wandb:
+                self.main_log(
+                    f"triangles: {world_dict['triangle']}, "
+                    f"squares: {world_dict['square']}"
+                )
 
             self.off_control.update()
 
-            self.main_log(f"comp: {self.off_control.competence}")
+            if self.params.wandb:
+                self.main_log(f"comp: {self.off_control.competence}")
 
-            wandb.log(
-                dict(
-                    competence=self.off_control.competence,
-                    **self.off_control.weight_change,
-                ),
-                step=epoch,
-            )
+                wandb.log(
+                    dict(
+                        competence=self.off_control.competence,
+                        **self.off_control.weight_change,
+                    ),
+                    step=epoch,
+                )
 
             if self.params.plot_maps:
                 self.maps_plotter.step()
@@ -349,13 +349,14 @@ class Main:
         """
         file = f"maps_{epoch:04d}"
         maps_plotter.close(file)
-        wandb.log(
-            {
-                "history": wandb.Image(f"{file}.gif"),
-                "last": wandb.Image(f"{file}.png"),
-            },
-            step=epoch,
-        )
+        if self.params.wandb:
+            wandb.log(
+                {
+                    "history": wandb.Image(f"{file}.gif"),
+                    "last": wandb.Image(f"{file}.png"),
+                },
+                step=epoch,
+            )
 
 
 if __name__ == "__main__":
@@ -403,16 +404,14 @@ if __name__ == "__main__":
         action="store_true",
         help="Plot online",
     )
-    return parser.parse_args()
 
     args = parser.parse_args()
 
     params = Parameters()
     seed = args.seed
     variant = args.variant
-
-    if not params.online_plot:
-        matplotlib.use("agg")
+    params.wandb = args.wandb
+    params.online_plot = args.online
 
     try:
         params.load("loaded_params")
@@ -422,7 +421,9 @@ if __name__ == "__main__":
         params.update(param_list)
         params.save("loaded_params")
 
-    params.wandb = args.wandb
+    if not params.online_plot:
+        matplotlib.use("agg")
+
     seed_str = str(seed).replace(".", "_")
     decaying_speed_str = str(params.decaying_speed).replace(".", "_")
     local_decaying_speed_str = str(params.local_decaying_speed).replace(".", "_")

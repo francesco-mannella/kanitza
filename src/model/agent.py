@@ -210,18 +210,24 @@ class Agent:
         normalized_action[1] = 1 - normalized_action[1]
         centered_action = (normalized_action - 0.5) * self.environment.retina_scale
 
+        fovea_shape = observation["FOVEA"].shape
+        retina_shape = color_saliency.shape
+        start = retina_shape[0] // 2 - fovea_shape[0] // 2
+        end = start + fovea_shape[0]
+        fovea = color_saliency[start:end, start:end, :]
+
         if get_probs:
             return (
                 centered_action,
                 saliency_map_adapted,
                 probabilities,
                 salient_point,
-                color_saliency,
+                fovea,
             )
         else:
             return (
                 centered_action,
                 saliency_map_adapted,
                 salient_point,
-                saliency_map,
+                fovea,
             )
