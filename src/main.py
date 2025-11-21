@@ -268,10 +268,11 @@ class Main:
         """
         gif_file = f"sim_{epoch:04d}"
         fovea_plotter.close(gif_file)
-        wandb.log(
-            {"Simulations": wandb.Video(f"{gif_file}.gif", format="gif")},
-            step=epoch,
-        )
+        if self.params.wandb:
+            wandb.log(
+                {"Simulations": wandb.Video(f"{gif_file}.gif", format="gif")},
+                step=epoch,
+            )
 
     def __call__(self):
         """Runs the main loop over epochs, logging and updating the controller."""
@@ -293,22 +294,24 @@ class Main:
                 elif self.env.world_labels[world] == "square":
                     world_dict["square"] += 1
 
-            self.main_log(
-                f"triangles: {world_dict['triangle']}, "
-                f"squares: {world_dict['square']}"
-            )
+            if self.params.wandb:
+                self.main_log(
+                    f"triangles: {world_dict['triangle']}, "
+                    f"squares: {world_dict['square']}"
+                )
 
             self.off_control.update()
 
-            self.main_log(f"comp: {self.off_control.competence}")
+            if self.params.wandb:
+                self.main_log(f"comp: {self.off_control.competence}")
 
-            wandb.log(
-                dict(
-                    competence=self.off_control.competence,
-                    **self.off_control.weight_change,
-                ),
-                step=epoch,
-            )
+                wandb.log(
+                    dict(
+                        competence=self.off_control.competence,
+                        **self.off_control.weight_change,
+                    ),
+                    step=epoch,
+                )
 
             if self.params.plot_maps:
                 self.maps_plotter.step()
@@ -329,13 +332,14 @@ class Main:
         """
         file = f"maps_{epoch:04d}"
         maps_plotter.close(file)
-        wandb.log(
-            {
-                "history": wandb.Image(f"{file}.gif"),
-                "last": wandb.Image(f"{file}.png"),
-            },
-            step=epoch,
-        )
+        if self.params.wandb:
+            wandb.log(
+                {
+                    "history": wandb.Image(f"{file}.gif"),
+                    "last": wandb.Image(f"{file}.png"),
+                },
+                step=epoch,
+            )
 
 
 if __name__ == "__main__":
