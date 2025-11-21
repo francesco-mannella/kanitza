@@ -34,7 +34,7 @@ class Parameters(ParameterManager):
         triangles_percent=50.0,
         colors=True,
         magnitude_decay=1e-10,
-        attention_max_variance=6.0,
+        attention_max_variance=1.0,
         attention_fixed_variance_prop=1.0,
         attention_center_distance_variance_prop=0.0,
         attention_center_distance_slope=5.0,

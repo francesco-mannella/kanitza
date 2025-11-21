@@ -29,7 +29,7 @@ if __name__ == "__main__":
     env.set_seed(seed)
 
     params = Parameters()
-    params.agent_sampling_precision = 1 -1e-10
+    params.agent_sampling_precision = 1 - 1e-10
     params.attention_max_variance = 1
     params.attention_fixed_variance_prop = 0.3
     params.attention_center_distance_variance_prop = 0.7
@@ -61,9 +61,7 @@ if __name__ == "__main__":
     # Run the simulation for a fixed number of episodes
     for episode in range(3):
         world_id = next(
-            i
-            for i, world in enumerate(env.world_labels)
-            if world == worlds[episode]
+            i for i, world in enumerate(env.world_labels) if world == worlds[episode]
         )
 
         object_params = {"pos": [40.0, 40.0], "rot": 0.5}
@@ -95,14 +93,17 @@ if __name__ == "__main__":
                     # the object is observable at the beginning
                     if not (k == 0 and c < 3):
                         observation["RETINA"] *= 0
-                    action, saliency_map, salient_point = agent.get_action(
-                        observation
+                    action, saliency_map, salient_point, color_saliency = (
+                        agent.get_action(observation)
                     )
 
                     # Update the plotter with the current saliency map and
                     # salient point
                     plotter.step(
-                        saliency_map, salient_point, agent.attentional_mask
+                        color_saliency,
+                        saliency_map,
+                        salient_point,
+                        agent.attentional_mask,
                     )
                     plt.pause(0.5)
 

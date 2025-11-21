@@ -231,7 +231,7 @@ class SimulationTest:
                     self.agent.set_parameters(saccade)
 
             self.update_environment_position(time_step)
-            action, saliency_map, salient_point = self.agent.get_action(
+            action, saliency_map, salient_point, color_saliency = self.agent.get_action(
                 saliency
             )
             observation, *_ = self.env.step(action)
@@ -240,7 +240,7 @@ class SimulationTest:
                 self.update_plotters(
                     fovea_plotter,
                     maps_plotter,
-                    condition,
+                    color_saliency,
                     saliency_map,
                     salient_point,
                     goal,

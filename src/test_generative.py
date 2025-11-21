@@ -319,7 +319,7 @@ class SimulationTest:
 
             self.update_environment_position(time_step)
             rgb, brightness, saliency = self.visual_map(observation["RETINA"])
-            action, saliency_map, salient_point = self.agent.get_action(
+            action, saliency_map, salient_point,_ = self.agent.get_action(
                 saliency
             )
             observation, *_ = self.env.step(action)

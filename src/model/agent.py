@@ -1,8 +1,8 @@
 # %% IMPORTS
 
 import numpy as np
-from scipy.special import softmax
-from scipy.signal import convolve2d
+
+from model.visual_processing import SaliencyMap
 
 
 # %% SAMPLE FUNCTION
@@ -23,15 +23,11 @@ def sampling(array, precision=0.01, rng=None):
     rng = rng or np.random.RandomState(0)
 
     flattened_array = array.flatten()
-    probabilities = np.maximum(
-        0, flattened_array - flattened_array.max() * precision
-    )
+    probabilities = np.maximum(0, flattened_array - flattened_array.max() * precision)
     probabilities /= probabilities.sum()
 
     sampled_flat_index = rng.choice(a=flattened_array.size, p=probabilities)
-    sampled_index = np.unravel_index(
-        sampled_flat_index, array.shape, order="F"
-    )
+    sampled_index = np.unravel_index(sampled_flat_index, array.shape, order="F")
 
     return sampled_index, probabilities
 
@@ -60,9 +56,7 @@ def gaussian_mask(shape, mean, v1, v2, angle):
 
     # Compute rotated covariance matrix
     cov_matrix = np.array([[v1, 0], [0, v2]])
-    rot = np.array(
-        [[np.cos(angle), -np.sin(angle)], [np.sin(angle), np.cos(angle)]]
-    )
+    rot = np.array([[np.cos(angle), -np.sin(angle)], [np.sin(angle), np.cos(angle)]])
     rotated_cov_matrix = rot @ cov_matrix @ rot.T
 
     x_minus_mu = x - mean
@@ -104,26 +98,20 @@ class Agent:
         self.rng = np.random.RandomState(seed)
 
         self.environment = environment
-        self.saliency_mapper = SaliencyMap()
+        self.saliency_mapper = SaliencyMap(focus_params)
         self.sampling_precision = focus_params.agent_sampling_precision
-        self.env_height, self.env_width = environment.observation_space[
-            "RETINA"
-        ].shape[:-1]
-        self.vertical_variance = (
-            focus_params.attention_max_variance * self.env_height
-        )
-        self.horizontal_variance = (
-            focus_params.attention_max_variance * self.env_width
-        )
+        self.env_height, self.env_width = environment.observation_space["RETINA"].shape[
+            :-1
+        ]
+        self.vertical_variance = focus_params.attention_max_variance * self.env_height
+        self.horizontal_variance = focus_params.attention_max_variance * self.env_width
         self.attentional_mask = None
         self.MAX_VARIANCE = focus_params.attention_max_variance
         self.FIXED_VARIANCE_PROP = focus_params.attention_fixed_variance_prop
         self.CENTER_DISTANCE_VARIANCE_PROP = (
             focus_params.attention_center_distance_variance_prop
         )
-        self.CENTER_DISTANCE_SLOPE = (
-            focus_params.attention_center_distance_slope
-        )
+        self.CENTER_DISTANCE_SLOPE = focus_params.attention_center_distance_slope
 
         self.params = None
 
@@ -164,8 +152,7 @@ class Agent:
                 * (
                     1
                     - np.tanh(
-                        self.CENTER_DISTANCE_SLOPE
-                        * np.linalg.norm(params - center)
+                        self.CENTER_DISTANCE_SLOPE * np.linalg.norm(params - center)
                     )
                 )
             )
@@ -200,15 +187,17 @@ class Agent:
           map, and the selected salient point. If `get_probs` is True, also
           returns the probabilities.
         """
-        retina_image = observation["RETINA"].mean(-1) / 255
-        inverted_retina = 1 - retina_image
+        retina_image = observation["RETINA"]
 
-        saliency_map = self.saliency_mapper(inverted_retina)
+        rgb, brightness, adjusted_response = self.saliency_mapper(retina_image)
+        color_saliency, _, saliency_map = rgb, brightness, adjusted_response
+        saliency_map_adapted = saliency_map.mean(-1)
+        mx = saliency_map_adapted.max()
+        saliency_map_adapted += mx * 0.01 if mx > 0 else 0.01
+        saliency_map_adapted /= mx
+        # ascii_imshow(saliency_map_adapted, 10, 10)
         if self.attentional_mask is None:
-            self.attentional_mask = np.ones_like(saliency_map)
-        saliency_map_adapted = saliency_map
-
-        saliency_map_adapted += 1e-5
+            self.attentional_mask = np.ones_like(saliency_map_adapted)
 
         saliency_map_adapted *= self.attentional_mask
 
@@ -219,9 +208,7 @@ class Agent:
         normalized_action = salient_point / self.environment.retina_size
 
         normalized_action[1] = 1 - normalized_action[1]
-        centered_action = (
-            normalized_action - 0.5
-        ) * self.environment.retina_scale
+        centered_action = (normalized_action - 0.5) * self.environment.retina_scale
 
         if get_probs:
             return (
@@ -229,6 +216,12 @@ class Agent:
                 saliency_map_adapted,
                 probabilities,
                 salient_point,
+                color_saliency,
             )
         else:
-            return centered_action, saliency_map_adapted, salient_point
+            return (
+                centered_action,
+                saliency_map_adapted,
+                salient_point,
+                saliency_map,
+            )
