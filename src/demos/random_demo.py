@@ -7,6 +7,7 @@ from model.agent import Agent
 from model.visual_processing import SaliencyMap
 from params import Parameters
 from plotter import FoveaPlotter
+from params import Parameters
 
 
 _ = EyeSim
@@ -24,6 +25,13 @@ if __name__ == "__main__":
     # Set up the environment and agent
     env = gym.make("EyeSim/EyeSim-v0", colors=True)
     env = env.unwrapped
+    params = Parameters()
+    params.agent_sampling_precision = 1 - 1e-10
+    agent = Agent(
+        env,
+        focus_params=params,
+    )
+
     agent = Agent(env, sampling_precision=0.01)
 
     worlds = ["triangle", "square", "circle"]

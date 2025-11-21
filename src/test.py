@@ -361,12 +361,8 @@ class SimulationTest:
         self.env = self.init_environment()
         self.agent = Agent(
             self.env,
-            sampling_precision=self.params.agent_sampling_precision,
             seed=self.seed,
-            attention_max_variance=self.params.attention_max_variance,
-            attention_fixed_variance_prop=self.params.attention_fixed_variance_prop,
-            attention_center_distance_variance_prop=self.params.attention_center_distance_variance_prop,
-            attention_center_distance_slope=self.params.attention_center_distance_slope,
+            focus_params=self.params,
         )
         self.visual_map = SaliencyMap(self.params)
 
