@@ -22,7 +22,7 @@ if __name__ == "__main__":
     plt.close("all")
 
     # Set up the environment and agent
-    env = gym.make("EyeSim/EyeSim-v0", colors=True)
+    env = gym.make("EyeSim/EyeSim-v0")
     env = env.unwrapped
 
     params = Parameters()

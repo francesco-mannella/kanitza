@@ -24,7 +24,7 @@ if __name__ == "__main__":
 
     # Set up the environment and agent
     seed = 15
-    env = gym.make("EyeSim/EyeSim-v0", colors=True)
+    env = gym.make("EyeSim/EyeSim-v0")
     env = env.unwrapped
     env.set_seed(seed)
 

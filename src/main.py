@@ -123,7 +123,7 @@ class Main:
         Returns:
             The initialized environment.
         """
-        env = gym.make(self.params.env_name, colors=self.params.colors)
+        env = gym.make(self.params.env_name)
         env = env.unwrapped
         env.set_seed(seed)
         return env

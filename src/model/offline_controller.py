@@ -247,9 +247,6 @@ class OfflineController:
           'attention' and 'competence' keys.
         """
 
-        print(self.visual_states.shape)
-        sys.exit()
-
         self.visual_states[episode, saccade, ts] = state["vision"].ravel() / 255.0
         self.action_states[episode, saccade, ts] = state["action"]
         self.attention_states[episode, saccade, ts] = state["attention"]

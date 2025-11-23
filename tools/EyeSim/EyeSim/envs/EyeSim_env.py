@@ -22,37 +22,37 @@ class EyeSimEnv(gym.Env):
 
     metadata = {"render_modes": ["human", "offline"], "render_fps": 25}
 
-    def __init__(self, render_mode=None, colors=False):
+    def __init__(self, render_mode=None, params=None):
 
-        assert (
-            render_mode is None or render_mode in self.metadata["render_modes"]
-        )
+        assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode
 
-        self.taskspace_xlim = np.array([0, 80])
-        self.taskspace_ylim = np.array([0, 80])
-        self.retina_scale = np.array([80, 80])
-        self.retina_size = np.array([80, 80])
-        self.fovea_scale = np.array([30, 30])
-        self.fovea_size = np.array([16, 16])
+        if params is None:
+            self.taskspace_xlim = np.array([0, 80])
+            self.taskspace_ylim = np.array([0, 80])
+            self.retina_scale = np.array([80, 80])
+            self.retina_size = np.array([80, 80])
+            self.fovea_scale = np.array([50, 50])
+            self.fovea_size = np.array([16, 16])
+        else:
+            self.taskspace_xlim = np.array(params.taskspace_xlim)
+            self.taskspace_ylim = np.array(params.taskspace_ylim)
+            self.retina_scale = np.array(params.retina_scale)
+            self.retina_size = np.array(params.retina_size)
+            self.fovea_scale = np.array(params.fovea_scale)
+            self.fovea_size = np.array(params.fovea_size)
+
         self.retina_sim = None
         self.retina_sim_pos = None
         self.world_labels = ["triangle", "square", "circle"]
         self.world_files = [
             "worlds.json",
         ]
-        if colors:
-            self.world_objects = [
-                "red_triangle",
-                "blue_square",
-                "green_circle",
-            ]
-        else:
-            self.world_objects = [
-                "triangle",
-                "square",
-                "circle",
-            ]
+        self.world_objects = [
+            "red_triangle",
+            "blue_square",
+            "green_circle",
+        ]
 
         self.world = 0
 
@@ -61,18 +61,12 @@ class EyeSimEnv(gym.Env):
         # Example when using discrete actions:
 
         max_action = np.max(self.retina_scale)
-        self.action_space = spaces.Box(
-            -max_action, max_action, [2], dtype=float
-        )
+        self.action_space = spaces.Box(-max_action, max_action, [2], dtype=float)
 
         self.observation_space = gym.spaces.Dict(
             {
-                "RETINA": gym.spaces.Box(
-                    0, 255, [*self.retina_size, 3], dtype=np.uint8
-                ),
-                "FOVEA": gym.spaces.Box(
-                    0, 255, [*self.fovea_size, 3], dtype=np.uint8
-                ),
+                "RETINA": gym.spaces.Box(0, 255, [*self.retina_size, 3], dtype=np.uint8),
+                "FOVEA": gym.spaces.Box(0, 255, [*self.fovea_size, 3], dtype=np.uint8),
             }
         )
 
@@ -89,9 +83,7 @@ class EyeSimEnv(gym.Env):
     def init_world(self, world=None, object_params=None):
         if world is not None:
             self.world = world
-        self.world_file = get_resource(
-            "EyeSim", "models", self.world_files[0]
-        )
+        self.world_file = get_resource("EyeSim", "models", self.world_files[0])
         self.world_dict = Sim.loadWorldJson(self.world_file)
         self.object_params = object_params
 
@@ -109,9 +101,7 @@ class EyeSimEnv(gym.Env):
         if obj_name is None:
             obj_name = self.world_objects[self.world]
 
-        center = np.array(
-            self.sim.bodies[obj_name].worldCenter
-        )
+        center = np.array(self.sim.bodies[obj_name].worldCenter)
 
         return center
 
@@ -122,9 +112,7 @@ class EyeSimEnv(gym.Env):
 
         # Set the angle and position of the first body
         rotation = self.sim.bodies[obj_name].transform.angle
-        position = np.array(
-            self.sim.bodies[obj_name].transform.position
-        )
+        position = np.array(self.sim.bodies[obj_name].transform.position)
 
         return position, rotation
 
@@ -187,11 +175,9 @@ class EyeSimEnv(gym.Env):
             position = np.array(
                 [
                     self.taskspace_xlim[0]
-                    + x_range
-                    * (0.4 + 0.2 * self.rng.rand()),  # Calculate x position
+                    + x_range * (0.4 + 0.2 * self.rng.rand()),  # Calculate x position
                     self.taskspace_ylim[0]
-                    + y_range
-                    * (0.4 + 0.2 * self.rng.rand()),  # Calculate y position
+                    + y_range * (0.4 + 0.2 * self.rng.rand()),  # Calculate y position
                 ]
             )
 
@@ -252,13 +238,9 @@ class EyeSimEnv(gym.Env):
         if (
             mode is None
             or (
-                mode == "offline"
-                and (self.renderer is None or not self.renderer.offline)
+                mode == "offline" and (self.renderer is None or not self.renderer.offline)
             )
-            or (
-                mode == "human"
-                and (self.renderer is None or self.renderer.offline)
-            )
+            or (mode == "human" and (self.renderer is None or self.renderer.offline))
         ):
             self.render_init(mode)
 
