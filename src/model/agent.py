@@ -1,5 +1,6 @@
 # %% IMPORTS
 
+import cv2
 import numpy as np
 
 from model.visual_processing import SaliencyMap
@@ -195,7 +196,6 @@ class Agent:
         mx = saliency_map_adapted.max()
         saliency_map_adapted += mx * 0.01 if mx > 0 else 0.01
         saliency_map_adapted /= mx
-        # ascii_imshow(saliency_map_adapted, 10, 10)
         if self.attentional_mask is None:
             self.attentional_mask = np.ones_like(saliency_map_adapted)
 
@@ -210,11 +210,12 @@ class Agent:
         normalized_action[1] = 1 - normalized_action[1]
         centered_action = (normalized_action - 0.5) * self.environment.retina_scale
 
-        fovea_shape = observation["FOVEA"].shape
-        retina_shape = color_saliency.shape
-        start = retina_shape[0] // 2 - fovea_shape[0] // 2
-        end = start + fovea_shape[0]
-        fovea = color_saliency[start:end, start:end, :]
+        fovea_size = self.environment.fovea_size
+        fovea_scale = self.environment.fovea_scale
+        retina_scale = self.environment.retina_size
+        start = retina_scale[0] // 2 - fovea_scale[0] // 2
+        end = start + fovea_scale[0]
+        fovea = cv2.resize(color_saliency[start:end, start:end, :], fovea_size)
 
         if get_probs:
             return (
