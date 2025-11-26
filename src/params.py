@@ -38,16 +38,15 @@ class Parameters(ParameterManager):
         attention_fixed_variance_prop=1.0,
         attention_center_distance_variance_prop=0.0,
         attention_center_distance_slope=5.0,
-        gabor_scales=[10.0],
+        gabor_scales=[8.0],
         gabor_orientation_bins=10,
-        gabor_frequency=0.006,
-        gabor_phase_offset=-3.141592653589793 * (0.5 - 9e-4),
+        gabor_frequency=0.09,
+        gabor_phase_offset=-3.141592653589793 * (0.5 - 25e-3),
         gabor_kernel_size=3,
-        gabor_filter_slope=0.8,
+        gabor_filter_slope=0.02,
         gabor_sigma_y_multiplier=6.0,
-        gabor_bw_channel_ratio=2.0,
-        gabor_rgb_prop=0.7,
-        gabor_bright_prop=0.3,
+        gabor_rgb_prop=1.0,
+        gabor_bright_prop=1.0,
         use_wandb=False,
     ):
         self.project_name = project_name
@@ -97,7 +96,6 @@ class Parameters(ParameterManager):
         self.gabor_kernel_size = gabor_kernel_size
         self.gabor_filter_slope = gabor_filter_slope
         self.gabor_sigma_y_multiplier = gabor_sigma_y_multiplier
-        self.gabor_bw_channel_ratio = gabor_bw_channel_ratio
         self.gabor_rgb_prop = gabor_rgb_prop
         self.gabor_bright_prop = gabor_bright_prop
         self.use_wandb = use_wandb

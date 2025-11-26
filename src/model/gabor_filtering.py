@@ -1,6 +1,7 @@
 # %%
 
 import io
+import os
 import urllib
 
 import matplotlib.pyplot as plt
@@ -9,9 +10,7 @@ from scipy.ndimage import convolve
 
 
 # %% GABOR FILTER FUNCTION
-def gabor_kernel(
-    frequency, orientation, sigma, sigma_y=None, phase_offset=0, size=5
-):
+def gabor_kernel(frequency, orientation, sigma, sigma_y=None, phase_offset=0, size=5):
     """
     Generate a Gabor filter.
 
@@ -32,9 +31,7 @@ def gabor_kernel(
         sigma_y = sigma
 
     half_size = size // 2
-    x_grid, y_grid = np.ogrid[
-        -half_size : (half_size + 1), -half_size : (half_size + 1)
-    ]
+    x_grid, y_grid = np.ogrid[-half_size : (half_size + 1), -half_size : (half_size + 1)]
     rotated_x = x_grid * np.cos(orientation) + y_grid * np.sin(orientation)
     rotated_y = -x_grid * np.sin(orientation) + y_grid * np.cos(orientation)
     gabor = np.exp(
@@ -76,8 +73,6 @@ class ChannelGaborFilter:
         kernel_size (int): Width/height of square Gabor kernels.
         filter_slope (float): Exponential slope for feature nonlinearity.
         sigma_y_multiplier (float): Elongation factor for the kernel y-axis.
-        bw_channel_ratio (float): Fraction of output energy for brightness
-            channel.
         rgb_prop (float): Proportion for RGB in adjusted output.
         bright_prop (float): Proportion for brightness in adjusted output.
     """
@@ -91,7 +86,6 @@ class ChannelGaborFilter:
         kernel_size=21,
         filter_slope=0.8,
         sigma_y_multiplier=5,
-        bw_channel_ratio=0.2,
         rgb_prop=0.7,
         bright_prop=0.3,
     ):
@@ -105,7 +99,6 @@ class ChannelGaborFilter:
             kernel_size (int): Size of square Gabor kernel.
             filter_slope (float): Slope for nonlinearity.
             sigma_y_multiplier (float): Y-axis elongation factor.
-            bw_channel_ratio (float): Brightness channel energy ratio.
             rgb_prop (float): Proportion for RGB in adjusted output.
             bright_prop (float): Proportion for brightness in adjusted output.
         """
@@ -116,13 +109,15 @@ class ChannelGaborFilter:
         self.kernel_size = kernel_size
         self.filter_slope = filter_slope
         self.sigma_y_multiplier = sigma_y_multiplier
-        self.bw_channel_ratio = bw_channel_ratio
         self.rgb_prop = rgb_prop
         self.bright_prop = bright_prop
         self.mask_channel_weights = [
             (1.0, -1.0, 0),  # Red vs Green
             (-1.0, 1.0, 0),  # Green vs Red
-            (-0.25, -0.25, 0.5),  # Blue vs Red+Green
+            (0, -1.0, 1.0),  # Blue vs Green
+            (0.0, 1.0, -1.0),  # Green vs blue
+            (-1.0, 0, 1.0),  # Blue vs Red
+            (1.0, 0, -1.0),  # Red vs blue
             (0.3, 0.3, 0.3),  # Uniform (brightness)
             (-0.3, -0.3, -0.3),  # Inverted uniform
         ]
@@ -161,16 +156,13 @@ class ChannelGaborFilter:
         # Initialize output array with an extra channel for brightness
         output = np.zeros((h, w, c + 1))
 
-        # Number of masks to apply
-        num_masks = len(self.mask_channel_weights)
-
         # Iterate over each set of mask channel weights
         for weights in self.mask_channel_weights:
             # Apply mask to the image
             masked = image @ weights
 
             # Apply Gaussian-like transformation
-            masked = np.exp(-(self.filter_slope**-2) * (masked - 1) ** 2)
+            # masked = np.exp(-(self.filter_slope**-2) * (masked - 1) ** 2)
 
             # Iterate over scales and orientations for Gabor filtering
             for sigma in self.scale_list:
@@ -192,9 +184,7 @@ class ChannelGaborFilter:
                     if not all(x == weights[0] for x in weights):
                         output[:, :, np.argmax(weights)] += filtered
                     else:
-                        output[:, :, -1] += (
-                            self.bw_channel_ratio * filtered / num_masks
-                        )
+                        output[:, :, -1] += filtered
 
         # Normalize the output to the range [0, 1]
         output = (output - output.min()) / (output.max() - output.min())
@@ -227,27 +217,26 @@ if __name__ == "__main__":
     # image_files = glob.glob("photos_no_class/*jpg")
     # image_files = glob.glob("base_imgs/*jpg")
 
-
     images = [
-        "https://elements-resized.envatousercontent.com/envato-dam-assets-production/EVA/TRX/f0/df/51/9b/a2/v1_E10/E108QOQX.jpg?w=1600&cf_fit=scale-down&mark-alpha=18&mark=https%3A%2F%2Felements-assets.envato.com%2Fstatic%2Fwatermark4.png&q=85&format=auto&s=cf8933d911882d0def266f4f7ecc7111e3834ec380fc4104713c97a270a45902",
-        "https://www.astrofilifiemme.it/wp-content/uploads/2021/04/Jupiter-1536x864.jpg",
-        "https://rare-gallery.com/thumbs/527927-real-nature.jpg",
-        "https://media.springernature.com/lw685/springer-static/image/art%3A10.1038%2Fs42003-022-03518-2/MediaObjects/42003_2022_3518_Fig1_HTML.png?as=webp",
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRuxI_vIJ5d3iudbuw4kLKrCV3sxzhzebO3RQ&s",
-        "https://slyvi-hosting.slyvi.it/teampages/3176851814145/images/imported/uploads/news/chris-du-plessis-torna-in-campo-con-il-biella-rugby-17829.png",
-        "https://nebraskapublicmedia.org/assets/images/download_-_2025-07-21T112133.272.min-800x600.png",
+        # "https://elements-resized.envatousercontent.com/envato-dam-assets-production/EVA/TRX/f0/df/51/9b/a2/v1_E10/E108QOQX.jpg?w=1600&cf_fit=scale-down&mark-alpha=18&mark=https%3A%2F%2Felements-assets.envato.com%2Fstatic%2Fwatermark4.png&q=85&format=auto&s=cf8933d911882d0def266f4f7ecc7111e3834ec380fc4104713c97a270a45902",
+        # "https://www.astrofilifiemme.it/wp-content/uploads/2021/04/Jupiter-1536x864.jpg",
+        # "https://rare-gallery.com/thumbs/527927-real-nature.jpg",
+        # "https://media.springernature.com/lw685/springer-static/image/art%3A10.1038%2Fs42003-022-03518-2/MediaObjects/42003_2022_3518_Fig1_HTML.png?as=webp",
+        # "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRuxI_vIJ5d3iudbuw4kLKrCV3sxzhzebO3RQ&s",
+        # "https://slyvi-hosting.slyvi.it/teampages/3176851814145/images/imported/uploads/news/chris-du-plessis-torna-in-campo-con-il-biella-rugby-17829.png",
+        # "https://nebraskapublicmedia.org/assets/images/download_-_2025-07-21T112133.272.min-800x600.png",
+        f"file://{os.path.dirname(os.path.abspath(__file__))}/gabor_test.png"
     ]
 
-    # Define Gabor filter parameters
-    scales = [1, 4]
+    # Define Gabor fil:ter parameters
+    scales = [8]
     orientations = np.pi * np.linspace(0, 360, 10) / 180.0
-    frequency = 0.06
-    phase_offset = -np.pi * (0.5 - 5e-3)
-    kernel_size = 7
-    filter_slope = 0.8
+    frequency = 0.09
+    phase_offset = -np.pi * (0.5 - 25e-3)
+    kernel_size = 3
+    filter_slope = 0.02
     sigma_y_multiplier = 6
-    bw_channel_ratio = 2.0
-    rgb_prop = 1.8
+    rgb_prop = 1.0
     bright_prop = 1.0
     gabor_manager = ChannelGaborFilter(
         scales,
@@ -257,7 +246,6 @@ if __name__ == "__main__":
         kernel_size,
         filter_slope=filter_slope,
         sigma_y_multiplier=sigma_y_multiplier,
-        bw_channel_ratio=bw_channel_ratio,
         rgb_prop=rgb_prop,
         bright_prop=bright_prop,
     )
@@ -273,9 +261,7 @@ if __name__ == "__main__":
         image_bytes = io.BytesIO(image_data)
 
         # Use plt.imread with a file object
-        image = plt.imread(
-            image_bytes, format="jpeg"
-        )  # Adjust format if necessary
+        image = plt.imread(image_bytes, format="jpeg")  # Adjust format if necessary
 
         # Apply channel-wise Gabor filters to the image
         rgb, brightness, adjusted_rgb = gabor_manager(image)
@@ -285,24 +271,28 @@ if __name__ == "__main__":
         fig, axes = plt.subplots(3, 4, figsize=(12, 6))
         axes = axes.ravel()
 
+        #####
         # Hide axes for cleaner visualization
         for ax in axes:
             ax.set_axis_off()
-        fig.tight_layout(pad=0.2)
 
         # Display original image and filtered channels
         axes[0].imshow(image)
+        axes[0].set_title("Original Image")
         axes[1].imshow(rgb[:, :, 0], vmin=0, vmax=1, cmap=plt.cm.gray)
+        axes[1].set_title("Red Channel")
         axes[2].imshow(rgb[:, :, 1], vmin=0, vmax=1, cmap=plt.cm.gray)
+        axes[2].set_title("Green Channel")
         axes[3].imshow(rgb[:, :, 2], vmin=0, vmax=1, cmap=plt.cm.gray)
+        axes[3].set_title("Blue Channel")
         axes[4].imshow(brightness, vmin=0, vmax=1, cmap=plt.cm.gray)
+        axes[4].set_title("Brightness")
 
         # Combine RGB and brightness channels for enhanced visualization
         axes[5].imshow(np.clip(adjusted_rgb, 0, 1))
+        axes[5].set_title("Adjusted RGB")
 
         # Visualize the maximum response across RGB channels plus brightness
-        # overall_brightness = rgb[:, :, :3].max(-1) + brightness
-        # overall_brightness /= overall_brightness.max()
         overall_brightness = adjusted_rgb.max(-1)
         axes[6].imshow(
             overall_brightness,
@@ -310,6 +300,9 @@ if __name__ == "__main__":
             vmax=1,
             cmap=plt.cm.gray,
         )
+        axes[6].set_title("Overall Brightness")
+        fig.tight_layout(pad=0.2)
+        #####
 
         # Show the figure with all visualizations
         plt.show()

@@ -436,6 +436,7 @@ if __name__ == "__main__":
     with open("NAME", "w") as fname:
         fname.write(f"{params.init_name}\n")
 
+
     if args.wandb:
         wandb.init(
             project=params.project_name,

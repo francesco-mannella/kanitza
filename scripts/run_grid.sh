@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 #####
 # This script configures and runs simulations with customizable parameters such as seeds, decay speeds, and local decay speeds. It also includes an option to enable or disable Weights & Biases (wandb) integration.
 
@@ -45,40 +44,40 @@ colors=True"
 for s in $seeds; do
 	for ds in $decay_speeds; do
 		for lds in $local_decay_speeds; do
-            for precision in $agent_sampling_precision; do
+			for precision in $agent_sampling_precision; do
 
-                id_="${series}_s_${s}_m_08000_a_02000_d_$(echo $ds | xargs printf "%06.3f" | sed -e "s/\.//")"
-                id_="${id_}_l_$(echo $lds | xargs printf "%06.3f" | sed -e "s/\.//")"
-                id_="${id_}_p_$(echo $precision | xargs printf "%06.3f" | sed -e "s/\.//")"
+				id_="${series}_s_${s}_m_08000_a_02000_d_$(echo $ds | xargs printf "%06.3f" | sed -e "s/\.//")"
+				id_="${id_}_l_$(echo $lds | xargs printf "%06.3f" | sed -e "s/\.//")"
+				id_="${id_}_p_$(echo $precision | xargs printf "%06.3f" | sed -e "s/\.//")"
 
 				dirname=$(mktemp -d)
 				#
 				mkdir -p $dirname
 				cd $dirname
 
-                if [[ $sim_exists == true ]]; then
-                    echo "$id_ exists. Simulation not started."
-                else
-                    echo  "$id_ does not exists, simulating..."
-            
-                    dirname=$(mktemp -d)
-                    #
-                    mkdir -p $dirname
-                    cd $dirname
-                    if [[ $wandb == false ]]; then wandb disabled; fi
-                    #
-                    param_list="${params};decaying_speed=${ds}"
-                    param_list="${param_list};local_decaying_speed=${lds}"
-                    param_list="${param_list};agent_sampling_precision=${precision}"
-                    #
-                    (python $EXE --variant=$id_ --seed=$s --param_list="${param_list}")
-                    #
-                    dirname_final=$(cat NAME)
-                    cd $CURR_DIR
-                    #
-                    mv $dirname ./$dirname_final
-                fi
-            done
+				if [[ $sim_exists == true ]]; then
+					echo "$id_ exists. Simulation not started."
+				else
+					echo "$id_ does not exists, simulating..."
+
+					dirname=$(mktemp -d)
+					#
+					mkdir -p $dirname
+					cd $dirname
+					if [[ $wandb == false ]]; then wandb disabled; fi
+					#
+					param_list="${params};decaying_speed=${ds}"
+					param_list="${param_list};local_decaying_speed=${lds}"
+					param_list="${param_list};agent_sampling_precision=${precision}"
+					#
+					(python $EXE --variant=$id_ --seed=$s --param_list="${param_list}")
+					#
+					dirname_final=$(cat NAME)
+					cd $CURR_DIR
+					#
+					mv $dirname ./$dirname_final
+				fi
+			done
 		done
 	done
 done

@@ -16,7 +16,6 @@ class SaliencyMap:
         kernel_size = params.gabor_kernel_size
         filter_slope = params.gabor_filter_slope
         sigma_y_multiplier = params.gabor_sigma_y_multiplier
-        bw_channel_ratio = params.gabor_bw_channel_ratio
         rgb_prop = params.gabor_rgb_prop
         bright_prop = params.gabor_bright_prop
         orientations = np.pi * np.linspace(0, 360, orientation_bins) / 180.0
@@ -28,7 +27,6 @@ class SaliencyMap:
             kernel_size,
             filter_slope=filter_slope,
             sigma_y_multiplier=sigma_y_multiplier,
-            bw_channel_ratio=bw_channel_ratio,
             rgb_prop=rgb_prop,
             bright_prop=bright_prop,
         )
