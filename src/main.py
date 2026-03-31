@@ -123,7 +123,7 @@ class Main:
         Returns:
             The initialized environment.
         """
-        env = gym.make(self.params.env_name)
+        env = gym.make(self.params.env_name, params=self.params)
         env = env.unwrapped
         env.set_seed(seed)
         return env
@@ -435,7 +435,6 @@ if __name__ == "__main__":
 
     with open("NAME", "w") as fname:
         fname.write(f"{params.init_name}\n")
-
 
     if args.wandb:
         wandb.init(

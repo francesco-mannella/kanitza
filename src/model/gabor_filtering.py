@@ -6,11 +6,21 @@ import urllib
 
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.ndimage import convolve
+import torch
+import torch.nn.functional as F
 
 
 # %% GABOR FILTER FUNCTION
-def gabor_kernel(frequency, orientation, sigma, sigma_y=None, phase_offset=0, size=5):
+def gabor_kernel(
+    frequency,
+    orientation,
+    sigma,
+    sigma_y=None,
+    phase_offset=0,
+    size=5,
+    device=None,
+    dtype=torch.float32,
+):
     """
     Generate a Gabor filter.
 
@@ -30,20 +40,32 @@ def gabor_kernel(frequency, orientation, sigma, sigma_y=None, phase_offset=0, si
     if sigma_y is None:
         sigma_y = sigma
 
+    if device is None:
+        device = torch.device("cpu")
+
     half_size = size // 2
-    x_grid, y_grid = np.ogrid[-half_size : (half_size + 1), -half_size : (half_size + 1)]
-    rotated_x = x_grid * np.cos(orientation) + y_grid * np.sin(orientation)
-    rotated_y = -x_grid * np.sin(orientation) + y_grid * np.cos(orientation)
-    gabor = np.exp(
+    y_grid, x_grid = torch.meshgrid(
+        torch.arange(-half_size, half_size + 1, device=device, dtype=dtype),
+        torch.arange(-half_size, half_size + 1, device=device, dtype=dtype),
+        indexing="ij",
+    )
+
+    cos_o = torch.cos(torch.tensor(orientation, device=device, dtype=dtype))
+    sin_o = torch.sin(torch.tensor(orientation, device=device, dtype=dtype))
+
+    rotated_x = x_grid * cos_o + y_grid * sin_o
+    rotated_y = -x_grid * sin_o + y_grid * cos_o
+
+    gabor = torch.exp(
         -(rotated_x**2 / (2 * sigma**2) + rotated_y**2 / (2 * sigma_y**2))
-    ) * np.cos(2 * np.pi * frequency * rotated_x + phase_offset)
+    ) * torch.cos(2 * np.pi * frequency * rotated_x + phase_offset)
 
     # Normalize the Gabor filter by dividing it by the sum of its non-negative
     # elements
-    non_negative_sum = np.sum(np.maximum(gabor, 0))
-    gabor /= non_negative_sum
+    non_negative_sum = torch.sum(torch.clamp(gabor, min=0))
+    gabor = gabor / (non_negative_sum + 1e-12)
 
-    return gabor
+    return gabor.cpu().numpy()
 
 
 class ChannelGaborFilter:
@@ -71,7 +93,6 @@ class ChannelGaborFilter:
         frequency (float): Spatial frequency parameter for Gabor kernels.
         phase_offset (float): Phase offset for Gabor kernels, in radians.
         kernel_size (int): Width/height of square Gabor kernels.
-        filter_slope (float): Exponential slope for feature nonlinearity.
         sigma_y_multiplier (float): Elongation factor for the kernel y-axis.
         rgb_prop (float): Proportion for RGB in adjusted output.
         bright_prop (float): Proportion for brightness in adjusted output.
@@ -84,10 +105,11 @@ class ChannelGaborFilter:
         frequency,
         phase_offset,
         kernel_size=21,
-        filter_slope=0.8,
         sigma_y_multiplier=5,
         rgb_prop=0.7,
         bright_prop=0.3,
+        device=None,
+        dtype=torch.float32,
     ):
         """Initialize ChannelGaborFilter with filter and mask parameters.
 
@@ -97,7 +119,6 @@ class ChannelGaborFilter:
             frequency (float): Gabor kernel frequency.
             phase_offset (float): Gabor kernel phase offset (radians).
             kernel_size (int): Size of square Gabor kernel.
-            filter_slope (float): Slope for nonlinearity.
             sigma_y_multiplier (float): Y-axis elongation factor.
             rgb_prop (float): Proportion for RGB in adjusted output.
             bright_prop (float): Proportion for brightness in adjusted output.
@@ -107,10 +128,11 @@ class ChannelGaborFilter:
         self.frequency = frequency
         self.phase_offset = phase_offset
         self.kernel_size = kernel_size
-        self.filter_slope = filter_slope
         self.sigma_y_multiplier = sigma_y_multiplier
         self.rgb_prop = rgb_prop
         self.bright_prop = bright_prop
+        self.device = device or torch.device("cpu")
+        self.dtype = dtype
         self.mask_channel_weights = [
             (1.0, -1.0, 0),  # Red vs Green
             (-1.0, 1.0, 0),  # Green vs Red
@@ -121,6 +143,26 @@ class ChannelGaborFilter:
             (0.3, 0.3, 0.3),  # Uniform (brightness)
             (-0.3, -0.3, -0.3),  # Inverted uniform
         ]
+        self._build_kernels()
+
+    def _build_kernels(self):
+        self.kernels = {}
+        for sigma in self.scale_list:
+            for theta in self.orientation_list:
+                key = (sigma, theta)
+                k_np = gabor_kernel(
+                    size=self.kernel_size,
+                    sigma=sigma,
+                    sigma_y=sigma * self.sigma_y_multiplier,
+                    orientation=theta,
+                    frequency=self.frequency,
+                    phase_offset=self.phase_offset,
+                    device=self.device,
+                    dtype=self.dtype,
+                )
+                k = torch.from_numpy(k_np).to(self.device, self.dtype)
+                k = k.view(1, 1, self.kernel_size, self.kernel_size)
+                self.kernels[key] = k
 
     def __call__(self, image):
         """Apply multi-scale, multi-orientation channel-opponent Gabor filters.
@@ -150,58 +192,55 @@ class ChannelGaborFilter:
         if image.shape[-1] > 3:
             image = image[:, :, :3]
 
-        # Extract image dimensions
         h, w, c = image.shape
 
-        # Initialize output array with an extra channel for brightness
-        output = np.zeros((h, w, c + 1))
+        img_t = torch.from_numpy(image).to(self.device, self.dtype)
+        img_t = img_t.permute(2, 0, 1).unsqueeze(0)
 
-        # Iterate over each set of mask channel weights
-        for weights in self.mask_channel_weights:
-            # Apply mask to the image
-            masked = image @ weights
-
-            # Apply Gaussian-like transformation
-            # masked = np.exp(-(self.filter_slope**-2) * (masked - 1) ** 2)
-
-            # Iterate over scales and orientations for Gabor filtering
-            for sigma in self.scale_list:
-                for theta in self.orientation_list:
-                    # Create Gabor kernel
-                    kernel = gabor_kernel(
-                        size=self.kernel_size,
-                        sigma=sigma,
-                        sigma_y=sigma * self.sigma_y_multiplier,
-                        orientation=theta,
-                        frequency=self.frequency,
-                        phase_offset=self.phase_offset,
-                    )
-
-                    # Apply convolution and take absolute value
-                    filtered = np.abs(convolve(masked, kernel, mode="nearest"))
-
-                    # Distribute filtered results into output channels
-                    if not all(x == weights[0] for x in weights):
-                        output[:, :, np.argmax(weights)] += filtered
-                    else:
-                        output[:, :, -1] += filtered
-
-        # Normalize the output to the range [0, 1]
-        output = (output - output.min()) / (output.max() - output.min())
-
-        # Separate RGB and brightness channels
-        filtered_rgb = output[:, :, :3]
-        brightness = output[:, :, 3]
-
-        # Expand brightness dimension for broadcasting
-        brightness_exp = np.expand_dims(brightness, -1)
-
-        # Adjust RGB values based on brightness
-        adjusted_rgb = (filtered_rgb * self.rgb_prop) + (
-            brightness_exp * self.bright_prop
+        output_t = torch.zeros(
+            (1, c + 1, h, w), device=self.device, dtype=self.dtype
         )
 
-        # Return the processed image components
+        for weights in self.mask_channel_weights:
+            w_t = torch.tensor(
+                weights, device=self.device, dtype=self.dtype
+            ).view(1, 3, 1, 1)
+            masked = (img_t * w_t).sum(dim=1, keepdim=True)
+
+            for sigma in self.scale_list:
+                for theta in self.orientation_list:
+                    kernel = self.kernels[(sigma, theta)]
+                    pad = self.kernel_size // 2
+                    filtered = F.conv2d(
+                        masked, kernel, padding=pad
+                    ).abs()
+
+                    if not all(x == weights[0] for x in weights):
+                        ch = int(np.argmax(weights))
+                        output_t[:, ch : ch + 1] += filtered
+                    else:
+                        output_t[:, -1:] += filtered
+
+        min_v = output_t.min()
+        max_v = output_t.max()
+        output_t = (output_t - min_v) / (max_v - min_v + 1e-12)
+
+        filtered_rgb_t = output_t[:, :3]
+        brightness_t = output_t[:, 3:4]
+
+        adjusted_rgb_t = (
+            filtered_rgb_t * self.rgb_prop
+            + brightness_t * self.bright_prop
+        )
+
+        filtered_rgb = (
+            filtered_rgb_t.squeeze(0).permute(1, 2, 0).cpu().numpy()
+        )
+        brightness = brightness_t.squeeze(0).squeeze(0).cpu().numpy()
+        adjusted_rgb = (
+            adjusted_rgb_t.squeeze(0).permute(1, 2, 0).cpu().numpy()
+        )
+
         return filtered_rgb, brightness, adjusted_rgb
 
 
@@ -234,20 +273,20 @@ if __name__ == "__main__":
     frequency = 0.09
     phase_offset = -np.pi * (0.5 - 25e-3)
     kernel_size = 3
-    filter_slope = 0.02
     sigma_y_multiplier = 6
     rgb_prop = 1.0
     bright_prop = 1.0
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     gabor_manager = ChannelGaborFilter(
         scales,
         orientations,
         frequency,
         phase_offset,
         kernel_size,
-        filter_slope=filter_slope,
         sigma_y_multiplier=sigma_y_multiplier,
         rgb_prop=rgb_prop,
         bright_prop=bright_prop,
+        device=device,
     )
 
     # Process each image in the shuffled list
@@ -261,7 +300,8 @@ if __name__ == "__main__":
         image_bytes = io.BytesIO(image_data)
 
         # Use plt.imread with a file object
-        image = plt.imread(image_bytes, format="jpeg")  # Adjust format if necessary
+        image = plt.imread(image_bytes, format="jpeg")  # Adjust format if
+        # necessary
 
         # Apply channel-wise Gabor filters to the image
         rgb, brightness, adjusted_rgb = gabor_manager(image)

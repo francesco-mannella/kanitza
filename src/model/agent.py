@@ -7,14 +7,14 @@ from model.visual_processing import SaliencyMap
 
 
 # %% SAMPLE FUNCTION
-def sampling(array, precision=0.01, rng=None):
+def sampling(array, precision=0.8, rng=None):
     """
     Sample an index from the array based on probabilities derived from softmax.
 
     Args:
     - array (np.ndarray): The input array from which to sample.
     - precision (float): A parameter controlling the softness of the softmax;
-      default is 0.6.
+      default is 0.8.
     - rng (np.random.RandomState): The random number generator
 
     Returns:
@@ -24,8 +24,13 @@ def sampling(array, precision=0.01, rng=None):
     rng = rng or np.random.RandomState(0)
 
     flattened_array = array.flatten()
+
+    probabilities = np.maximum(0, flattened_array)
     probabilities = np.maximum(0, flattened_array - flattened_array.max() * precision)
-    probabilities /= probabilities.sum()
+
+    sm = probabilities.sum()
+    probabilities /= sm if sm > 0 else len(probabilities)
+    probabilities.fill(1 / len(probabilities)) if sm <= 0 else None
 
     sampled_flat_index = rng.choice(a=flattened_array.size, p=probabilities)
     sampled_index = np.unravel_index(sampled_flat_index, array.shape, order="F")
@@ -113,6 +118,7 @@ class Agent:
             focus_params.attention_center_distance_variance_prop
         )
         self.CENTER_DISTANCE_SLOPE = focus_params.attention_center_distance_slope
+        self.focus_params = focus_params
 
         self.params = None
 
@@ -215,7 +221,12 @@ class Agent:
         retina_scale = self.environment.retina_size
         start = retina_scale[0] // 2 - fovea_scale[0] // 2
         end = start + fovea_scale[0]
-        fovea = cv2.resize(color_saliency[start:end, start:end, :], fovea_size)
+        if self.focus_params.test_fovea:
+            fovea = observation["FOVEA"]
+        else:
+            fovea = cv2.resize(color_saliency[start:end, start:end, :], fovea_size)
+            fovea *= 1E4
+
 
         if get_probs:
             return (

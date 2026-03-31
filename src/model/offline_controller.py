@@ -6,9 +6,6 @@ from model.topological_maps import FilteredTopologicalMap as TopologicalMap
 from model.topological_maps import Updater
 
 
-import sys
-
-
 class OfflineController:
     """
     Manages the update of topological maps using sensory inputs from an
@@ -276,10 +273,12 @@ class OfflineController:
         # Get states for attention, visual conditions, and visual effects
         def get_state_data(states, offset):
             item_size = states.shape[-1]
-            return torch.tensor(
+            res = torch.tensor(
                 states[idcs[0], idcs[1], idcs[2] + offset],
                 dtype=torch.float32,
             ).reshape(-1, item_size)
+
+            return res.tile(20, 1)
 
         attention_states = get_state_data(self.attention_states, offset=offset)
         visual_conditions = get_state_data(self.visual_states, offset=-offset)

@@ -4,10 +4,8 @@ import EyeSim
 import gymnasium as gym
 import matplotlib.pyplot as plt
 from model.agent import Agent
-from model.visual_processing import SaliencyMap
 from params import Parameters
 from plotter import FoveaPlotter
-from params import Parameters
 
 
 _ = EyeSim
@@ -22,11 +20,12 @@ if __name__ == "__main__":
     plt.ion()
     plt.close("all")
 
-    # Set up the environment and agent
-    env = gym.make("EyeSim/EyeSim-v0")
-    env = env.unwrapped
     params = Parameters()
     params.agent_sampling_precision = 1 - 1e-10
+
+    # Set up the environment and agent
+    env = gym.make("EyeSim/EyeSim-v0", params=params)
+    env = env.unwrapped
     agent = Agent(
         env,
         focus_params=params,
@@ -39,9 +38,7 @@ if __name__ == "__main__":
     # Run the simulation for a fixed number of episodes
     for episode in range(3):
         world_id = next(
-            i
-            for i, world in enumerate(env.world_labels)
-            if world == worlds[episode]
+            i for i, world in enumerate(env.world_labels) if world == worlds[episode]
         )
 
         object_params = {"pos": [40.0, 40.0], "rot": 0.5}
@@ -65,14 +62,10 @@ if __name__ == "__main__":
             for time_step in range(10):
                 observation, *_ = env.step(action)
                 _, _, saliency = visual_map(observation["RETINA"])
-                action, attentional_map, attention_point = agent.get_action(
-                    saliency
-                )
+                action, attentional_map, attention_point = agent.get_action(saliency)
                 # Update the plotter with the current saliency map and salient
                 # point
-                plotter.step(
-                    attentional_map, attention_point, agent.attentional_mask
-                )
+                plotter.step(attentional_map, attention_point, agent.attentional_mask)
                 plt.pause(0.1)
 
         # Save the plot for the current episode as a gif

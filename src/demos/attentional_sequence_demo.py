@@ -24,16 +24,17 @@ if __name__ == "__main__":
 
     # Set up the environment and agent
     seed = 15
-    env = gym.make("EyeSim/EyeSim-v0")
-    env = env.unwrapped
-    env.set_seed(seed)
-
     params = Parameters()
     params.agent_sampling_precision = 1 - 1e-10
-    params.attention_max_variance = 1
+    params.attention_max_variance = 6
     params.attention_fixed_variance_prop = 0.3
     params.attention_center_distance_variance_prop = 0.7
     params.attention_center_distance_slope = 2
+
+    env = gym.make("EyeSim/EyeSim-v0", params=params)
+    env = env.unwrapped
+    env.set_seed(seed)
+
     agent = Agent(
         env,
         seed=seed,

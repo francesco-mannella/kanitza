@@ -8,6 +8,12 @@ class Parameters(ParameterManager):
         entity_name="francesco-mannella",
         init_name="offline controller tester",
         env_name="EyeSim/EyeSim-v0",
+        taskspace_xlim=[0, 80],
+        taskspace_ylim=[0, 80],
+        retina_scale=[80, 80],
+        retina_size=[80, 80],
+        fovea_scale=[50, 50],
+        fovea_size=[16, 16],
         episodes=20,
         epochs=400,
         saccade_num=10,
@@ -41,18 +47,24 @@ class Parameters(ParameterManager):
         gabor_scales=[8.0],
         gabor_orientation_bins=10,
         gabor_frequency=0.09,
-        gabor_phase_offset=-3.141592653589793 * (0.5 - 25e-3),
-        gabor_kernel_size=3,
-        gabor_filter_slope=0.02,
+        gabor_phase_offset=-3.141592653589793 * (0.5 - 8e-2),
+        gabor_kernel_size=9,
         gabor_sigma_y_multiplier=6.0,
         gabor_rgb_prop=1.0,
         gabor_bright_prop=1.0,
+        test_fovea=False,
         use_wandb=False,
     ):
         self.project_name = project_name
         self.entity_name = entity_name
         self.init_name = init_name
         self.env_name = env_name
+        self.taskspace_xlim = taskspace_xlim
+        self.taskspace_ylim = taskspace_ylim
+        self.retina_scale = retina_scale
+        self.retina_size = retina_size
+        self.fovea_scale = fovea_scale
+        self.fovea_size = fovea_size
         self.episodes = episodes
         self.epochs = epochs
         self.saccade_num = saccade_num
@@ -69,12 +81,8 @@ class Parameters(ParameterManager):
         self.saccade_threshold = saccade_threshold
         self.learningrate_modulation = learningrate_modulation
         self.neighborhood_modulation = neighborhood_modulation
-        self.learningrate_modulation_baseline = (
-            learningrate_modulation_baseline
-        )
-        self.neighborhood_modulation_baseline = (
-            neighborhood_modulation_baseline
-        )
+        self.learningrate_modulation_baseline = learningrate_modulation_baseline
+        self.neighborhood_modulation_baseline = neighborhood_modulation_baseline
         self.match_std_baseline = match_std_baseline
         self.match_std = match_std
         self.anchor_std = anchor_std
@@ -94,10 +102,10 @@ class Parameters(ParameterManager):
         self.gabor_frequency = gabor_frequency
         self.gabor_phase_offset = gabor_phase_offset
         self.gabor_kernel_size = gabor_kernel_size
-        self.gabor_filter_slope = gabor_filter_slope
         self.gabor_sigma_y_multiplier = gabor_sigma_y_multiplier
         self.gabor_rgb_prop = gabor_rgb_prop
         self.gabor_bright_prop = gabor_bright_prop
+        self.test_fovea = test_fovea
         self.use_wandb = use_wandb
 
         super(Parameters, self).__init__()

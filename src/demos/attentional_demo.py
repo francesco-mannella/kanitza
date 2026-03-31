@@ -21,16 +21,26 @@ if __name__ == "__main__":
     plt.ion()
     plt.close("all")
 
-    # Set up the environment and agent
-    env = gym.make("EyeSim/EyeSim-v0")
-    env = env.unwrapped
-
     params = Parameters()
-    params.agent_sampling_precision = 1 - 1e-10
-    params.attention_max_variance = 3
+
+    params.gabor_scales = [1.0]
+    params.gabor_orientation_bins = 5
+    params.gabor_frequency = 0.09
+    params.agent_sampling_precision = 1 - 1e-6
+    params.gabor_sigma_y_multiplier = 1
+    params.gabor_kernel_size = 5
+    params.gabor_phase_offset = -3.141592653589793 * (0.5 - 2.8e-2)
+    params.attention_max_variance = 6
     params.attention_fixed_variance_prop = 0.3
     params.attention_center_distance_variance_prop = 0.7
     params.attention_center_distance_slope = 2
+    params.fovea_scale = [16, 16]
+    params.fovea_size = [16, 16]
+    params.gabor_rgb_prop = 10.0
+    params.gabor_bright_prop = 0.0
+
+    env = gym.make("EyeSim/EyeSim-v0", params=params)
+    env = env.unwrapped
 
     agent = Agent(
         env,
@@ -79,13 +89,17 @@ if __name__ == "__main__":
 
                 data.append([world_id, *list(mov)])
                 print(mov)
-                action, saliency_map, salient_point, color_saliency = agent.get_action(observation)
+                action, saliency_map, salient_point, color_saliency = agent.get_action(
+                    observation
+                )
                 if time_step != 0:
                     agent.set_parameters([0.5, 0.5])
 
                 # Update the plotter with the current saliency map and salient
                 # point
-                plotter.step(color_saliency, saliency_map, salient_point, agent.attentional_mask)
+                plotter.step(
+                    color_saliency, saliency_map, salient_point, agent.attentional_mask
+                )
                 plt.pause(0.1)
 
         # Save the plot for the current episode as a gif

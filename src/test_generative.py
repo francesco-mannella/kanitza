@@ -77,7 +77,7 @@ class SimulationTest:
         Returns:
             gym.Env: The initialized Gymnasium environment.
         """
-        env = gym.make(self.params.env_name)
+        env = gym.make(self.params.env_name, params=self.params)
         env = env.unwrapped
         env.set_seed(self.seed)
         env.rotation = 0.0
