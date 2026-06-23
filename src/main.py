@@ -373,6 +373,12 @@ if __name__ == "__main__":
         ),
     )
     parser.add_argument(
+        "--name",
+        type=str,
+        default=None,
+        help="Name for the wandb run (defaults to variant if not set).",
+    )
+    parser.add_argument(
         "-w",
         "--wandb",
         action="store_true",
@@ -381,19 +387,26 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    print(f"Working directory: {os.getcwd()}")
+
     params = Parameters()
     seed = args.seed
     variant = args.variant
+
+    loaded_params_exists = os.path.exists("loaded_params")
 
     try:
         params.load("loaded_params")
     except FileNotFoundError:
         print("no local parameters")
-        param_list = args.param_list
-        params.update(param_list)
+
+    params.update(args.param_list)
+
+    if not loaded_params_exists:
         params.save("loaded_params")
 
     params.wandb = args.wandb
+    params.seed = seed
     seed_str = str(seed).replace(".", "_")
     decaying_speed_str = str(params.decaying_speed).replace(".", "_")
     local_decaying_speed_str = str(params.local_decaying_speed).replace(".", "_")
@@ -410,7 +423,7 @@ if __name__ == "__main__":
         wandb.init(
             project=params.project_name,
             entity=params.entity_name,
-            name=params.init_name,
+            name=args.name if args.name else variant,
             config=params._params_to_dict(),
         )
 

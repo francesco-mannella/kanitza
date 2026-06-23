@@ -51,11 +51,22 @@ class ParameterManager:
         if mode == "user":
             # Split the string into key-value pairs
             param_string = param_string.replace(" ", "")
-            params = dict(
+            pairs = dict(
                 s.split("=", 1) for s in param_string.split(";") if "=" in s
             )
+
+            def _to_json_val(v):
+                v = v.replace("True", "true").replace("False", "false")
+                try:
+                    json.loads(v)
+                    return v
+                except ValueError:
+                    return f'"{v}"'
+
             # Format the key-value pairs into a JSON string
-            params = ",".join(f'"{k.strip()}":{v}' for k, v in params.items())
+            params = ",".join(
+                f'"{k.strip()}":{_to_json_val(v)}' for k, v in pairs.items()
+            )
             params = "{" + params + "}"
         else:
             params = param_string
