@@ -1,3 +1,4 @@
+import argparse
 import collections.abc
 import os
 import shutil
@@ -10,12 +11,6 @@ import slugify
 # ------------------------------------------------------------------------
 # ------------------------------------------------------------------------
 # ------------------------------------------------------------------------
-
-SEEDS = [93581]
-WANDB = False 
-N_SEEDS = 1
-MAX_PROCESSES = 1
-base_name = "test"
 
 params = dict(
     base_match_sigma=2,
@@ -48,8 +43,17 @@ def get_combinations(data):
         yield dict(zip(data.keys(), combination))
 
 
-seeds = SEEDS if SEEDS is not None else np.random.randint(0, 1e5, N_SEEDS)
-wandb_flag = "-w" if WANDB else ""
+parser = argparse.ArgumentParser()
+parser.add_argument("--seeds", type=int, nargs="+", default=None)
+parser.add_argument("--n-seeds", type=int, default=1)
+parser.add_argument("--max-processes", type=int, default=1)
+parser.add_argument("--name", type=str, default="test")
+parser.add_argument("-w", "--wandb", action="store_true")
+args = parser.parse_args()
+
+seeds = args.seeds if args.seeds is not None else np.random.randint(0, 1e5, args.n_seeds)
+wandb_flag = "-w" if args.wandb else ""
+base_name = args.name
 
 processes = []
 
@@ -59,7 +63,7 @@ data_path = os.path.join(os.getcwd(), "simulations")
 for p in get_combinations(params):
     for seed in seeds:
         # If MAX_PROCESSES reached, wait until all of them finish.
-        if len(processes) == MAX_PROCESSES:
+        if len(processes) == args.max_processes:
             for process in processes:
                 process.wait()
             processes = []
