@@ -238,6 +238,8 @@ class SimulationTest:
                     saliency_map,
                     salient_point,
                     goal,
+                    episode,
+                    time_step,
                 )
 
     def update_environment_position(self, time_step):
@@ -261,7 +263,7 @@ class SimulationTest:
         pass
 
     def update_plotters(
-        self, fovea_plotter, maps_plotter, saliency_map, salient_point, goal
+        self, fovea_plotter, maps_plotter, saliency_map, salient_point, goal, episode, time_step
     ):
         """Updates the plotters with the latest data from the simulation.
 
@@ -271,13 +273,17 @@ class SimulationTest:
             saliency_map (numpy.ndarray): The saliency map from the agent.
             salient_point (tuple): The salient point from the agent.
             goal (numpy.ndarray): The goal for the current time step.
+            episode (int): The current episode number.
+            time_step (int): The current time step.
         """
+        saccade = time_step // self.params.saccade_time
         if fovea_plotter:
             fovea_plotter.step(
-                saliency_map, salient_point, self.agent.attentional_mask
+                saliency_map, salient_point, self.agent.attentional_mask,
+                episode, saccade, time_step,
             )
         if maps_plotter:
-            maps_plotter.step(goal)
+            maps_plotter.step(goal, episode, saccade, time_step)
 
     def log_simulations(self, episode, fovea_plotter, maps_plotter, info):
         """Logs the simulation results, including videos of the fovea and maps.

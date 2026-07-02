@@ -27,9 +27,9 @@ if __name__ == "__main__":
     
     params = Parameters()
     params.agent_sampling_precision = 1 - 1e-10
-    params.attention_max_variance = 1
-    params.attention_fixed_variance_prop = 0.3
-    params.attention_center_distance_variance_prop = 0.7
+    params.attention_max_variance = 2
+    params.attention_fixed_variance_prop = 0.5
+    params.attention_center_distance_variance_prop = 0.5
     params.attention_center_distance_slope = 2
 
     agent = Agent(

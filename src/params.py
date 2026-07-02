@@ -59,12 +59,8 @@ class Parameters(ParameterManager):
         self.saccade_threshold = saccade_threshold
         self.learningrate_modulation = learningrate_modulation
         self.neighborhood_modulation = neighborhood_modulation
-        self.learningrate_modulation_baseline = (
-            learningrate_modulation_baseline
-        )
-        self.neighborhood_modulation_baseline = (
-            neighborhood_modulation_baseline
-        )
+        self.learningrate_modulation_baseline = learningrate_modulation_baseline
+        self.neighborhood_modulation_baseline = neighborhood_modulation_baseline
         self.match_std_baseline = match_std_baseline
         self.match_std = match_std
         self.anchor_std = anchor_std
@@ -75,7 +71,9 @@ class Parameters(ParameterManager):
         self.magnitude_decay = magnitude_decay
         self.attention_max_variance = attention_max_variance
         self.attention_fixed_variance_prop = attention_fixed_variance_prop
-        self.attention_center_distance_variance_prop = attention_center_distance_variance_prop
+        self.attention_center_distance_variance_prop = (
+            attention_center_distance_variance_prop
+        )
         self.attention_center_distance_slope = attention_center_distance_slope
 
         super(Parameters, self).__init__()

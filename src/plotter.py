@@ -43,6 +43,7 @@ class FoveaPlotter(EyeSim.envs.Simulator.TestPlotter):
             ax.set_box_aspect(1)
 
         self._set_titles_and_labels()
+        self.info_text = self.fig.text(0.5, 0.01, '', ha='center', va='bottom', fontsize=8)
 
     def _initialize_images(self):
         """Initialize image and dot plots for the saliency and fovea views."""
@@ -86,7 +87,7 @@ class FoveaPlotter(EyeSim.envs.Simulator.TestPlotter):
         self.saliency_ax.set_axis_off()
         self.filter_ax.set_axis_off()
 
-    def step(self, saliency_map, salient_point, attentional_mask=None):
+    def step(self, saliency_map, salient_point, attentional_mask=None, episode=0, saccade=0, time_step=0):
         """
         Renders the current state of the environment, updating the saliency
         map, fovea image, and highlights salient points.
@@ -96,6 +97,9 @@ class FoveaPlotter(EyeSim.envs.Simulator.TestPlotter):
         - salient_point (tuple): Coordinates of the salient point to highlight.
         - attentional_mask (np.array, optional): The current attentional mask
           of salience, defaults to None.
+        - episode (int): Current episode number.
+        - saccade (int): Current saccade number within the episode.
+        - time_step (int): Current time step within the episode.
 
         """
         self.saliency_image.set_array(saliency_map)
@@ -107,6 +111,7 @@ class FoveaPlotter(EyeSim.envs.Simulator.TestPlotter):
 
         self._update_rect_positions()
 
+        self.info_text.set_text(f"episode: {episode}  saccade: {saccade}  timestep: {time_step}")
         self.fig.canvas.draw_idle()
         super(FoveaPlotter, self).step()
 
@@ -204,6 +209,7 @@ class MapsPlotter:
         self.saccade = None
 
         self._initialize_maps()
+        self.info_text = self.fig.text(0.5, 0.01, '', ha='center', va='bottom', fontsize=8)
 
     def _save_video(self, name):
         """Save images or videos of the visualizations if offline mode is
@@ -315,7 +321,7 @@ class MapsPlotter:
         self.visual_effects_map_ax.set_axis_off()
         self.attention_map_ax.set_axis_off()
 
-    def step(self, goal=None):
+    def step(self, goal=None, episode=0, saccade=0, time_step=0):
         """
         Updates the displayed fovea map with the latest weights from the
         controller.
@@ -323,11 +329,15 @@ class MapsPlotter:
         Parameters:
         - goal (np.array, optional): goal point in the fovea weights,
           defaults to None.
+        - episode (int): Current episode number.
+        - saccade (int): Current saccade number within the episode.
+        - time_step (int): Current time step within the episode.
 
         """
         if goal is not None:
             self.saccade = goal.ravel().astype(int)
         self._update_maps()
+        self.info_text.set_text(f"episode: {episode}  saccade: {saccade}  timestep: {time_step}")
         self.fig.canvas.draw_idle()
         self.vm.save_frame()
 

@@ -416,6 +416,8 @@ if __name__ == "__main__":
 
     params.init_name = f"{variant}"
 
+    params.save("final_parameters")
+
     with open("NAME", "w") as fname:
         fname.write(f"{params.init_name}\n")
 
