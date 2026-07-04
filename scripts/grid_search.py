@@ -57,7 +57,8 @@ base_name = args.name
 
 processes = []
 
-orig_path = os.path.dirname(os.path.realpath(__file__))
+script_dir = os.path.dirname(os.path.realpath(__file__))
+src_path = os.path.join(os.path.dirname(script_dir), "src")
 data_path = os.path.join(os.getcwd(), "simulations")
 
 for p in get_combinations(params):
@@ -81,7 +82,7 @@ for p in get_combinations(params):
             shutil.copy(local_params, run_params)
 
         cmd_str = (
-            f"python {orig_path}/main.py "
+            f"python {src_path}/main.py "
             f"--variant {variant} "
             f"--name {base_name} "
             f"--seed {int(seed)} "
