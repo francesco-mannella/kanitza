@@ -1,5 +1,7 @@
+import argparse
 import re
-from glob import glob
+import sys
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -11,18 +13,30 @@ from seaborn import axes_style
 
 
 # Configuration
-SIMULATION_DIR_PATTERN = "*_s_*_m_*"
 OUTPUT_CSV_FILENAME = "paths.csv"
 sns.set_style("whitegrid")
 so.Plot.config.display["scaling"] = 0.7
 
+parser = argparse.ArgumentParser()
+parser.add_argument("root", nargs="?", default=".", help="folder containing a 'simulations' subfolder")
+args = parser.parse_args()
+
+root = Path(args.root).resolve()
+simulations = root / "simulations"
+if not simulations.is_dir():
+    sys.exit(f"no simulations dir found in {root}")
+
 # Process simulation directories
 simulation_dfs = []
-for sim_dir in glob(SIMULATION_DIR_PATTERN):
-    print(sim_dir)
+for sim_dir in sorted(simulations.iterdir()):
+    if not sim_dir.is_dir():
+        continue
+
+    sim_name = sim_dir.name
+    print(sim_name)
 
     # Load goal data
-    goal_files = glob(f"{sim_dir}/goals*npy")
+    goal_files = list(sim_dir.glob("goals*npy"))
     if not goal_files:
         continue
 
@@ -36,7 +50,7 @@ for sim_dir in glob(SIMULATION_DIR_PATTERN):
     combined_df.columns = goal_df.columns
 
     # Extract and transform data
-    combined_df["sim"] = sim_dir
+    combined_df["sim"] = sim_name
     combined_df["pos.x"] = np.stack(combined_df["position"])[:, 0]
     combined_df["pos.y"] = np.stack(combined_df["position"])[:, 1]
     combined_df["goal.y"] = np.stack(combined_df["goal"])[:, 0, 0]
@@ -88,7 +102,7 @@ for sim_dir in glob(SIMULATION_DIR_PATTERN):
             size=(8, 5),
             extent=(0.1, 0.1, 0.75, 0.9),
         )
-        .label(title=re.sub(r"sim_.*_s_", r"s_", sim_dir))
+        .label(title=re.sub(r"sim_.*_s_", r"s_", sim_name))
     )
 
     plot.on(ax).plot()
@@ -125,7 +139,7 @@ processed_df["saccade_num"] = processed_df.groupby(["trial", "trial", "rot"])[
     "ts"
 ].transform(lambda x: np.arange(len(x)))
 
-processed_df.to_csv(OUTPUT_CSV_FILENAME, index=False)
+processed_df.to_csv(root / OUTPUT_CSV_FILENAME, index=False)
 
 
 plt.show()
