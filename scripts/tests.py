@@ -27,7 +27,7 @@ def main():
     for experiment_dir in sorted(simulations.iterdir()):
         if not experiment_dir.is_dir():
             continue
-        if any(f.name == "goal" for f in experiment_dir.iterdir()):
+        if any(experiment_dir.glob("goals*npy")):
             continue
 
         print(f"Testing on {experiment_dir.name} ...")
