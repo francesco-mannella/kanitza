@@ -1,7 +1,4 @@
 import json
-import sys
-
-import numpy as np
 
 
 class ParameterManager:

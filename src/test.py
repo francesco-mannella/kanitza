@@ -15,7 +15,6 @@ from slugify import slugify
 from merge_gifs import merge_gifs
 from model.agent import Agent
 from model.offline_controller import OfflineController
-from model.recurrent_generative_model import RecurrentGenerativeModel
 from params import Parameters
 from plotter import FoveaPlotter, MapsPlotter
 

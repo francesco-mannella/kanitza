@@ -146,7 +146,7 @@ def execute_single_frame(
     points = torch.tensor(points).float()
 
     num_points = points.shape[0]
-    fig, axes = plt.subplots(2, num_points)
+    _, axes = plt.subplots(2, num_points)
     generated_conds = off_control.visual_conditions_map.backward(
         points, params.neighborhood_modulation_baseline
     )
@@ -170,7 +170,7 @@ def execute_single_frame(
         # .transpose(0, 2, 1, 3)[:, ::-1]
     )
 
-    for i, point in enumerate(points):
+    for i in range(num_points):
         axes[0, i].imshow(generated_conds[i])
         axes[1, i].imshow(generated_effects[i])
     input()
