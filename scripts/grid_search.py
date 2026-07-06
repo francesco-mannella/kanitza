@@ -13,10 +13,9 @@ import slugify
 # ------------------------------------------------------------------------
 
 params = dict(
-    base_match_sigma=2,
-    match_sigma=2,
-    base_internal_sigma=0.1,
-    cum_match_stop_th=1.0,
+    decaying_speed=[2.0, 3.0, 5.0],
+    local_decaying_speed=[1.0, 1.5],
+    match_std=[2.0, 4.0],
 )
 
 # ------------------------------------------------------------------------
