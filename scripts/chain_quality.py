@@ -18,17 +18,34 @@ def unique_points(seq):
     return len(set(seq))
 
 
+def collapse_consecutive(seq):
+    return [g for i, g in enumerate(seq) if i == 0 or g != seq[i - 1]]
+
+
 def dedup_consecutive_len(seq):
-    return sum(1 for i, g in enumerate(seq) if i == 0 or g != seq[i - 1])
+    return len(collapse_consecutive(seq))
+
+
+def cycle_length(seq):
+    """Smallest period p such that the consecutive-collapsed sequence is
+    exactly `p` values repeating. Equals the collapsed length when there's
+    no shorter repeating pattern (e.g. [A,B,C,A,B,C] -> 3, not 6)."""
+    collapsed = collapse_consecutive(seq)
+    n = len(collapsed)
+    for p in range(1, n + 1):
+        if all(collapsed[i] == collapsed[i % p] for i in range(n)):
+            return p
+    return n
 
 
 def score_dir(experiment_dir):
-    unique, dedup = [], []
+    unique, dedup, cycle = [], [], []
     for f in sorted(experiment_dir.glob("goals-*.npy")):
         seq = load_goal_sequence(f)
         unique.append(unique_points(seq))
         dedup.append(dedup_consecutive_len(seq))
-    return unique, dedup
+        cycle.append(cycle_length(seq))
+    return unique, dedup, cycle
 
 
 def combo_key(dir_name):
@@ -46,28 +63,32 @@ def main():
 
     combo_unique = defaultdict(list)
     combo_dedup = defaultdict(list)
+    combo_cycle = defaultdict(list)
 
-    print(f"{'directory':<75} {'avg_unique':>10} {'avg_dedup':>10}")
+    print(f"{'directory':<75} {'avg_unique':>10} {'avg_dedup':>10} {'avg_cycle':>10}")
     for experiment_dir in sorted(simulations.iterdir()):
         if not experiment_dir.is_dir():
             continue
-        unique, dedup = score_dir(experiment_dir)
+        unique, dedup, cycle = score_dir(experiment_dir)
         if not unique:
             continue
         avg_unique = sum(unique) / len(unique)
         avg_dedup = sum(dedup) / len(dedup)
-        print(f"{experiment_dir.name:<75} {avg_unique:>10.2f} {avg_dedup:>10.2f}")
+        avg_cycle = sum(cycle) / len(cycle)
+        print(f"{experiment_dir.name:<75} {avg_unique:>10.2f} {avg_dedup:>10.2f} {avg_cycle:>10.2f}")
 
         key = combo_key(experiment_dir.name)
         combo_unique[key].extend(unique)
         combo_dedup[key].extend(dedup)
+        combo_cycle[key].extend(cycle)
 
     print()
-    print(f"{'combination':<75} {'avg_unique':>10} {'avg_dedup':>10} {'n_files':>8}")
+    print(f"{'combination':<75} {'avg_unique':>10} {'avg_dedup':>10} {'avg_cycle':>10} {'n_files':>8}")
     for key in sorted(combo_unique):
         u = combo_unique[key]
         d = combo_dedup[key]
-        print(f"{key:<75} {sum(u) / len(u):>10.2f} {sum(d) / len(d):>10.2f} {len(u):>8}")
+        c = combo_cycle[key]
+        print(f"{key:<75} {sum(u) / len(u):>10.2f} {sum(d) / len(d):>10.2f} {sum(c) / len(c):>10.2f} {len(u):>8}")
 
 
 if __name__ == "__main__":
