@@ -13,9 +13,9 @@ import slugify
 # ------------------------------------------------------------------------
 
 params = dict(
-    decaying_speed=[2.0, 3.0, 5.0],
-    local_decaying_speed=[1.0, 1.5],
-    match_std=[2.0, 4.0],
+    decaying_speed=5.0,
+    local_decaying_speed=1.0,
+    match_std=8.0,
 )
 
 # ------------------------------------------------------------------------
