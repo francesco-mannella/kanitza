@@ -13,7 +13,7 @@ import slugify
 # ------------------------------------------------------------------------
 
 params = dict(
-    decaying_speed=5.0,
+    decaying_speed=[3.0, 3.25, 3.5, 3.75, 4.0],
     local_decaying_speed=1.0,
     match_std=8.0,
 )
