@@ -232,7 +232,7 @@ class SimulationTest:
 
             self.update_environment_position(time_step)
             action, saliency_map, salient_point, color_saliency = self.agent.get_action(
-                saliency
+                observation
             )
             observation, *_ = self.env.step(action)
 

@@ -413,12 +413,15 @@ if __name__ == "__main__":
     params.wandb = args.wandb
     params.online_plot = args.online
 
+    loaded_params_exists = os.path.exists("loaded_params")
     try:
         params.load("loaded_params")
     except FileNotFoundError:
         print("no local parameters")
-        param_list = args.param_list
-        params.update(param_list)
+
+    params.update(args.param_list)
+
+    if not loaded_params_exists:
         params.save("loaded_params")
 
     if not params.online_plot:
@@ -432,6 +435,8 @@ if __name__ == "__main__":
         return f"{x:06.3f}".replace(".", "")
 
     params.init_name = f"{variant}"
+
+    params.save("final_parameters")
 
     with open("NAME", "w") as fname:
         fname.write(f"{params.init_name}\n")
