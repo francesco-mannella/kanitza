@@ -1,3 +1,17 @@
+"""Plot competence and weight-change statistics of a wandb parameter sweep.
+
+Usage: python /path/to/src/wdb_analysis.py  (any cwd; needs wandb login).
+
+Inputs: ./stats.csv if present, otherwise downloads the history of every
+run in francesco-mannella/eye-simulation whose name contains "predgrid"
+(decay < 6), parsing decay and local_decay from the "_d_XXXXX_l_XXXXX"
+name part (any "_p_..." suffix is ignored), and caches it to
+./stats.csv.
+
+Outputs: parameter_exploration.png with four panels (competence at step 499;
+moving-average weight change of visual_conditions, visual_effects and
+attention maps at step 400) over the decay x local_decay grid.
+"""
 # %%
 import re
 
@@ -9,6 +23,7 @@ import seaborn.objects as so
 import wandb
 
 def flt(x, win=150):
+    """Moving average of x over win samples (same length as x)."""
     return np.convolve(x, np.ones(win) / win, mode="same")
 
 
@@ -26,10 +41,10 @@ except FileNotFoundError:
     names = []
     for run in runs:
 
-        if run.name.find("predgrid") > 0:
+        if "predgrid" in run.name:
             names.append(run.name)
             decay = float(re.sub(r".*_d_(..)(...)_l_.*", r"\1.\2", run.name))
-            local_decay = float(re.sub(r".*_l_(..)(...)$", r"\1.\2", run.name))
+            local_decay = float(re.sub(r".*_l_(..)(...)(_.*)?$", r"\1.\2", run.name))
 
             if decay < 6:
                 df = run.history()

@@ -1,3 +1,15 @@
+"""Demo: replay recorded attention sequences with the retina blanked.
+
+Usage: from a directory containing retina_poses.npy (e.g. src/demos), with
+src on PYTHONPATH and an interactive backend:
+    PYTHONPATH=/path/to/src python attentional_sequence_demo.py
+
+retina_poses.npy holds rows [world_id, dx, dy] of retina displacements.
+Displacements of norm > 3 are converted to normalized attention centers
+and replayed 4 times per object; after the first 3 saccades the retina
+input is zeroed so saccades are driven by attention only. Saves
+episode_XXXX.gif/png for each object in the cwd.
+"""
 # %% IMPORTS
 
 import EyeSim
@@ -74,7 +86,7 @@ if __name__ == "__main__":
         action = [0, 0]
 
         # Create a plotting object for the current episode
-        plotter = FoveaPlotter(env, offline=False)
+        plotter = FoveaPlotter(env, offline=True)
 
         for k in range(4):
             for c, center in enumerate(

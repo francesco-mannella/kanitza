@@ -1,7 +1,18 @@
+"""Stack two frame sequences vertically into one GIF."""
 from PIL import Image
 
 
 def merge_gifs(first_frames, second_frames, merged_gif, frame_duration=2000):
+    """Stack paired frames vertically and save them as <merged_gif>.gif.
+
+    Args:
+        first_frames (list of PIL.Image): top frames; their size sets the
+            width and half the height of the output.
+        second_frames (list of PIL.Image): bottom frames; extra frames of
+            the longer list are dropped, wider frames are cropped.
+        merged_gif (str): output path without extension.
+        frame_duration (int): milliseconds per frame.
+    """
 
     # Prepare a list to store the merged frames
     frames = []

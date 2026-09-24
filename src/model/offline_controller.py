@@ -1,3 +1,13 @@
+"""Offline controller: three topological maps plus a competence predictor.
+
+visual_conditions_map (fovea before a saccade), visual_effects_map (fovea
+after) and attention_map (normalized attention center) share a 2D grid of
+maps_output_size units. States are recorded online and the maps are
+trained offline at the end of each epoch with an STM loss anchored on the
+visual-conditions winner (the goal); a logistic predictor learns how close
+the attention and visual-effects winners fall to the goal (competence),
+which in turn modulates plasticity.
+"""
 import numpy as np
 import torch
 
@@ -53,6 +63,13 @@ class OfflineController:
         self.set_hyperparams()
 
     def _init_internal_space_prototypes(self):
+        """Build a Gaussian bump centered on every map unit.
+
+        Returns:
+            torch.Tensor: (maps_output_size, maps_output_size) bumps with
+            std neighborhood_modulation_baseline, used to average the
+            predictor over the whole map (global competence).
+        """
         output_size = self.params.maps_output_size
         output_side = int(output_size**0.5)
 
@@ -103,6 +120,7 @@ class OfflineController:
         )
 
     def _init_predictor(self):
+        """Create the competence predictor and its Adam updater."""
         output_size = self.params.maps_output_size
         lr = self.params.predictor_learning_rate
         self.predictor = Predictor(output_size)
@@ -163,7 +181,13 @@ class OfflineController:
         self.timestep_competences.fill(None)
 
     def set_hyperparams(self):
-        """Set the controller's hyperparameters based on current competence."""
+        """Set the controller's hyperparameters based on current competence.
+
+        incompetence = 1 - tanh(decaying_speed * competence) (scalar) and
+        local_incompetence = 1 - tanh(local_decaying_speed * competences)
+        (N, 1). Learning-rate and neighborhood modulations are
+        baseline + gain * incompetence * local_incompetence, shape (N, 1).
+        """
         decay = np.tanh(self.params.decaying_speed * self.competence)
         local_decay = torch.tanh(self.params.local_decaying_speed * self.competences)
 
@@ -189,6 +213,15 @@ class OfflineController:
         self.match_std = self.params.match_std
 
     def get_local_competence(self, representation):
+        """Predicted competence for one grid representation.
+
+        Args:
+            representation (torch.Tensor): (1, maps_output_size) bump.
+
+        Returns:
+            float: predictor output rescaled from [0.5, 1] to [0, 1]
+            (values below 0.5 map to 0).
+        """
         comp = self.predictor(representation.reshape(1, -1))[0]
         comp = comp.tolist()[0]
 
@@ -198,6 +231,12 @@ class OfflineController:
         return comp
 
     def get_global_competence(self):
+        """Mean predicted competence over all map units, rescaled as in
+        get_local_competence.
+
+        Returns:
+            float: global competence in [0, 1].
+        """
         grid_comps = self.predictor(self.prototype_grid_reps)
         comp = grid_comps.mean().tolist()
 
@@ -207,6 +246,21 @@ class OfflineController:
         return comp
 
     def generate_saccade(self, visual_input):
+        """Propose an attention center for the current fovea image.
+
+        With probability equal to the local competence of the fovea's
+        winner on the visual-conditions map, returns the attention-map
+        weight at that winner; otherwise a random point at distance
+        0.3-0.6 from the retina center.
+
+        Args:
+            visual_input (np.ndarray): (16, 16, 3) uint8 fovea image.
+
+        Returns:
+            tuple: (saccade, competence). saccade is a length-2 list or
+            array of normalized retina coordinates (may fall slightly
+            outside [0, 1] when random); competence is a float in [0, 1].
+        """
 
         torch_visual_input = torch.tensor(visual_input).reshape(1, -1) / 255.0
         visual_map_output = self.visual_conditions_map(torch_visual_input)
@@ -263,12 +317,30 @@ class OfflineController:
     def update(self):
         """
         Update all sensory maps based on stored states and current competence.
+
+        For each salient timestep ts with offset < ts < saccade_time - offset
+        (offset = 2) uses the fovea at ts - 2 as visual condition, the fovea
+        at ts + 2 as visual effect and the attention/competence at ts + 2;
+        samples whose attention or competence at ts + 2 was not recorded yet
+        (NaN) are skipped.
+        Computes matches, global competence and hyperparameters, then
+        updates the three maps and the predictor, and stores the weight
+        change norms in self.weight_change.
         """
         offset = 2
         # Only consider saccades that are not on the time-limits edges
         idcs = self.filtered_idcs
         ts_cond = (offset < idcs[2]) & (idcs[2] < (self.params.saccade_time - offset))
         idcs = idcs[:, ts_cond]
+        # Drop samples whose attention or competence was not yet set
+        recorded = ~(
+            np.isnan(self.attention_states[idcs[0], idcs[1], idcs[2] + offset])
+            .any(-1)
+            | np.isnan(
+                self.timestep_competences[idcs[0], idcs[1], idcs[2] + offset]
+            ).any(-1)
+        )
+        idcs = idcs[:, recorded]
 
         # Get states for attention, visual conditions, and visual effects
         def get_state_data(states, offset):
@@ -361,12 +433,9 @@ class OfflineController:
                 self.visual_effects_map(visual_effects),
                 std_baseline,
             ),
-            "pg": self.get_map_representations(
-                self.visual_conditions_map,
-                self.visual_conditions_map(visual_conditions),
-                std_baseline,
-            ),
         }
+        # The goal is the visual-conditions winner
+        representations["pg"] = representations["pvc"]
         return representations
 
     def _update_maps(
@@ -423,57 +492,29 @@ class OfflineController:
     def _update_predictor(self):
         point_goal_representations = self.representations["pg"]["grid"]
         outputs = self.predictor(point_goal_representations)
-        self.predictor_updater(outputs, self.matches, 1.0)
+        self.predictor_updater(outputs, self.matches.reshape(-1, 1), 1.0)
 
     def _compute_matches(self):
         """
-        Compute the matching scores between visual effects and attention
-        states.
+        Compute the matching scores between the goal (visual-conditions
+        winner) and the attention and visual-effects winners.
 
         Returns:
-        - A tensor of match scores based on the Euclidean distance between
-          points.
+        - A (N,) tensor of match scores in [0, 1]: the mean over the two
+          winners of exp(-(d / match_std)**2), d being the grid distance
+          from the goal.
         """
-
-        # Determine the positional difference between the "pa" and "pa"
-        # representations
-        pa_pg_difference = (
-            self.representations["pa"]["point"] - self.representations["pg"]["point"]
+        goal = self.representations["pg"]["point"]
+        norm_pa_pg = torch.norm(
+            self.representations["pa"]["point"] - goal, dim=-1
         )
-        # Compute the Euclidean norm of the above difference, resulting in a
-        # distance measure
-        norm_pa_pg = torch.norm(pa_pg_difference, dim=-1)
-
-        # Determine the positional difference between the "pve" and "pa"
-        # representations
-        pve_pg_difference = (
-            self.representations["pve"]["point"] - self.representations["pg"]["point"]
+        norm_pve_pg = torch.norm(
+            self.representations["pve"]["point"] - goal, dim=-1
         )
-        # Compute the Euclidean norm of the above difference, resulting in a
-        # distance measure
-        norm_pve_pg = torch.norm(pve_pg_difference, dim=-1)
+        dists = torch.stack([norm_pa_pg, norm_pve_pg])
 
-        # Determine the positional difference between the "pvc" and "pa"
-        # representations
-        pvc_pg_difference = (
-            self.representations["pvc"]["point"] - self.representations["pg"]["point"]
-        )
-        # Compute the Euclidean norm of the  above difference for distance
-        # measurement
-        norm_pvc_pg = torch.norm(pvc_pg_difference, dim=-1)
-
-        # Stack the calculated norms to form a distances tensor
-        dists = torch.stack([norm_pa_pg, norm_pve_pg, norm_pvc_pg])
-
-        # Convert distances to similarity scores using a Gaussian-like decay
-        # based on match_std
         matches = torch.exp(-((self.match_std**-2) * dists**2))
-        # Calculate the average of the scores for a comprehensive similarity
-        # measure
-        matches = matches.mean(0)
-
-        # Return the computed average similarity scores
-        return matches
+        return matches.mean(0)
 
     def compute_weight_change(self):
         """
@@ -509,16 +550,6 @@ class OfflineController:
             self.weight_dict[key] = weight_dict_curr[key]
 
         return norms
-
-    def arbitrate_goals(self, offcontrol_goal, rnn_goal, w):
-        hov_oc_goal = self.recurrent_model.linearize(offcontrol_goal.flatten())
-        hov_rnn_goal = self.recurrent_model.linearize(rnn_goal)
-        hov_goal = w * hov_rnn_goal + (1 - w) * hov_oc_goal
-        # TODO: add noise
-        goal = np.argmax(hov_goal)
-        goal = self.recurrent_model.to_point(goal)
-
-        return goal
 
     def get_representation_from_condition(self, condition):
         """Converts a visual condition to a goal representation.
@@ -652,6 +683,8 @@ class OfflineController:
                 self.predictor_updater.optimizer.state_dict()
             ),
         }
+        if hasattr(self, "weight_dict"):
+            state["weight_dict"] = self.weight_dict
 
         torch.save(state, file_path)
 
@@ -702,5 +735,7 @@ class OfflineController:
             state["predictor_updater_optimizer_state_dict"]
         )
         offline_controller.rng.set_state(state["rng_state"])
+        if "weight_dict" in state:
+            offline_controller.weight_dict = state["weight_dict"]
 
         return offline_controller

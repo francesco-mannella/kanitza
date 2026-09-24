@@ -1,3 +1,12 @@
+"""Demo: saccades driven by bottom-up saliency with a uniform attention mask.
+
+Usage: from src/, with an interactive backend:
+    PYTHONPATH=. python demos/random_demo.py
+
+Uses agent_sampling_precision=0.01, so any pixel above 1% of the peak
+saliency can be sampled. Saves episode_XXXX.gif/png for each object in the
+cwd.
+"""
 # %% IMPORTS
 
 import EyeSim
@@ -21,7 +30,7 @@ if __name__ == "__main__":
     plt.close("all")
 
     params = Parameters()
-    params.agent_sampling_precision = 1 - 1e-10
+    params.agent_sampling_precision = 0.01
 
     # Set up the environment and agent
     env = gym.make("EyeSim/EyeSim-v0", params=params)
@@ -30,8 +39,6 @@ if __name__ == "__main__":
         env,
         focus_params=params,
     )
-
-    agent = Agent(env, sampling_precision=0.01)
 
     worlds = ["triangle", "square", "circle"]
 
@@ -50,7 +57,7 @@ if __name__ == "__main__":
         action = [30, 30]
 
         # Create a plotting object for the current episode
-        plotter = FoveaPlotter(env, offline=False)
+        plotter = FoveaPlotter(env, offline=True)
 
         attention_centers = [None for x in range(5)]
 
@@ -61,11 +68,14 @@ if __name__ == "__main__":
             # Simulate for a fixed number of time steps
             for time_step in range(10):
                 observation, *_ = env.step(action)
-                _, _, saliency = visual_map(observation["RETINA"])
-                action, attentional_map, attention_point = agent.get_action(saliency)
+                action, saliency_map, salient_point, fovea = agent.get_action(
+                    observation
+                )
                 # Update the plotter with the current saliency map and salient
                 # point
-                plotter.step(attentional_map, attention_point, agent.attentional_mask)
+                plotter.step(
+                    fovea, saliency_map, salient_point, agent.attentional_mask
+                )
                 plt.pause(0.1)
 
         # Save the plot for the current episode as a gif

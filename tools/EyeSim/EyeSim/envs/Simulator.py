@@ -10,6 +10,8 @@ from .mkvideo import vidManager
 
 
 class ContactListener(b2ContactListener):
+    """Box2D listener counting contact points between named bodies."""
+
     def __init__(self, bodies):
         b2ContactListener.__init__(self)
         self.contact_db = {}
@@ -148,6 +150,8 @@ class VisualSensor:
 
     def __init__(self, sim, shape, rng):
         """
+        Renders the bodies of `sim` into an RGB image around a moving center.
+
         Args:
 
             sim (Box2DSim): a simulator object
@@ -156,19 +160,20 @@ class VisualSensor:
 
         """
 
-        self.radius = np.mean(np.array(rng) / shape)
+        self.radius = np.mean(np.array(rng) / shape / shape)
         self.pixelManager = PathToPixelsConverter(
             dims=rng,
             shape=shape,
             radius=self.radius,
         )
 
-        self.retina = np.zeros(shape + [3])
+        self.retina = np.zeros((*shape, 3))
         self.sim = sim
 
         self.reset(sim)
 
     def reset(self, sim):
+        """Attach a new simulator."""
         self.sim = sim
 
     def step(self, saccade):
@@ -181,7 +186,8 @@ class VisualSensor:
 
         Returns:
 
-            (np.ndarray): a rescaled retina state
+            (np.ndarray): (H, W, 3) uint8 retina image, white background,
+                bodies with lower zorder drawn on top
         """
 
         self.retina *= 0
@@ -199,7 +205,7 @@ class VisualSensor:
             colors.append(
                 body.color if body.color is not None else [0.5, 0.5, 0.5]
             )
-            zorder.append(body.zorder if zorder is not None else 1e10)
+            zorder.append(body.zorder if body.zorder is not None else 1e10)
 
         self.pixelManager.set_displace(saccade)
         self.retina = self.pixelManager.merge_imgs(
@@ -254,12 +260,14 @@ class TestPlotter:
         self.reset()
 
     def close(self, name=None):
+        """Close the figure and, if offline, save frames to ./<name>.gif."""
         plt.close(self.fig)
         if self.offline and name is not None:
             self.vm.mk_video(name=name, dirname=".")
         self.vm = None
 
     def reset(self):
+        """Create the video manager (offline) and one polygon per body."""
 
         if self.offline:
             self.vm = vidManager(

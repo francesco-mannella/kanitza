@@ -1,3 +1,32 @@
+"""Train the offline controller (topological maps + competence predictor).
+
+Usage: run from the simulation output directory, with src/ on the path and
+EyeSim installed (pip install -e tools/EyeSim):
+    python /path/to/src/main.py [-s N] [-r NAME] [-p "k1=v1;k2=v2"] [-w] [-o]
+
+Args:
+    -s/--seed: seed for torch, the environment, the agent and the
+        controller.
+    -r/--variant: simulation name; written to ./NAME and used as wandb run
+        name.
+    -p/--param_list: overrides of src/params.py defaults, or of
+        ./loaded_params when it exists; the merged parameters are saved to
+        ./loaded_params.
+    -w/--wandb: log competence, weight changes and gifs to wandb.
+    -o/--online: show the fovea plotter live during training.
+
+Each epoch runs `episodes` episodes of `saccade_num` saccades of
+`saccade_time` steps, records the agent's color-saliency fovea, the
+actions and the attention targets, keeps the salient saccades and updates
+the maps (see pseudocode.md). src/grid_search.py launches this script over
+parameter grids. If
+./off_control_store exists training resumes from it, up to `epochs` epochs
+in total.
+
+Outputs (cwd): NAME, loaded_params, log, off_control_store (saved each
+epoch), maps_<epoch>.gif/png every `plotting_epochs_interval` epochs,
+sim_<epoch>.gif if plot_sim.
+"""
 import argparse
 import os
 import signal
@@ -10,7 +39,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 import wandb
-from skimage.transform import resize
 
 from model.agent import Agent
 from model.offline_controller import OfflineController
@@ -19,30 +47,6 @@ from plotter import FoveaPlotter, MapsPlotter
 
 
 es = EyeSim
-
-
-# TODO: code for debug
-def ascii_imshow(matrix, nrows, ncols):
-    """Prints an ASCII art representation of a numpy array."""
-    levels = (
-        r"$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|" r"()1{}[]?-_+~<>i!lI;:,\"^`'."
-    )[::-1]
-
-    matrix = resize(matrix, (nrows, ncols), anti_aliasing=True)
-    min_val = matrix.min()
-    max_val = matrix.max()
-    value_range = max_val - min_val
-
-    print()
-    for row in matrix:
-        for value in row:
-            if value_range == 0:
-                index = 0
-            else:
-                index = int((value - min_val) / value_range * (len(levels) - 1))
-            print(levels[index], end="")
-        print()
-    print()
 
 
 class Logger:
@@ -71,12 +75,14 @@ class Logger:
 class Main:
     """Main class to initialize and run the environment, agent, and controllers."""
 
-    def __init__(self, params):
+    def __init__(self, params, seed):
         """Initializes the Main class with parameters, logger, signal handler,
         environment, agent, and offline controller.
 
         Args:
             params: Configuration parameters for the environment and agent.
+            seed (int): Seed for torch, the environment, the agent and the
+                offline controller.
         """
         self.params = params
         self.main_log = Logger("log")
@@ -199,21 +205,18 @@ class Main:
         if fovea_plotter is not None:
             fovea_plotter.online = self.params.online_plot
 
-        action = np.zeros(self.env.action_space.shape)
-
         for saccade_idx in range(self.params.saccade_num):
-            self.execute_saccade(action, episode, saccade_idx, fovea_plotter)
+            self.execute_saccade(episode, saccade_idx, fovea_plotter)
 
         if plt_enabled:
             self.save_simulation_gif(fovea_plotter, epoch)
 
         return env_info
 
-    def execute_saccade(self, action, episode, saccade_idx, fovea_plotter):
+    def execute_saccade(self, episode, saccade_idx, fovea_plotter):
         """Executes a saccade, updating the agent's action and recording states.
 
         Args:
-            action: Initial action for the saccade.
             episode: The current episode number.
             saccade_idx: Index of the current saccade.
             fovea_plotter: Optional plotter for visualizing the fovea.
@@ -223,12 +226,12 @@ class Main:
         competence = None
         saccade = None
         attention = None
-        salient_point, action = [0, 0], [0.0, 0.0]
+        action = [0.0, 0.0]
         for time_step in range(self.params.saccade_time):
             observation, *_ = self.env.step(action)
             if time_step == int(0.5 * self.params.saccade_time):
                 saccade, competence = self.off_control.generate_saccade(
-                    observation["FOVEA"]
+                    self.agent.get_fovea(observation)
                 )
                 self.agent.set_parameters(saccade)
                 attention = np.copy(saccade)
@@ -292,10 +295,9 @@ class Main:
             )
 
     def __call__(self):
-        """Runs the main loop over epochs, logging and updating the controller."""
-        for epoch in range(
-            self.off_control.epoch, self.off_control.epoch + self.params.epochs
-        ):
+        """Runs the main loop up to `params.epochs` total epochs, resuming
+        from the controller's epoch, logging and updating the controller."""
+        for epoch in range(self.off_control.epoch, self.params.epochs):
             self.main_log(f"epoch: {epoch}")
             self.off_control.epoch = epoch
             self.off_control.reset_states()
@@ -413,23 +415,22 @@ if __name__ == "__main__":
     params.wandb = args.wandb
     params.online_plot = args.online
 
-    try:
+    if os.path.exists("loaded_params"):
         params.load("loaded_params")
-    except FileNotFoundError:
+        if args.param_list:
+            before = params._params_to_dict()
+            params.update(args.param_list)
+            after = params._params_to_dict()
+            changed = [k for k in after if before.get(k) != after[k]]
+            print(f"loaded_params overridden by --param_list: {changed}")
+            params.save("loaded_params")
+    else:
         print("no local parameters")
-        param_list = args.param_list
-        params.update(param_list)
+        params.update(args.param_list)
         params.save("loaded_params")
 
     if not params.online_plot:
         matplotlib.use("agg")
-
-    seed_str = str(seed).replace(".", "_")
-    decaying_speed_str = str(params.decaying_speed).replace(".", "_")
-    local_decaying_speed_str = str(params.local_decaying_speed).replace(".", "_")
-
-    def format_scalar(x):
-        return f"{x:06.3f}".replace(".", "")
 
     params.init_name = f"{variant}"
 
@@ -444,7 +445,7 @@ if __name__ == "__main__":
             config=params._params_to_dict(),
         )
 
-    main = Main(params)
+    main = Main(params, seed)
 
     main()
 

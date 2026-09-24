@@ -1,3 +1,10 @@
+"""Reservoir (echo-state) network trained with FORCE to predict map goals.
+
+A goal on the 10x10 map is encoded as a time course (inverted parabola of
+target_shape_lenght steps) on the readout unit of that map cell. The
+network is trained to reproduce the course and, in "input" mode, can blend
+its own readout with the input to anticipate the next goal.
+"""
 import numpy as np
 from params_recurrent_generative_model import ParamsFORCE
 
@@ -39,6 +46,11 @@ class RecurrentGenerativeModelUpdater:
         )
 
     def _readout_update(self, error):
+        """Recursive-least-squares update of P and of the readout weights.
+
+        Args:
+            error (np.ndarray): (N_readouts, 1) readout minus target.
+        """
 
         P_r = np.dot(self.P, self.network.reservoir_activity)
         r_P = np.dot(self.network.reservoir_activity.T, self.P)
@@ -50,14 +62,30 @@ class RecurrentGenerativeModelUpdater:
         )
 
     def __call__(self, error, update=True):
+        """Apply a FORCE update with the given error if update is True."""
 
         if update is True:
             self._readout_update(error)
 
 
 class RecurrentGenerativeModel:
+    """
+    Rate reservoir with readout feedback.
+
+    State: x (N_rec, 1), reservoir_activity = tanh(x) (N_rec, 1),
+    readout_activity (N_readouts, 1). Weights: input_weights
+    (N_rec, N_inputs, unused in the dynamics), rec_weights (N_rec, N_rec),
+    readout_weights (N_rec, N_readouts), feedback_weights
+    (N_rec, N_readouts). Initialization uses the global numpy RNG.
+    """
 
     def __init__(self, paramsFORCE=None, feedback=True):
+        """
+        Args:
+            paramsFORCE (ParamsFORCE, optional): parameters; defaults to
+                ParamsFORCE().
+            feedback (bool): if False feedback weights are zero.
+        """
 
         if paramsFORCE is None:
             paramsFORCE = ParamsFORCE()
@@ -113,15 +141,28 @@ class RecurrentGenerativeModel:
                 (self.N_rec, self.N_readouts),
             )
         else:
-            self.feedback_weights = np.zeros(self.N_rec, self.N_readouts)
+            self.feedback_weights = np.zeros((self.N_rec, self.N_readouts))
 
     def reset(self):
+        """Reinitialize the reservoir state randomly and zero the readout."""
 
         self.x = np.random.randn(self.N_rec, 1)
         self.reservoir_activity = np.tanh(self.x)
         self.readout_activity = np.zeros((self.N_readouts, 1))
 
     def update(self, inputs=None, mode="default", reservoir_influence=0.0):
+        """Integrate the dynamics for one step (Euler, dt / tau).
+
+        Args:
+            inputs (np.ndarray, optional): (N_readouts, 1) signal fed back
+                through feedback_weights.
+            mode (str): "training": feedback is the noisy teacher `inputs`;
+                "input": feedback is reservoir_influence * readout +
+                (1 - reservoir_influence) * inputs; otherwise feedback is
+                the readout only (free run).
+            reservoir_influence (float): blend weight in [0, 1] for
+                "input" mode.
+        """
 
         if mode == "training":
 
@@ -214,6 +255,7 @@ class RecurrentGenerativeModel:
         return (temp - np.min(temp)) / np.max(temp - np.min(temp))
 
     def _compute_error(self, readouts, target_function):
+        """Return readouts - target_function."""
 
         return readouts - target_function
 
@@ -273,6 +315,7 @@ class RecurrentGenerativeModel:
         return self.to_point(winning_unit)
 
     def to_point(self, index):
+        """Convert a flat unit index to a [row, col] point."""
         pos_y = index // self.output_side
         pos_x = index % self.output_side
         point = np.array([pos_y, pos_x])

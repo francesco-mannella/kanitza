@@ -1,3 +1,9 @@
+"""Channel-opponent Gabor filter bank used to compute visual saliency.
+
+Run as a script to show the filter responses on
+src/model/gabor_test.png (not tracked in git); it opens matplotlib windows
+and waits for Enter between images.
+"""
 # %%
 
 import io
@@ -32,9 +38,13 @@ def gabor_kernel(
       dimension.
     - phase_offset (float): Phase offset of the sine wave.
     - size (int): Size of the filter.
+    - device (torch.device, optional): device used for the computation;
+      CPU if None.
+    - dtype (torch.dtype): computation dtype.
 
     Returns:
-    - np.ndarray: The generated Gabor filter.
+    - np.ndarray: (size, size) Gabor kernel (odd sizes are centered),
+      divided by the sum of its positive values.
     """
 
     if sigma_y is None:
@@ -146,6 +156,7 @@ class ChannelGaborFilter:
         self._build_kernels()
 
     def _build_kernels(self):
+        """Precompute one (1, 1, k, k) kernel per (scale, orientation)."""
         self.kernels = {}
         for sigma in self.scale_list:
             for theta in self.orientation_list:

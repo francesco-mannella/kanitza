@@ -1,3 +1,5 @@
+"""Base class for parameter containers with string/file (de)serialization."""
+import ast
 import json
 import sys
 
@@ -5,8 +7,21 @@ import numpy as np
 
 
 class ParameterManager:
+    """
+    Base class for parameter containers.
+
+    Subclasses set their parameters as instance attributes and then call
+    `super().__init__()`, which records the type of each default in
+    `param_types`. Parameters can be updated from "k1=v1;k2=v2" strings or
+    JSON, and saved/loaded as "key = value" text files. In "k=v" strings
+    each value is parsed as a Python literal (numbers, True/False, quoted
+    strings, lists); unparsable values are kept as plain strings. Values of
+    known parameters must match the type of their default (int and float
+    are interchangeable).
+    """
 
     def __init__(self):
+        """Record the types of the attributes set so far in `param_types`."""
         self._set_param_types()
 
     def __getstate__(self):
@@ -24,64 +39,79 @@ class ParameterManager:
             if not k.startswith("__") and not callable(v)
         }
 
-    def check_json_format(self, json_string):
-        json_string = (
-            json_string.replace("'", '"')
-            .replace(" ", "")
-            .replace("True", "true")
-            .replace("False", "false")
-        )
-        return json_string
+    @staticmethod
+    def _parse_value(value):
+        """Parse a Python literal, or return the stripped string if invalid."""
+        value = value.strip()
+        try:
+            return ast.literal_eval(value)
+        except (ValueError, SyntaxError):
+            return value
 
     def _string_to_json(self, param_string, mode="user"):
-        """Converts a semicolon-separated string to a JSON dictionary.
+        """Converts a parameter string to a dictionary.
 
         Args:
             param_string (str): String representing the params.
             mode (str): Format of the string; "user" for
-              semicolon-separated key-value pairs, "json" for JSON string.
+              semicolon-separated key=value pairs, "json" for JSON string.
 
         Returns:
-            dict: Dictionary representing the JSON object.
+            dict: Dictionary of parsed parameters.
 
+        Raises:
+            ValueError: If mode is neither "user" nor "json".
         """
+        if mode not in ("user", "json"):
+            raise ValueError(f"Invalid mode {mode!r}. Use 'user' or 'json'.")
+
         if not param_string:
             return {}
 
-        if mode == "user":
-            # Split the string into key-value pairs
-            param_string = param_string.replace(" ", "")
-            params = dict(
-                s.split("=", 1) for s in param_string.split(";") if "=" in s
-            )
-            # Format the key-value pairs into a JSON string
-            params = ",".join(f'"{k.strip()}":{v}' for k, v in params.items())
-            params = "{" + params + "}"
-        else:
-            params = param_string
+        if mode == "json":
+            return json.loads(param_string)
 
-        params = self.check_json_format(params)
+        pairs = (s.split("=", 1) for s in param_string.split(";") if "=" in s)
+        return {k.strip(): self._parse_value(v) for k, v in pairs}
 
-        try:
-            param_dict = json.loads(params)
-        except ValueError as e:
-            print(f"Error decoding JSON: {e}")
-            sys.exit(1)
+    def _check_type(self, key, value):
+        """Return value checked against the type of the key's default.
 
-        return param_dict
+        Unknown keys are accepted as they are. int and float are
+        interchangeable (ints are converted to float where the default is a
+        float); any other mismatch raises TypeError.
+        """
+        expected = self.param_types.get(key)
+        if expected is None:
+            return value
+        is_number = isinstance(value, (int, float)) and not isinstance(
+            value, bool
+        )
+        if expected in (int, float) and is_number:
+            return float(value) if expected is float else value
+        if isinstance(value, expected) and (
+            expected is bool or not isinstance(value, bool)
+        ):
+            return value
+        raise TypeError(
+            f"Parameter {key!r} expects {expected.__name__}, "
+            f"got {type(value).__name__} ({value!r})"
+        )
 
     def _json_to_params(self, param_dict):
-        """Set attributes from a dictionary.
+        """Set attributes from a dictionary, checking their types.
 
         Args:
             param_dict (dict): Dictionary of parameters.
+
+        Raises:
+            TypeError: If a known parameter gets a value of the wrong type.
         """
-        # Iterate over the key-value pairs in the input dictionary.
         for key, value in param_dict.items():
-            # For each pair, set an attribute of the instance.
-            setattr(self, key, value)
+            setattr(self, key, self._check_type(key, value))
 
     def _params_to_dict(self):
+        """Return all non-callable attributes except `param_types` as a dict."""
         params = {
             key: value
             for key, value in self.__dict__.items()
@@ -98,17 +128,14 @@ class ParameterManager:
 
         Args:
             param_string (str): Input string containing parameters.
-            mode (str, optional): "user" to convert the input
-                string to JSON. "json" if the input string is a
-                json format. Defaults to "user".
-        """
-        if mode == "user":
-            # Convert user-provided string to JSON format
-            param_dict = self._string_to_json(param_string)
-        elif mode == "json":
-            param_dict = self._string_to_json(param_string, mode="json")
+            mode (str, optional): "user" for "k1=v1;k2=v2" strings, "json"
+                for a JSON object. Defaults to "user".
 
-        # Update internal parameters using the JSON dictionary
+        Raises:
+            ValueError: If mode is neither "user" nor "json".
+            TypeError: If a known parameter gets a value of the wrong type.
+        """
+        param_dict = self._string_to_json(param_string, mode=mode)
         self._json_to_params(param_dict)
 
     def save(self, filepath, mode="user"):
@@ -121,7 +148,12 @@ class ParameterManager:
               Each parameter is written as 'key = value' on a new line.
               "json": Saves parameters in JSON format.
               Defaults to "user".
+
+        Raises:
+            ValueError: If mode is neither "user" nor "json".
         """
+        if mode not in ("user", "json"):
+            raise ValueError(f"Invalid mode {mode!r}. Use 'user' or 'json'.")
         with open(filepath, "w") as file:
             if mode == "user":
                 for key, value in self._params_to_dict().items():
@@ -142,16 +174,22 @@ class ParameterManager:
               Expects each parameter to be in the format 'key = value'.
               "json": Loads parameters from JSON format.
               Defaults to "user".
+
+        Raises:
+            ValueError: If mode is neither "user" nor "json".
+            TypeError: If a known parameter gets a value of the wrong type.
         """
+        if mode not in ("user", "json"):
+            raise ValueError(f"Invalid mode {mode!r}. Use 'user' or 'json'.")
         with open(filepath, "r") as file:
             if mode == "user":
                 param_list = "".join([line.strip() + ";" for line in file])
                 self.update(param_list)
             elif mode == "json":
-                params = json.load(file)
-                self.__dict__.update(params)
+                self._json_to_params(json.load(file))
 
     def __hash__(self):
+        """Hash of all public, non-callable attributes and their values."""
         # Using a tuple comprehension to collect all non-callable and
         # non-private attributes (those not starting with "_") into a tuple
         attr_values = tuple(
@@ -164,6 +202,7 @@ class ParameterManager:
         return hashid
 
     def _make_hashable(self, value):
+        """Recursively convert dicts, lists and sets to hashable types."""
         if isinstance(value, dict):
             # Convert dictionary to a frozenset of its items (key-value pairs)
             return frozenset(

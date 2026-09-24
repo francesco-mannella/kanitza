@@ -1,3 +1,33 @@
+"""Test the controller with goal arbitration from the recurrent model.
+
+Usage: run inside a trained simulation folder (needs off_control_store,
+rnn_store.npy and optionally loaded_params):
+    python /path/to/src/test_generative.py [--plot] [--seed N]
+        [--world triangle|square] [--posrot X Y ANGLE]
+        [--mask_type TYPE] [--mask_posrot X Y ANGLE] [--mask_start T]
+        [--arbitration] [--wandb] [--skip_existing]
+
+Args:
+    --plot, --seed, --world, --posrot, --wandb, --skip_existing: as in
+        test.py.
+    --mask_type: occluder body, one of white_big_mask, grey_big_mask,
+        white_small_mask, grey_small_mask.
+    --mask_posrot: occluder position and rotation; no occluder if omitted.
+    --mask_start: timestep from which the occluder is shown.
+    --arbitration: from mask_start - 4 on, bias goal selection toward the
+        RNN prediction (arbitration_weight=1); otherwise weight 0.
+
+Runs 1 episode of saccade_num=10 x saccade_time steps with a saccade every
+saccade_period=4 steps; goals are computed from the agent's color-saliency
+fovea, the same visual input used in training. At each saccade the unfiltered visual-conditions
+goal is fed to the RNN, the RNN prediction filters the visual-conditions
+map, and the resulting goal drives the attention. Exits with an error if
+off_control_store is missing.
+
+Outputs: goals_<world>_<pos>_<rot>_<w>.npy (slugified) holding
+[{"world", "position", "angle", "saccade_id", "offcontrol_goal",
+"rnn_goal", "goal"}]; with --plot also *_test_* gifs.
+"""
 import argparse
 import os
 import signal
@@ -16,7 +46,6 @@ from merge_gifs import merge_gifs
 from model.agent import Agent
 from model.offline_controller import OfflineController
 from model.recurrent_generative_model import RecurrentGenerativeModel
-from model.visual_processing import SaliencyMap
 from params import Parameters
 from plotter import FoveaPlotter, MapsPlotter
 
@@ -26,10 +55,6 @@ from plotter import FoveaPlotter, MapsPlotter
 
 
 _ = EyeSim  # avoid fixer erase EyeSim import
-
-
-def radians_to_degrees(radians):
-    return np.array(radians) * (180.0 / np.pi)
 
 
 def signal_handler(signum, frame):
@@ -85,20 +110,17 @@ class SimulationTest:
         return env
 
     def load_offline_controller(self, file_path):
-        """Loads the offline controller from a file, or creates a new one if
-        the file doesn't exist.
+        """Loads the trained offline controller from a file.
 
         Args:
             file_path (str): The path to the offline controller file.
 
         Returns:
-            OfflineController: The loaded or newly created offline controller.
+            OfflineController: The loaded offline controller.
         """
-        if os.path.exists(file_path):
-            return OfflineController.load(
-                file_path, self.env, self.params, self.seed
-            )
-        return OfflineController(self.env, self.params, self.seed)
+        return OfflineController.load(
+            file_path, self.env, self.params, self.seed
+        )
 
     def update_mask(self, mask_params):
         """Updates the position and rotation of the mask in the environment.
@@ -231,11 +253,11 @@ class SimulationTest:
                 else self.params.arbitration_weight
             )
 
-            if time_step % self.params.rnn_arbitration_before_mask == 0:
+            if time_step % self.params.saccade_period == 0:
                 print(f"ts: {time_step:>3d}  ", end="")
 
                 # Get info for saccade
-                condition = observation["FOVEA"].copy()
+                condition = self.agent.get_fovea(observation)
 
                 # Goal Arbitration:
                 # This section arbitrates between two potential goals:
@@ -245,11 +267,16 @@ class SimulationTest:
                 #    network (RNN), providing a sense of anticipation or
                 #    prediction.
 
-                # topological alignment goal selection
+                # topological alignment goal selection, without the bias
+                # applied to the map at the previous saccade
+                self.off_control.visual_conditions_map.clear_filter()
                 offcontrol_goal = (
                     self.off_control.get_representation_from_condition(
                         condition
                     )
+                    .cpu()
+                    .detach()
+                    .numpy()
                 )
 
                 # Recurrent model step
@@ -302,13 +329,12 @@ class SimulationTest:
                 self.off_control.goals["rnn_goal"].append(rnn_goal)
                 self.off_control.goals["goal"].append(goal)
 
-                self.update_environment_position(time_step)
                 if time_step >= self.params.mask_start:
                     if mask_updated is False:
                         self.update_mask(self.mask_params)
                         mask_updated = True
 
-            elif time_step % self.params.rnn_arbitration_before_mask == 1:
+            elif time_step % self.params.saccade_period == 1:
 
                 # Reset saccade
                 if saccade is not None and not np.array_equal(
@@ -317,10 +343,8 @@ class SimulationTest:
                     saccade = np.array([0.5, 0.5])
                     self.agent.set_parameters(saccade)
 
-            self.update_environment_position(time_step)
-            rgb, brightness, saliency = self.visual_map(observation["RETINA"])
-            action, saliency_map, salient_point,_ = self.agent.get_action(
-                saliency
+            action, saliency_map, salient_point, color_saliency = (
+                self.agent.get_action(observation)
             )
             observation, *_ = self.env.step(action)
 
@@ -328,46 +352,38 @@ class SimulationTest:
                 self.update_plotters(
                     fovea_plotter,
                     maps_plotter,
+                    color_saliency,
                     saliency_map,
                     salient_point,
                     goal,
                 )
 
-    def update_environment_position(self, time_step):
-        """Placeholder for updating the environment position during the
-        simulation.
-
-        Args:
-            time_step (int): The current time step in the simulation.
-        """
-        # if time_step % 10 == 0:
-        #     pos, rot = env.get_position_and_rotation()
-        #     pos_trj_angle = (
-        #         5
-        #         * np.pi
-        #         * (time_step / (params.saccade_time * params.saccade_num))
-        #     )
-        #     pos += 10 * np.array([np.cos(pos_trj_angle),
-        #                            np.sin(pos_trj_angle)])
-        #     rot += pos_trj_angle
-        #     env.update_position_and_rotation(pos, rot)
-        pass
-
     def update_plotters(
-        self, fovea_plotter, maps_plotter, saliency_map, salient_point, goal
+        self,
+        fovea_plotter,
+        maps_plotter,
+        color_saliency_map,
+        saliency_map,
+        salient_point,
+        goal,
     ):
         """Updates the plotters with the latest data from the simulation.
 
         Args:
             fovea_plotter (FoveaPlotter): The fovea plotter object.
             maps_plotter (MapsPlotter): The maps plotter object.
+            color_saliency_map (numpy.ndarray): The fovea returned by the
+                agent.
             saliency_map (numpy.ndarray): The saliency map from the agent.
             salient_point (tuple): The salient point from the agent.
             goal (numpy.ndarray): The goal for the current time step.
         """
         if fovea_plotter:
             fovea_plotter.step(
-                saliency_map, salient_point, self.agent.attentional_mask
+                color_saliency_map,
+                saliency_map,
+                salient_point,
+                self.agent.attentional_mask,
             )
         if maps_plotter:
             maps_plotter.step(goal)
@@ -416,12 +432,46 @@ class SimulationTest:
                 frame_duration=80,
             )
 
+    def goals_filename(self):
+        """Return the goals output path, without the .npy extension.
+
+        Returns:
+            str: slugified "goals_<world>[_<pos>_<rot>_<w>]".
+        """
+        base_name = f"goals_{self.world}"
+
+        if self.object_params is not None:
+
+            parts = []
+            if self.object_params.get("pos") is not None:
+                parts.append(f"{self.object_params['pos']}_")
+            if self.object_params.get("rot") is not None:
+                parts.append(f"{self.object_params['rot']:06.2f}_")
+            parts.append(f"{self.params.arbitration_weight:1d}")
+
+            return slugify(f"{base_name}_{''.join(parts)}")
+
+        return slugify(f"{base_name}")
+
     def test(self):
         """Runs the main test loop for the simulation.
+
+        Exits with an error if ./off_control_store is missing. With
+        params.skip_existing, returns without simulating if the goals file
+        already exists.
 
         Returns:
             list: A list of plotters used during the simulation.
         """
+        controller_path = "off_control_store"
+        if not os.path.exists(controller_path):
+            sys.exit(f"{controller_path} not found: run inside a trained folder")
+        if self.params.skip_existing and os.path.exists(
+            f"{self.goals_filename()}.npy"
+        ):
+            print(f"{self.goals_filename()}.npy exists, skipping")
+            return self.plotters
+
         signal.signal(signal.SIGINT, signal_handler)
         plt.ion()
         plt.close("all")
@@ -434,9 +484,7 @@ class SimulationTest:
             seed=self.seed,
             focus_params=self.params,
         )
-        self.visual_map = SaliencyMap(self.params)
 
-        controller_path = "off_control_store"
         rnn_path = "rnn_store.npy"
         self.off_control = self.load_offline_controller(controller_path)
         self.off_control.recurrent_model = RecurrentGenerativeModel()
@@ -462,22 +510,7 @@ class SimulationTest:
             ) or (epoch == self.params.epochs - 1)
             self.plotters = self.execute_simulation(is_plotting_epoch)
 
-            base_name = f"goals_{self.world}"
-
-            if self.object_params is not None:
-
-                parts = []
-                if self.object_params.get("pos") is not None:
-                    parts.append(f"{self.object_params['pos']}_")
-                if self.object_params.get("rot") is not None:
-                    parts.append(f"{self.object_params['rot']:06.2f}_")
-                parts.append(f"{self.params.arbitration_weight:1d}")
-
-                filename = slugify(f"{base_name}_{''.join(parts)}")
-
-            else:
-                filename = slugify(f"{base_name}")
-
+            filename = self.goals_filename()
             print(filename)
 
             np.save(
@@ -553,6 +586,12 @@ def parse_arguments():
     )
 
     parser.add_argument(
+        "--skip_existing",
+        action="store_true",
+        help="Do nothing if the goals file of this test already exists.",
+    )
+
+    parser.add_argument(
         "--mask_start",
         type=int,
         default=99999,
@@ -612,7 +651,7 @@ def main():
         if args.posrot[0] is None
         else {
             "pos": args.posrot[:2],
-            "rot": radians_to_degrees(args.posrot[2]),
+            "rot": args.posrot[2],
         }
     )
     mask_params = (
@@ -627,6 +666,8 @@ def main():
     params.epochs = 1
     params.saccade_num = 10
     params.episodes = 1
+    params.saccade_period = 4
+    params.skip_existing = args.skip_existing
     params.plotting_epochs_interval = 1 if plot else 1e100
     params.mask_start = args.mask_start
     params.rnn_arbitration_before_mask = 4

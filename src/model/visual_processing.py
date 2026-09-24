@@ -1,3 +1,4 @@
+"""Saliency front end: the channel-opponent Gabor bank built from Parameters."""
 import numpy as np
 
 from model.gabor_filtering import ChannelGaborFilter
@@ -6,9 +7,20 @@ from model.gabor_filtering import ChannelGaborFilter
 class SaliencyMap:
     """
     Generates a saliency map using Gabor filters.
+
+    Wraps model.gabor_filtering.ChannelGaborFilter configured from the
+    gabor_* parameters. Orientations are linspace(0, 360,
+    gabor_orientation_bins)[:-1] degrees.
     """
 
     def __init__(self, params):
+        """
+        Args:
+            params (Parameters): provides gabor_scales,
+                gabor_orientation_bins, gabor_frequency, gabor_phase_offset,
+                gabor_kernel_size, gabor_sigma_y_multiplier, gabor_rgb_prop
+                and gabor_bright_prop.
+        """
         scales = params.gabor_scales
         orientation_bins = params.gabor_orientation_bins
         frequency = params.gabor_frequency
@@ -35,10 +47,15 @@ class SaliencyMap:
         map.
 
         Args:
-        - input_image (np.ndarray): The input image.
+        - input_image (np.ndarray): (H, W, 3) RGB image, uint8 in [0, 255]
+          or float in [0, 1] (rescaled by 1/255 if its maximum exceeds 1).
 
         Returns:
-        - np.ndarray: The generated saliency map.
+        - tuple: (rgb, brightness, adjusted) as returned by
+          ChannelGaborFilter: (H, W, 3) color-opponent responses and
+          (H, W) brightness response, jointly normalized to [0, 1], and
+          the (H, W, 3) mix rgb * gabor_rgb_prop + brightness *
+          gabor_bright_prop.
         """
 
         input_image = input_image.astype(float)

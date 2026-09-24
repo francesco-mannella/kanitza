@@ -1,3 +1,24 @@
+"""Collect test scanpaths from all simulation folders into paths.csv.
+
+Usage: run from the directory holding the simulation folders
+(after scripts/tests.sh):
+    python /path/to/scripts/paths.py
+
+Inputs: <sim>/goals*.npy for every folder matching "*_s_*_m_*". Each file is
+a 1-element array holding the dict saved by src/test.py
+(keys: world, position, angle, saccade_id, goal).
+
+The first 3 saccades of each test (goals file) are dropped.
+
+Outputs:
+    - <sim>.png: goal trajectories on the 10x10 map grid, one path per
+      (object, rotation) trial.
+    - paths.csv: columns object, saccade_id, sim, pos.x, pos.y, goal.y,
+      goal.x, ts (saccade timestep), rot (degrees), trial
+      (slug "<object>-<angle rad>"), precision (agent_sampling_precision
+      parsed from the "_p_XXXXX" part of the sim name, NaN if absent),
+      saccade_num (order of the saccade within its sim and trial).
+"""
 import re
 from glob import glob
 
@@ -30,6 +51,7 @@ for sim_dir in glob(SIMULATION_DIR_PATTERN):
     for filename in goal_files:
         np_array = np.load(filename, allow_pickle=True)[0]
         goal_df = pd.DataFrame(np_array)
+        goal_df["saccade_order"] = np.arange(len(goal_df))
         goal_dicts.append(goal_df)
 
     combined_df = pd.concat(goal_dicts, ignore_index=True)
@@ -42,11 +64,15 @@ for sim_dir in glob(SIMULATION_DIR_PATTERN):
     combined_df["goal.y"] = np.stack(combined_df["goal"])[:, 0, 0]
     combined_df["goal.x"] = np.stack(combined_df["goal"])[:, 0, 1]
     combined_df["saccade"] = [
-        int(x.replace("0000-", "")) for x in combined_df["saccade_id"]
+        int(x.split("-")[1]) for x in combined_df["saccade_id"]
     ]
+    precision = re.search(r"_p_(\d+)", sim_dir)
+    combined_df["precision"] = (
+        int(precision.group(1)) / 1000 if precision else np.nan
+    )
     combined_df["Rot"] = combined_df["angle"] * 180 / np.pi
     combined_df = combined_df.rename(columns={"world": "Object"})
-    combined_df = combined_df.query("saccade > 2")
+    combined_df = combined_df.query("saccade_order > 2")
     combined_df["trial"] = [
         slugify.slugify(f"{obj}-{angle}")
         for obj, angle in zip(combined_df["Object"], combined_df["angle"])
@@ -110,6 +136,7 @@ processed_df = all_simulations_df[
         "saccade",
         "Rot",
         "trial",
+        "precision",
     ]
 ]
 
@@ -121,7 +148,7 @@ processed_df = processed_df.rename(
     }
 )
 
-processed_df["saccade_num"] = processed_df.groupby(["trial", "trial", "rot"])[
+processed_df["saccade_num"] = processed_df.groupby(["sim", "trial"])[
     "ts"
 ].transform(lambda x: np.arange(len(x)))
 

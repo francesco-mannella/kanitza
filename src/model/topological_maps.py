@@ -1,9 +1,12 @@
+"""Topological maps (SOM/STM) implemented as torch modules."""
 import math
 
 import torch
 
 
 class DimensionalityError(Exception):
+    """Raised when a map output dimensionality other than 1 or 2 is used."""
+
     def __str__(self):
         return "Dimensionality of the output must be 1D or 2D."
 
@@ -34,7 +37,7 @@ class RadialBasis:
         elif self.dims == 2:
             self.side = int(math.sqrt(self.size))
             if self.side**2 != self.size:
-                raise "Dimensions must be equal"
+                raise ValueError("Dimensions must be equal")
             t = torch.arange(self.side)
             meshgrids = torch.meshgrid(t, t, indexing="ij")
             self.grid = torch.stack([x.reshape(-1) for x in meshgrids]).T
@@ -52,7 +55,9 @@ class RadialBasis:
               not.  Defaults to False.
 
         Returns:
-            The result of the function call.
+            torch.Tensor: (N, size) Gaussian bumps over the grid, each
+            normalized to sum 1. `index` is (N,) flat indices, or (N, 2)
+            [row, col] points if as_point is True.
         """
 
         if self.dims == 1:
@@ -158,6 +163,7 @@ class TopologicalMap(torch.nn.Module):
         return torch.argmin(x, dim=-1).detach()
 
     def get_bmu_from_points(self, point):
+        """Convert [..., 2] [row, col] points to flat unit indices."""
 
         return point[..., 0] * self.radial.side + point[..., 1]
 
@@ -207,7 +213,8 @@ class TopologicalMap(torch.nn.Module):
               radial basis function. Defaults to current neighborhood_std.
 
         Returns:
-            torch.Tensor: Result of the backward pass for the specified point.
+            torch.Tensor: (N, input_size) weights of the unit nearest to
+            each (N, 2) [row, col] point, i.e. the prototype input.
         """
 
         if neighborhood_std is None:
@@ -283,6 +290,10 @@ class FilteredTopologicalMap(TopologicalMap):
         # Compute the BMU filter
         self.bmu_filter = 1.0 - magnitude * input_filter
 
+    def clear_filter(self):
+        """Remove the BMU filter so the BMU is the plain argmin."""
+        self.bmu_filter = None
+
 
 class Updater:
     """
@@ -333,7 +344,7 @@ class Updater:
               neighborhood_std.
 
         Returns:
-            float: The mean value of the computed loss.
+            torch.Tensor: (N, output_size) per-unit losses.
         """
         # If anchors are not provided, calculate loss without anchors
         if anchors is None:
@@ -363,8 +374,25 @@ class Updater:
         anchors=None,
         neighborhood_std_anchors=None,
     ):
+        """Perform one optimizer step on the modulated loss.
+
+        Args:
+            output (torch.Tensor): (N, output_size) squared distances from
+                the model forward pass.
+            neighborhood_std (float or torch.Tensor): std of the
+                neighborhood around the BMU, scalar or (N, 1).
+            learning_modulation (float or torch.Tensor): per-sample loss
+                weight, scalar or (N, 1).
+            anchors (torch.Tensor, optional): (N, 2) [row, col] anchor
+                points ("stm" mode).
+            neighborhood_std_anchors (float, optional): std around the
+                anchors; defaults to neighborhood_std.
+
+        Returns:
+            tuple: (modulated loss, unmodulated loss), scalar tensors.
+        """
         if self.mode == "som":
-            losses = self.loss(output, neighborhood_std)
+            losses = self.losses(output, neighborhood_std)
         elif self.mode == "stm":
             losses = self.losses(
                 output, neighborhood_std, anchors, neighborhood_std_anchors

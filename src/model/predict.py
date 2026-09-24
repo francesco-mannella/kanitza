@@ -1,9 +1,12 @@
+"""Logistic competence predictor over map grid representations."""
 import torch
 import torch.nn as nn
 import torch.optim as optim
 
 
 class Predictor(torch.nn.Module):
+    """Linear layer + sigmoid mapping a (N, input_dim) input to (N, 1)."""
+
     def __init__(self, input_dim: int):
         """
         Initializes the Predictor module.
@@ -46,13 +49,22 @@ class PredictorUpdater:
         Args:
         - predictor: The predictor model to be updated.
         - learning_rate: The learning rate for the optimizer.
-        - params: the object of simulation parameters
         """
         self.optimizer = optim.Adam(
             params=predictor.parameters(), lr=learning_rate
         )
 
     def losses(self, x: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
+        """Row-wise mean squared error.
+
+        Args:
+            x (torch.Tensor): (N, 1) predictions.
+            target (torch.Tensor): targets; must be (N, 1) for a per-sample
+                loss (a (N,) target broadcasts to (N, N)).
+
+        Returns:
+            torch.Tensor: (N, 1) losses.
+        """
         squared_error = (x - target) ** 2
         row_wise_losses = torch.mean(squared_error, dim=1).reshape(-1, 1)
         return row_wise_losses

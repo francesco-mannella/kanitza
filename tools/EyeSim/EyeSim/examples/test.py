@@ -1,3 +1,4 @@
+"""Open a live render of the triangle world and wait for Enter."""
 import EyeSim
 import gymnasium as gym
 import matplotlib.pyplot as plt

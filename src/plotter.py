@@ -1,10 +1,10 @@
+"""Matplotlib visualizers for the fovea/saliency view and the three maps."""
 import EyeSim
 import numpy as np
 from EyeSim.envs.mkvideo import vidManager
 from matplotlib import pyplot as plt
 from matplotlib.patches import Rectangle
 
-from params import Parameters
 
 
 class FoveaPlotter(EyeSim.envs.Simulator.TestPlotter):
@@ -20,6 +20,8 @@ class FoveaPlotter(EyeSim.envs.Simulator.TestPlotter):
         Parameters:
             - env (object): The simulation environment containing retina and
               fovea configurations.
+            - *args, **kwargs: forwarded to TestPlotter (e.g. offline=True
+              to record frames for close(name)).
         """
         self.env = env
         self.fig, self.axes = plt.subplots(
@@ -183,7 +185,8 @@ class MapsPlotter:
 
         Parameters:
         - env (object): The environment within which the controller operates.
-        - controller (object): Manages the weights to be plotted.
+        - controller (object): Manages the weights to be plotted; its
+          `params` provide maps_output_size.
         - offline (bool): Indicates if operations should be done offline.
         - video_frame_duration (int): Duration for video frames in
           milliseconds.
@@ -194,7 +197,7 @@ class MapsPlotter:
             "RETINA"
         ].shape[:-1]
         self.offline = offline
-        self.params = Parameters()
+        self.params = controller.params
 
         self.side = int(np.sqrt(self.params.maps_output_size))
         self.fovea_size = env.fovea_size[0]
@@ -417,7 +420,7 @@ class MapsPlotter:
                 )
             except IndexError:
                 print("Index error")
-                self.attention_map_saccade.set_offsets(self.saccade)
+                self.attention_map_focus.set_offsets(self.saccade)
 
     def _normalize_weights(self, weights):
         """

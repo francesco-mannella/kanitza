@@ -1,3 +1,26 @@
+"""Launch src/main.py over a grid of parameters (this produced the
+tests/long_search_* runs).
+
+Usage: run from the directory that will hold the simulation folders:
+    python /path/to/src/grid_search.py
+
+Configuration is in the constants below:
+    SEEDS: list of seeds, or None to draw N_SEEDS random seeds in [0, 1e5).
+    WANDB: pass -w to main.py.
+    MAX_PROCESSES: simulations run in parallel; when the batch is full the
+        script waits for all of them before starting the next batch.
+    base_name: prefix of the folder names.
+    params: main.py parameters. A list value is a set of alternatives to
+        grid over; a scalar is fixed. A parameter whose value is itself a
+        list must therefore be wrapped twice (e.g. gabor_scales=[[1.0]]).
+
+For each combination and seed, creates ./<base_name>_<md5(params)[:6]>_<seed:06d>
+and runs, inside it,
+    nohup python -u main.py -r <name> -p '<k=v;...>' -s <seed> [-w]
+so stdout goes to <name>/nohup.out. To reproduce a single run, rerun that
+command in an empty folder with the same -p string and seed (the exact
+command is in <run>/wandb/*/files/wandb-metadata.json).
+"""
 import collections
 import hashlib
 import os

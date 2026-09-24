@@ -1,3 +1,14 @@
+"""Scatter plot of final competence over the decay-speed parameter grid.
+
+Usage: run from the directory holding the simulation folders:
+    python /path/to/src/analysis.py
+
+Inputs: for every folder matching "*_s_*_m_*": <dir>/loaded_params and the
+last "comp: <float>" line of <dir>/log (written only when main.py ran with
+-w); folders without such a line are skipped.
+Outputs: an interactive seaborn plot, x=decaying_speed,
+y=local_decaying_speed, point size=competence.
+"""
 from glob import glob
 
 import matplotlib.pyplot as plt
@@ -7,37 +18,34 @@ import seaborn.objects as so
 from params import Parameters
 
 
-dirs = glob("s_*")
-
-params = Parameters()
+dirs = glob("*_s_*_m_*/")
 
 
 def get_pdict(params):
+    """Return the parameters of `params` as a dict without param_types."""
     _pdict = vars(params)
     _pdict = {k: _pdict[k] for k in _pdict if k != "param_types"}
     return _pdict
 
 
-df = pd.DataFrame(columns=list(get_pdict(params).keys()) + ["comp"])
-df = df.astype(dtype=params.param_types)
-df.comp = df.comp.astype(float)
-
-for index, d in enumerate(dirs):
-
-    with open(f"{d}/loaded_params") as f:
-        param_lines = f.readlines()
-    param_string = ";".join([p.strip() for p in param_lines])
-    params.string_to_params(param_string)
-    _dict = get_pdict(params)
+rows = []
+for d in dirs:
 
     with open(f"{d}/log") as f:
-        comp = f.readlines()[-1].strip().replace("comp:", "")
-        _dict["comp"] = float(comp)
+        comps = [line for line in f if line.startswith("comp:")]
+    if not comps:
+        continue
 
-    df.loc[index, :] = _dict
-    df["comp_scaled"] = (df.comp - df.comp.min()) / (
-        df.comp.max() - df.comp.min()
-    )
+    params = Parameters()
+    params.load(f"{d}/loaded_params")
+    _dict = get_pdict(params)
+    _dict["comp"] = float(comps[-1].replace("comp:", ""))
+    rows.append(_dict)
+
+df = pd.DataFrame(rows)
+df["comp_scaled"] = (df.comp - df.comp.min()) / (
+    df.comp.max() - df.comp.min()
+)
 
 
 p = (

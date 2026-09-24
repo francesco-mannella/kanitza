@@ -1,3 +1,30 @@
+"""Test a trained offline controller and record its goal scanpaths.
+
+Usage: run inside a trained simulation folder (needs off_control_store and
+optionally loaded_params):
+    python /path/to/src/test.py [--plot] [--seed N] [--world triangle|square]
+        [--posrot X Y ANGLE] [--wandb] [--skip_existing]
+
+Args:
+    --plot: save sim/maps/merged test gifs and pngs.
+    --seed: random seed.
+    --world: object to show; random between world 0 and 1 if omitted.
+    --posrot: object position (task-space units, 0-80) and rotation (rad);
+        random if omitted.
+    --wandb: log gifs to wandb.
+    --skip_existing: do nothing if this test's goals file already exists.
+
+Runs 1 episode of saccade_num=16 x saccade_time steps. Every
+saccade_period=4 steps the controller maps the agent's color-saliency
+fovea (the same visual input used in training) to a goal on the
+visual-conditions map and the agent's attention is centered on the
+corresponding attention-map weight.
+
+Outputs: goals_<world>[_<pos>_<rot>_].npy (slugified) holding
+[{"world", "position", "angle", "saccade_id", "goal"}], one entry per
+saccade; with --plot also sim_test_*, maps_test_*, merged_test_* gifs.
+Exits with an error if off_control_store is missing.
+"""
 import argparse
 import os
 import signal
@@ -15,7 +42,6 @@ from slugify import slugify
 from merge_gifs import merge_gifs
 from model.agent import Agent
 from model.offline_controller import OfflineController
-from model.visual_processing import SaliencyMap
 from params import Parameters
 from plotter import FoveaPlotter, MapsPlotter
 
@@ -25,10 +51,6 @@ from plotter import FoveaPlotter, MapsPlotter
 
 
 _ = EyeSim  # avoid fixer erase EyeSim import
-
-
-def radians_to_degrees(radians):
-    return np.array(radians) * (180.0 / np.pi)
 
 
 def signal_handler(signum, frame):
@@ -79,20 +101,17 @@ class SimulationTest:
         return env
 
     def load_offline_controller(self, file_path):
-        """Loads the offline controller from a file, or creates a new one if
-        the file doesn't exist.
+        """Loads the trained offline controller from a file.
 
         Args:
             file_path (str): The path to the offline controller file.
 
         Returns:
-            OfflineController: The loaded or newly created offline controller.
+            OfflineController: The loaded offline controller.
         """
-        if os.path.exists(file_path):
-            return OfflineController.load(
-                file_path, self.env, self.params, self.seed
-            )
-        return OfflineController(self.env, self.params, self.seed)
+        return OfflineController.load(
+            file_path, self.env, self.params, self.seed
+        )
 
     def execute_simulation(self, is_plotting_epoch):
         """Executes the simulation for a given number of episodes.
@@ -198,11 +217,12 @@ class SimulationTest:
             self.params.saccade_time * self.params.saccade_num
         ):
 
-            # Get info for saccade
-            _, _, saliency = self.visual_map(observation["RETINA"])
-            _, _, condition = self.visual_map(observation["FOVEA"])
-            if time_step % 4 == 0:
+            if time_step % self.params.saccade_period == 0:
                 print(f"ts: {time_step:>3d}  ")
+
+                # Get info for saccade: the same fovea the maps were
+                # trained on
+                condition = self.agent.get_fovea(observation)
 
                 # Compute saccade
                 saccade, goal = self.off_control.get_action_from_condition(
@@ -221,7 +241,7 @@ class SimulationTest:
                 self.off_control.goals["saccade_id"].append(saccade_id)
                 self.off_control.goals["goal"].append(goal)
 
-            elif time_step % 4 == 1:
+            elif time_step % self.params.saccade_period == 1:
 
                 # Reset saccade
                 if saccade is not None and not np.array_equal(
@@ -230,9 +250,8 @@ class SimulationTest:
                     saccade = np.array([0.5, 0.5])
                     self.agent.set_parameters(saccade)
 
-            self.update_environment_position(time_step)
             action, saliency_map, salient_point, color_saliency = self.agent.get_action(
-                saliency
+                observation
             )
             observation, *_ = self.env.step(action)
 
@@ -245,26 +264,6 @@ class SimulationTest:
                     salient_point,
                     goal,
                 )
-
-    def update_environment_position(self, time_step):
-        """Placeholder for updating the environment position during the
-        simulation.
-
-        Args:
-            time_step (int): The current time step in the simulation.
-        """
-        # if time_step % 10 == 0:
-        #     pos, rot = env.get_position_and_rotation()
-        #     pos_trj_angle = (
-        #         5
-        #         * np.pi
-        #         * (time_step / (params.saccade_time * params.saccade_num))
-        #     )
-        #     pos += 10 * np.array([np.cos(pos_trj_angle),
-        #                            np.sin(pos_trj_angle)])
-        #     rot += pos_trj_angle
-        #     env.update_position_and_rotation(pos, rot)
-        pass
 
     def update_plotters(
         self,
@@ -346,13 +345,45 @@ class SimulationTest:
                 frame_duration=80,
             )
 
+    def goals_filename(self):
+        """Return the goals output path, without the .npy extension.
+
+        Returns:
+            str: slugified "goals_<world>[_<pos>_<rot>_]".
+        """
+        base_name = f"goals_{self.world}"
+
+        if self.object_params is not None:
+
+            parts = []
+            if self.object_params.get("pos") is not None:
+                parts.append(f"{self.object_params['pos']}_")
+            if self.object_params.get("rot") is not None:
+                parts.append(f"{self.object_params['rot']:06.2f}_")
+
+            return slugify(f"{base_name}_{''.join(parts)}")
+
+        return slugify(f"{base_name}")
+
     def test(self):
         """Runs the main test loop for the simulation.
+
+        Exits with an error if ./off_control_store is missing. With
+        params.skip_existing, returns without simulating if the goals file
+        already exists.
 
         Returns:
             list: A list of plotters used during the simulation.
         """
-        # %%
+        controller_path = "off_control_store"
+        if not os.path.exists(controller_path):
+            sys.exit(f"{controller_path} not found: run inside a trained folder")
+        if self.params.skip_existing and os.path.exists(
+            f"{self.goals_filename()}.npy"
+        ):
+            print(f"{self.goals_filename()}.npy exists, skipping")
+            return self.plotters
+
         signal.signal(signal.SIGINT, signal_handler)
         plt.ion()
         plt.close("all")
@@ -364,9 +395,7 @@ class SimulationTest:
             seed=self.seed,
             focus_params=self.params,
         )
-        self.visual_map = SaliencyMap(self.params)
 
-        controller_path = "off_control_store"
         self.off_control = self.load_offline_controller(controller_path)
 
         for epoch in range(
@@ -387,21 +416,7 @@ class SimulationTest:
             ) or (epoch == self.params.epochs - 1)
             self.plotters = self.execute_simulation(is_plotting_epoch)
 
-            base_name = f"goals_{self.world}"
-
-            if self.object_params is not None:
-
-                parts = []
-                if self.object_params.get("pos") is not None:
-                    parts.append(f"{self.object_params['pos']}_")
-                if self.object_params.get("rot") is not None:
-                    parts.append(f"{self.object_params['rot']:06.2f}_")
-
-                filename = slugify(f"{base_name}_{''.join(parts)}")
-
-            else:
-                filename = slugify(f"{base_name}")
-
+            filename = self.goals_filename()
             print(filename)
 
             np.save(
@@ -457,6 +472,12 @@ def parse_arguments():
         help="Enable Weights & Biases logging.",
     )
 
+    parser.add_argument(
+        "--skip_existing",
+        action="store_true",
+        help="Do nothing if the goals file of this test already exists.",
+    )
+
     return parser.parse_args()
 
 
@@ -503,7 +524,7 @@ def main():
         if args.posrot[0] is None
         else {
             "pos": args.posrot[:2],
-            "rot": radians_to_degrees(args.posrot[2]),
+            "rot": args.posrot[2],
         }
     )
 
@@ -513,6 +534,8 @@ def main():
     params.epochs = 1
     params.saccade_num = 16
     params.episodes = 1
+    params.saccade_period = 4
+    params.skip_existing = args.skip_existing
     params.plotting_epochs_interval = 1 if plot else 1e100
 
     # Generate initial name without dots or special characters

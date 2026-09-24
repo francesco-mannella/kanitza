@@ -1,3 +1,4 @@
+"""Collect matplotlib frames in memory and save them as a GIF."""
 import glob
 import io
 import os

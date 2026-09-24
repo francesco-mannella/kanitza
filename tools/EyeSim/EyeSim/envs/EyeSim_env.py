@@ -1,3 +1,4 @@
+"""Gymnasium environment: a moving retina over a 2D scene of polygons."""
 import os
 from importlib import resources
 
@@ -9,20 +10,48 @@ from gymnasium import spaces
 
 
 def DefaultRewardFun(observation):
+    """Constant zero reward. Unused."""
     return 0
 
 
 def get_resource(package, module, filename, text=True):
+    """Absolute path of a data file shipped inside a package module."""
     with resources.path(f"{package}.{module}", filename) as rp:
         return rp.absolute()
 
 
 class EyeSimEnv(gym.Env):
-    """A single VisualField simulator"""
+    """A single VisualField simulator.
+
+    The scene (task space taskspace_xlim x taskspace_ylim units, default
+    80x80) holds the colored bodies of models/worlds.json; all are parked
+    at 1e10 except the one selected by `world` (0 red triangle, 1 blue
+    square, 2 green circle), placed at reset. The retina is a retina_size
+    px view (default 80x80) of a retina_scale units window (default 80x80)
+    centered on retina_sim_pos; the FOVEA observation is its central
+    fovea_size px crop (default 16x16). fovea_scale is not used by the env
+    itself: the agent uses it to crop its saliency fovea, and the plotter to
+    draw the fovea box.
+
+    Observation: {"RETINA": (*retina_size, 3) uint8,
+    "FOVEA": (*fovea_size, 3) uint8}.
+    Action: (2,) displacement of the retina center in task-space units
+    (x, y), clipped so the center stays inside the task space.
+    step() returns the gymnasium 5-tuple (observation, reward=0,
+    terminated=False, truncated=False, info={}).
+    """
 
     metadata = {"render_modes": ["human", "offline"], "render_fps": 25}
 
     def __init__(self, render_mode=None, params=None):
+        """
+        Args:
+            render_mode (str, optional): None, "human" or "offline".
+            params (Parameters, optional): provides taskspace_xlim,
+                taskspace_ylim, retina_scale, retina_size, fovea_scale and
+                fovea_size; defaults (80x80 space and retina, fovea_scale
+                50x50, fovea_size 16x16) if None.
+        """
 
         assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode
@@ -81,6 +110,14 @@ class EyeSimEnv(gym.Env):
         self.reset()
 
     def init_world(self, world=None, object_params=None):
+        """Select the object and its pose for the next reset.
+
+        Args:
+            world (int, optional): index in world_labels; keeps the current
+                one if None.
+            object_params (dict, optional): {"pos": [x, y], "rot": rad};
+                random pose (40-60% of the task space, any angle) if None.
+        """
         if world is not None:
             self.world = world
         self.world_file = get_resource("EyeSim", "models", self.world_files[0])
@@ -88,15 +125,21 @@ class EyeSimEnv(gym.Env):
         self.object_params = object_params
 
     def set_seed(self, seed=None):
+        """Seed self.rng (random seed from os.urandom if None)."""
         self.seed = seed
         if self.seed is None:
             self.seed = np.frombuffer(os.urandom(4), dtype=np.uint32)[0]
         self.rng = np.random.RandomState(self.seed)
 
     def update_position_and_rotation(self, position=None, rotation=None, obj=None):
+        """Move a body (default: last in z-order) to position / rotation.
+
+        None values leave the corresponding property unchanged.
+        """
         self.sim.move(angle=rotation, pos=position, obj=obj)
 
     def get_center(self, obj_name=None):
+        """World center of mass of a body (default: current object)."""
 
         if obj_name is None:
             obj_name = self.world_objects[self.world]
@@ -106,6 +149,8 @@ class EyeSimEnv(gym.Env):
         return center
 
     def get_position_and_rotation(self, obj_name=None):
+        """Return (position (2,), angle rad) of a body (default: current
+        object)."""
 
         if obj_name is None:
             obj_name = self.world_objects[self.world]
@@ -117,6 +162,16 @@ class EyeSimEnv(gym.Env):
         return position, rotation
 
     def step(self, action, position=None, rotation=None):
+        """Move the retina, optionally move the last body, render.
+
+        Args:
+            action (array-like): (2,) retina displacement (task units).
+            position, rotation: optional new pose of the last body in
+                z-order (see update_position_and_rotation).
+
+        Returns:
+            tuple: (observation, 0, False, False, {}).
+        """
 
         self.retina_sim_pos = self.retina_sim_pos + action
 
@@ -143,14 +198,25 @@ class EyeSimEnv(gym.Env):
         reward = 0
 
         # compute end of task
-        done = False
+        terminated = False
+        truncated = False
 
         # other info
         info = dict()
 
-        return self.observation, reward, done, info
+        return self.observation, reward, terminated, truncated, info
 
     def reset(self, *, seed=None, mode=None):
+        """Rebuild the scene, place the current object and center the retina.
+
+        Args:
+            seed: forwarded to gym.Env.reset (self.rng is not reseeded).
+            mode (str, optional): "human" or "offline" to create a renderer.
+
+        Returns:
+            tuple: (observation, info) with info keys "world" (label),
+            "angle" (rad) and "position" ((2,) task units).
+        """
         super().reset(seed=seed)
 
         self.sim = Sim(world_dict=self.world_dict)
@@ -205,7 +271,7 @@ class EyeSimEnv(gym.Env):
         if self.renderer is not None:
             self.renderer.reset()
 
-        observation, reward, done, info = self.step(np.zeros(2))
+        observation, *_, info = self.step(np.zeros(2))
 
         info["world"] = self.world_labels[self.world]
         info["angle"] = angle
@@ -214,6 +280,7 @@ class EyeSimEnv(gym.Env):
         return observation, info
 
     def render_init(self, mode):
+        """Close any renderer and create a new one for mode, or none."""
         if self.renderer is not None:
             self.renderer.close()
         if mode == "human":
@@ -235,6 +302,7 @@ class EyeSimEnv(gym.Env):
             self.renderer = None
 
     def render_check(self, mode):
+        """Recreate the renderer if it does not match mode."""
         if (
             mode is None
             or (
@@ -245,6 +313,7 @@ class EyeSimEnv(gym.Env):
             self.render_init(mode)
 
     def render(self, mode=None):
+        """Draw the current scene ("human": window, "offline": frame)."""
         self.render_check(mode)
         if self.renderer is not None:
             self.renderer.step()

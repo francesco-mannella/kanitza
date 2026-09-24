@@ -1,4 +1,14 @@
 #!/usr/bin/python3
+"""Convert an SVG drawing of polygons (and joint circles) to a Box2D world JSON.
+
+Usage:
+    python svg2json.py SOURCE.svg DEST.json name:r,g,b:type:mass:zorder ...
+
+Each object argument selects an SVG <path> by id and sets its color,
+Box2D body type, density and zorder. Circles/ellipses with id "A_to_B"
+become revolute joints with zero motor torque. The output is
+the format read by JsonToPyBox2D (e.g. worlds.json).
+"""
 from svg.path import parse_path
 from xml.dom import minidom
 import json
@@ -42,7 +52,7 @@ class svn2jsonConverter:
         self.object_colors = object_colors
         self.object_types = object_types
         self.object_masses = object_masses
-        self.joint_torques = joint_torques
+        self.joint_torques = joint_torques or {}
         self.object_zorders = object_zorders
 
         self.getDoc()
@@ -155,7 +165,9 @@ class svn2jsonConverter:
             }
             self.world["body"].append(obj_dict)
         self.world["body"] = [
-            x for x in self.world["body"] if not x["name"] in exclude_objs
+            x
+            for x in self.world["body"]
+            if not x["name"] in (exclude_objs or [])
         ]
 
         body_idcs = {}
@@ -178,8 +190,11 @@ class svn2jsonConverter:
                 *_, cBx, cBy = self.get_position_and_vertices(
                     nameB, np.array([[cx, cy]])
                 )
+                cAx, cAy, cBx, cBy = (
+                    float(v[0]) for v in (cAx, cAy, cBx, cBy)
+                )
 
-                torque = self.joint_torques[nameA + "_to_" + nameB]
+                torque = self.joint_torques.get(nameA + "_to_" + nameB, 0)
 
                 ulimit = 0
                 llimit = 0
@@ -197,9 +212,7 @@ class svn2jsonConverter:
                     "jointSpeed": 0,
                     "refAngle": 0,
                     "collideConnected": False,
-                    "maxMotorTorque": self.joint_torques[
-                        nameA + "_to_" + nameB
-                    ],
+                    "maxMotorTorque": torque,
                     "enableLimit": True,
                     "motorSpeed": 0,
                     "anchorA": {"x": cAx, "y": cAy},
@@ -228,17 +241,19 @@ class svn2jsonConverter:
         with open(root + ".json", "w") as json_file:
             json_file.write(self.jsn)
 
-    def get_position_and_vertices(self, name):
+    def get_position_and_vertices(self, name, points=None):
         """Returns the origin position (0,0) and vertices of a path.
 
         Args:
             name (str): The name of the path.
+            points (np.ndarray, optional): (K, 2) points to express in the
+                body frame instead of the path vertices.
 
         Returns:
             tuple: A tuple containing the center position,
                    and the x and y coordinates of the vertices.
         """
-        points = self.paths[name].T
+        points = (self.paths[name] if points is None else points).T
         vx, vy = points
         x, y = 0, 0
 

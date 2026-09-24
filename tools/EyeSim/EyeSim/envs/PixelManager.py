@@ -12,7 +12,8 @@ class PathToPixelsConverter:
         Args:
             dims (list): The original dimensions of the image.
             shape (list): The shape of the image (height, width).
-            radius (float): The radius for path inclusion.
+            radius (float): Tolerance (task-space units) used when testing
+                whether a pixel center lies inside a path.
         """
         self.shape = list(shape)
         self.scale = dims/self.shape
@@ -37,9 +38,10 @@ class PathToPixelsConverter:
         # Create a grid of coordinates
         X, Y = np.meshgrid(self.x, self.y[::-1])
         self.grid = np.vstack((X.flatten(), Y.flatten())).T
-        self.radius = np.mean(np.array(self.scale) / self.shape)
+        self.radius = radius
 
     def set_displace(self, displace):
+        """Set the task-space position of the image center."""
         self.displace *= 0
         self.displace += displace
 
@@ -59,6 +61,21 @@ class PathToPixelsConverter:
         img = 2.0 * points_in_path.reshape(*self.shape, order="F").T - 1
         return img
 
+    def path_mask(self, vertices):
+        """Boolean image of the pixels whose centers lie inside a path.
+
+        Args:
+            vertices (np.ndarray): Vertices defining the path.
+
+        Returns:
+            np.ndarray: (shape[1], shape[0]) boolean mask.
+        """
+        points = self.grid * self.scale + self.displace
+
+        path = Path(vertices)
+        points_in_path = path.contains_points(points, radius=self.radius)
+        return points_in_path.reshape(*self.shape, order="F").T
+
     def path2pixels_color(self, vertices, color):
         """Converts a path to a colored pixel image.
 
@@ -69,16 +86,7 @@ class PathToPixelsConverter:
         Returns:
             np.ndarray: A colored pixel image representing the path.
         """
-        points = self.grid * self.scale + self.displace
-
-        path = Path(vertices)
-        points_in_path = path.contains_points(points, radius=self.radius)
-        img = np.zeros((*self.shape, 3))
-        for i in range(3):
-            img[:, :, i] = (
-                color[i] * points_in_path.reshape(*self.shape, order="F").T
-            )
-        return img
+        return self.path_mask(vertices)[:, :, None] * np.array(color[:3])
 
     def merge_imgs(self, vertices_list, colors, zorder, background=(1, 1, 1)):
         """Merges multiple paths into a single colored image.
@@ -90,7 +98,8 @@ class PathToPixelsConverter:
             background: background color
 
         Returns:
-            np.ndarray: A colored image with merged paths.
+            np.ndarray: (H, W, 3) float image in [0, 1]. Where paths overlap,
+            the one with the lowest zorder wins.
         """
         img = np.zeros((*self.shape, 3))
         mask = np.zeros(self.shape, dtype=bool)
@@ -107,7 +116,7 @@ class PathToPixelsConverter:
         for vertices, color in zip(sorted_vertices_list, sorted_colors):
             pixels = self.path2pixels_color(vertices, color)
             # Create mask for current object
-            current_mask = np.any(pixels > 0, axis=2)
+            current_mask = self.path_mask(vertices)
             # Draw only where not already drawn
             img[current_mask & ~mask] = pixels[current_mask & ~mask]
             # Update mask with current object
@@ -123,7 +132,7 @@ class PathToPixelsConverter:
             ]
         )
         pixels = self.path2pixels_color(background_vertices, background)
-        current_mask = np.any(pixels > 0, axis=2)
+        current_mask = self.path_mask(background_vertices)
         img[current_mask & ~mask] = pixels[current_mask & ~mask]
         mask = mask | current_mask
 

@@ -1,3 +1,14 @@
+"""Demo: saccades driven by a ring of fixed attention centers.
+
+Usage: from src/, with an interactive backend:
+    PYTHONPATH=. python demos/attentional_demo.py
+
+For each object (triangle, square, circle) at position (40, 40), rotation
+0.5 rad, cycles the attention center over 15 points on a circle of radius
+0.3 around the retina center, 3 steps each (attention reset to the center
+after the first), and shows the fovea plotter live. Saves
+episode_XXXX.gif/png for each object in the cwd.
+"""
 # %% IMPORTS
 
 import EyeSim
@@ -70,7 +81,7 @@ if __name__ == "__main__":
         action = [0, 0]
 
         # Create a plotting object for the current episode
-        plotter = FoveaPlotter(env, offline=False)
+        plotter = FoveaPlotter(env, offline=True)
 
         # Generate random means for Gaussian masks
         a = np.linspace(0, 2 * np.pi, 15)

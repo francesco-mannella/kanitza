@@ -1,3 +1,4 @@
+"""Hyperparameters of the FORCE-trained recurrent generative model."""
 import sys
 
 import numpy as np
@@ -6,6 +7,30 @@ from params import Parameters
 
 
 class ParamsFORCE:
+    """
+    Parameters of RecurrentGenerativeModel.
+
+    Attributes:
+        target_shape_lenght (int): timesteps of a goal presentation.
+        num_input_units (int): input units (= maps_output_size).
+        num_recurrent_units (int): reservoir units.
+        num_output_units (int): readout units (= maps_output_size), one per
+            map unit.
+        RNN_tau (float): membrane time constant.
+        p_rec_connections (float): recurrent connection probability.
+        rec_gain (float): recurrent weight gain g.
+        phi (float): feedback weight gain.
+        uniform_dist (float): range of the uniform weight initializations.
+        normal_dist_mean, normal_dist_sd (float): recurrent weight
+            distribution before gain.
+        dt (float): integration step.
+        alpha (float): initial inverse-correlation scale (P = I / alpha).
+        teacher_noise (float): uniform noise added to the teacher signal.
+        param_types (dict): converters used by string_to_params.
+
+    maps_output_size is read from ./loaded_params if present.
+    """
+
     def __init__(self):
         """
         Input-output parameters
@@ -69,7 +94,7 @@ class ParamsFORCE:
         Example:
             If `self` has attributes `a` and `b`, calling:
 
-            self.string_to_dict("a=1;b=2")
+            self.string_to_params("a=1;b=2")
 
             will set:
             self.a = 1
@@ -95,17 +120,20 @@ class ParamsFORCE:
                 sys.exit(1)
 
     def save(self, filepath):
+        """Write each parameter as a "key=value" line to filepath."""
         with open(filepath, "w") as file:
             for key in self.__dict__:
                 if key != "param_types":
                     file.write(f"{key}={getattr(self, key)}\n")
 
     def load(self, filepath):
+        """Read "key=value" lines from filepath into the attributes."""
         with open(filepath, "r") as file:
             param_list = "".join([line.strip() + ";" for line in file])
         self.string_to_params(param_list)
 
     def __hash__(self):
+        """Hash of all public, non-callable attributes and their values."""
         # Using a tuple comprehension to collect all non-callable and
         # non-private attributes (those not starting with "_") into a tuple
         attr_values = tuple(
@@ -118,6 +146,7 @@ class ParamsFORCE:
         return hashid
 
     def _make_hashable(self, value):
+        """Recursively convert dicts, lists and sets to hashable types."""
         if isinstance(value, dict):
             # Convert dictionary to a frozenset of its items (key-value pairs)
             return frozenset(
