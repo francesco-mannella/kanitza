@@ -40,7 +40,6 @@ def sampling(array, precision=0.8, rng=None):
 
     flattened_array = array.flatten()
 
-    probabilities = np.maximum(0, flattened_array)
     probabilities = np.maximum(0, flattened_array - flattened_array.max() * precision)
 
     sm = probabilities.sum()
@@ -212,13 +211,14 @@ class Agent:
         """
         if self.focus_params.test_fovea:
             return observation["FOVEA"]
-        fovea_size = self.environment.fovea_size
-        fovea_scale = self.environment.fovea_scale
-        retina_scale = self.environment.retina_size
-        start = retina_scale[0] // 2 - fovea_scale[0] // 2
-        end = start + fovea_scale[0]
-        fovea = cv2.resize(color_saliency[start:end, start:end, :], fovea_size)
-        fovea *= 1e4
+        fovea_height, fovea_width = self.environment.fovea_size
+        fovea_scale = np.asarray(self.environment.fovea_scale)
+        start = np.asarray(self.environment.retina_size) // 2 - fovea_scale // 2
+        end = start + fovea_scale
+        crop = color_saliency[start[0] : end[0], start[1] : end[1], :]
+        # cv2 takes the target size as (width, height)
+        fovea = cv2.resize(crop, (int(fovea_width), int(fovea_height)))
+        fovea *= self.focus_params.fovea_gain
         return fovea
 
     def get_fovea(self, observation):
@@ -232,8 +232,8 @@ class Agent:
                 "FOVEA" if test_fovea).
 
         Returns:
-            np.ndarray: (*fovea_size, 3) color-saliency fovea (x 1e4), or
-            the raw FOVEA if test_fovea.
+            np.ndarray: (*fovea_size, 3) color-saliency fovea (x
+            fovea_gain), or the raw FOVEA if test_fovea.
         """
         if self.focus_params.test_fovea:
             return observation["FOVEA"]
@@ -262,8 +262,8 @@ class Agent:
           - salient point (np.ndarray, (2,)): sampled pixel as (x, y) =
             (column, row).
           - fovea (np.ndarray, (*fovea_size, 3)): the color saliency in the
-            central fovea_scale x fovea_scale retina pixels, resized to
-            fovea_size and multiplied by 1e4 (the raw FOVEA observation if
+            central fovea_scale retina pixels, resized to fovea_size and
+            multiplied by fovea_gain (the raw FOVEA observation if
             test_fovea).
         """
         retina_image = observation["RETINA"]

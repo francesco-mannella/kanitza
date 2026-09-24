@@ -18,11 +18,10 @@ class Parameters(ParameterManager):
         retina_scale (list): [w, h] task-space window seen by the retina.
         retina_size (list): [h, w] retina image size in pixels.
         fovea_scale (list): [h, w] central retina region, in retina pixels,
-            that the agent crops from its color-saliency map and resizes to
-            fovea_size to form the visual input of the maps (also drawn by
-            the plotter).
-        fovea_size (list): [h, w] fovea image size in pixels (also the size
-            of the env FOVEA observation, a central crop of the retina).
+            that is resized to fovea_size to form the fovea: the agent's
+            color-saliency fovea (the visual input of the maps) and the env
+            FOVEA observation (also drawn by the plotter).
+        fovea_size (list): [h, w] fovea image size in pixels.
         episodes (int): episodes per epoch.
         epochs (int): total epochs; a resumed run stops at this epoch.
         saccade_num (int): saccades per episode.
@@ -74,7 +73,7 @@ class Parameters(ParameterManager):
         gabor_scales (list): sigmas of the Gabor kernels (one bank per
             scale).
         gabor_orientation_bins (int): the orientations are
-            linspace(0, 360, bins)[:-1] degrees, i.e. bins - 1 of them.
+            linspace(0, 180, bins)[:-1] degrees, i.e. bins - 1 of them.
         gabor_frequency (float): spatial frequency (cycles per pixel).
         gabor_phase_offset (float): phase of the carrier, in radians.
         gabor_kernel_size (int): side of the square kernels, in pixels.
@@ -86,7 +85,9 @@ class Parameters(ParameterManager):
             adjusted saliency.
         test_fovea (bool): if True the maps get the raw FOVEA observation
             instead of the color-saliency fovea.
-        use_wandb (bool): upload the fovea simulation gifs to wandb.
+        fovea_gain (float): factor applied to the color-saliency fovea
+            (in [0, 1]) before it is stored; the maps divide their input by
+            255, so their input range is [0, fovea_gain / 255].
     """
 
     def __init__(
@@ -99,7 +100,7 @@ class Parameters(ParameterManager):
         taskspace_ylim=[0, 80],
         retina_scale=[80, 80],
         retina_size=[80, 80],
-        fovea_scale=[50, 50],
+        fovea_scale=[16, 16],
         fovea_size=[16, 16],
         episodes=20,
         epochs=400,
@@ -140,7 +141,7 @@ class Parameters(ParameterManager):
         gabor_rgb_prop=1.0,
         gabor_bright_prop=1.0,
         test_fovea=False,
-        use_wandb=False,
+        fovea_gain=1e4,
     ):
         self.project_name = project_name
         self.entity_name = entity_name
@@ -193,6 +194,6 @@ class Parameters(ParameterManager):
         self.gabor_rgb_prop = gabor_rgb_prop
         self.gabor_bright_prop = gabor_bright_prop
         self.test_fovea = test_fovea
-        self.use_wandb = use_wandb
+        self.fovea_gain = fovea_gain
 
         super(Parameters, self).__init__()

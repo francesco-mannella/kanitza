@@ -21,7 +21,6 @@ so stdout goes to <name>/nohup.out. To reproduce a single run, rerun that
 command in an empty folder with the same -p string and seed (the exact
 command is in <run>/wandb/*/files/wandb-metadata.json).
 """
-import collections
 import hashlib
 import os
 import subprocess
@@ -93,17 +92,20 @@ def get_combinations(data):
     """
     Generates all possible combinations of list elements from a dictionary.
 
+    Lists and tuples are sets of alternatives; any other value, strings
+    included, is a single fixed value. `data` is not modified.
+
     Args:
        data: A dictionary.
 
     Yields:
        A dictionary representing a single combination of elements.
     """
-    for k, v in data.items():
-        if not isinstance(v, collections.abc.Iterable):
-            data[k] = [v]
+    alternatives = [
+        v if isinstance(v, (list, tuple)) else [v] for v in data.values()
+    ]
 
-    combinations = product(*[value for value in data.values()])
+    combinations = product(*alternatives)
     for combination in combinations:
         yield dict(zip(data.keys(), combination))
 

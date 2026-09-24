@@ -7,6 +7,7 @@ import numpy as np
 from EyeSim.envs.Simulator import Box2DSim as Sim
 from EyeSim.envs.Simulator import TestPlotter, VisualSensor
 from gymnasium import spaces
+from skimage.transform import resize
 
 
 def DefaultRewardFun(observation):
@@ -29,9 +30,8 @@ class EyeSimEnv(gym.Env):
     square, 2 green circle), placed at reset. The retina is a retina_size
     px view (default 80x80) of a retina_scale units window (default 80x80)
     centered on retina_sim_pos; the FOVEA observation is its central
-    fovea_size px crop (default 16x16). fovea_scale is not used by the env
-    itself: the agent uses it to crop its saliency fovea, and the plotter to
-    draw the fovea box.
+    fovea_scale px crop resized to fovea_size px (default 16x16, no
+    resizing).
 
     Observation: {"RETINA": (*retina_size, 3) uint8,
     "FOVEA": (*fovea_size, 3) uint8}.
@@ -50,7 +50,7 @@ class EyeSimEnv(gym.Env):
             params (Parameters, optional): provides taskspace_xlim,
                 taskspace_ylim, retina_scale, retina_size, fovea_scale and
                 fovea_size; defaults (80x80 space and retina, fovea_scale
-                50x50, fovea_size 16x16) if None.
+                and fovea_size 16x16) if None.
         """
 
         assert render_mode is None or render_mode in self.metadata["render_modes"]
@@ -61,7 +61,7 @@ class EyeSimEnv(gym.Env):
             self.taskspace_ylim = np.array([0, 80])
             self.retina_scale = np.array([80, 80])
             self.retina_size = np.array([80, 80])
-            self.fovea_scale = np.array([50, 50])
+            self.fovea_scale = np.array([16, 16])
             self.fovea_size = np.array([16, 16])
         else:
             self.taskspace_xlim = np.array(params.taskspace_xlim)
@@ -184,12 +184,16 @@ class EyeSimEnv(gym.Env):
 
         self.sim.step()
         retina = self.retina_sim.step(self.retina_sim_pos)
-        fovea_start = (self.retina_size - self.fovea_size) // 2
-        fovea_end = self.retina_size - fovea_start
+        fovea_start = (self.retina_size - self.fovea_scale) // 2
+        fovea_end = fovea_start + self.fovea_scale
         fovea = retina[
             fovea_start[0] : fovea_end[0],
             fovea_start[1] : fovea_end[1],
         ]
+        if not np.array_equal(self.fovea_scale, self.fovea_size):
+            fovea = resize(
+                fovea, (*self.fovea_size, 3), preserve_range=True, anti_aliasing=True
+            ).astype(np.uint8)
         self.observation = {
             "RETINA": retina,
             "FOVEA": fovea,

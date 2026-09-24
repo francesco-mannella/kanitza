@@ -40,14 +40,15 @@ Side branches:
 ## src/ entry points
 
 ### `grid_search.py`: parameter grids (produced `tests/long_search_*`)
-`python src/grid_search.py`, run from the output directory. The seeds, `params` (a list value means grid over its alternatives; list-valued parameters are double-wrapped, for example `gabor_scales=[[1.0]]`), `base_name`, `WANDB` and `MAX_PROCESSES` are constants in the file. For each combination and seed it creates `<base_name>_<md5(params)[:6]>_<seed:06d>/` and runs `nohup python -u main.py -r <name> -p '<k=v;...>' -s <seed> [-w]` inside it.
+`python src/grid_search.py`, run from the output directory. The seeds, `params` (a list value means grid over its alternatives, any other value, strings included, is fixed; list-valued parameters are double-wrapped, for example `gabor_scales=[[1.0]]`), `base_name`, `WANDB` and `MAX_PROCESSES` are constants in the file. For each combination and seed it creates `<base_name>_<md5(params)[:6]>_<seed:06d>/` and runs `nohup python -u main.py -r <name> -p '<k=v;...>' -s <seed> [-w]` inside it.
 
 ### `main.py`: training
 `python src/main.py [-s N] [-r NAME] [-p "k=v;..."] [-w] [-o]`
 - The first run in a folder merges `-p` into the defaults in `params.py` and saves the result to `loaded_params`. Later runs load `loaded_params`; a `-p` given then is applied on top, the changed keys are printed, and the file is re-saved.
 - Values in `-p` and `loaded_params` are Python literals (`3.0`, `True`, `'text'`, `[0, 80]`); unquoted text is taken as a string. A value whose type does not match the parameter's default raises `TypeError` (int and float are interchangeable).
 - If `off_control_store` exists, training resumes from it and stops once `epochs` epochs have been run in total.
-- Each epoch runs `episodes` × `saccade_num` × `saccade_time` steps. The agent filters the retina with the Gabor bank (`gabor_*` parameters), samples a salient point inside its attentional mask and moves the eye there. The maps' visual input is the agent's color-saliency fovea: the central `fovea_scale` retina pixels, resized to `fovea_size` and scaled by 1e4 (or the raw FOVEA if `test_fovea`). At the midpoint of each saccade the controller proposes an attention center from the same saliency fovea (`Agent.get_fovea`). Afterwards the salient saccades (action norm > `saccade_threshold`) update the three maps and the competence predictor. See `pseudocode.md`.
+- Each epoch runs `episodes` × `saccade_num` × `saccade_time` steps. The agent filters the retina with the Gabor bank (`gabor_*` parameters), samples a salient point inside its attentional mask and moves the eye there. The maps' visual input is the agent's color-saliency fovea: the central `fovea_scale` retina pixels, resized to `fovea_size` and multiplied by `fovea_gain` (1e4), or the raw FOVEA if `test_fovea`. At the midpoint of each saccade the controller proposes an attention center from the same saliency fovea (`Agent.get_fovea`). Afterwards the salient saccades (action norm > `saccade_threshold`) update the three maps and the competence predictor. See `pseudocode.md`.
+- `-w` and `-o` are runtime flags: they always come from the command line, never from `loaded_params`.
 - `-o` shows the fovea plotter live.
 - Outputs: `NAME`, `loaded_params`, `log`, `off_control_store` (saved every epoch), `maps_<epoch>.gif/png`, and `sim_<epoch>.gif` if `plot_sim`. With `-w`, wandb logs competence, weight changes and the maps.
 
@@ -65,7 +66,7 @@ Side branches:
 - The saved dicts also contain `offcontrol_goal` and `rnn_goal` (numpy arrays); the file name ends with the arbitration weight.
 
 ### `test_weights.py`: inspect map prototypes
-`python src/test_weights.py` inside a trained folder. It builds a (160, 160, 3) tiling of the normalized visual-conditions prototypes in the variable `visual_weights`; nothing is shown or saved, so use it with `python -i`.
+`python src/test_weights.py` inside a trained folder. It saves `visual_weights.png`, a tiling of the normalized visual-conditions prototypes on the map grid (shapes from `loaded_params`).
 
 ### Analysis and rendering
 - `analysis.py`: scatter of final competence over (`decaying_speed`, `local_decaying_speed`) for the `*_s_*_m_*` folders. It needs the `comp:` lines in `log`, which `main.py` writes only with `-w`.
@@ -89,7 +90,7 @@ Run them with `PYTHONPATH=/path/to/src`.
 | `parameter_manager.py` | Parsing of `"k=v;..."` strings, `save`/`load` of `loaded_params`. |
 | `model/agent.py` | Gaussian attentional mask and thresholded sampling over the Gabor saliency, which together produce the retina action and the color-saliency fovea. |
 | `model/visual_processing.py` | `SaliencyMap`: builds the Gabor bank from the `gabor_*` parameters. |
-| `model/gabor_filtering.py` | `gabor_kernel` and `ChannelGaborFilter` (red/green/blue opponent and brightness channels); runnable demo on `src/model/gabor_test.png`. |
+| `model/gabor_filtering.py` | `gabor_kernel` and `ChannelGaborFilter` (red/green/blue opponent and brightness channels); runnable demo, `python gabor_filtering.py [IMAGE_PATH_OR_URL ...]` (default `src/model/gabor_test.png`, untracked). |
 | `model/offline_controller.py` | The three maps, state storage, offline update, competence, save/load. |
 | `model/topological_maps.py` | `TopologicalMap`/`FilteredTopologicalMap` (torch), the `Updater` (SOM/STM loss). |
 | `model/predict.py` | Logistic competence predictor and its updater. |
@@ -113,20 +114,6 @@ Run them with `PYTHONPATH=/path/to/src`.
 - `paths.csv`: the first 3 saccades of each test are dropped. Before, only timestep 0 was.
 - `main.py` resume: `epochs` is now the total number of epochs, not the number of additional ones.
 - Visual input of the controller: `main.py`, `test.py` and `test_generative.py` now query the maps with the agent's color-saliency fovea, the same input the maps are trained on. Before, `generate_saccade` in training got the raw FOVEA, `test.py` the Gabor saliency of the FOVEA and `test_generative.py` the raw FOVEA. This affects training itself, so the `long_search` runs are not reproducible with the current code.
+- Gabor orientations: `linspace(0, 180, gabor_orientation_bins)[:-1]` instead of `linspace(0, 360, ...)[:-1]`. With `bins=5`, as in `long_search`, that is 0/45/90/135 instead of 0/90/180/270. On 30 test scenes the saliency maps correlate at 0.98 with the old ones, but the saliency peak moves by 9 px on average (up to 28 px).
+- `Parameters.fovea_scale` now defaults to [16, 16] (was [50, 50]), matching the runs. Runs that relied on the default get a different fovea. The env FOVEA observation now honors `fovea_scale`; it is unchanged when `fovea_scale == fovea_size`.
 - `test.py`/`test_generative.py` `--posrot`: the angle is passed to the env in radians as given. Before, it was converted to degrees and then used as radians. Goals file names now carry the given angle (for example `-000-40` for 0.4).
-
-## Open issues specific to saliencies (reported, not fixed yet; S1-S4 are fixed)
-
-Severity: **H** means a crash or silently wrong results; **M** means fragile or questionable; **L** means minor.
-
-| # | Sev | Location | Issue |
-|---|---|---|---|
-| S5 | M | `main.py` | `-w` and `-o` are set before `loaded_params` is loaded, so on reruns the saved values override the flags. `save_simulation_gif` checks `use_wandb` while everything else checks `wandb`. |
-| S6 | M | `offline_controller.update` | `tile(20, 1)` repeats every sample 20 times; the mean losses and gradients are unchanged, so it only costs time and memory. |
-| S7 | M | `model/visual_processing.py` | `linspace(0, 360, bins)[:-1]` gives `bins - 1` orientations over the full circle. With near-odd kernels (phase about -pi/2) and `abs()`, orientations theta and theta+180 give almost the same response, so half the filters are redundant. |
-| S8 | M | `model/agent.py` | The fovea uses a magic `* 1e4` scale and a square-only crop computed from the first dimension. `Parameters.fovea_scale` defaults to [50, 50], while the runs used [16, 16]. The env FOVEA observation ignores `fovea_scale`. |
-| S9 | M | `plotter.py` `FoveaPlotter.step` | Normalizes by `max - min`, which gives NaN on a blank fovea. |
-| S10 | M | `test_weights.py` | Hardcoded shapes (16, 16, 3, 10, 10), and the output is commented out, so running it shows nothing. |
-| S11 | L | `model/gabor_filtering.py` demo | Only `import urllib` (without `urllib.request`), depends on the untracked `gabor_test.png`, and reads a png with `format="jpeg"`. |
-| S12 | L | `grid_search.py` | A scalar string value would be split into characters, since strings are iterable. The params dict is mutated in place. |
-| S13 | L | `model/agent.py` `sampling` | The first `probabilities = np.maximum(0, flattened_array)` line is dead. |

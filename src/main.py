@@ -288,7 +288,7 @@ class Main:
         """
         gif_file = f"sim_{epoch:04d}"
         fovea_plotter.close(gif_file)
-        if self.params.use_wandb:
+        if self.params.wandb:
             wandb.log(
                 {"Simulations": wandb.Video(f"{gif_file}.gif", format="gif")},
                 step=epoch,
@@ -412,9 +412,6 @@ if __name__ == "__main__":
     params = Parameters()
     seed = args.seed
     variant = args.variant
-    params.wandb = args.wandb
-    params.online_plot = args.online
-
     if os.path.exists("loaded_params"):
         params.load("loaded_params")
         if args.param_list:
@@ -428,6 +425,11 @@ if __name__ == "__main__":
         print("no local parameters")
         params.update(args.param_list)
         params.save("loaded_params")
+
+    # Runtime flags: set after loading so they are never taken from
+    # loaded_params
+    params.wandb = args.wandb
+    params.online_plot = args.online
 
     if not params.online_plot:
         matplotlib.use("agg")

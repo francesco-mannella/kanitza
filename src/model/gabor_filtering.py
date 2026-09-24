@@ -1,14 +1,17 @@
 """Channel-opponent Gabor filter bank used to compute visual saliency.
 
-Run as a script to show the filter responses on
-src/model/gabor_test.png (not tracked in git); it opens matplotlib windows
-and waits for Enter between images.
+Run as a script to show the filter responses:
+    python gabor_filtering.py [IMAGE_PATH_OR_URL ...]
+(default src/model/gabor_test.png, not tracked in git); it opens
+matplotlib windows and waits for Enter between images.
 """
 # %%
 
 import io
 import os
-import urllib
+import sys
+import urllib.parse
+import urllib.request
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -267,20 +270,18 @@ if __name__ == "__main__":
     # image_files = glob.glob("photos_no_class/*jpg")
     # image_files = glob.glob("base_imgs/*jpg")
 
+    # Image paths or URLs from the command line, default gabor_test.png
+    images = sys.argv[1:] or [
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), "gabor_test.png")
+    ]
     images = [
-        # "https://elements-resized.envatousercontent.com/envato-dam-assets-production/EVA/TRX/f0/df/51/9b/a2/v1_E10/E108QOQX.jpg?w=1600&cf_fit=scale-down&mark-alpha=18&mark=https%3A%2F%2Felements-assets.envato.com%2Fstatic%2Fwatermark4.png&q=85&format=auto&s=cf8933d911882d0def266f4f7ecc7111e3834ec380fc4104713c97a270a45902",
-        # "https://www.astrofilifiemme.it/wp-content/uploads/2021/04/Jupiter-1536x864.jpg",
-        # "https://rare-gallery.com/thumbs/527927-real-nature.jpg",
-        # "https://media.springernature.com/lw685/springer-static/image/art%3A10.1038%2Fs42003-022-03518-2/MediaObjects/42003_2022_3518_Fig1_HTML.png?as=webp",
-        # "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRuxI_vIJ5d3iudbuw4kLKrCV3sxzhzebO3RQ&s",
-        # "https://slyvi-hosting.slyvi.it/teampages/3176851814145/images/imported/uploads/news/chris-du-plessis-torna-in-campo-con-il-biella-rugby-17829.png",
-        # "https://nebraskapublicmedia.org/assets/images/download_-_2025-07-21T112133.272.min-800x600.png",
-        f"file://{os.path.dirname(os.path.abspath(__file__))}/gabor_test.png"
+        x if urllib.parse.urlparse(x).scheme else f"file://{os.path.abspath(x)}"
+        for x in images
     ]
 
     # Define Gabor fil:ter parameters
     scales = [8]
-    orientations = np.pi * np.linspace(0, 360, 10) / 180.0
+    orientations = np.pi * np.linspace(0, 180, 10)[:-1] / 180.0
     frequency = 0.09
     phase_offset = -np.pi * (0.5 - 25e-3)
     kernel_size = 3
@@ -304,15 +305,19 @@ if __name__ == "__main__":
     for image_url in images:
 
         # Load image and ensure only RGB channels are used
-        with urllib.request.urlopen(image_url) as response:
-            image_data = response.read()
+        try:
+            with urllib.request.urlopen(image_url) as response:
+                image_data = response.read()
+        except OSError as e:
+            sys.exit(f"Cannot read {image_url}: {e}")
 
         # Use a BytesIO object to allow seek operations
         image_bytes = io.BytesIO(image_data)
 
         # Use plt.imread with a file object
-        image = plt.imread(image_bytes, format="jpeg")  # Adjust format if
-        # necessary
+        extension = os.path.splitext(urllib.parse.urlparse(image_url).path)[1]
+        image_format = extension.lstrip(".").lower().replace("jpg", "jpeg")
+        image = plt.imread(image_bytes, format=image_format or None)
 
         # Apply channel-wise Gabor filters to the image
         rgb, brightness, adjusted_rgb = gabor_manager(image)

@@ -9,8 +9,10 @@ class SaliencyMap:
     Generates a saliency map using Gabor filters.
 
     Wraps model.gabor_filtering.ChannelGaborFilter configured from the
-    gabor_* parameters. Orientations are linspace(0, 360,
-    gabor_orientation_bins)[:-1] degrees.
+    gabor_* parameters. Orientations are linspace(0, 180,
+    gabor_orientation_bins)[:-1] degrees: bins - 1 orientations over the
+    half circle (theta and theta + 180 give nearly the same absolute
+    response with these near-odd kernels).
     """
 
     def __init__(self, params):
@@ -29,7 +31,7 @@ class SaliencyMap:
         sigma_y_multiplier = params.gabor_sigma_y_multiplier
         rgb_prop = params.gabor_rgb_prop
         bright_prop = params.gabor_bright_prop
-        orientations = np.pi * np.linspace(0, 360, orientation_bins)[:-1] / 180.0
+        orientations = np.pi * np.linspace(0, 180, orientation_bins)[:-1] / 180.0
         self.gabor_manager = ChannelGaborFilter(
             scales,
             orientations,

@@ -115,7 +115,8 @@ class FoveaPlotter(EyeSim.envs.Simulator.TestPlotter):
         self.highlight_dot.set_offsets(salient_point)
 
         x = color_saliency_map
-        x = (x - x.min()) / (x.max() - x.min())
+        span = x.max() - x.min()
+        x = (x - x.min()) / span if span > 0 else np.zeros_like(x)
         self.fovea_image.set_array(x)
 
         self._update_rect_positions()

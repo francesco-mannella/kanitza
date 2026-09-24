@@ -18,8 +18,9 @@
 #
 # The results will not match the original runs exactly: the code changed
 # after a1fbe79 (Gabor filters, agent, parameters), and the later fixes
-# change the controller's visual input during training, the competence
-# predictor and the match scores (see SCRIPTS.md).
+# change the controller's visual input during training, the Gabor
+# orientations, the competence predictor and the match scores (see
+# SCRIPTS.md).
 set -e
 
 usage() {
