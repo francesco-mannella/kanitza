@@ -419,8 +419,9 @@ if __name__ == "__main__":
             params.update(args.param_list)
             after = params._params_to_dict()
             changed = [k for k in after if before.get(k) != after[k]]
-            print(f"loaded_params overridden by --param_list: {changed}")
-            params.save("loaded_params")
+            if changed:
+                print(f"loaded_params overridden by --param_list: {changed}")
+                params.save("loaded_params")
     else:
         print("no local parameters")
         params.update(args.param_list)

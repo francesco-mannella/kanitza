@@ -11,10 +11,12 @@
 #
 # Each run folder gets the files main.py writes: loaded_params, log, NAME,
 # off_control_store, maps_<epoch>.gif/png every 100 epochs up to epoch 999,
-# plus nohup.out with the console output. The parameters and seed are the
-# ones recorded in the original runs' wandb-metadata.json (launched by
-# src/grid_search.py at commit a1fbe79). If a run folder already contains an
-# off_control_store, main.py resumes it up to 1000 epochs in total.
+# plus nohup.out with the console output (appended, never overwritten). The
+# parameters and seed are the ones recorded in the original runs'
+# wandb-metadata.json (launched by src/grid_search.py at commit a1fbe79).
+# If a run folder already contains an off_control_store, main.py resumes it
+# up to 1000 epochs in total (a finished run is left as it is), so do not
+# point OUTDIR at the folder holding the original runs.
 #
 # The results will not match the original runs exactly: the code changed
 # after a1fbe79 (Gabor filters, agent, parameters), and the later fixes
@@ -64,11 +66,14 @@ fovea_scale=[16, 16];fovea_size=[16, 16]"
 run() {
     local name=$1 local_decaying_speed=$2
     mkdir -p "$OUTDIR/$name"
-    echo "Running $name in $OUTDIR/$name (output in nohup.out) ..."
+    if [[ -e "$OUTDIR/$name/off_control_store" ]]; then
+        echo "$OUTDIR/$name already has an off_control_store: resuming it."
+    fi
+    echo "Running $name in $OUTDIR/$name (output appended to nohup.out) ..."
     (
         cd "$OUTDIR/$name"
         python -u "$MAIN" -r "$name" -p "$(params "$local_decaying_speed")" \
-            -s $SEED $WANDB_FLAG > nohup.out 2>&1
+            -s $SEED $WANDB_FLAG >> nohup.out 2>&1
     )
 }
 
