@@ -11,7 +11,8 @@ Args:
     --world: object to show; random between world 0 and 1 if omitted.
     --posrot: object position (task-space units, 0-80) and rotation (rad);
         random if omitted.
-    --wandb: log gifs to wandb.
+    --wandb: log gifs to wandb; without it they are logged locally to
+        ./data_sim (see local_wandb.py).
     --skip_existing: do nothing if this test's goals file already exists.
 
 Runs 1 episode of saccade_num=16 x saccade_time steps. Every
@@ -36,9 +37,9 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
-import wandb
 from slugify import slugify
 
+import local_wandb
 from merge_gifs import merge_gifs
 from model.agent import Agent
 from model.offline_controller import OfflineController
@@ -51,6 +52,8 @@ from plotter import FoveaPlotter, MapsPlotter
 
 
 _ = EyeSim  # avoid fixer erase EyeSim import
+# Tracking backend: local_wandb (./data_sim) unless --wandb selects wandb
+wandb = local_wandb
 
 
 def signal_handler(signum, frame):
@@ -317,24 +320,18 @@ class SimulationTest:
         if self.params.plot_sim:
             gif_file = f"sim_test_{tag}"
             fovea_plotter.close(gif_file)
-            if self.params.wandb:
-                wandb.log(
-                    {
-                        "Simulation": wandb.Video(
-                            f"{gif_file}.gif", format="gif"
-                        )
-                    },
-                    step=episode,
-                )
+            wandb.log(
+                {"Simulation": wandb.Video(f"{gif_file}.gif", format="gif")},
+                step=episode,
+            )
 
         if self.params.plot_maps:
             gif_file = f"maps_test_{tag}"
             maps_plotter.close(gif_file)
-            if self.params.wandb:
-                wandb.log(
-                    {"Maps": wandb.Video(f"{gif_file}.gif", format="gif")},
-                    step=episode,
-                )
+            wandb.log(
+                {"Maps": wandb.Video(f"{gif_file}.gif", format="gif")},
+                step=episode,
+            )
 
         if self.params.plot_sim and self.params.plot_maps:
             gif_file = f"merged_test_{tag}"
@@ -368,22 +365,9 @@ class SimulationTest:
     def test(self):
         """Runs the main test loop for the simulation.
 
-        Exits with an error if ./off_control_store is missing. With
-        params.skip_existing, returns without simulating if the goals file
-        already exists.
-
         Returns:
             list: A list of plotters used during the simulation.
         """
-        controller_path = "off_control_store"
-        if not os.path.exists(controller_path):
-            sys.exit(f"{controller_path} not found: run inside a trained folder")
-        if self.params.skip_existing and os.path.exists(
-            f"{self.goals_filename()}.npy"
-        ):
-            print(f"{self.goals_filename()}.npy exists, skipping")
-            return self.plotters
-
         signal.signal(signal.SIGINT, signal_handler)
         plt.ion()
         plt.close("all")
@@ -396,7 +380,7 @@ class SimulationTest:
             focus_params=self.params,
         )
 
-        self.off_control = self.load_offline_controller(controller_path)
+        self.off_control = self.load_offline_controller("off_control_store")
 
         for epoch in range(
             self.off_control.epoch, self.off_control.epoch + self.params.epochs
@@ -544,21 +528,34 @@ def main():
     params.init_name = f"test_{seed_str}"
     params.wandb = args.wandb
 
-    # Initialize Weights & Biases logging
-    if args.wandb:
-        wandb.init(
-            project=params.project_name,
-            entity=params.entity_name,
-            name=params.init_name,
-        )
+    simulation_test = SimulationTest(params, seed, world, object_params)
+    if not os.path.exists("off_control_store"):
+        sys.exit("off_control_store not found: run inside a trained folder")
+    goals_file = f"{simulation_test.goals_filename()}.npy"
+    if params.skip_existing and os.path.exists(goals_file):
+        print(f"{goals_file} exists, skipping")
+        return
+
+    # Tracking: wandb with --wandb, ./data_sim otherwise
+    global wandb
+    wandb = local_wandb.backend(args.wandb)
+    wandb.init(
+        project=params.project_name,
+        entity=params.entity_name,
+        name=params.init_name,
+        config=dict(
+            params._params_to_dict(),
+            test_world=world,
+            test_object_params=object_params,
+            goals_file=goals_file,
+        ),
+        job_type="test",
+    )
 
     # Simulate
-    simulation_test = SimulationTest(params, seed, world, object_params)
     simulation_test.test()
 
-    # Close Weights & Biases logging
-    if args.wandb:
-        wandb.finish()
+    wandb.finish()
 
 
 # %%

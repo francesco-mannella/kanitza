@@ -16,7 +16,8 @@
 # Inputs: variables at the top of this file (grid values, `params` string).
 # Outputs: one folder per simulation containing loaded_params, log, NAME,
 #     off_control_store, maps_*.gif/png (see SCRIPTS.md).
-# `wandb=true` passes -w to main.py; `wandb=false` runs `wandb disabled`.
+# `wandb=true` passes -w to main.py (log to wandb); with `wandb=false` main.py
+# logs to <run>/data_sim instead.
 
 seeds="1"
 # decay_speeds="3.5"
@@ -79,7 +80,6 @@ for s in $seeds; do
                     #
                     mkdir -p $dirname
                     cd $dirname
-                    if [[ $wandb == false ]]; then wandb disabled; fi
                     wandb_flag=""
                     if [[ $wandb == true ]]; then wandb_flag="-w"; fi
                     #

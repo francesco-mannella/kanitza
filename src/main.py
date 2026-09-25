@@ -12,7 +12,9 @@ Args:
     -p/--param_list: overrides of src/params.py defaults, or of
         ./loaded_params when it exists; the merged parameters are saved to
         ./loaded_params.
-    -w/--wandb: log competence, weight changes and gifs to wandb.
+    -w/--wandb: log competence, salient samples, weight changes and gifs to
+        wandb; without it they are logged locally to ./data_sim (see
+        local_wandb.py).
     -o/--online: show the fovea plotter live during training.
 
 Each epoch runs `episodes` episodes of `saccade_num` saccades of
@@ -38,8 +40,8 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
-import wandb
 
+import local_wandb
 from model.agent import Agent
 from model.offline_controller import OfflineController
 from params import Parameters
@@ -47,6 +49,8 @@ from plotter import FoveaPlotter, MapsPlotter
 
 
 es = EyeSim
+# Tracking backend: local_wandb (./data_sim) unless -w selects wandb
+wandb = local_wandb
 
 
 class Logger:
@@ -86,7 +90,7 @@ class Main:
         """
         self.params = params
         self.main_log = Logger("log")
-        self.sh = self.SignalHandler(params.wandb)
+        self.sh = self.SignalHandler()
         signal.signal(signal.SIGINT, self.sh)
         plt.ion()
         plt.close("all")
@@ -100,24 +104,15 @@ class Main:
     class SignalHandler:
         """Handles interrupt signals to gracefully shut down the application."""
 
-        def __init__(self, wandb=True):
-            """Initializes the SignalHandler with optional Weights & Biases support.
-
-            Args:
-                wandb (bool): Whether to use Weights & Biases logging.
-            """
-            self._wandb = wandb
-
         def __call__(self, signum, frame):
-            """Handles the signal by finishing Weights & Biases and exiting.
+            """Handles the signal by finishing the tracking run and exiting.
 
             Args:
                 signum: Signal number.
                 frame: Current stack frame.
             """
             signal.signal(signum, signal.SIG_IGN)
-            if self._wandb:
-                wandb.finish()
+            wandb.finish()
             sys.exit(0)
 
     def setup_environment(self, seed):
@@ -288,11 +283,10 @@ class Main:
         """
         gif_file = f"sim_{epoch:04d}"
         fovea_plotter.close(gif_file)
-        if self.params.wandb:
-            wandb.log(
-                {"Simulations": wandb.Video(f"{gif_file}.gif", format="gif")},
-                step=epoch,
-            )
+        wandb.log(
+            {"Simulations": wandb.Video(f"{gif_file}.gif", format="gif")},
+            step=epoch,
+        )
 
     def __call__(self):
         """Runs the main loop up to `params.epochs` total epochs, resuming
@@ -313,24 +307,24 @@ class Main:
                 elif self.env.world_labels[world] == "square":
                     world_dict["square"] += 1
 
-            if self.params.wandb:
-                self.main_log(
-                    f"triangles: {world_dict['triangle']}, "
-                    f"squares: {world_dict['square']}"
-                )
+            self.main_log(
+                f"triangles: {world_dict['triangle']}, "
+                f"squares: {world_dict['square']}"
+            )
 
             self.off_control.update()
 
-            if self.params.wandb:
-                self.main_log(f"comp: {self.off_control.competence}")
+            self.main_log(f"comp: {self.off_control.competence}")
 
-                wandb.log(
-                    dict(
-                        competence=self.off_control.competence,
-                        **self.off_control.weight_change,
-                    ),
-                    step=epoch,
-                )
+            wandb.log(
+                dict(
+                    competence=self.off_control.competence,
+                    salient_triangles=world_dict["triangle"],
+                    salient_squares=world_dict["square"],
+                    **self.off_control.weight_change,
+                ),
+                step=epoch,
+            )
 
             if self.params.plot_maps:
                 self.maps_plotter.step()
@@ -351,14 +345,13 @@ class Main:
         """
         file = f"maps_{epoch:04d}"
         maps_plotter.close(file)
-        if self.params.wandb:
-            wandb.log(
-                {
-                    "history": wandb.Image(f"{file}.gif"),
-                    "last": wandb.Image(f"{file}.png"),
-                },
-                step=epoch,
-            )
+        wandb.log(
+            {
+                "history": wandb.Image(f"{file}.gif"),
+                "last": wandb.Image(f"{file}.png"),
+            },
+            step=epoch,
+        )
 
 
 if __name__ == "__main__":
@@ -440,17 +433,17 @@ if __name__ == "__main__":
     with open("NAME", "w") as fname:
         fname.write(f"{params.init_name}\n")
 
-    if args.wandb:
-        wandb.init(
-            project=params.project_name,
-            entity=params.entity_name,
-            name=params.init_name,
-            config=params._params_to_dict(),
-        )
+    wandb = local_wandb.backend(args.wandb)
+    wandb.init(
+        project=params.project_name,
+        entity=params.entity_name,
+        name=params.init_name,
+        config=params._params_to_dict(),
+        job_type="train",
+    )
 
     main = Main(params, seed)
 
     main()
 
-    if args.wandb:
-        wandb.finish()
+    wandb.finish()

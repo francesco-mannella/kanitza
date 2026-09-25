@@ -8,25 +8,31 @@ Open http://127.0.0.1:8000 and type (or pick) a simulation folder in the
 form, or press "Browse..." to navigate the folders below the launch
 directory in a popup (simulation folders have a Select button). FOLDER, if
 given, is shown first; the folder list offers every directory under the
-launch directory (two levels deep) containing a log or loaded_params. To
-reach the page from other machines, pass --host with an address of this
-machine (for example its Tailscale IP).
+launch directory (two levels deep) containing data_sim, a log or
+loaded_params. To reach the page from other machines, pass --host with an
+address of this machine (for example its Tailscale IP).
 
-For the chosen folder the page shows:
-    - a summary (NAME, epochs run, last and best competence);
-    - competence and salient samples per epoch, parsed from `log`
-      ("comp:" lines are written only when main.py ran with -w);
-    - the parameters in loaded_params;
-    - the maps snapshots (maps_*.png, click for the gif) and sim_*.gif;
-    - the test results: one row per goals*.npy (world, angle, goal
-      sequence) and the *_test_* gifs;
-    - the last lines of log and nohup.out.
+If the folder has a data_sim subfolder (runs logged by src/local_wandb.py,
+i.e. main.py/test.py/test_generative.py run without -w/--wandb), the page
+shows everything logged there:
+    - a summary and the list of runs (training and test);
+    - one chart per logged metric (competence, weight changes, ...) plus
+      the salient samples per epoch, with training runs merged by step so
+      a resumed training reads as one curve;
+    - the logged maps snapshots (click for the gif) and other media;
+    - for each test run: world, pose, goal sequence (from its goals file)
+      and its animations;
+    - the configuration of the latest training run.
+Otherwise (older runs, or runs logged to wandb) it falls back to log,
+loaded_params, maps_*.png/gif, sim_*.gif, goals*.npy and *_test_* gifs.
+The last lines of log and nohup.out are shown in both cases.
 
-Only simulation folders (containing log or loaded_params) are shown, only
-images (png/gif) directly inside them are served, and the server listens on
-localhost by default.
+Only simulation folders are shown, only images directly inside them or
+under their data_sim are served, and the server listens on localhost by
+default.
 """
 import argparse
+import datetime
 import html
 import json
 import os
@@ -153,20 +159,22 @@ document.querySelectorAll('.chart').forEach(function (box) {
   var svg = box.querySelector('svg'), tip = box.querySelector('.tooltip');
   var line = svg.querySelector('.cross'), dot = svg.querySelector('.hover-dot');
   var g = JSON.parse(box.dataset.geom);
+  function sx(x) { return g.left + (x - g.xmin) / (g.xmax - g.xmin) * g.pw; }
+  function sy(y) { return g.top + g.h - (y - g.ymin) / (g.ymax - g.ymin) * g.h; }
   function show(evt) {
     var r = svg.getBoundingClientRect();
-    var x = (evt.clientX - r.left) * g.w / r.width;
-    var i = Math.round((x - g.left) / g.dx);
-    i = Math.max(0, Math.min(data.length - 1, i));
-    var p = data[i], px = g.left + i * g.dx;
-    var py = g.top + g.h - (p[1] - g.ymin) / (g.ymax - g.ymin) * g.h;
+    var x = g.xmin + ((evt.clientX - r.left) * g.w / r.width - g.left) / g.pw * (g.xmax - g.xmin);
+    var lo = 0, hi = data.length - 1;
+    while (hi - lo > 1) { var mid = (lo + hi) >> 1; if (data[mid][0] < x) lo = mid; else hi = mid; }
+    var p = Math.abs(data[lo][0] - x) <= Math.abs(data[hi][0] - x) ? data[lo] : data[hi];
+    var px = sx(p[0]), py = sy(p[1]);
     line.setAttribute('x1', px); line.setAttribute('x2', px);
     dot.setAttribute('cx', px); dot.setAttribute('cy', py);
     line.style.display = dot.style.display = '';
     tip.textContent = '';
     var b = document.createElement('strong'); b.textContent = p[2];
     tip.appendChild(b);
-    tip.appendChild(document.createTextNode('  epoch ' + p[0] + (p[3] ? '  ' + p[3] : '')));
+    tip.appendChild(document.createTextNode('  ' + g.xlabel + ' ' + p[0] + (p[3] ? '  ' + p[3] : '')));
     tip.style.display = 'block';
     var left = px * r.width / g.w + 12;
     if (left + tip.offsetWidth > r.width) left -= tip.offsetWidth + 24;
@@ -218,61 +226,77 @@ def nice_step(span, count=5):
     return next(m * power for m in (1, 2, 5, 10) if m * power >= raw)
 
 
-def line_chart(title, values, labels, fmt):
-    """Inline SVG line chart with crosshair tooltip and a table view."""
+def line_chart(title, xs, values, labels, fmt, xlabel="epoch"):
+    """Inline SVG line chart with crosshair tooltip and a table view.
+
+    Args:
+        title (str): chart title.
+        xs, values (list): x and y of the points, x increasing.
+        labels (list): optional per-point text shown in tooltip and table.
+        fmt (callable): formats a y value.
+        xlabel (str): name of the x axis.
+    """
     if not values:
-        return f"<h2>{html.escape(title)}</h2><p class=muted>No data in log.</p>"
+        return f"<h2>{html.escape(title)}</h2><p class=muted>No data.</p>"
     w, h, left, top, bottom = 720, 220, 48, 10, 26
-    ph = h - top - bottom
+    ph, pw = h - top - bottom, w - left - 10
     ymin = min(0.0, min(values))
     ystep = nice_step(max(max(values) - ymin, 1e-9))
     ymax = ymin + ystep * np.ceil((max(values) - ymin) / ystep + 1e-9)
-    n = len(values)
-    dx = (w - left - 10) / max(n - 1, 1)
-    pts = " ".join(
-        f"{left + i * dx:.1f},{top + ph - (v - ymin) / (ymax - ymin) * ph:.1f}"
-        for i, v in enumerate(values)
-    )
+    xmin, xmax = xs[0], max(xs[-1], xs[0] + 1)
+    decimals = max(0, int(-np.floor(np.log10(ystep))))
+
+    def sx(x):
+        return left + (x - xmin) / (xmax - xmin) * pw
+
+    def sy(y):
+        return top + ph - (y - ymin) / (ymax - ymin) * ph
+
+    pts = " ".join(f"{sx(x):.1f},{sy(v):.1f}" for x, v in zip(xs, values))
     grid = []
     for v in np.arange(ymin, ymax + ystep / 2, ystep):
-        y = top + ph - (v - ymin) / (ymax - ymin) * ph
         grid.append(
-            f'<line x1="{left}" x2="{w - 10}" y1="{y:.1f}" y2="{y:.1f}" '
+            f'<line x1="{left}" x2="{w - 10}" y1="{sy(v):.1f}" y2="{sy(v):.1f}" '
             f'stroke="var(--grid)" stroke-width="1"/>'
-            f'<text x="{left - 6}" y="{y + 4:.1f}" text-anchor="end" '
-            f'font-size="11" fill="var(--text-2)">{fmt(v)}</text>'
+            f'<text x="{left - 6}" y="{sy(v) + 4:.1f}" text-anchor="end" '
+            f'font-size="11" fill="var(--text-2)">{v:.{decimals}f}</text>'
         )
-    xstep = max(1, int(nice_step(max(n - 1, 1))))
-    for i in range(0, n, xstep):
+    xstep = max(1, int(nice_step(xmax - xmin)))
+    for x in range(int(np.ceil(xmin / xstep)) * xstep, int(xmax) + 1, xstep):
         grid.append(
-            f'<text x="{left + i * dx:.1f}" y="{h - 8}" text-anchor="middle" '
-            f'font-size="11" fill="var(--text-2)">{i}</text>'
+            f'<text x="{sx(x):.1f}" y="{h - 8}" text-anchor="middle" '
+            f'font-size="11" fill="var(--text-2)">{x}</text>'
         )
-    data = [[i, v, fmt(v), labels[i] if i < len(labels) else ""]
-            for i, v in enumerate(values)]
-    geom = dict(w=w, left=left, top=top, h=ph, dx=dx, ymin=ymin, ymax=ymax)
+    data = [[x, v, fmt(v), labels[i] if i < len(labels) else ""]
+            for i, (x, v) in enumerate(zip(xs, values))]
+    geom = dict(w=w, left=left, top=top, h=ph, pw=pw, xmin=xmin, xmax=xmax,
+                ymin=ymin, ymax=ymax, xlabel=xlabel)
     rows = "".join(
-        f"<tr><td>{i}</td><td>{fmt(v)}</td><td>{html.escape(lab)}</td></tr>"
-        for i, v, _, lab in data
+        f"<tr><td>{x}</td><td>{fmt(v)}</td><td>{html.escape(lab)}</td></tr>"
+        for x, v, _, lab in data
     )
+    marker = (f'<circle cx="{sx(xs[0]):.1f}" cy="{sy(values[0]):.1f}" r="4" '
+              f'fill="var(--series-1)" stroke="var(--surface)" stroke-width="2"/>'
+              if len(values) == 1 else "")
     return f"""
 <h2>{html.escape(title)}</h2>
 <div class="chart" data-points='{html.escape(json.dumps(data))}'
-     data-geom='{json.dumps(geom)}'>
+     data-geom='{html.escape(json.dumps(geom))}'>
   <svg viewBox="0 0 {w} {h}" role="img" aria-label="{html.escape(title)}">
     {''.join(grid)}
     <polyline points="{pts}" fill="none" stroke="var(--series-1)"
       stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    {marker}
     <line class="cross" y1="{top}" y2="{top + ph}" stroke="var(--text-2)"
       stroke-width="1" style="display:none"/>
     <circle class="hover-dot" r="4" fill="var(--series-1)"
       stroke="var(--surface)" stroke-width="2" style="display:none"/>
   </svg>
   <div class="tooltip"></div>
-  <div class="muted" style="font-size:12px">x: epoch</div>
+  <div class="muted" style="font-size:12px">x: {html.escape(xlabel)}</div>
 </div>
 <details><summary>Table</summary>
-<table><tr><th>Epoch</th><th>Value</th><th>Object</th></tr>{rows}</table>
+<table><tr><th>{html.escape(xlabel.capitalize())}</th><th>Value</th><th>Object</th></tr>{rows}</table>
 </details>"""
 
 
@@ -313,7 +337,9 @@ def gallery(folder, names, link_gif=True):
     return f'<div class="gallery">{"".join(items)}</div>' if items else "<p class=muted>None.</p>"
 
 
-def folder_report(folder):
+def legacy_report(folder):
+    """Report built from log, loaded_params and the files of the folder
+    (simulations without data_sim)."""
     files = sorted(os.listdir(folder))
     comp, samples, labels = parse_log(folder)
     name = " ".join(read_lines(os.path.join(folder, "NAME"))) or os.path.basename(folder)
@@ -328,9 +354,10 @@ def folder_report(folder):
         for k, v in tiles
     ] + ["</div>"]
 
-    out.append(line_chart("Competence", comp, labels, lambda v: f"{v:.3f}"))
-    out.append(line_chart("Salient samples per epoch", [float(x) for x in samples],
-                          labels, lambda v: f"{v:.0f}"))
+    out.append(line_chart("Competence", list(range(len(comp))), comp, labels,
+                          lambda v: f"{v:.3f}"))
+    out.append(line_chart("Salient samples per epoch", list(range(len(samples))),
+                          [float(x) for x in samples], labels, lambda v: f"{v:.0f}"))
 
     params = read_lines(os.path.join(folder, "loaded_params"))
     rows = "".join(
@@ -362,6 +389,13 @@ def folder_report(folder):
     if tests:
         out.append("<h3>Test animations</h3>" + gallery(folder, tests, link_gif=False))
 
+    out.append(log_tails(folder))
+    return "\n".join(out)
+
+
+def log_tails(folder):
+    """The last 40 lines of log and nohup.out, if present."""
+    out = []
     for logname in ["log", "nohup.out"]:
         lines = read_lines(os.path.join(folder, logname))
         if lines:
@@ -370,12 +404,215 @@ def folder_report(folder):
     return "\n".join(out)
 
 
+DATA_DIR = "data_sim"
+METRIC_TITLES = {
+    "competence": "Competence",
+    "salient_triangles": "Salient samples from triangle episodes",
+    "salient_squares": "Salient samples from square episodes",
+    "visual_conditions": "Weight change of the visual-conditions map",
+    "visual_effects": "Weight change of the visual-effects map",
+    "attention": "Weight change of the attention map",
+}
+
+
+def load_runs(folder):
+    """Read every run of folder/data_sim (see src/local_wandb.py).
+
+    Returns:
+        list: dicts with "dir" (run folder name), "info" (config.json) and
+        "rows" (metrics.jsonl rows), sorted by start time.
+    """
+    base = os.path.join(folder, DATA_DIR)
+    runs = []
+    for name in sorted(os.listdir(base)) if os.path.isdir(base) else []:
+        run_dir = os.path.join(base, name)
+        try:
+            with open(os.path.join(run_dir, "config.json")) as f:
+                info = json.load(f)
+        except (OSError, ValueError):
+            continue
+        rows = []
+        for line in read_lines(os.path.join(run_dir, "metrics.jsonl")):
+            try:
+                rows.append(json.loads(line))
+            except ValueError:
+                pass
+        runs.append(dict(dir=name, info=info, rows=rows))
+    return sorted(runs, key=lambda r: r["info"].get("start_time") or 0)
+
+
+def is_number(v):
+    return isinstance(v, (int, float)) and not isinstance(v, bool)
+
+
+def merged_series(runs):
+    """Numeric metrics of the given runs merged by step (later runs win).
+
+    Returns:
+        dict: key -> sorted list of (step, value).
+    """
+    series = {}
+    for run in runs:
+        for row in run["rows"]:
+            for key, value in row.items():
+                if not key.startswith("_") and is_number(value):
+                    series.setdefault(key, {})[row["_step"]] = value
+    return {k: sorted(v.items()) for k, v in series.items()}
+
+
+def media_items(runs):
+    """All logged media as (key, step, run dir, entry), sorted by step."""
+    items = [
+        (key, row["_step"], run["dir"], value)
+        for run in runs
+        for row in run["rows"]
+        for key, value in row.items()
+        if isinstance(value, dict) and value.get("_type") in ("image", "video")
+    ]
+    return sorted(items, key=lambda x: (x[0], x[1]))
+
+
+def media_gallery(folder, items, links=None):
+    """Gallery of media entries; links maps (step, run) to a click target."""
+    figures = []
+    for key, step, run_dir, entry in items:
+        src = f"{DATA_DIR}/{run_dir}/{entry['path']}"
+        target = (links or {}).get((step, run_dir), src)
+        figures.append(
+            f'<figure><a href="{file_url(folder, target)}" target="_blank">'
+            f'<img loading="lazy" src="{file_url(folder, src)}" alt="{html.escape(key)}">'
+            f"</a><figcaption>{html.escape(key)}, step {step}</figcaption></figure>"
+        )
+    return f'<div class="gallery">{"".join(figures)}</div>'
+
+
+def when(timestamp):
+    if not timestamp:
+        return ""
+    return datetime.datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d %H:%M")
+
+
+def data_sim_report(folder, runs):
+    """Report built from the runs logged in folder/data_sim."""
+    train = [r for r in runs if r["info"].get("job_type") == "train"]
+    tests = [r for r in runs if r["info"].get("job_type") == "test"]
+    other = [r for r in runs if r not in train and r not in tests]
+    series = merged_series(train + other)
+    comp = series.get("competence", [])
+    name = next((r["info"].get("name") for r in reversed(train) if r["info"].get("name")),
+                os.path.basename(folder))
+
+    tiles = [("Run", html.escape(str(name))), ("Training runs", str(len(train))),
+             ("Test runs", str(len(tests))), ("Epochs logged", str(len(comp)))]
+    if comp:
+        best = max(comp, key=lambda sv: sv[1])
+        tiles += [("Last competence", f"{comp[-1][1]:.3f}"),
+                  ("Best competence", f"{best[1]:.3f} (epoch {best[0]})")]
+    out = ['<div class="tiles">'] + [
+        f'<div class="tile"><span class="muted">{k}</span><strong>{v}</strong></div>'
+        for k, v in tiles
+    ] + ["</div>"]
+
+    rows = []
+    for run in runs:
+        info = run["info"]
+        status = when(info.get("end_time")) or "running or interrupted"
+        rows.append(
+            f"<tr><td>{html.escape(run['dir'])}</td>"
+            f"<td>{html.escape(str(info.get('job_type') or ''))}</td>"
+            f"<td>{html.escape(str(info.get('name') or ''))}</td>"
+            f"<td>{when(info.get('start_time'))}</td><td>{html.escape(status)}</td>"
+            f"<td>{len(run['rows'])}</td></tr>"
+        )
+    out.append("<h2>Runs (data_sim)</h2><table><tr><th>Folder</th><th>Job</th>"
+               "<th>Name</th><th>Started</th><th>Finished</th><th>Rows</th></tr>"
+               + "".join(rows) + "</table>")
+
+    tri = dict(series.get("salient_triangles", []))
+    sq = dict(series.get("salient_squares", []))
+
+    def label(step):
+        if step not in tri and step not in sq:
+            return ""
+        return "triangle" if tri.get(step, 0) >= sq.get(step, 0) else "square"
+
+    if tri or sq:
+        steps = sorted(set(tri) | set(sq))
+        out.append(line_chart(
+            "Salient samples per epoch", steps,
+            [float(tri.get(s, 0) + sq.get(s, 0)) for s in steps],
+            [label(s) for s in steps], lambda v: f"{v:.0f}"))
+    keys = [k for k in METRIC_TITLES if k in series and not k.startswith("salient_")]
+    keys += sorted(k for k in series if k not in METRIC_TITLES)
+    for key in keys:
+        steps, values = zip(*series[key])
+        fmt = (lambda v: f"{v:.0f}") if all(float(v).is_integer() for v in values) \
+            else (lambda v: f"{v:.3f}")
+        out.append(line_chart(METRIC_TITLES.get(key, key), list(steps),
+                              [float(v) for v in values],
+                              [label(s) for s in steps], fmt))
+
+    media = media_items(train + other)
+    history = {(step, run_dir): f"{DATA_DIR}/{run_dir}/{entry['path']}"
+               for key, step, run_dir, entry in media if key == "history"}
+    last = [m for m in media if m[0] == "last"]
+    if last:
+        out.append("<h2>Maps snapshots</h2><p class=muted>Click an image for the "
+                   "gif of the preceding epochs.</p>"
+                   + media_gallery(folder, last, history))
+    for key in sorted({m[0] for m in media} - {"last", "history"}):
+        out.append(f"<h2>{html.escape(key)}</h2>"
+                   + media_gallery(folder, [m for m in media if m[0] == key]))
+
+    if tests:
+        out.append("<h2>Test runs</h2>")
+        for run in tests:
+            cfg = run["info"].get("config", {})
+            pose = cfg.get("test_object_params") or {}
+            goals_file = cfg.get("goals_file", "")
+            goals = (goals_rows(folder, [goals_file])
+                     if goals_file and os.path.isfile(os.path.join(folder, goals_file))
+                     else [])
+            out.append(
+                f"<h3>{html.escape(run['dir'])}</h3><p class=muted>"
+                f"world {html.escape(str(cfg.get('test_world')))}, "
+                f"position {html.escape(str(pose.get('pos')))}, "
+                f"rotation {html.escape(str(pose.get('rot')))}, "
+                f"started {when(run['info'].get('start_time'))}</p>")
+            if goals:
+                out.append("<table><tr><th>File</th><th>World</th><th>Angle</th>"
+                           "<th>Saccades</th><th>Goal sequence (row,col)</th></tr>"
+                           + "".join(goals) + "</table>")
+            test_media = media_items([run])
+            if test_media:
+                out.append(media_gallery(folder, test_media))
+
+    source = train[-1] if train else runs[-1]
+    cfg = source["info"].get("config", {})
+    rows = "".join(
+        f"<tr><td>{html.escape(str(k))}</td><td>{html.escape(json.dumps(v))}</td></tr>"
+        for k, v in sorted(cfg.items())
+    )
+    out.append("<h2>Configuration</h2>" + (
+        f"<details><summary>{len(cfg)} parameters ({html.escape(source['dir'])})"
+        f"</summary><table>{rows}</table></details>" if rows
+        else "<p class=muted>No configuration.</p>"))
+    out.append(log_tails(folder))
+    return "\n".join(out)
+
+
+def folder_report(folder):
+    """data_sim report if the folder has logged runs, else the legacy one."""
+    runs = load_runs(folder)
+    return data_sim_report(folder, runs) if runs else legacy_report(folder)
+
+
 IMAGE_TYPES = {".png": "image/png", ".gif": "image/gif"}
 
 
 def is_sim_folder(folder):
-    """True if folder contains a log or loaded_params file."""
-    return any(
+    """True if folder contains a log or loaded_params file, or data_sim."""
+    return os.path.isdir(os.path.join(folder, DATA_DIR)) or any(
         os.path.isfile(os.path.join(folder, f)) for f in ["log", "loaded_params"]
     )
 
@@ -398,7 +635,8 @@ def browse(root, path):
         return dict(path=path, parent=None, sim=False, dirs=[], error=str(e))
     for name in names:
         full = os.path.join(path, name)
-        if name.startswith(".") or name == "wandb" or not os.path.isdir(full):
+        if (name.startswith(".") or name in ("wandb", DATA_DIR)
+                or not os.path.isdir(full)):
             continue
         dirs.append(dict(name=name, path=full, sim=is_sim_folder(full)))
     parent = None if path == root else os.path.dirname(path)
@@ -411,8 +649,10 @@ def candidate_folders(root):
         depth = os.path.relpath(base, root).count(os.sep)
         if depth >= 2:
             dirs[:] = []
+        if is_sim_folder(base):
+            dirs[:] = []
         dirs[:] = [d for d in dirs if not d.startswith(".") and d != "wandb"]
-        if "log" in filenames or "loaded_params" in filenames:
+        if is_sim_folder(base):
             found.append(os.path.abspath(base))
     return sorted(found)
 
@@ -452,7 +692,8 @@ class Handler(SimpleHTTPRequestHandler):
             if is_sim_folder(folder):
                 body = folder_report(folder)
             else:
-                body = (f"<p>Not a simulation folder (no log or loaded_params): "
+                body = (f"<p>Not a simulation folder (no data_sim, log or "
+                        f"loaded_params): "
                         f"{html.escape(folder)}</p>")
         self.send_text(f"""<!doctype html>
 <html><head><meta charset="utf-8">
@@ -475,11 +716,18 @@ class Handler(SimpleHTTPRequestHandler):
 <script>{CHART_JS}{BROWSE_JS}</script></body></html>""")
 
     def send_file(self, folder, name):
-        path = os.path.join(folder, name)
+        """Serve an image directly inside folder or anywhere under
+        folder/data_sim."""
         ctype = IMAGE_TYPES.get(os.path.splitext(name)[1].lower())
-        if (not folder or not name or os.path.basename(name) != name
-                or ctype is None or not is_sim_folder(folder)
-                or not os.path.isfile(path)):
+        if not folder or not name or ctype is None or not is_sim_folder(folder):
+            return self.send_text("Not found", 404, "text/plain")
+        real_folder = os.path.realpath(folder)
+        data_dir = os.path.join(real_folder, DATA_DIR)
+        path = os.path.realpath(os.path.join(real_folder, name))
+        allowed = os.path.dirname(path) == real_folder or (
+            os.path.commonpath([data_dir, path]) == data_dir
+        )
+        if not allowed or not os.path.isfile(path):
             return self.send_text("Not found", 404, "text/plain")
         with open(path, "rb") as f:
             data = f.read()

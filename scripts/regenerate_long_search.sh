@@ -7,7 +7,8 @@
 #     OUTDIR: directory where the run folders are created.
 #     --sibling: also regenerate long_search_57a9b5_090902 (same parameters
 #         with local_decaying_speed=1.0 instead of 0.5), in parallel.
-#     -w: log to wandb, as the original runs did.
+#     -w: log to wandb, as the original runs did; without it the metrics
+#         and gifs are logged to <run>/data_sim (see src/local_wandb.py).
 #
 # Each run folder gets the files main.py writes: loaded_params, log, NAME,
 # off_control_store, maps_<epoch>.gif/png every 100 epochs up to epoch 999,

@@ -35,7 +35,6 @@ for EXPERIMENT_DIR in $search_dir; do
     if [ -d "$EXPERIMENT_DIR" ]; then
         echo "Testing on $EXPERIMENT_DIR ..."
         cd "$EXPERIMENT_DIR"
-        wandb disabled
         for SHAPE in triangle square; do
             for ROTATION in $(seq 0 0.2 1.6); do
                 python "$TEST_APP" "${TEST_ARGS[@]}" \

@@ -6,7 +6,8 @@ Usage: run from the directory that will hold the simulation folders:
 
 Configuration is in the constants below:
     SEEDS: list of seeds, or None to draw N_SEEDS random seeds in [0, 1e5).
-    WANDB: pass -w to main.py.
+    WANDB: pass -w to main.py (log to wandb); if False main.py logs to
+        <run>/data_sim (see local_wandb.py).
     MAX_PROCESSES: simulations run in parallel; when the batch is full the
         script waits for all of them before starting the next batch.
     base_name: prefix of the folder names.
