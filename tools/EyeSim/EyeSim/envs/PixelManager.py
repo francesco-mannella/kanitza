@@ -61,16 +61,19 @@ class PathToPixelsConverter:
         img = 2.0 * points_in_path.reshape(*self.shape, order="F").T - 1
         return img
 
-    def path_mask(self, vertices):
+    def path_mask(self, vertices, points=None):
         """Boolean image of the pixels whose centers lie inside a path.
 
         Args:
             vertices (np.ndarray): Vertices defining the path.
+            points (np.ndarray, optional): (n_pixels, 2) task-space pixel
+                centers; computed from the current displacement if None.
 
         Returns:
             np.ndarray: (shape[1], shape[0]) boolean mask.
         """
-        points = self.grid * self.scale + self.displace
+        if points is None:
+            points = self.grid * self.scale + self.displace
 
         path = Path(vertices)
         points_in_path = path.contains_points(points, radius=self.radius)
@@ -103,6 +106,12 @@ class PathToPixelsConverter:
         """
         img = np.zeros((*self.shape, 3))
         mask = np.zeros(self.shape, dtype=bool)
+        points = self.grid * self.scale + self.displace
+        # Paths entirely outside this box (pixel centers +- the inclusion
+        # tolerance) cannot contain any pixel center
+        margin = abs(self.radius)
+        view_min = points.min(0) - margin
+        view_max = points.max(0) + margin
 
         # Sort vertices and colors based on zorder
         sorted_indices = sorted(range(len(zorder)), key=lambda k: zorder[k])
@@ -114,11 +123,13 @@ class PathToPixelsConverter:
 
         # Iterate through sorted lists to draw in correct order
         for vertices, color in zip(sorted_vertices_list, sorted_colors):
-            pixels = self.path2pixels_color(vertices, color)
-            # Create mask for current object
-            current_mask = self.path_mask(vertices)
+            vertices = np.asarray(vertices)
+            if np.any(vertices.max(0) < view_min) or np.any(vertices.min(0) > view_max):
+                continue
+            current_mask = self.path_mask(vertices, points)
             # Draw only where not already drawn
-            img[current_mask & ~mask] = pixels[current_mask & ~mask]
+            new = current_mask & ~mask
+            img[new] = np.asarray(color[:3], dtype=float)
             # Update mask with current object
             mask = mask | current_mask
 
@@ -131,9 +142,8 @@ class PathToPixelsConverter:
                 [self.shape[0], 0],
             ]
         )
-        pixels = self.path2pixels_color(background_vertices, background)
-        current_mask = self.path_mask(background_vertices)
-        img[current_mask & ~mask] = pixels[current_mask & ~mask]
+        current_mask = self.path_mask(background_vertices, points)
+        img[current_mask & ~mask] = np.asarray(background, dtype=float)
         mask = mask | current_mask
 
         return img

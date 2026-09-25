@@ -157,6 +157,7 @@ class ChannelGaborFilter:
             (-0.3, -0.3, -0.3),  # Inverted uniform
         ]
         self._build_kernels()
+        self._build_batches()
 
     def _build_kernels(self):
         """Precompute one (1, 1, k, k) kernel per (scale, orientation)."""
@@ -177,6 +178,28 @@ class ChannelGaborFilter:
                 k = torch.from_numpy(k_np).to(self.device, self.dtype)
                 k = k.view(1, 1, self.kernel_size, self.kernel_size)
                 self.kernels[key] = k
+
+    def _build_batches(self):
+        """Stack the masks and kernels so each image needs one conv2d.
+
+        The kernel stack follows the (scale, orientation) loop order, and
+        each mask's output channel is the index of its largest weight, or
+        -1 (brightness) for the uniform masks.
+        """
+        self.mask_weights_t = torch.tensor(
+            self.mask_channel_weights, device=self.device, dtype=self.dtype
+        ).view(-1, 3, 1, 1)
+        self.kernel_stack = torch.cat(
+            [
+                self.kernels[(sigma, theta)]
+                for sigma in self.scale_list
+                for theta in self.orientation_list
+            ]
+        )
+        self.mask_targets = [
+            -1 if all(x == weights[0] for x in weights) else int(np.argmax(weights))
+            for weights in self.mask_channel_weights
+        ]
 
     def __call__(self, image):
         """Apply multi-scale, multi-orientation channel-opponent Gabor filters.
@@ -215,25 +238,18 @@ class ChannelGaborFilter:
             (1, c + 1, h, w), device=self.device, dtype=self.dtype
         )
 
-        for weights in self.mask_channel_weights:
-            w_t = torch.tensor(
-                weights, device=self.device, dtype=self.dtype
-            ).view(1, 3, 1, 1)
-            masked = (img_t * w_t).sum(dim=1, keepdim=True)
+        # All masks in one batch and all kernels in one conv2d; the
+        # accumulation below keeps the original (mask, scale, orientation)
+        # order, so the result is bit-identical to one conv per pair
+        masked = (img_t * self.mask_weights_t).sum(dim=1, keepdim=True)
+        filtered = F.conv2d(
+            masked, self.kernel_stack, padding=self.kernel_size // 2
+        ).abs()
 
-            for sigma in self.scale_list:
-                for theta in self.orientation_list:
-                    kernel = self.kernels[(sigma, theta)]
-                    pad = self.kernel_size // 2
-                    filtered = F.conv2d(
-                        masked, kernel, padding=pad
-                    ).abs()
-
-                    if not all(x == weights[0] for x in weights):
-                        ch = int(np.argmax(weights))
-                        output_t[:, ch : ch + 1] += filtered
-                    else:
-                        output_t[:, -1:] += filtered
+        for m, ch in enumerate(self.mask_targets):
+            target = output_t[:, ch:] if ch == -1 else output_t[:, ch : ch + 1]
+            for k in range(filtered.shape[1]):
+                target += filtered[m : m + 1, k : k + 1]
 
         min_v = output_t.min()
         max_v = output_t.max()

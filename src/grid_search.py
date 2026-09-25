@@ -8,8 +8,9 @@ Configuration is in the constants below:
     SEEDS: list of seeds, or None to draw N_SEEDS random seeds in [0, 1e5).
     WANDB: pass -w to main.py (log to wandb); if False main.py logs to
         <run>/data_sim (see local_wandb.py).
-    MAX_PROCESSES: simulations run in parallel; when the batch is full the
-        script waits for all of them before starting the next batch.
+    MAX_PROCESSES: simulations run in parallel; a new one starts as soon as
+        a running one ends. Each simulation uses one CPU core
+        (OMP_NUM_THREADS=1), so up to (cores - 1) runs scale almost linearly.
     base_name: prefix of the folder names.
     params: main.py parameters. A list value is a set of alternatives to
         grid over; a scalar is fixed. A parameter whose value is itself a
@@ -25,6 +26,7 @@ command is in <run>/wandb/*/files/wandb-metadata.json).
 import hashlib
 import os
 import subprocess
+import time
 from itertools import product
 
 import numpy as np
@@ -121,12 +123,11 @@ orig_path = os.path.dirname(os.path.realpath(__file__))
 
 for i, p in enumerate(get_combinations(params)):
     for seed in seeds:
-        # If MAX_PROCESSES reached, wait until all of them finish.
-        if len(processes) == MAX_PROCESSES:
-            print("Waiting for the queue to clear...")
-            for process in processes:
-                process.wait()
-            processes = []
+        # If MAX_PROCESSES are running, wait until any of them finishes.
+        while len(processes) == MAX_PROCESSES:
+            processes = [pr for pr in processes if pr.poll() is None]
+            if len(processes) == MAX_PROCESSES:
+                time.sleep(5)
 
         options_str = ""
         for k, v in p.items():

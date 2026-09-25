@@ -137,8 +137,29 @@ class Agent:
         )
         self.CENTER_DISTANCE_SLOPE = focus_params.attention_center_distance_slope
         self.focus_params = focus_params
+        # Last retina and its saliency, reused when the same retina is
+        # filtered again (get_fovea then get_action at a saccade)
+        self._cached_retina = None
+        self._cached_saliency = None
 
         self.params = None
+
+    def _saliency(self, retina_image):
+        """Gabor saliency of a retina, reusing the last result if the retina
+        is unchanged.
+
+        Args:
+            retina_image (np.ndarray): (H, W, 3) retina observation.
+
+        Returns:
+            tuple: (rgb, brightness, adjusted) from SaliencyMap.
+        """
+        if self._cached_retina is None or not np.array_equal(
+            self._cached_retina, retina_image
+        ):
+            self._cached_retina = np.copy(retina_image)
+            self._cached_saliency = self.saliency_mapper(retina_image)
+        return self._cached_saliency
 
     def set_parameters(self, params=None):
         """
@@ -237,7 +258,7 @@ class Agent:
         """
         if self.focus_params.test_fovea:
             return observation["FOVEA"]
-        color_saliency, _, _ = self.saliency_mapper(observation["RETINA"])
+        color_saliency, _, _ = self._saliency(observation["RETINA"])
         return self._fovea(observation, color_saliency)
 
     def get_action(self, observation, get_probs=False):
@@ -268,7 +289,7 @@ class Agent:
         """
         retina_image = observation["RETINA"]
 
-        rgb, brightness, adjusted_response = self.saliency_mapper(retina_image)
+        rgb, brightness, adjusted_response = self._saliency(retina_image)
         color_saliency, _, saliency_map = rgb, brightness, adjusted_response
         saliency_map_adapted = saliency_map.mean(-1)
         mx = saliency_map_adapted.max()
