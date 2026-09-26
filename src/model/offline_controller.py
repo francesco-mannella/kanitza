@@ -187,6 +187,8 @@ class OfflineController:
         local_incompetence = 1 - tanh(local_decaying_speed * competences)
         (N, 1). Learning-rate and neighborhood modulations are
         baseline + gain * incompetence * local_incompetence, shape (N, 1).
+        If maps_lr_decay > 0, the maps' Adam learning rate is also set to
+        maps_learning_rate * (1 - maps_lr_decay * (1 - incompetence)).
         """
         decay = np.tanh(self.params.decaying_speed * self.competence)
         local_decay = torch.tanh(self.params.local_decaying_speed * self.competences)
@@ -211,6 +213,20 @@ class OfflineController:
         self.neighborhood_modulation = self.neighborhood_modulation.reshape(-1, 1)
 
         self.match_std = self.params.match_std
+
+        # Optional competence-driven decay of the maps' Adam learning rate
+        # (Adam cancels the loss scaling of learningrate_modulation)
+        if self.params.maps_lr_decay:
+            lr = self.params.maps_learning_rate * (
+                1 - self.params.maps_lr_decay * decay
+            )
+            for updater in (
+                self.visual_conditions_updater,
+                self.visual_effects_updater,
+                self.attention_updater,
+            ):
+                for group in updater.optimizer.param_groups:
+                    group["lr"] = lr
 
     def get_local_competence(self, representation):
         """Predicted competence for one grid representation.
@@ -250,11 +266,13 @@ class OfflineController:
 
         With probability equal to the local competence of the fovea's
         winner on the visual-conditions map, returns the attention-map
-        weight at that winner; otherwise a random point at distance
-        0.3-0.6 from the retina center.
+        weight at that winner; otherwise a random point: at distance
+        0.3-0.6 from the retina center (random_saccade "ring") or uniform in
+        [0.1, 0.9]^2 (random_saccade "uniform").
 
         Args:
-            visual_input (np.ndarray): (16, 16, 3) uint8 fovea image.
+            visual_input (np.ndarray): (*fovea_size, 3) fovea, as returned by
+                Agent.get_fovea.
 
         Returns:
             tuple: (saccade, competence). saccade is a length-2 list or
@@ -279,6 +297,8 @@ class OfflineController:
                 self.params.neighborhood_modulation_baseline,
             )
             saccade = saccade.flatten().tolist()
+        elif self.params.random_saccade == "uniform":
+            saccade = 0.1 + 0.8 * self.rng.rand(2)
         else:
             r = 0.3 + 0.3 * self.rng.rand()
             a = 2 * np.pi * self.rng.rand()
@@ -501,6 +521,10 @@ class OfflineController:
         - A (N,) tensor of match scores in [0, 1]: the mean over the two
           winners of exp(-(d / match_std)**2), d being the grid distance
           from the goal.
+
+        Also stores in self.goal_distances the mean grid distances from the
+        goal of the attention and visual-effects winners, a measure of
+        agreement that does not depend on match_std.
         """
         goal = self.representations["pg"]["point"]
         norm_pa_pg = torch.norm(
@@ -510,6 +534,10 @@ class OfflineController:
             self.representations["pve"]["point"] - goal, dim=-1
         )
         dists = torch.stack([norm_pa_pg, norm_pve_pg])
+        self.goal_distances = {
+            "attention": norm_pa_pg.mean().item(),
+            "effects": norm_pve_pg.mean().item(),
+        }
 
         matches = torch.exp(-((self.match_std**-2) * dists**2))
         return matches.mean(0)

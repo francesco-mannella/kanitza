@@ -9,8 +9,10 @@ Configuration is in the constants below:
     WANDB: pass -w to main.py (log to wandb); if False main.py logs to
         <run>/data_sim (see local_wandb.py).
     MAX_PROCESSES: simulations run in parallel; a new one starts as soon as
-        a running one ends. Each simulation uses one CPU core
-        (OMP_NUM_THREADS=1), so up to (cores - 1) runs scale almost linearly.
+        a running one ends. Each simulation uses one CPU thread
+        (OMP_NUM_THREADS=1); runs slow down once they outnumber the physical
+        cores (hyper-threads share a core), but total throughput still
+        grows up to about the number of hardware threads minus one.
     base_name: prefix of the folder names.
     params: main.py parameters. A list value is a set of alternatives to
         grid over; a scalar is fixed. A parameter whose value is itself a
@@ -22,9 +24,22 @@ and runs, inside it,
 so stdout goes to <name>/nohup.out. To reproduce a single run, rerun that
 command in an empty folder with the same -p string and seed (the exact
 command is in <run>/wandb/*/files/wandb-metadata.json).
+
+With --variants FILE.json, instead of the constants below, the sweep is a
+set of one-factor variants of a base configuration:
+    {"base_name": "screen", "seeds": [90902, 39973], "max_processes": 7,
+     "wandb": false,
+     "base": {<main.py parameters>},
+     "variants": {"lr_0.03": {"maps_learning_rate": 0.03}, ...}}
+It runs "base" and every variant (base updated with the variant's
+overrides) for each seed, in folders ./<base_name>_<variant>_<seed:06d>.
+--dry-run prints the commands without running them.
 """
+import argparse
 import hashlib
+import json
 import os
+import shlex
 import subprocess
 import time
 from itertools import product
@@ -113,42 +128,68 @@ def get_combinations(data):
         yield dict(zip(data.keys(), combination))
 
 
-seeds = SEEDS or np.random.randint(0, 1e5, N_SEEDS)
-wandb = "-w" if WANDB else ""
+def options_string(p):
+    """main.py -p string for a parameter dict."""
+    return ";".join(f"{k}={v}" for k, v in p.items())
 
+
+def grid_jobs():
+    """(folder name, params, seed) for the constants above."""
+    seeds = SEEDS or np.random.randint(0, 1e5, N_SEEDS)
+    for p in get_combinations(params):
+        key = hashlib.md5(options_string(p).encode(encoding="utf-8")).hexdigest()[:6]
+        for seed in seeds:
+            yield f"{base_name}_{key}_{int(seed):06d}", p, int(seed)
+
+
+def variant_jobs(config):
+    """(folder name, params, seed) for a --variants configuration."""
+    variants = {"base": {}, **config["variants"]}
+    for name, overrides in variants.items():
+        p = {**config["base"], **overrides}
+        for seed in config["seeds"]:
+            yield f"{config['base_name']}_{name}_{int(seed):06d}", p, int(seed)
+
+
+parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+parser.add_argument("--variants", help="JSON file with a one-factor sweep.")
+parser.add_argument("--dry-run", action="store_true",
+                    help="Print the commands without running them.")
+args = parser.parse_args()
+
+if args.variants:
+    with open(args.variants) as f:
+        config = json.load(f)
+    jobs = list(variant_jobs(config))
+    max_processes = config.get("max_processes", MAX_PROCESSES)
+    wandb = "-w" if config.get("wandb", False) else ""
+else:
+    jobs = list(grid_jobs())
+    max_processes = MAX_PROCESSES
+    wandb = "-w" if WANDB else ""
 
 processes = []
 
 orig_path = os.path.dirname(os.path.realpath(__file__))
 
-for i, p in enumerate(get_combinations(params)):
-    for seed in seeds:
-        # If MAX_PROCESSES are running, wait until any of them finishes.
-        while len(processes) == MAX_PROCESSES:
-            processes = [pr for pr in processes if pr.poll() is None]
-            if len(processes) == MAX_PROCESSES:
-                time.sleep(5)
+for process_name, p, seed in jobs:
+    cmd_str = (
+        f"nohup python -u {orig_path}/main.py "
+        f"-r {process_name} "
+        f"-p {shlex.quote(options_string(p))} -s {seed} {wandb} "
+    )
+    print(f"Running: {cmd_str}\n\n" if not args.dry_run else cmd_str)
+    if args.dry_run:
+        continue
 
-        options_str = ""
-        for k, v in p.items():
-            options_str += f"{k}={v};"
-        options_str = options_str[:-1]
-        option_key = hashlib.md5(options_str.encode(encoding="utf-8")).hexdigest()[:6]
-        options_str = f"-p '{options_str}'"
+    # If max_processes are running, wait until any of them finishes.
+    while len(processes) == max_processes:
+        processes = [pr for pr in processes if pr.poll() is None]
+        if len(processes) == max_processes:
+            time.sleep(5)
 
-        process_name = f"{base_name}_{option_key}_{seed:06d}"
-
-        base_cmd_str = (
-            f"nohup python -u {orig_path}/main.py "
-            f"-r {process_name} "
-            f"{options_str} -s {seed} {wandb} "
-        )
-        cmd_str = base_cmd_str
-
-        print(f"Running: {cmd_str}\n\n")
-
-        os.makedirs(process_name, exist_ok=True)
-        processes.append(subprocess.Popen(cmd_str, cwd=process_name, shell=True))
+    os.makedirs(process_name, exist_ok=True)
+    processes.append(subprocess.Popen(cmd_str, cwd=process_name, shell=True))
 
 # wait for all processes
 exit_codes = [p.wait() for p in processes]

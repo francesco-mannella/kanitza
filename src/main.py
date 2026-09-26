@@ -321,6 +321,11 @@ class Main:
                     competence=self.off_control.competence,
                     salient_triangles=world_dict["triangle"],
                     salient_squares=world_dict["square"],
+                    goal_dist_attention=self.off_control.goal_distances["attention"],
+                    goal_dist_effects=self.off_control.goal_distances["effects"],
+                    maps_lr=self.off_control.attention_updater.optimizer.param_groups[
+                        0
+                    ]["lr"],
                     **self.off_control.weight_change,
                 ),
                 step=epoch,

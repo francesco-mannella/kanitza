@@ -88,6 +88,14 @@ class Parameters(ParameterManager):
         fovea_gain (float): factor applied to the color-saliency fovea
             (in [0, 1]) before it is stored; the maps divide their input by
             255, so their input range is [0, fovea_gain / 255].
+        maps_lr_decay (float): if > 0, the maps' Adam learning rate is
+            maps_learning_rate * (1 - maps_lr_decay * tanh(decaying_speed *
+            competence)), updated every epoch; 0 keeps it constant. Needed
+            to shrink the steps, since Adam cancels the loss scaling of
+            learningrate_modulation.
+        random_saccade (str): exploratory saccades used while competence is
+            low: "ring" (distance 0.3-0.6 from the retina center) or
+            "uniform" (uniform in [0.1, 0.9]^2).
     """
 
     def __init__(
@@ -142,6 +150,8 @@ class Parameters(ParameterManager):
         gabor_bright_prop=1.0,
         test_fovea=False,
         fovea_gain=1e4,
+        maps_lr_decay=0.0,
+        random_saccade="ring",
     ):
         self.project_name = project_name
         self.entity_name = entity_name
@@ -195,5 +205,7 @@ class Parameters(ParameterManager):
         self.gabor_bright_prop = gabor_bright_prop
         self.test_fovea = test_fovea
         self.fovea_gain = fovea_gain
+        self.maps_lr_decay = maps_lr_decay
+        self.random_saccade = random_saccade
 
         super(Parameters, self).__init__()
