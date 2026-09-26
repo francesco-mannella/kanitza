@@ -2,15 +2,17 @@
 
 Usage:
     python /path/to/scripts/results_server.py [FOLDER] [--port 8000]
-        [--host 127.0.0.1]
+        [--host ADDRESS]
 
-Open http://127.0.0.1:8000 and type (or pick) a simulation folder in the
+Open the printed address (http://<host>:8000) and type (or pick) a
+simulation folder in the
 form, or press "Browse..." to navigate the folders below the launch
 directory in a popup (simulation folders have a Select button). FOLDER, if
 given, is shown first; the folder list offers every directory under the
 launch directory (two levels deep) containing data_sim, a log or
-loaded_params. To reach the page from other machines, pass --host with an
-address of this machine (for example its Tailscale IP).
+loaded_params. By default the server listens on this machine's Tailscale
+IPv4 (from `tailscale ip -4`), so it is reachable from the tailnet, or on
+127.0.0.1 if Tailscale is not available; --host overrides it.
 
 If the folder has a data_sim subfolder (runs logged by src/local_wandb.py,
 i.e. main.py/test.py/test_generative.py run without -w/--wandb), the page
@@ -28,8 +30,7 @@ loaded_params, maps_*.png/gif, sim_*.gif, goals*.npy and *_test_* gifs.
 The last lines of log and nohup.out are shown in both cases.
 
 Only simulation folders are shown, only images directly inside them or
-under their data_sim are served, and the server listens on localhost by
-default.
+under their data_sim are served.
 """
 import argparse
 import datetime
@@ -37,6 +38,7 @@ import html
 import json
 import os
 import re
+import subprocess
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from urllib.parse import parse_qs, quote, urlparse
 
@@ -133,11 +135,19 @@ function load(path) {
     }
     d.dirs.forEach(function (x) {
       var li = document.createElement('li'), a = document.createElement('a');
-      a.textContent = x.name + '/'; a.onclick = function () { load(x.path); };
+      a.textContent = x.name + '/';
+      a.title = x.sim ? 'Show this simulation' : 'Open this folder';
+      a.onclick = x.sim ? function () { choose(x.path); } : function () { load(x.path); };
       li.appendChild(a);
+      if (x.sims) {
+        var c = document.createElement('span'); c.className = 'badge';
+        c.textContent = x.sims + (x.sims === 1 ? ' simulation' : ' simulations') + ' inside';
+        li.appendChild(c);
+      }
       if (x.sim) {
         var b = document.createElement('span'); b.className = 'badge';
         b.textContent = 'simulation'; li.appendChild(b);
+        li.appendChild(button('Open folder', function () { load(x.path); }));
         li.appendChild(button('Select', function () { choose(x.path); }));
       }
       list.appendChild(li);
@@ -617,15 +627,31 @@ def is_sim_folder(folder):
     )
 
 
+def count_sim_folders(folder):
+    """Number of simulation folders directly inside folder."""
+    try:
+        names = os.listdir(folder)
+    except OSError:
+        return 0
+    return sum(
+        is_sim_folder(os.path.join(folder, n))
+        for n in names
+        if not n.startswith(".") and os.path.isdir(os.path.join(folder, n))
+    )
+
+
 def browse(root, path):
     """List the subfolders of path, which must lie inside root.
 
-    Returns a JSON-serializable dict with the absolute path, its parent
-    (None at root), whether path is a simulation folder, and its
-    subfolders ({name, path, sim}); paths outside root fall back to root.
+    Paths are compared as written (normalized, symlinks not resolved), so
+    symlinked folders below root can be browsed, while ".." cannot leave
+    root. Returns a JSON-serializable dict with the path, its parent (None
+    at root), whether path is a simulation folder, and its subfolders
+    ({name, path, sim, sims}, sims = number of simulation folders directly
+    inside); paths outside root fall back to root.
     """
-    root = os.path.realpath(root)
-    path = os.path.realpath(path) if path else root
+    root = os.path.normpath(os.path.abspath(root))
+    path = os.path.normpath(os.path.abspath(path)) if path else root
     if not os.path.isdir(path) or os.path.commonpath([root, path]) != root:
         path = root
     dirs = []
@@ -638,18 +664,19 @@ def browse(root, path):
         if (name.startswith(".") or name in ("wandb", DATA_DIR)
                 or not os.path.isdir(full)):
             continue
-        dirs.append(dict(name=name, path=full, sim=is_sim_folder(full)))
+        dirs.append(dict(name=name, path=full, sim=is_sim_folder(full),
+                         sims=count_sim_folders(full)))
     parent = None if path == root else os.path.dirname(path)
     return dict(path=path, parent=parent, sim=is_sim_folder(path), dirs=dirs)
 
 
 def candidate_folders(root):
+    """Simulation folders up to two levels below root (symlinks followed;
+    the search does not descend into simulation folders other than root)."""
     found = []
-    for base, dirs, filenames in os.walk(root):
+    for base, dirs, filenames in os.walk(root, followlinks=True):
         depth = os.path.relpath(base, root).count(os.sep)
-        if depth >= 2:
-            dirs[:] = []
-        if is_sim_folder(base):
+        if depth >= 2 or (base != root and is_sim_folder(base)):
             dirs[:] = []
         dirs[:] = [d for d in dirs if not d.startswith(".") and d != "wandb"]
         if is_sim_folder(base):
@@ -738,17 +765,34 @@ class Handler(SimpleHTTPRequestHandler):
         self.wfile.write(data)
 
 
+def default_host():
+    """This machine's Tailscale IPv4, or 127.0.0.1 if it cannot be found."""
+    try:
+        out = subprocess.run(
+            ["tailscale", "ip", "-4"], capture_output=True, text=True, timeout=5
+        )
+        address = out.stdout.split()[0] if out.returncode == 0 else ""
+    except (OSError, subprocess.TimeoutExpired, IndexError):
+        address = ""
+    return address or "127.0.0.1"
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("folder", nargs="?", default="",
                         help="Simulation folder shown first.")
     parser.add_argument("--port", type=int, default=8000)
-    parser.add_argument("--host", default="127.0.0.1")
+    parser.add_argument(
+        "--host",
+        default=None,
+        help="Address to listen on (default: Tailscale IPv4, else 127.0.0.1).",
+    )
     args = parser.parse_args()
 
+    host = args.host or default_host()
     Handler.default_folder = os.path.abspath(args.folder) if args.folder else ""
-    server = HTTPServer((args.host, args.port), Handler)
-    print(f"Serving on http://{args.host}:{args.port} (Ctrl+C to stop)")
+    server = HTTPServer((host, args.port), Handler)
+    print(f"Serving on http://{host}:{args.port} (Ctrl+C to stop)")
     try:
         server.serve_forever()
     except KeyboardInterrupt:
