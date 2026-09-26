@@ -369,7 +369,10 @@ def legacy_report(folder):
     out.append(line_chart("Salient samples per epoch", list(range(len(samples))),
                           [float(x) for x in samples], labels, lambda v: f"{v:.0f}"))
 
-    params = read_lines(os.path.join(folder, "loaded_params"))
+    params_file = ("final_parameters"
+                   if os.path.isfile(os.path.join(folder, "final_parameters"))
+                   else "loaded_params")
+    params = read_lines(os.path.join(folder, params_file))
     rows = "".join(
         "<tr><td>{}</td><td>{}</td></tr>".format(
             *(html.escape(x.strip()) for x in line.split("=", 1))
@@ -377,7 +380,7 @@ def legacy_report(folder):
         for line in params if "=" in line
     )
     out.append("<h2>Parameters</h2>" + (
-        f"<details><summary>{len(params)} parameters (loaded_params)</summary>"
+        f"<details><summary>{len(params)} parameters ({params_file})</summary>"
         f"<table>{rows}</table></details>" if rows else "<p class=muted>No loaded_params.</p>"))
 
     maps = sorted((f for f in files if re.match(r"maps_\d+\.png$", f)), key=epoch_of)
@@ -394,7 +397,7 @@ def legacy_report(folder):
                    "<th>Saccades</th><th>Goal sequence (row,col)</th></tr>"
                    + "".join(goals_rows(folder, goals)) + "</table>")
     else:
-        out.append("<p class=muted>No goals files (run scripts/tests.sh).</p>")
+        out.append("<p class=muted>No goals files (run scripts/tests.py).</p>")
     tests = [f for f in files if "_test_" in f and f.endswith(".gif")]
     if tests:
         out.append("<h3>Test animations</h3>" + gallery(folder, tests, link_gif=False))

@@ -10,19 +10,25 @@
 ## Pipeline
 
 ```
-src/grid_search.py ───> src/main.py        (one folder per simulation: training;
-scripts/run_grid.sh ──┘                     run_grid.sh is the older launcher)
-                           │  off_control_store, loaded_params, log, NAME, maps_*.gif/png
+scripts/grid_search.py ─> src/main.py      (training; runs in <sweep>/simulations/<run>/)
+                           │  off_control_store, loaded_params, final_parameters, log,
+                           │  NAME, maps_*.gif/png, data_sim/
                            v
-scripts/tests.sh ─────> src/test.py        (in each folder: test scanpaths)
-                           │  goals-<world>-<pos>-<rot>.npy (+ gifs with --plot)
+scripts/tests.py ───────> src/test.py      (each run: test scanpaths)
+                           │  goals-<world>-<pos>-<rot>.npy (+ gifs, --plot)
                            v
-scripts/paths.py ─────> paths.csv, <sim>.png
+scripts/paths.py ───────> paths.csv, simulations/<sim>.png
                            v
 src/render_scanpaths.py / render_scanpaths_alt.py   (animations)
 
+Scoring and inspection:
+  scripts/evaluate_runs.py      (competence, stability, topography, definition)
+  scripts/ls_sims.py, score_folder.py, chain_quality.py, chain_paths.py,
+    chain_overlap.py            (scanpath quality from the goals files)
+  scripts/results_server.py     (web page per run)
+
 Side branches:
-  scripts/tests.sh -g ─> src/test_generative.py  (needs rnn_store.npy)
+  src/test_generative.py        (needs rnn_store.npy)
   src/test_weights.py           (inspect map prototypes)
   src/analysis.py, src/wdb_analysis.py   (parameter-sweep plots)
   src/demos/*.py                (agent/attention demos, no controller)
@@ -32,22 +38,25 @@ Side branches:
 
 | Script | Use case | Run from | Reads | Writes |
 |---|---|---|---|---|
-| `run_grid.sh` | Older launcher, superseded by `src/grid_search.py`: its `params` string has no Gabor or fovea parameters, so those take their defaults. Train a grid of simulations. Grid values and the base `params` string are set at the top of the file; `wandb=true` passes `-w` to `main.py`. It skips ids that already exist in the cwd. Ids look like `<series>_s_<seed>_m_<match_std>_a_<anchor_std>_d_<ds>_l_<lds>_p_<prec>`, built from the same variables that go into `params`. If `main.py` fails, the temp dir is left in place and its path is printed. | the output dir | none | one folder per simulation (see `main.py`) |
-| `tests.sh [-g] [GLOB] [EXTRA_ARGS...]` | Run `test.py --plot` (or, with `-g`, `test_generative.py` without plots) on every folder matching GLOB (default `*_s_*_m_*`), for triangle and square, rotation `seq 0 0.2 1.6` rad, position (40, 40). Single tests whose goals file already exists are skipped (`--skip_existing`). `EXTRA_ARGS` are forwarded, for example `tests.sh -g '*_s_*_m_*' --mask_posrot 40 40 0 --mask_start 20 --arbitration`. | the sims dir | `off_control_store`, `loaded_params` (+ `rnn_store.npy` with `-g`) | `goals-*.npy`, `*_test_*.gif/png` |
+| `grid_search.py [--seeds S ...] [--n-seeds N] [--max-processes P] [--name NAME] [-w] [--variants FILE.json] [--dry-run]` | Train a grid (the `params` dict in the file) or, with `--variants`, a base configuration plus named one-factor overrides, for each seed. Runs go in `./simulations/<name>_<...>_<seed>/`; a `./loaded_params` in the sweep folder is copied into each run as its base. A new run starts as soon as one ends. See the docstring for the JSON layout. | the sweep folder (under `tests/`) | `./loaded_params` (optional), the variants JSON | `simulations/<run>/` |
+| `tests.py [ROOT] [--max-processes P]` | Run `src/test.py --plot` on every run in `ROOT/simulations/` for triangle and square, rotations 0.0-1.6 rad in steps of 0.2, position (40, 40); only the combinations whose goals file is missing are run, so interrupted folders resume. | any | `simulations/<run>/off_control_store` | `goals-*.npy`, `*_test_*.gif/png` |
+| `ls_sims.py ROOT` | One line per run under `ROOT/*/simulations/`: mean scanpath score (unique goal points × normalized cycle score over the goals files), the key parameters from `final_parameters`, and the seed. | any | goals files, `final_parameters` | stdout |
+| `score_folder.py RUN` | Per goals file of one run: unique points, deduplicated length, cycle score and their averages. | any | `RUN/goals-*.npy` | stdout |
+| `chain_quality.py [ROOT]` | The same scanpath scores for every run in `ROOT/simulations/`, then averaged per parameter combination (runs differing only by seed). | any | goals files | stdout |
+| `chain_paths.py RUN` | Finds the repeating chains of goal points in each test of one run and plots them. | any | goals files | `RUN_chains.png` next to `RUN` |
+| `chain_overlap.py RUN` | Jaccard overlap of the chain points between the tests (object × rotation) of one run, as a table and a plot. | any | goals files | `RUN_overlap.png` next to `RUN` |
 | `regenerate_long_search.sh OUTDIR [--sibling] [-w]` | Retrain `tests/long_search_b71233_090902` (and, with `--sibling`, `long_search_57a9b5_090902` in parallel) with the current code, the recorded parameters and seed 90902. Results will differ from the originals (see the script header). | any | none | `OUTDIR/<run>/` with the `main.py` outputs and `nohup.out` |
 | `results_server.py [FOLDER] [--port 8000] [--host ADDRESS]` | Local web page with all the results of a simulation folder: if the folder has `data_sim/`, everything logged there (runs, one chart per metric with resumed trainings merged, maps and other media, test runs with their goal sequences and animations, configuration); otherwise the older view built from `log` and the folder's files. The folder is chosen through a form: type a path, pick from the list of simulation folders under the launch directory, or press Browse... to navigate the folders below the launch directory in a popup and select one. It listens on this machine's Tailscale IPv4 by default (reachable from the tailnet), or on 127.0.0.1 if Tailscale is not available; `--host` overrides it. It shows a summary, the competence and salient-samples curves (hover for values, table view), the parameters, the maps snapshots and gifs, the test goal sequences and animations, and the tail of `log`/`nohup.out`. It serves only images from folders containing `log` or `loaded_params`. | any (the folder list covers two levels below it) | the chosen folder | nothing |
-| `paths.py` | Collect all `goals*.npy` into one table (including `precision`, parsed from `_p_` in the sim name), dropping the first 3 saccades of each test, and plot goal trajectories per simulation. | the sims dir | `*_s_*_m_*/goals*.npy` | `paths.csv`, `<sim>.png` |
+| `paths.py [ROOT]` | Collect the `goals*.npy` of every run in `ROOT/simulations/` into one table (including `precision`, parsed from `_p_` in the run name), dropping the first 3 saccades of each test, and plot goal trajectories per run. | any | `simulations/<run>/goals*.npy` | `ROOT/paths.csv`, `simulations/<run>.png` |
 
 ## src/ entry points
 
-### `grid_search.py`: parameter grids (produced `tests/long_search_*`)
-`python src/grid_search.py`, run from the output directory. The seeds, `params` (a list value means grid over its alternatives, any other value, strings included, is fixed; list-valued parameters are double-wrapped, for example `gabor_scales=[[1.0]]`), `base_name`, `WANDB` and `MAX_PROCESSES` are constants in the file. For each combination and seed it creates `<base_name>_<md5(params)[:6]>_<seed:06d>/` and runs `nohup python -u main.py -r <name> -p '<k=v;...>' -s <seed> [-w]` inside it. A new run starts as soon as any running one ends.
-
-`python src/grid_search.py --variants FILE.json [--dry-run]` runs a one-factor sweep instead: a `base` parameter set plus named variants that override some of its values, for each seed, in folders `<base_name>_<variant>_<seed:06d>/` (see the docstring for the JSON layout; `--dry-run` only prints the commands). Sweeps go in their own named folder under `tests/`.
+### Original grid launcher
+The `tests/old/long_search_*` runs were launched by the former `src/grid_search.py` (commit `a1fbe79`), which named runs `<base_name>_<md5(params)[:6]>_<seed:06d>`; their exact commands are in `<run>/wandb/*/files/wandb-metadata.json`. It is replaced by `scripts/grid_search.py`.
 
 ### `main.py`: training
 `python src/main.py [-s N] [-r NAME] [-p "k=v;..."] [-w] [-o]`
-- The first run in a folder merges `-p` into the defaults in `params.py` and saves the result to `loaded_params`. Later runs load `loaded_params`; a `-p` given then is applied on top, the changed keys are printed, and the file is re-saved.
+- `loaded_params` is the base configuration: if it exists (for example copied by `scripts/grid_search.py`) it is loaded, otherwise the defaults in `params.py` are used and saved there with `-p` applied. `-p` is always applied on top (changed keys are printed) and `loaded_params` is never overwritten; the effective parameters are saved to `final_parameters`.
 - Values in `-p` and `loaded_params` are Python literals (`3.0`, `True`, `'text'`, `[0, 80]`); unquoted text is taken as a string. A value whose type does not match the parameter's default raises `TypeError` (int and float are interchangeable).
 - If `off_control_store` exists, training resumes from it and stops once `epochs` epochs have been run in total.
 - Each epoch runs `episodes` × `saccade_num` × `saccade_time` steps. The agent filters the retina with the Gabor bank (`gabor_*` parameters), samples a salient point inside its attentional mask and moves the eye there. The maps' visual input is the agent's color-saliency fovea: the central `fovea_scale` retina pixels, resized to `fovea_size` and multiplied by `fovea_gain` (1e4), or the raw FOVEA if `test_fovea`. At the midpoint of each saccade the controller proposes an attention center from the same saliency fovea (`Agent.get_fovea`). Afterwards the salient saccades (action norm > `saccade_threshold`) update the three maps and the competence predictor. See `pseudocode.md`.

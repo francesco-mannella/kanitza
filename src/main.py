@@ -10,8 +10,9 @@ Args:
     -r/--variant: simulation name; written to ./NAME and used as wandb run
         name.
     -p/--param_list: overrides of src/params.py defaults, or of
-        ./loaded_params when it exists; the merged parameters are saved to
-        ./loaded_params.
+        ./loaded_params when it exists (e.g. a base copied there by
+        scripts/grid_search.py). loaded_params is written only if missing;
+        the effective parameters are saved to ./final_parameters.
     -w/--wandb: log competence, salient samples, weight changes and gifs to
         wandb; without it they are logged locally to ./data_sim (see
         local_wandb.py).
@@ -20,12 +21,13 @@ Args:
 Each epoch runs `episodes` episodes of `saccade_num` saccades of
 `saccade_time` steps, records the agent's color-saliency fovea, the
 actions and the attention targets, keeps the salient saccades and updates
-the maps (see pseudocode.md). src/grid_search.py launches this script over
+the maps (see pseudocode.md). scripts/grid_search.py launches this script over
 parameter grids. If
 ./off_control_store exists training resumes from it, up to `epochs` epochs
 in total.
 
-Outputs (cwd): NAME, loaded_params, log, off_control_store (saved each
+Outputs (cwd): NAME, loaded_params, final_parameters, log, off_control_store
+(saved each
 epoch), maps_<epoch>.gif/png every `plotting_epochs_interval` epochs,
 sim_<epoch>.gif if plot_sim.
 """
@@ -410,16 +412,17 @@ if __name__ == "__main__":
     params = Parameters()
     seed = args.seed
     variant = args.variant
+    # loaded_params is the base configuration and is never overwritten;
+    # --param_list is always applied on top of it, and the effective
+    # parameters are saved to final_parameters
     if os.path.exists("loaded_params"):
         params.load("loaded_params")
-        if args.param_list:
-            before = params._params_to_dict()
-            params.update(args.param_list)
-            after = params._params_to_dict()
-            changed = [k for k in after if before.get(k) != after[k]]
-            if changed:
-                print(f"loaded_params overridden by --param_list: {changed}")
-                params.save("loaded_params")
+        before = params._params_to_dict()
+        params.update(args.param_list)
+        after = params._params_to_dict()
+        changed = [k for k in after if before.get(k) != after[k]]
+        if changed:
+            print(f"--param_list overrides loaded_params: {changed}")
     else:
         print("no local parameters")
         params.update(args.param_list)
@@ -434,6 +437,8 @@ if __name__ == "__main__":
         matplotlib.use("agg")
 
     params.init_name = f"{variant}"
+
+    params.save("final_parameters")
 
     with open("NAME", "w") as fname:
         fname.write(f"{params.init_name}\n")

@@ -1,26 +1,27 @@
 """Collect test scanpaths from all simulation folders into paths.csv.
 
-Usage: run from the directory holding the simulation folders
-(after scripts/tests.sh):
-    python /path/to/scripts/paths.py
+Usage (after scripts/tests.py):
+    python /path/to/scripts/paths.py [ROOT]
 
-Inputs: <sim>/goals*.npy for every folder matching "*_s_*_m_*". Each file is
-a 1-element array holding the dict saved by src/test.py
-(keys: world, position, angle, saccade_id, goal).
+ROOT (default: cwd) must contain a "simulations" folder. Inputs:
+simulations/<sim>/goals*.npy; each file is a 1-element array holding the
+dict saved by src/test.py (keys: world, position, angle, saccade_id, goal).
 
 The first 3 saccades of each test (goals file) are dropped.
 
 Outputs:
-    - <sim>.png: goal trajectories on the 10x10 map grid, one path per
-      (object, rotation) trial.
-    - paths.csv: columns object, saccade_id, sim, pos.x, pos.y, goal.y,
+    - ROOT/simulations/<sim>.png: goal trajectories on the 10x10 map grid,
+      one path per (object, rotation) trial.
+    - ROOT/paths.csv: columns object, saccade_id, sim, pos.x, pos.y, goal.y,
       goal.x, ts (saccade timestep), rot (degrees), trial
       (slug "<object>-<angle rad>"), precision (agent_sampling_precision
       parsed from the "_p_XXXXX" part of the sim name, NaN if absent),
       saccade_num (order of the saccade within its sim and trial).
 """
+import argparse
 import re
-from glob import glob
+import sys
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -32,18 +33,30 @@ from seaborn import axes_style
 
 
 # Configuration
-SIMULATION_DIR_PATTERN = "*_s_*_m_*"
 OUTPUT_CSV_FILENAME = "paths.csv"
 sns.set_style("whitegrid")
 so.Plot.config.display["scaling"] = 0.7
 
+parser = argparse.ArgumentParser()
+parser.add_argument("root", nargs="?", default=".", help="folder containing a 'simulations' subfolder")
+args = parser.parse_args()
+
+root = Path(args.root).resolve()
+simulations = root / "simulations"
+if not simulations.is_dir():
+    sys.exit(f"no simulations dir found in {root}")
+
 # Process simulation directories
 simulation_dfs = []
-for sim_dir in glob(SIMULATION_DIR_PATTERN):
-    print(sim_dir)
+for sim_dir in sorted(simulations.iterdir()):
+    if not sim_dir.is_dir():
+        continue
+
+    sim_name = sim_dir.name
+    print(sim_name)
 
     # Load goal data
-    goal_files = glob(f"{sim_dir}/goals*npy")
+    goal_files = list(sim_dir.glob("goals*npy"))
     if not goal_files:
         continue
 
@@ -58,7 +71,7 @@ for sim_dir in glob(SIMULATION_DIR_PATTERN):
     combined_df.columns = goal_df.columns
 
     # Extract and transform data
-    combined_df["sim"] = sim_dir
+    combined_df["sim"] = sim_name
     combined_df["pos.x"] = np.stack(combined_df["position"])[:, 0]
     combined_df["pos.y"] = np.stack(combined_df["position"])[:, 1]
     combined_df["goal.y"] = np.stack(combined_df["goal"])[:, 0, 0]
@@ -66,7 +79,7 @@ for sim_dir in glob(SIMULATION_DIR_PATTERN):
     combined_df["saccade"] = [
         int(x.split("-")[1]) for x in combined_df["saccade_id"]
     ]
-    precision = re.search(r"_p_(\d+)", sim_dir)
+    precision = re.search(r"_p_(\d+)", sim_name)
     combined_df["precision"] = (
         int(precision.group(1)) / 1000 if precision else np.nan
     )
@@ -114,7 +127,7 @@ for sim_dir in glob(SIMULATION_DIR_PATTERN):
             size=(8, 5),
             extent=(0.1, 0.1, 0.75, 0.9),
         )
-        .label(title=re.sub(r"sim_.*_s_", r"s_", sim_dir))
+        .label(title=re.sub(r"sim_.*_s_", r"s_", sim_name))
     )
 
     plot.on(ax).plot()
@@ -152,7 +165,7 @@ processed_df["saccade_num"] = processed_df.groupby(["sim", "trial"])[
     "ts"
 ].transform(lambda x: np.arange(len(x)))
 
-processed_df.to_csv(OUTPUT_CSV_FILENAME, index=False)
+processed_df.to_csv(root / OUTPUT_CSV_FILENAME, index=False)
 
 
 plt.show()

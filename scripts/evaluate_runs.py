@@ -10,7 +10,8 @@ folder searched up to two levels deep for run folders. Compare only runs
 trained with the same code version: the probes are built with the current
 code (e.g. Gabor filters, fovea gain).
 
-For every run it computes:
+Parameters are read from final_parameters when present, else from
+loaded_params. For every run it computes:
     - competence: mean of the last 20 logged epochs (data_sim, else the
       "comp:" lines of log), and the mean grid distances of the attention
       and visual-effects winners from the goal (goal_dist_*, logged by
@@ -83,8 +84,13 @@ def find_runs(paths):
 
 
 def load_params(run):
+    """Effective parameters of a run: final_parameters if present (runs
+    whose loaded_params is only the base), else loaded_params."""
     params = Parameters()
-    params.load(os.path.join(run, "loaded_params"))
+    name = "final_parameters"
+    if not os.path.isfile(os.path.join(run, name)):
+        name = "loaded_params"
+    params.load(os.path.join(run, name))
     return params
 
 
