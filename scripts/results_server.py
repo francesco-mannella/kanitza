@@ -22,6 +22,8 @@ shows everything logged there:
       the salient samples per epoch, with training runs merged by step so
       a resumed training reads as one curve;
     - the logged maps snapshots (click for the gif) and other media;
+    - scanpath plots of all goals files (per object and rotation) with
+      goal counts, repeating cycles and goal overlap within/between objects;
     - for each test run: world, pose, goal sequence (from its goals file)
       and its animations;
     - the configuration of the latest training run.
@@ -91,6 +93,9 @@ button { padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border);
 .gallery figure { margin: 0; }
 .gallery img { width: 100%; border: 1px solid var(--border); border-radius: 6px; }
 figcaption { font-size: 12px; color: var(--text-2); }
+.gallery.scanpaths { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+.scanpaths svg { width: 100%; height: auto; display: block;
+  border: 1px solid var(--border); border-radius: 6px; }
 table { border-collapse: collapse; width: 100%; font-size: 13px; }
 td, th { border-bottom: 1px solid var(--border); padding: 3px 6px; text-align: left;
   vertical-align: top; }
@@ -334,6 +339,111 @@ def goals_rows(folder, names):
     return rows
 
 
+def main_cycle(seq):
+    """(start, length, repeats) of the strongest block (length * repeats)
+    repeating back to back in seq, or None."""
+    best = None
+    for k in range(2, len(seq) // 2 + 1):
+        for start in range(len(seq) - k + 1):
+            reps, pos = 1, start + k
+            while seq[pos:pos + k] == seq[start:start + k] and pos + k <= len(seq):
+                reps, pos = reps + 1, pos + k
+            if reps >= 2 and (best is None or k * reps > best[1] * best[2]):
+                best = (start, k, reps)
+    return best
+
+
+def scanpath_svg(seq, cycle, side):
+    """Collapsed goal path on the map grid: grey path, blue cycle, hollow
+    start, filled end."""
+    cell, pad = 16, 10
+    size = side * cell + 2 * pad
+
+    def xy(g):
+        return pad + (g[0] + 0.5) * cell, pad + (side - 0.5 - g[1]) * cell
+
+    grid = "".join(
+        f'<line x1="{pad}" y1="{pad + i * cell}" x2="{size - pad}" y2="{pad + i * cell}"/>'
+        f'<line x1="{pad + i * cell}" y1="{pad}" x2="{pad + i * cell}" y2="{size - pad}"/>'
+        for i in range(side + 1)
+    )
+    path = " ".join("{:.1f},{:.1f}".format(*xy(g)) for g in seq)
+    out = [f'<svg viewBox="0 0 {size} {size}" role="img">'
+           f'<g stroke="var(--grid)" stroke-width="1">{grid}</g>'
+           f'<polyline points="{path}" fill="none" stroke="var(--text-2)" '
+           f'stroke-width="1.5" stroke-dasharray="3 3"/>']
+    if cycle:
+        start, k, _ = cycle
+        block = seq[start:start + k] + [seq[start]]
+        pts = " ".join("{:.1f},{:.1f}".format(*xy(g)) for g in block)
+        out.append(f'<polyline points="{pts}" fill="none" stroke="var(--series-1)" '
+                   f'stroke-width="3" stroke-linejoin="round"/>')
+    x0, y0 = xy(seq[0])
+    x1, y1 = xy(seq[-1])
+    out.append(f'<circle cx="{x0:.1f}" cy="{y0:.1f}" r="5" fill="var(--surface)" '
+               f'stroke="var(--text)" stroke-width="2"/>'
+               f'<circle cx="{x1:.1f}" cy="{y1:.1f}" r="4" fill="var(--text)"/></svg>')
+    return "".join(out)
+
+
+def scanpaths(folder, names):
+    """Scanpath plots of the goals files, per object and rotation, with
+    length, cycle and object-overlap summaries."""
+    tests = []
+    for name in names:
+        try:
+            goals = np.load(os.path.join(folder, name), allow_pickle=True)[0]
+            raw = [tuple(np.asarray(g).ravel()[:2].astype(int)) for g in goals["goal"]]
+            world = str(goals["world"][0]) if goals["world"] else "?"
+            angle = float(goals["angle"][0]) if goals["angle"] else 0.0
+        except Exception:
+            continue
+        if not raw:
+            continue
+        seq = [g for i, g in enumerate(raw) if i == 0 or g != raw[i - 1]]
+        tests.append(dict(world=world, angle=angle, seq=seq, cycle=main_cycle(seq),
+                          visited=frozenset(raw)))
+    if not tests:
+        return ""
+    tests.sort(key=lambda t: (t["world"], t["angle"]))
+    side = max(10, 1 + max(max(g) for t in tests for g in t["seq"]))
+
+    def jaccard(a, b):
+        return len(a & b) / len(a | b)
+
+    same, cross = [], []
+    for i, a in enumerate(tests):
+        for b in tests[i + 1:]:
+            (same if a["world"] == b["world"] else cross).append(
+                jaccard(a["visited"], b["visited"]))
+    tiles = [
+        ("Tests", str(len(tests))),
+        ("Distinct goals per test", f"{np.mean([len(t['visited']) for t in tests]):.2f}"),
+        ("Tests with a cycle", f"{sum(bool(t['cycle']) for t in tests)} / {len(tests)}"),
+        ("Longest cycle", str(max((t["cycle"][1] for t in tests if t["cycle"]), default=0))),
+        ("Goal overlap, same object", f"{np.mean(same):.3f}" if same else "-"),
+        ("Goal overlap, other object", f"{np.mean(cross):.3f}" if cross else "-"),
+    ]
+    out = ["<h2>Scanpaths</h2><p class=muted>Goal sequence on the attention map "
+           "grid (repeats collapsed). Hollow dot: first goal; filled dot: last goal; "
+           "blue: strongest repeating cycle. Overlap: mean Jaccard index of the "
+           "visited goals between pairs of tests.</p>",
+           '<div class="tiles">'] + [
+        f'<div class="tile"><span class="muted">{k}</span><strong>{v}</strong></div>'
+        for k, v in tiles] + ["</div>"]
+    for world in dict.fromkeys(t["world"] for t in tests):
+        figures = []
+        for t in (t for t in tests if t["world"] == world):
+            cyc = t["cycle"]
+            caption = (f"rot {t['angle']:.2f} · {len(t['visited'])} goals · "
+                       + (f"cycle {cyc[1]} × {cyc[2]}" if cyc else "no cycle"))
+            figures.append(f"<figure>{scanpath_svg(t['seq'], cyc, side)}"
+                           f"<figcaption>{html.escape(caption)}</figcaption></figure>")
+        out.append(f"<h3>{html.escape(world)}</h3>"
+                   f'<div class="gallery scanpaths">{"".join(figures)}</div>')
+    return "\n".join(out)
+
+
 def gallery(folder, names, link_gif=True):
     items = []
     for name in names:
@@ -391,6 +501,7 @@ def legacy_report(folder):
         out.append("<h2>Training simulations</h2>" + gallery(folder, sims, link_gif=False))
 
     goals = [f for f in files if f.startswith("goals") and f.endswith(".npy")]
+    out.append(scanpaths(folder, goals))
     out.append("<h2>Test results</h2>")
     if goals:
         out.append("<table><tr><th>File</th><th>World</th><th>Angle</th>"
@@ -577,6 +688,8 @@ def data_sim_report(folder, runs):
         out.append(f"<h2>{html.escape(key)}</h2>"
                    + media_gallery(folder, [m for m in media if m[0] == key]))
 
+    out.append(scanpaths(folder, sorted(
+        f for f in os.listdir(folder) if f.startswith("goals") and f.endswith(".npy"))))
     if tests:
         out.append("<h2>Test runs</h2>")
         for run in tests:
