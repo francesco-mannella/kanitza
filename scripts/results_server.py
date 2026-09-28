@@ -23,7 +23,8 @@ shows everything logged there:
       a resumed training reads as one curve;
     - the logged maps snapshots (click for the gif) and other media;
     - scanpath plots of all goals files (per object and rotation) with
-      goal counts, repeating cycles and goal overlap within/between objects;
+      goal counts, repeating cycles, object region purity and goal sharing
+      between tests;
     - for each test run: world, pose, goal sequence (from its goals file)
       and its animations;
     - the configuration of the latest training run.
@@ -408,26 +409,33 @@ def scanpaths(folder, names):
     tests.sort(key=lambda t: (t["world"], t["angle"]))
     side = max(10, 1 + max(max(g) for t in tests for g in t["seq"]))
 
-    def jaccard(a, b):
-        return len(a & b) / len(a | b)
-
-    same, cross = [], []
-    for i, a in enumerate(tests):
-        for b in tests[i + 1:]:
-            (same if a["world"] == b["world"] else cross).append(
-                jaccard(a["visited"], b["visited"]))
+    pairs = [(a["visited"], b["visited"]) for i, a in enumerate(tests) for b in tests[i + 1:]]
+    points = [(np.array(g, dtype=float), t["world"], i)
+              for i, t in enumerate(tests) for g in t["visited"]]
+    purity = []
+    for p, world, i in points:
+        others = [(np.linalg.norm(p - q), w) for q, w, j in points if j != i]
+        if others:
+            nearest = min(d for d, _ in others)
+            purity.append(np.mean([w == world for d, w in others if d == nearest]))
     tiles = [
         ("Tests", str(len(tests))),
         ("Distinct goals per test", f"{np.mean([len(t['visited']) for t in tests]):.2f}"),
         ("Tests with a cycle", f"{sum(bool(t['cycle']) for t in tests)} / {len(tests)}"),
         ("Longest cycle", str(max((t["cycle"][1] for t in tests if t["cycle"]), default=0))),
-        ("Goal overlap, same object", f"{np.mean(same):.3f}" if same else "-"),
-        ("Goal overlap, other object", f"{np.mean(cross):.3f}" if cross else "-"),
+        ("Object region purity", f"{np.mean(purity):.3f}" if purity else "-"),
+        ("Test pairs sharing a goal",
+         f"{np.mean([bool(a & b) for a, b in pairs]):.3f}" if pairs else "-"),
+        ("Goal overlap, all pairs",
+         f"{np.mean([len(a & b) / len(a | b) for a, b in pairs]):.3f}" if pairs else "-"),
     ]
-    out = ["<h2>Scanpaths</h2><p class=muted>Goal sequence on the attention map "
+    out = ["<h2>Scanpaths</h2><p class=muted>Goal sequence on the visual-conditions map "
            "grid (repeats collapsed). Hollow dot: first goal; filled dot: last goal; "
-           "blue: strongest repeating cycle. Overlap: mean Jaccard index of the "
-           "visited goals between pairs of tests.</p>",
+           "blue: strongest repeating cycle. Good scanpaths keep each object's "
+           "rotations in their own region (purity: share of goals whose nearest goal "
+           "of another test belongs to the same object, 1 = separate regions) and "
+           "share no goals between tests (sharing and mean Jaccard overlap of "
+           "visited goals over test pairs, 0 = distinct).</p>",
            '<div class="tiles">'] + [
         f'<div class="tile"><span class="muted">{k}</span><strong>{v}</strong></div>'
         for k, v in tiles] + ["</div>"]
