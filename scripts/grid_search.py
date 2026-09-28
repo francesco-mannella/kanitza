@@ -19,7 +19,10 @@ one-factor overrides:
      "base": {<main.py parameters>},
      "variants": {"lr_0.03": {"maps_learning_rate": 0.03}, ...}}
 "base" and every variant (base updated with its overrides) run for each
-seed in simulations/<base_name>_<variant>_<seed:06d>. Values in the file
+seed in simulations/<base_name>_<variant>_<seed:06d>; with
+"include_base": false only the variants run (e.g. when the base was
+already run in an earlier sweep). A variant may carry its own "seeds"
+list, which replaces the sweep's seeds for that variant. Values in the file
 take precedence over --seeds, --max-processes, --name and -w.
 
 In both modes a ./loaded_params in the sweep folder, if present, is copied
@@ -93,10 +96,14 @@ def grid_jobs(base_name, seeds):
 
 def variant_jobs(config):
     """(run name, params, seed) for a --variants configuration."""
-    variants = {"base": {}, **config["variants"]}
+    variants = dict(config["variants"])
+    if config.get("include_base", True):
+        variants = {"base": {}, **variants}
     for name, overrides in variants.items():
+        overrides = dict(overrides)
+        seeds = overrides.pop("seeds", config["seeds"])
         p = {**config["base"], **overrides}
-        for seed in config["seeds"]:
+        for seed in seeds:
             yield f"{config['base_name']}_{name}_{int(seed):06d}", p, int(seed)
 
 
