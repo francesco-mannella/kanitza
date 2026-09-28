@@ -24,7 +24,7 @@ shows everything logged there:
     - the logged maps snapshots (click for the gif) and other media;
     - scanpath plots of all goals files (per object and rotation) with
       goal counts, repeating cycles, object region purity and goal sharing
-      between tests;
+      between tests (same shapes under the objects' symmetry excluded);
     - for each test run: world, pose, goal sequence (from its goals file)
       and its animations;
     - the configuration of the latest training run.
@@ -387,6 +387,23 @@ def scanpath_svg(seq, cycle, side):
     return "".join(out)
 
 
+# Period (rad) after which an object's local features (corner and edge
+# orientations seen by the fovea) repeat; the "square" is a rectangle, whose
+# corners and edges still repeat every 90 degrees.
+SYMMETRY = {"square": np.pi / 2, "triangle": 2 * np.pi / 3}
+SAME_SHAPE_TOL = 0.1
+
+
+def same_shape(a, b):
+    """True if tests a and b show the same object at rotations equivalent
+    under its symmetry (within SAME_SHAPE_TOL rad)."""
+    if a["world"] != b["world"]:
+        return False
+    period = SYMMETRY.get(a["world"], 2 * np.pi)
+    d = abs(a["angle"] - b["angle"]) % period
+    return min(d, period - d) < SAME_SHAPE_TOL
+
+
 def scanpaths(folder, names):
     """Scanpath plots of the goals files, per object and rotation, with
     length, cycle and object-overlap summaries."""
@@ -409,7 +426,8 @@ def scanpaths(folder, names):
     tests.sort(key=lambda t: (t["world"], t["angle"]))
     side = max(10, 1 + max(max(g) for t in tests for g in t["seq"]))
 
-    pairs = [(a["visited"], b["visited"]) for i, a in enumerate(tests) for b in tests[i + 1:]]
+    pairs = [(a["visited"], b["visited"]) for i, a in enumerate(tests) for b in tests[i + 1:]
+             if not same_shape(a, b)]
     points = [(np.array(g, dtype=float), t["world"], i)
               for i, t in enumerate(tests) for g in t["visited"]]
     purity = []
@@ -424,9 +442,9 @@ def scanpaths(folder, names):
         ("Tests with a cycle", f"{sum(bool(t['cycle']) for t in tests)} / {len(tests)}"),
         ("Longest cycle", str(max((t["cycle"][1] for t in tests if t["cycle"]), default=0))),
         ("Object region purity", f"{np.mean(purity):.3f}" if purity else "-"),
-        ("Test pairs sharing a goal",
+        ("Distinct-shape pairs sharing a goal",
          f"{np.mean([bool(a & b) for a, b in pairs]):.3f}" if pairs else "-"),
-        ("Goal overlap, all pairs",
+        ("Goal overlap, distinct-shape pairs",
          f"{np.mean([len(a & b) / len(a | b) for a, b in pairs]):.3f}" if pairs else "-"),
     ]
     out = ["<h2>Scanpaths</h2><p class=muted>Goal sequence on the visual-conditions map "
@@ -435,7 +453,10 @@ def scanpaths(folder, names):
            "rotations in their own region (purity: share of goals whose nearest goal "
            "of another test belongs to the same object, 1 = separate regions) and "
            "share no goals between tests (sharing and mean Jaccard overlap of "
-           "visited goals over test pairs, 0 = distinct).</p>",
+           "visited goals over test pairs, 0 = distinct). Pairs showing the same "
+           "object at rotations equivalent under its local-feature symmetry "
+           "(square 90°, triangle 120°, within 0.1 rad) are the same shape "
+           "and are left out of sharing and overlap.</p>",
            '<div class="tiles">'] + [
         f'<div class="tile"><span class="muted">{k}</span><strong>{v}</strong></div>'
         for k, v in tiles] + ["</div>"]
