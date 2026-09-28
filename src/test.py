@@ -215,6 +215,7 @@ class SimulationTest:
             episode (int): The current episode number.
         """
 
+        self.off_control.reset_goal_inhibition()
         saccade = None
         for time_step in range(
             self.params.saccade_time * self.params.saccade_num

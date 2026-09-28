@@ -202,6 +202,7 @@ class Main:
         if fovea_plotter is not None:
             fovea_plotter.online = self.params.online_plot
 
+        self.off_control.reset_goal_inhibition()
         for saccade_idx in range(self.params.saccade_num):
             self.execute_saccade(episode, saccade_idx, fovea_plotter)
 

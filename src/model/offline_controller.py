@@ -8,6 +8,8 @@ visual-conditions winner (the goal); a logistic predictor learns how close
 the attention and visual-effects winners fall to the goal (competence),
 which in turn modulates plasticity.
 """
+from collections import deque
+
 import numpy as np
 import torch
 
@@ -43,6 +45,7 @@ class OfflineController:
         self.competences = torch.tensor(0.0)
         self.local_incompetence = torch.tensor(0.0)
         self.match_std = self.params.match_std
+        self.recent_goals = deque(maxlen=self.params.goal_inhibition_memory)
 
         # Random generator initialization
         self.seed = seed if seed is not None else 0
@@ -261,6 +264,30 @@ class OfflineController:
 
         return comp
 
+    def reset_goal_inhibition(self):
+        """Forget the recent goals (call at the start of each episode)."""
+        self.recent_goals.clear()
+
+    def inhibit_recent_goals(self, norms):
+        """Visual-conditions distances with the recent goals inhibited.
+
+        Args:
+            norms (torch.Tensor): (1, units) distances from
+                visual_conditions_map.
+
+        Returns:
+            torch.Tensor: norms * (1 + goal_inhibition * g), g being the
+            max over recent goals of a Gaussian bump (peak 1) on the grid;
+            norms itself if the inhibition is off or there are no goals.
+        """
+        if self.params.goal_inhibition == 0 or not self.recent_goals:
+            return norms
+        grid = self.visual_conditions_map.radial.grid[0]
+        goals = torch.stack(list(self.recent_goals))
+        d2 = ((grid[None] - goals[:, None]) ** 2).sum(-1)
+        g = torch.exp(-0.5 * d2 / self.params.goal_inhibition_std**2).max(0).values
+        return norms * (1 + self.params.goal_inhibition * g)
+
     def generate_saccade(self, visual_input):
         """Propose an attention center for the current fovea image.
 
@@ -268,7 +295,9 @@ class OfflineController:
         winner on the visual-conditions map, returns the attention-map
         weight at that winner; otherwise a random point: at distance
         0.3-0.6 from the retina center (random_saccade "ring") or uniform in
-        [0.1, 0.9]^2 (random_saccade "uniform").
+        [0.1, 0.9]^2 (random_saccade "uniform"). With goal_inhibition > 0
+        the winner is chosen with the recent goals inhibited, and a learned
+        saccade adds its winner to the recent goals.
 
         Args:
             visual_input (np.ndarray): (*fovea_size, 3) fovea, as returned by
@@ -281,7 +310,9 @@ class OfflineController:
         """
 
         torch_visual_input = torch.tensor(visual_input).reshape(1, -1) / 255.0
-        visual_map_output = self.visual_conditions_map(torch_visual_input)
+        visual_map_output = self.inhibit_recent_goals(
+            self.visual_conditions_map(torch_visual_input)
+        )
         reps = self.get_map_representations(
             self.visual_conditions_map,
             visual_map_output,
@@ -292,6 +323,7 @@ class OfflineController:
         coin = self.rng.rand() > (1 - competence)
 
         if coin:
+            self.recent_goals.append(reps["point"][0])
             saccade = self.attention_map.backward(
                 reps["point"],
                 self.params.neighborhood_modulation_baseline,
@@ -663,13 +695,14 @@ class OfflineController:
                 magnitude=filter_magnitude,
             )
 
-        norm = self.visual_conditions_map(condition_tensor)
+        norm = self.inhibit_recent_goals(self.visual_conditions_map(condition_tensor))
 
         representation = self.visual_conditions_map.get_representation(
             norm,
             rtype="point",
             neighborhood_std=self.params.neighborhood_modulation_baseline,
         )
+        self.recent_goals.append(representation[0])
 
         focus = self.attention_map.backward(
             representation, self.params.neighborhood_modulation_baseline

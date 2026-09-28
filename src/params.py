@@ -96,6 +96,15 @@ class Parameters(ParameterManager):
         random_saccade (str): exploratory saccades used while competence is
             low: "ring" (distance 0.3-0.6 from the retina center) or
             "uniform" (uniform in [0.1, 0.9]^2).
+        goal_inhibition (float): strength of the inhibition of recent goals
+            when choosing a saccade (training and test): the
+            visual-conditions distances are multiplied by
+            1 + goal_inhibition * g, g being a Gaussian bump (peak 1, std
+            goal_inhibition_std grid units) around each of the last
+            goal_inhibition_memory goals of the episode; 0 disables it.
+        goal_inhibition_memory (int): number of recent goals inhibited.
+        goal_inhibition_std (float): spatial std of the inhibition on the
+            map grid.
     """
 
     def __init__(
@@ -152,6 +161,9 @@ class Parameters(ParameterManager):
         fovea_gain=1e4,
         maps_lr_decay=0.0,
         random_saccade="ring",
+        goal_inhibition=0.0,
+        goal_inhibition_memory=3,
+        goal_inhibition_std=1.0,
     ):
         self.project_name = project_name
         self.entity_name = entity_name
@@ -207,5 +219,8 @@ class Parameters(ParameterManager):
         self.fovea_gain = fovea_gain
         self.maps_lr_decay = maps_lr_decay
         self.random_saccade = random_saccade
+        self.goal_inhibition = goal_inhibition
+        self.goal_inhibition_memory = goal_inhibition_memory
+        self.goal_inhibition_std = goal_inhibition_std
 
         super(Parameters, self).__init__()
