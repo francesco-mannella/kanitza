@@ -183,7 +183,11 @@ class Main:
         self.env.init_world(
             world=0 if epoch % 100 < self.params.triangles_percent else 1,
         )
-        _, env_info = self.env.reset()
+        observation, env_info = self.env.reset()
+        if self.params.orienting_saccade:
+            self.agent.set_parameters(None)
+            action = self.agent.get_action(observation)[0]
+            self.env.step(action)
 
         plt_enabled = (
             self.params.plot_sim

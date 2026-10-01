@@ -109,6 +109,10 @@ class Parameters(ParameterManager):
             goal-decision step of each saccade (zero action on all other
             steps), so every goal produces exactly one saccade; False keeps
             the salience-driven movements between decisions.
+        orienting_saccade (bool): if True, at the start of each episode the
+            eye makes one saccade to the salience maximum (uniform attention
+            mask) before the first goal decision; it is not recorded for
+            training.
     """
 
     def __init__(
@@ -169,6 +173,7 @@ class Parameters(ParameterManager):
         goal_inhibition_memory=3,
         goal_inhibition_std=1.0,
         hold_fixation=False,
+        orienting_saccade=False,
     ):
         self.project_name = project_name
         self.entity_name = entity_name
@@ -228,5 +233,6 @@ class Parameters(ParameterManager):
         self.goal_inhibition_memory = goal_inhibition_memory
         self.goal_inhibition_std = goal_inhibition_std
         self.hold_fixation = hold_fixation
+        self.orienting_saccade = orienting_saccade
 
         super(Parameters, self).__init__()

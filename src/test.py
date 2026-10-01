@@ -216,6 +216,10 @@ class SimulationTest:
         """
 
         self.off_control.reset_goal_inhibition()
+        if self.params.orienting_saccade:
+            self.agent.set_parameters(None)
+            action = self.agent.get_action(observation)[0]
+            observation, *_ = self.env.step(action)
         saccade = None
         for time_step in range(
             self.params.saccade_time * self.params.saccade_num
