@@ -105,6 +105,10 @@ class Parameters(ParameterManager):
         goal_inhibition_memory (int): number of recent goals inhibited.
         goal_inhibition_std (float): spatial std of the inhibition on the
             map grid.
+        hold_fixation (bool): if True the eye moves only on the
+            goal-decision step of each saccade (zero action on all other
+            steps), so every goal produces exactly one saccade; False keeps
+            the salience-driven movements between decisions.
     """
 
     def __init__(
@@ -164,6 +168,7 @@ class Parameters(ParameterManager):
         goal_inhibition=0.0,
         goal_inhibition_memory=3,
         goal_inhibition_std=1.0,
+        hold_fixation=False,
     ):
         self.project_name = project_name
         self.entity_name = entity_name
@@ -222,5 +227,6 @@ class Parameters(ParameterManager):
         self.goal_inhibition = goal_inhibition
         self.goal_inhibition_memory = goal_inhibition_memory
         self.goal_inhibition_std = goal_inhibition_std
+        self.hold_fixation = hold_fixation
 
         super(Parameters, self).__init__()

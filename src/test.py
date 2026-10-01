@@ -257,6 +257,8 @@ class SimulationTest:
             action, saliency_map, salient_point, color_saliency = self.agent.get_action(
                 observation
             )
+            if self.params.hold_fixation and time_step % self.params.saccade_period != 0:
+                action = np.zeros(self.params.action_size)
             observation, *_ = self.env.step(action)
 
             if is_plotting_epoch and saliency_map is not None:

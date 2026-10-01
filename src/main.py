@@ -242,6 +242,10 @@ class Main:
             action, saliency_map, salient_point, color_saliency = self.agent.get_action(
                 observation
             )
+            if self.params.hold_fixation and time_step != int(
+                0.5 * self.params.saccade_time
+            ):
+                action = np.zeros(self.params.action_size)
 
             if fovea_plotter:
                 fovea_plotter.step(
