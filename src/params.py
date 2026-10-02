@@ -113,6 +113,11 @@ class Parameters(ParameterManager):
             eye makes one saccade to the salience maximum (uniform attention
             mask) before the first goal decision; it is not recorded for
             training.
+        exclude_fixation (bool): if True, on goal-decision steps the saliency
+            within the fovea (radius fovea_scale/2 retina pixels around the
+            retina center) is set to zero before the saccade target is
+            sampled, so a goal always moves the eye away from the current
+            fixation.
     """
 
     def __init__(
@@ -174,6 +179,7 @@ class Parameters(ParameterManager):
         goal_inhibition_std=1.0,
         hold_fixation=False,
         orienting_saccade=False,
+        exclude_fixation=False,
     ):
         self.project_name = project_name
         self.entity_name = entity_name
@@ -234,5 +240,6 @@ class Parameters(ParameterManager):
         self.goal_inhibition_std = goal_inhibition_std
         self.hold_fixation = hold_fixation
         self.orienting_saccade = orienting_saccade
+        self.exclude_fixation = exclude_fixation
 
         super(Parameters, self).__init__()

@@ -259,7 +259,9 @@ class SimulationTest:
                     self.agent.set_parameters(saccade)
 
             action, saliency_map, salient_point, color_saliency = self.agent.get_action(
-                observation
+                observation,
+                exclude_fixation=self.params.exclude_fixation
+                and time_step % self.params.saccade_period == 0,
             )
             if self.params.hold_fixation and time_step % self.params.saccade_period != 0:
                 action = np.zeros(self.params.action_size)

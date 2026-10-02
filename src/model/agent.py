@@ -261,7 +261,7 @@ class Agent:
         color_saliency, _, _ = self._saliency(observation["RETINA"])
         return self._fovea(observation, color_saliency)
 
-    def get_action(self, observation, get_probs=False):
+    def get_action(self, observation, get_probs=False, exclude_fixation=False):
         """Determine the action to take based on the provided observation.
 
         Args:
@@ -270,6 +270,9 @@ class Agent:
           necessary visual input data.
         - get_probs (bool, optional): If True, return probabilities of
           selection.
+        - exclude_fixation (bool, optional): If True, the saliency within
+          fovea_scale/2 retina pixels of the retina center is zeroed before
+          sampling, so the eye moves away from the current fixation.
 
         Returns:
         - tuple: (action, saliency map, salient point, fovea), or
@@ -301,6 +304,13 @@ class Agent:
             self.attentional_mask = np.ones_like(saliency_map_adapted)
 
         saliency_map_adapted *= self.attentional_mask
+        if exclude_fixation:
+            rows, cols = np.ogrid[: self.env_height, : self.env_width]
+            radius = self.environment.fovea_scale[0] / 2
+            saliency_map_adapted[
+                (rows - self.env_height / 2) ** 2 + (cols - self.env_width / 2) ** 2
+                < radius**2
+            ] = 0
 
         (row, col), probabilities = sampling(
             saliency_map_adapted, self.sampling_precision, self.rng

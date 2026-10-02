@@ -244,7 +244,9 @@ class Main:
                     saccade = np.array([0.5, 0.5])
                     self.agent.set_parameters(saccade)
             action, saliency_map, salient_point, color_saliency = self.agent.get_action(
-                observation
+                observation,
+                exclude_fixation=self.params.exclude_fixation
+                and time_step == int(0.5 * self.params.saccade_time),
             )
             if self.params.hold_fixation and time_step != int(
                 0.5 * self.params.saccade_time
