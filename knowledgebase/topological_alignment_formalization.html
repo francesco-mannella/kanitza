@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Topological Alignment — Mathematical Formalization</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.min.js"></script>
+<style>
+  :root {
+    --text: #1a1a18;
+    --text-secondary: #5c5c58;
+    --bg: #fafaf8;
+    --bg-card: #ffffff;
+    --border: rgba(0,0,0,0.10);
+    --accent: #3C3489;
+    --accent-light: #EEEDFE;
+    --teal: #0F6E56;
+    --teal-light: #E1F5EE;
+    --coral: #993C1D;
+    --coral-light: #FAECE7;
+    --amber: #854F0B;
+    --amber-light: #FAEEDA;
+    --gray-light: #f4f4f0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Georgia', serif; background: var(--bg); color: var(--text); line-height: 1.8; font-size: 16px; }
+  .page { max-width: 840px; margin: 0 auto; padding: 3rem 2rem 5rem; }
+  header { border-bottom: 2px solid var(--accent); padding-bottom: 1.5rem; margin-bottom: 3rem; }
+  header h1 { font-size: 1.85rem; font-weight: 700; letter-spacing: -0.02em; color: var(--accent); margin-bottom: 0.35rem; }
+  header .subtitle { font-size: 0.92rem; color: var(--text-secondary); font-style: italic; }
+  body { counter-reset: section; }
+  h2 { font-size: 1.2rem; font-weight: 700; color: var(--accent); margin: 2.8rem 0 1rem; padding-bottom: 0.3rem; border-bottom: 1px solid var(--border); counter-increment: section; }
+  h2::before { content: counter(section) ". "; opacity: 0.45; }
+  h3 { font-size: 1.02rem; font-weight: 700; margin: 1.8rem 0 0.6rem; color: var(--text); font-style: italic; }
+  p { margin-bottom: 0.9rem; }
+  .block { border-radius: 0 6px 6px 0; padding: 0.95rem 1.2rem; margin: 1.3rem 0; }
+  .block .label { font-size: 0.74rem; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; margin-bottom: 0.45rem; }
+  .def   { background: var(--accent-light); border-left: 3px solid var(--accent); }
+  .def   .label { color: var(--accent); }
+  .prop  { background: var(--teal-light);   border-left: 3px solid var(--teal); }
+  .prop  .label { color: var(--teal); }
+  .thm   { background: #eaf3de;             border-left: 3px solid #3B6D11; }
+  .thm   .label { color: #3B6D11; }
+  .rem   { background: var(--amber-light);  border-left: 3px solid var(--amber); }
+  .rem   .label { color: var(--amber); }
+  .cor   { background: var(--coral-light);  border-left: 3px solid var(--coral); }
+  .cor   .label { color: var(--coral); }
+  .eq { text-align: center; margin: 1.3rem 0; overflow-x: auto; padding: 0.3rem 0; }
+  .eq-row { display: flex; align-items: center; gap: 0.8rem; }
+  .eq-row .eq-body { flex: 1; text-align: center; }
+  .eq-num { font-size: 0.82rem; color: var(--text-secondary); white-space: nowrap; min-width: 36px; text-align: right; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.91rem; margin: 1rem 0 1.6rem; }
+  th { text-align: left; padding: 7px 12px; background: var(--accent-light); color: var(--accent); font-weight: 700; font-size: 0.78rem; letter-spacing: 0.04em; }
+  td { padding: 7px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  .algo { background: var(--gray-light); border: 1px solid var(--border); border-radius: 6px; padding: 1rem 1.2rem; margin: 1.3rem 0; font-family: 'Courier New', monospace; font-size: 0.86rem; line-height: 1.65; }
+  .algo .algo-title { font-family: 'Georgia', serif; font-weight: 700; font-style: italic; margin-bottom: 0.7rem; color: var(--accent); font-size: 0.94rem; }
+  .algo .cm { color: var(--text-secondary); }
+  .i1 { padding-left: 1.5em; }
+  .i2 { padding-left: 3em; }
+  .i3 { padding-left: 4.5em; }
+  .i4 { padding-left: 6em; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 2.2rem 0; }
+  footer { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border); font-size: 0.8rem; color: var(--text-secondary); font-style: italic; }
+  .toc { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1.2rem 1.5rem; margin-bottom: 3rem; font-size: 0.9rem; }
+  .toc-title { font-size: 0.76rem; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 0.8rem; }
+  .toc ol { padding-left: 1.4em; color: var(--accent); }
+  .toc li { margin: 0.22rem 0; }
+  .toc a { color: inherit; text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header>
+  <h1>Topological Alignment — Mathematical Formalization</h1>
+  <div class="subtitle">Based on Mannella &amp; Tummolini (2023), Zubek, Mannella &amp; Tummolini (2024), Mannella (2020, arXiv:2008.06395), and <em>STM Energy Function — Complete Formalisation</em> (companion document)</div>
+</header>
+
+<div class="toc">
+  <div class="toc-title">Contents</div>
+  <ol>
+    <li><a href="#s1">Spaces, modalities, and variables</a></li>
+    <li><a href="#s2">The WTA operator family: k-means, SOM, STM</a></li>
+    <li><a href="#s3">The STM energy function: definition and analytical properties</a></li>
+    <li><a href="#s4">Batch algorithm as block coordinate descent</a></li>
+    <li><a href="#s5">Convergence theory</a></li>
+    <li><a href="#s6">Point and grid representations; inverse mapping</a></li>
+    <li><a href="#s7">The shared anchor and cross-modal alignment</a></li>
+    <li><a href="#s8">The intrinsic alignment signal</a></li>
+    <li><a href="#s9">Competence prediction and hyperparameter modulation</a></li>
+    <li><a href="#s10">Full learning algorithm</a></li>
+    <li><a href="#s11">Convergence of alignment and semantic grounding</a></li>
+    <li><a href="#s12">The triadic goal structure and affordance space</a></li>
+  </ol>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="s1">Spaces, modalities, and variables</h2>
+
+<p>
+The agent operates in a continuous physical environment and is endowed with \(N_s\) sensory modalities plus a policy space. Raw input for modality \(i\) is a vector \(s^{(i)} \in \mathbb{R}^{D_i}\). The policy is described by a parameter vector \(\pi \in \mathbb{R}^{D_\pi}\) — concretely, the weight matrix of the online controller neural network.
+</p>
+
+<div class="def block">
+  <div class="label">Definition 1 — Modality set</div>
+  <p>The complete set of input modalities is \(\mathcal{M} = \{s^{(1)},\ldots,s^{(N_s)},\pi\}\). In the canonical instantiation:
+  \(s^{(1)} = v\) (foveal vision, \(\mathbb{R}^{10\times10\times3}\)),
+  \(s^{(2)} = ss\) (somatosensory / touch, \(\mathbb{R}^{40}\)),
+  \(s^{(3)} = p\) (proprioception, \(\mathbb{R}^5\)),
+  \(\pi \in \mathbb{R}^{75\times5}\).
+  The <em>effect modalities</em> are \(\mathcal{M}_{\mathrm{eff}} = \{ss, p\}\); vision is the condition modality; \(\pi\) is the action modality.</p>
+</div>
+
+<p>
+A shared <em>internal representation space</em> \(\mathcal{Z} \subset \mathbb{R}^2\) is defined a priori as a 2-dimensional integer lattice of \(K = K_1 \times K_2\) nodes. Each node \(j \in \{1,\ldots,K\}\) carries a fixed grid position \(\mathbf{p}_j \in \mathbb{R}^2\), assigned once before training and never modified. The set of all grid positions is \(\mathbb{G} = \{\mathbf{p}_1,\ldots,\mathbf{p}_K\}\). Distances between nodes are Euclidean distances in grid space: \(\|j-k\|_{\mathbb{G}} := \|\mathbf{p}_j - \mathbf{p}_k\|\).
+</p>
+
+<p>
+Each modality \(m\in\mathcal{M}\) is equipped with its own prototype matrix \(W^{(m)} \in \mathbb{R}^{K\times D_m}\), where \(\mathbf{w}^{(m)}_j \in \mathbb{R}^{D_m}\) is the prototype of node \(j\). These are the only learnable parameters. For each input \(\mathbf{x}\) the Best Matching Unit (BMU) is:
+</p>
+
+<div class="eq">
+  <div class="eq-row">
+    <div class="eq-body">\[r(\mathbf{x};\, W^{(m)}) = \arg\min_{k\in\{1,\ldots,K\}} \|\mathbf{x} - \mathbf{w}^{(m)}_k\|\]</div>
+    <span class="eq-num">(1)</span>
+  </div>
+</div>
+
+<div class="rem block">
+  <div class="label">Key notational convention</div>
+  <p>When we write \(E(W)\) the assignment \(r(W)\) is always implicitly re-derived from the current weights — it is a deterministic, piecewise-constant function of \(W\), and the source of non-convexity. When we write \(E(W \mid r)\) the assignment vector \(r\) is held fixed as a vector of constants. These two objects have fundamentally different analytical properties.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="s2">The WTA operator family: k-means, SOM, STM</h2>
+
+<p>
+All three algorithms minimise the same general energy functional:
+</p>
+
+<div class="eq">
+  <div class="eq-row">
+    <div class="eq-body">\[\mathcal{L}(W) = \frac{1}{2}\sum_{i=1}^N \sum_{j=1}^K \phi_{i,j}\,\|\mathbf{x}_i - \mathbf{w}_j\|^2\]</div>
+    <span class="eq-num">(2)</span>
+  </div>
+</div>
+
+<p>They differ only in the winner-takes-all (WTA) operator \(\phi_{i,j}\), which controls how much node \(j\) participates in the update for input \(\mathbf{x}_i\):</p>
+
+<table>
+  <thead>
+    <tr><th>Algorithm</th><th>WTA operator \(\phi_{i,j}\)</th><th>Character</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>\(k\)-means</td>
+      <td>\(\mathbf{1}[j = r_i]\)</td>
+      <td>hard, no topology</td>
+    </tr>
+    <tr>
+      <td>SOM</td>
+      <td>\(\exp\!\left(-\dfrac{\|j-r_i\|^2}{2\sigma_r^2}\right)\)</td>
+      <td>soft, topology, unsupervised</td>
+    </tr>
+    <tr>
+      <td>STM</td>
+      <td>\(\exp\!\left(-\dfrac{\|j-r_i\|^2}{2\sigma_r^2}\right)\cdot\exp\!\left(-\dfrac{\|j-t_i\|^2}{2\sigma_t^2}\right)\)</td>
+      <td>soft, topology, supervised</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="def block">
+  <div class="label">Definition 2 — STM WTA operator</div>
+  <p>
+  \[
+    \phi^{\mathrm{STM}}_{i,j} =
+    \underbrace{\exp\!\left(-\frac{\|j-r_i\|^2}{2\sigma_r^2}\right)}_{\text{neighbourhood term}}
+    \cdot
+    \underbrace{\exp\!\left(-\frac{\|j-t_i\|^2}{2\sigma_t^2}\right)}_{\text{anchor term}}
+  \]
+  Here \(t_i \in \{1,\ldots,K\}\) is the <em>anchor index</em> for input \(\mathbf{x}_i\): the desired node in \(\mathcal{Z}\) where \(\mathbf{x}_i\) should be represented after training. The anchor vector \(\mathbf{t} = (t_1,\ldots,t_N)\) is fixed throughout training. \(\sigma_r > 0\) is annealed; \(\sigma_t > 0\) is held fixed. The two factors play distinct roles: the neighbourhood term diffuses the update from the winner \(r_i\) to neighbouring nodes (producing topological continuity); the anchor term suppresses the update for node \(j\) if \(j\) is far from the desired position \(t_i\) — regardless of how close \(\mathbf{w}_j\) is to \(\mathbf{x}_i\) in input space. Node \(j\) receives a significant update only when both conditions hold simultaneously. Since both factors are Gaussian, \(\phi^{\mathrm{STM}}_{i,j} > 0\) for all \((i,j)\): every node receives a non-zero update at every step.
+  </p>
+</div>
+
+<div class="rem block">
+  <div class="label">Limiting cases</div>
+  <p>As \(\sigma_t\to\infty\) the anchor term flattens and STM reduces to SOM. As \(\sigma_r\to 0\) the neighbourhood collapses and STM reduces to a label-modulated \(k\)-means with assignment rule \(r_i^* = \arg\min_k \exp(-\|k-t_i\|^2/2\sigma_t^2)\|\mathbf{x}_i-\mathbf{w}_k\|^2\). In the alignment architecture the anchor \(t_i\) is not set by an experimenter but computed on-the-fly as the grid representation of the currently selected policy (§7).</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="s3">The STM energy function: definition and analytical properties</h2>
+
+<div class="def block">
+  <div class="label">Definition 3 — STM energy function</div>
+  <p>Given dataset \(X\), anchor vector \(\mathbf{t}\), prototype matrix \(W\), and assignment \(r = r(W)\):
+  </p>
+  <div class="eq">
+    <div class="eq-row">
+      <div class="eq-body">\[E(W) = \frac{1}{2}\sum_{i=1}^N\sum_{j=1}^K \exp\!\left(-\frac{\|j-r_i(W)\|^2}{2\sigma_r^2}\right) \exp\!\left(-\frac{\|j-t_i\|^2}{2\sigma_t^2}\right) \|\mathbf{x}_i - \mathbf{w}_j\|^2\]</div>
+      <span class="eq-num">(3)</span>
+    </div>
+  </div>
+  <p><em>Variables:</em> \(W \in \mathbb{R}^{K\times M}\) learnable; \(r(W)\in\{1,\ldots,K\}^N\) derived, piecewise-constant in \(W\); \(\mathbf{t}\in\{1,\ldots,K\}^N\) fixed. <em>Parameters:</em> \(\sigma_r > 0\) annealed; \(\sigma_t > 0\) fixed. <em>Analytical properties:</em> non-convex and non-smooth in \(W\) due to \(r(W)\); strictly convex in \(W\) for fixed \(r\); bounded below by zero.</p>
+</div>
+
+<h3>Two sources of non-convexity</h3>
+
+<p><em>From the neighbourhood term.</em> The BMU \(r_i(W)\) is piecewise-constant: as \(W\) changes, inputs cross Voronoi cell boundaries and switch BMU. At each boundary the first Gaussian factor in \(\phi_{i,j}\) changes discontinuously, creating a jump in \(E\). The gradient \(\nabla_W E\) is undefined at these boundaries.</p>
+
+<p><em>From the reconstruction term.</em> Even with \(r\) fixed, the composition of a piecewise-constant weight matrix with a quadratic form yields a globally non-convex, non-smooth function.</p>
+
+<h3>Decomposition by node</h3>
+
+<p>Because \(\|\mathbf{x}_i - \mathbf{w}_j\|^2\) depends only on \(\mathbf{w}_j\), the energy decomposes node-wise for fixed \(r\):</p>
+
+<div class="eq">
+  <div class="eq-row">
+    <div class="eq-body">\[E(W \mid r) = \sum_{j=1}^K E_j(\mathbf{w}_j;\, r), \qquad E_j(\mathbf{w}_j;\,r) = \frac{1}{2}\sum_{i=1}^N \phi_{i,j}(r_i)\,\|\mathbf{x}_i - \mathbf{w}_j\|^2\]</div>
+    <span class="eq-num">(4)</span>
+  </div>
+</div>
+
+<p>With \(r\) fixed the nodes are <em>decoupled</em>: each \(E_j\) is a strictly convex quadratic in \(\mathbf{w}_j\) alone, since \(\sum_i \phi_{i,j} > 0\) always (Gaussians are strictly positive). This decomposition is the key to the M-step closed form.</p>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="s4">Batch algorithm as block coordinate descent</h2>
+
+<p>The batch STM algorithm alternates between minimisation over two disjoint variable blocks: the assignment vector \(r\) and the prototype matrix \(W\).</p>
+
+<h3>E-step: minimisation over \(r\)</h3>
+
+<p>With \(W\) held fixed, each \(r_i\) is minimised independently:</p>
+
+<div class="eq">
+  <div class="eq-row">
+    <div class="eq-body">\[r_i^{(t+1)} = \arg\min_{k\in\{1,\ldots,K\}} \underbrace{\sum_{j=1}^K \exp\!\left(-\frac{\|j-k\|^2}{2\sigma_r^2}\right)\exp\!\left(-\frac{\|j-t_i\|^2}{2\sigma_t^2}\right)\|\mathbf{x}_i - \mathbf{w}_j^{(t)}\|^2}_{=:\;\Psi_i(k)}\]</div>
+    <span class="eq-num">(5)</span>
+  </div>
+</div>
+
+<p>\(\Psi_i(k)\) is the total \(\phi\)-weighted reconstruction error resulting from assigning \(r_i = k\). The exact E-step costs \(O(NK^2)\). In the limit \(\sigma_r\to 0\): \(\Psi_i(k)\to\exp(-\|k-t_i\|^2/2\sigma_t^2)\|\mathbf{x}_i-\mathbf{w}_k\|^2\) — a modulated nearest-prototype rule where node \(k\) wins only if it is simultaneously close to \(\mathbf{x}_i\) in input space and close to anchor \(t_i\) in grid space.</p>
+
+<div class="rem block">
+  <div class="label">Approximate E-step (standard implementation)</div>
+  <p>The common implementation uses \(r_i^{\mathrm{approx}} = \arg\min_k \|\mathbf{x}_i - \mathbf{w}_k\|\), which is the exact E-step with \(\sigma_t\to\infty\). Cost \(O(NKM)\). The anchor still shapes prototypes through the M-step but does not influence which node wins competition.</p>
+  <table>
+    <thead><tr><th></th><th>Exact E-step</th><th>Approximate E-step</th></tr></thead>
+    <tbody>
+      <tr><td>Assignment rule</td><td>anchor-modulated nearest-prototype</td><td>plain nearest-prototype</td></tr>
+      <tr><td>Cost per epoch</td><td>\(O(NK^2)\)</td><td>\(O(NKM)\)</td></tr>
+      <tr><td>Anchor active in E-step</td><td>yes</td><td>no</td></tr>
+      <tr><td>Anchor active in M-step</td><td>yes</td><td>yes</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h3>M-step: minimisation over \(W\)</h3>
+
+<p>With \(r^{(t+1)}\) fixed, the node decomposition (4) yields \(K\) independent strictly convex sub-problems. Setting \(\partial E_j / \partial \mathbf{w}_j = 0\):</p>
+
+<div class="def block">
+  <div class="label">Definition 4 — M-step closed-form solution</div>
+  <div class="eq">
+    <div class="eq-row">
+      <div class="eq-body">\[\mathbf{w}_j^{(t+1)} = \frac{\displaystyle\sum_{i=1}^N \phi_{i,j}(r_i^{(t+1)})\,\mathbf{x}_i}{\displaystyle\sum_{i=1}^N \phi_{i,j}(r_i^{(t+1)})}\]</div>
+      <span class="eq-num">(6)</span>
+    </div>
+  </div>
+  <p>Each prototype is updated to the \(\phi\)-weighted centroid of all training inputs. The weight \(\phi_{i,j}\) is large only for inputs whose BMU is near \(j\) <em>and</em> whose anchor \(t_i\) is near \(j\) — both in grid space. The denominator \(\sum_i \phi_{i,j} > 0\) always, so the update is well-defined for every node including those that are nearest prototype for no input.</p>
+</div>
+
+<p>The corresponding online (stochastic gradient) form is:</p>
+
+<div class="eq">
+  <div class="eq-row">
+    <div class="eq-body">\[\mathbf{w}_j \;\leftarrow\; \mathbf{w}_j + \eta^u_j\,\phi_{i,j}\,(\mathbf{x}_i - \mathbf{w}_j)\]</div>
+    <span class="eq-num">(7)</span>
+  </div>
+</div>
+
+<p>where \(\eta^u_j\) is a local, prototype-specific learning rate (see §9).</p>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="s5">Convergence theory</h2>
+
+<div class="prop block">
+  <div class="label">Proposition 1 — M-step does not increase energy</div>
+  <p>For fixed \(r^{(t+1)}\) and fixed \(\sigma_r, \sigma_t > 0\):
+  \[E\!\left(W^{(t+1)} \mid r^{(t+1)}\right) \;\leq\; E\!\left(W^{(t)} \mid r^{(t+1)}\right)\]
+  with equality iff \(W^{(t+1)} = W^{(t)}\).
+  </p>
+  <p><em>Proof.</em> With \(r\) fixed, \(E(\cdot\mid r)\) decomposes into \(K\) independent strictly convex quadratics \(E_j(\mathbf{w}_j)\). The M-step sets each \(\mathbf{w}_j^{(t+1)}\) to the unique global minimiser of \(E_j\). Hence \(E_j(\mathbf{w}_j^{(t+1)}) \leq E_j(\mathbf{w}_j^{(t)})\) for each \(j\). Summing over \(j\) gives the result. \(\square\)</p>
+</div>
+
+<div class="thm block">
+  <div class="label">Theorem 1 — Block-CD monotone non-increase (fixed \(\sigma\))</div>
+  <p>With \(\sigma_r\) and \(\sigma_t\) held constant across epochs, the sequence \(\{E^{(t)}\}_{t\geq0}\) defined by \(E^{(t)} = E(W^{(t)}, r^{(t)})\) satisfies:
+  \[E^{(t+1)} \;\leq\; E^{(t)} \quad \forall\, t \geq 0\]</p>
+  <p><em>Proof.</em> The E-step replaces \(r^{(t)}\) with \(r^{(t+1)} = \arg\min_r E(W^{(t)}, r)\):
+  \[E(W^{(t)}, r^{(t+1)}) \;\leq\; E(W^{(t)}, r^{(t)})\]
+  The M-step gives (by Proposition 1):
+  \[E(W^{(t+1)}, r^{(t+1)}) \;\leq\; E(W^{(t)}, r^{(t+1)})\]
+  Chaining: \(E^{(t+1)} \leq E^{(t)}\). \(\square\)</p>
+</div>
+
+<div class="cor block">
+  <div class="label">Corollary 1 — Convergence of the energy sequence</div>
+  <p>The sequence \(\{E^{(t)}\}\) is monotone non-increasing and bounded below by zero. By the monotone convergence theorem, \(E^{(t)} \to E^*\) for some \(E^* \geq 0\).</p>
+</div>
+
+<div class="rem block">
+  <div class="label">Scope and limitations</div>
+  <p>Corollary 1 guarantees convergence of the <em>energy value</em>, not of the iterates \((W^{(t)}, r^{(t)})\). It does not guarantee \(W^{(t)}\to W^*\) for a fixed point (iterates may oscillate at the same energy level), nor \(E^* = E_{\min}\) (convergence to local minima or saddle points is possible). Crucially, Theorem 1 does <em>not</em> hold across epochs during \(\sigma_r\)-annealing: when \(\sigma_r\) decreases between epochs the functional \(E\) itself changes shape, so the energy can rise slightly at epoch boundaries. The M-step guarantee holds strictly only within each epoch at fixed \(\sigma_r\). The practical convergence of \(C_{\mathrm{tot}}\to 1\) (§9) is therefore an empirical property of the full algorithm, not a corollary of Theorem 1.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="s6">Point and grid representations; inverse mapping</h2>
+
+<div class="def block">
+  <div class="label">Definition 5 — Point and grid representations</div>
+  <p>Given stimulus \(\mathbf{x}\in\mathbb{R}^{D_m}\) with BMU \(r = r(\mathbf{x}; W^{(m)})\) in modality \(m\):</p>
+  <p>The <em>point representation</em> \(\mathbf{x}_m \in \mathcal{Z}\) is the 2D coordinate of the BMU: \(\mathbf{x}_m = \mathbf{p}_{r}\).</p>
+  <p>The <em>grid representation</em> \(\mathbf{r}_m \in \mathbb{R}^K_{\geq 0}\) is a radial-basis activation over all nodes:
+  \[r_m(j) = \exp\!\left(-\frac{\|j - \mathbf{x}_m\|^2}{2\sigma_{\mathrm{rbf}}^2}\right), \quad j = 1,\ldots,K\]
+  </p>
+</div>
+
+<p>The grid representation enables <em>inverse mapping</em>: given any target coordinate \(\hat{\mathbf{z}}\in\mathcal{Z}\), reconstruct a pattern in modality \(m\) as:</p>
+
+<div class="eq">
+  <div class="eq-row">
+    <div class="eq-body">\[\hat{\mathbf{d}}^{(m)}(\hat{\mathbf{z}}) = \bigl(W^{(m)}\bigr)^{\!\top} \mathbf{r}(\hat{\mathbf{z}})\]</div>
+    <span class="eq-num">(8)</span>
+  </div>
+</div>
+
+<p>where \(\mathbf{r}(\hat{\mathbf{z}})\in\mathbb{R}^K\) is the radial-basis activation centred on \(\hat{\mathbf{z}}\). This is used by the offline controller to reconstruct policies from internal goal representations.</p>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="s7">The shared anchor and cross-modal alignment</h2>
+
+<p>
+The key innovation of the alignment architecture is that all STMs \(\{W^{(m)}\}_{m\in\mathcal{M}}\) are updated simultaneously with the <em>same anchor</em> — the grid representation of the currently selected policy — as their common \(t_i\). This transforms independent per-modality learning into a jointly constrained problem: different modalities are forced into topological correspondence.
+</p>
+
+<div class="def block">
+  <div class="label">Definition 6 — Shared anchor and joint STM update</div>
+  <p>At the start of each episode, policy \(\hat{\pi}\) is selected and its point representation \(\hat{\mathbf{x}}_\pi = \mathbf{x}_\pi(\hat{\pi})\) is computed. For all stimuli collected in that episode, the shared anchor label is \(t_i = \hat{\mathbf{x}}_\pi\). The WTA operator for modality \(m\) is therefore:
+  \[
+    \phi^{(m)}_{i,j} = \exp\!\left(-\frac{\|j - r^{(m)}_i\|^2}{2(\sigma^u_j)^2}\right)\exp\!\left(-\frac{\|j - \hat{\mathbf{x}}_\pi\|^2}{2(\sigma^u_j)^2}\right)
+  \]
+  All \(|\mathcal{M}|\) STMs are updated with this same anchor. As a result, corresponding positions in \(\mathcal{Z}\) come to encode compatible information across all modalities: a point \(\mathbf{z}\in\mathcal{Z}\) represents simultaneously a visual condition, a policy, and its sensorimotor effects.</p>
+</div>
+
+<p>The online prototype update for modality \(m\) is:</p>
+
+<div class="eq">
+  <div class="eq-row">
+    <div class="eq-body">\[\mathbf{w}^{(m)}_j \;\leftarrow\; \mathbf{w}^{(m)}_j + \eta^u_j\,\phi^{(m)}_{i,j}\,\bigl(\mathbf{d}^{(m)} - \mathbf{w}^{(m)}_j\bigr)\]</div>
+    <span class="eq-num">(9)</span>
+  </div>
+</div>
+
+<p>where \(\mathbf{d}^{(m)}\) is the sensory state collected at successful timesteps (§8) and \(\eta^u_j\) is the local learning rate (§9).</p>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="s8">The intrinsic alignment signal</h2>
+
+<div class="def block">
+  <div class="label">Definition 7 — Internal match</div>
+  <p>At timestep \(t\), let \(\mathbf{x}^{(m)}_t\) denote the point representation of modality \(m\) and \(\hat{\mathbf{x}}_\pi\) the goal prototype coordinate. The <em>per-modality internal match</em> is:
+  \[\mu^{(m)}_t = \exp\!\left(-\frac{\|\mathbf{x}^{(m)}_t - \hat{\mathbf{x}}_\pi\|^2}{2\sigma_\mu^2}\right) \in (0,1]\]
+  The <em>overall internal match</em> averages over effect modalities only (vision excluded, as visual change during manipulation is not primarily caused by the current policy):
+  \[\psi_t = \frac{1}{|\mathcal{M}_{\mathrm{eff}}|}\sum_{m\in\mathcal{M}_{\mathrm{eff}}} \mu^{(m)}_t\]
+  </p>
+</div>
+
+<p>Equivalently (2023 formulation), the mean distance across all modalities is first computed and then converted:</p>
+
+<div class="eq">
+  <div class="eq-row">
+    <div class="eq-body">\[\hat{\psi}_t = \frac{\displaystyle\sum_{i=1}^{N_s}\|\mathbf{x}^{(i)}_t - \hat{\mathbf{x}}_\pi\| + \|\mathbf{x}^\pi_t - \hat{\mathbf{x}}_\pi\|}{N_s + 1}, \qquad \psi_t = \exp\!\left(-\frac{\hat{\psi}_t^2}{2\sigma_\psi}\right)\]</div>
+    <span class="eq-num">(10)</span>
+  </div>
+</div>
+
+<p>The intrinsic signal retains only positive increments:</p>
+
+<div class="eq">
+  <div class="eq-row">
+    <div class="eq-body">\[c_t = \begin{cases}\psi_t & \text{if } \psi_t - \psi_{t-1} > \theta_\delta \\ 0 & \text{otherwise}\end{cases}\]</div>
+    <span class="eq-num">(11)</span>
+  </div>
+</div>
+
+<h3>Success criterion and timestep selection</h3>
+
+<p>Timestep \(t\) is <em>successful</em> — and its sensorimotor states retained for the STM update — iff:</p>
+<div class="eq">
+  \[\mu^{(ss)}_t > \mu^{(ss)}_{t-1} \quad\text{(local somatosensory increase)}\qquad\text{and}\qquad\psi_t > \max_{\tau<t}\psi_\tau \quad\text{(new episode maximum)}\]
+</div>
+<p>The set \(\mathcal{T}\subseteq\{1,\ldots,T_{\mathrm{ep}}\}\) of selected timesteps provides the dataset \(\{\mathbf{d}^{(m)}_t\}_{t\in\mathcal{T}}\) for the batch M-step.</p>
+
+<div class="rem block">
+  <div class="label">Intrinsic motivation interpretation</div>
+  <p>The signal \(c_t\) is derived entirely within \(\mathcal{Z}\), without any external reward. An agent maximising \(\sum_t c_t\) is intrinsically motivated to produce sensory representations that converge towards its policy representation — i.e., to increase its own <em>competence</em>: the ability to reliably cause predictable sensory effects through action.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="s9">Competence prediction and hyperparameter modulation</h2>
+
+<p>A predictor component estimates the expected match \(\hat{c}(\hat{\mathbf{x}}_\pi)\) for each goal prototype. After each epoch the stored value is updated:</p>
+
+<div class="eq">
+  <div class="eq-row">
+    <div class="eq-body">\[c_{\hat{\mathbf{x}}_\pi} \;\leftarrow\; c_{\hat{\mathbf{x}}_\pi} + \alpha\,\psi_{\hat{\mathbf{x}}_\pi}\]</div>
+    <span class="eq-num">(12)</span>
+  </div>
+</div>
+
+<p>Predictions are computed via kernel-weighted average over the grid:</p>
+
+<div class="eq">
+  <div class="eq-row">
+    <div class="eq-body">\[\hat{c}(\hat{\mathbf{x}}_\pi) = \frac{\sum_j \mathbf{r}_{\hat{\mathbf{x}}_\pi}(j)\,c_j}{\sum_j \mathbf{r}_{\hat{\mathbf{x}}_\pi}(j)}, \qquad C_{\mathrm{tot}} = \frac{1}{K}\sum_{j=1}^K \hat{c}(\mathbf{j})\]</div>
+    <span class="eq-num">(13)</span>
+  </div>
+</div>
+
+<p>Three hyperparameters are then modulated locally by both global and local competence:</p>
+
+<div class="eq">
+  <div class="eq-row">
+    <div class="eq-body">\[\eta^u_j = \eta_{\min} + (\eta_{\max}-\eta_{\min})\underbrace{(1-\tanh 3C_{\mathrm{tot}})}_{\text{global gate}}\underbrace{(1-\tanh\hat{c}(\mathbf{j}))}_{\text{local gate}}\]</div>
+    <span class="eq-num">(14)</span>
+  </div>
+</div>
+
+<div class="eq">
+  <div class="eq-row">
+    <div class="eq-body">\[\sigma^u_j = \sigma^u_{\min} + (\sigma^u_{\max}-\sigma^u_{\min})(1-\tanh 3C_{\mathrm{tot}})(1-\tanh\hat{c}(\mathbf{j}))\]</div>
+    <span class="eq-num">(15)</span>
+  </div>
+</div>
+
+<div class="eq">
+  <div class="eq-row">
+    <div class="eq-body">\[\sigma^n_j = \sigma^n_{\min} + (\sigma^n_{\max}-\sigma^n_{\min})(1-\tanh 3C_{\mathrm{tot}})(1-\tanh\hat{c}(\mathbf{j}))\]</div>
+    <span class="eq-num">(16)</span>
+  </div>
+</div>
+
+<p>Policy exploration noise is \(\boldsymbol{\epsilon}\sim\mathcal{N}(\mathbf{0},\sigma^n_{\hat{\mathbf{x}}_\pi}\mathbf{I})\), giving executed policy \(\pi = \hat{\pi}+\boldsymbol{\epsilon}\). Equations (14–16) implement competence-based adaptive annealing: high-competence regions (high \(\hat{c}\)) receive small updates and little noise; low-competence regions receive large updates and extensive exploration. This asymmetric modulation is the mechanism enabling lifelong learning without catastrophic forgetting.</p>
+
+<div class="rem block">
+  <div class="label">Relation to the convergence theorem</div>
+  <p>Equations (14–16) constitute adaptive \(\sigma_r\)-annealing. By Theorem 1, the M-step guarantee \(E^{(t+1)}\leq E^{(t)}\) holds strictly only when \(\sigma_r\) is fixed within an epoch. Across epoch boundaries the changing \(\sigma^u_j\) alters the energy landscape; local energy increases at epoch transitions are therefore possible and expected. The practical convergence \(C_{\mathrm{tot}}\to 1\) is an empirical property of the full algorithm.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="s10">Full learning algorithm</h2>
+
+<div class="algo">
+  <div class="algo-title">Algorithm — Topological Alignment via Competence Acquisition</div>
+  <div><strong>Input:</strong> STMs \(\{W^{(m)}\}_{m\in\mathcal{M}}\), predictor \(\hat{c}\), environment \(\mathcal{E}\)</div>
+  <br>
+  <div><strong>while</strong> \(C_{\mathrm{tot}} &lt; 1\) <strong>do</strong></div>
+  <div class="i1 cm">// ─ Epoch setup</div>
+  <div class="i1">Compute \(\hat{c}(\mathbf{j})\;\forall\mathbf{j}\) via (13); compute \(C_{\mathrm{tot}}\)</div>
+  <div class="i1">Compute \(\eta^u_j,\,\sigma^u_j,\,\sigma^n_j\;\forall j\) via (14–16)</div>
+  <div class="i1">\(\mathcal{T}\leftarrow\emptyset;\;\mathcal{D}\leftarrow\emptyset\)</div>
+  <div class="i1"><strong>for</strong> \(k=1\) to \(K_{\mathrm{ep}}\) <strong>do</strong></div>
+  <div class="i2 cm">// ─ Episode</div>
+  <div class="i2">Read \(\{s^{(m)}_0\}_{m\in\mathcal{M}_s}\) from \(\mathcal{E}\)</div>
+  <div class="i2">Select goal: \(\hat{\mathbf{x}}_\pi\leftarrow\mathrm{matchWeightedRep}(\mathbf{r}_{v,0})\) <span class="cm">&nbsp;// vision-conditioned, §8</span></div>
+  <div class="i2">Reconstruct policy: \(\hat{\pi}\leftarrow(W^{(\pi)})^\top\mathbf{r}(\hat{\mathbf{x}}_\pi)\) via (8)</div>
+  <div class="i2">Add noise: \(\pi\leftarrow\hat{\pi}+\boldsymbol{\epsilon},\;\boldsymbol{\epsilon}\sim\mathcal{N}(\mathbf{0},\sigma^n_{\hat{\mathbf{x}}_\pi}\mathbf{I})\)</div>
+  <div class="i2">\(\psi^{\max}\leftarrow 0\)</div>
+  <div class="i2"><strong>for</strong> \(t=1\) to \(T_{\mathrm{ep}}\) <strong>do</strong></div>
+  <div class="i3 cm">// ─ Closed-loop step</div>
+  <div class="i3">\(\mathbf{a}_t\leftarrow\mathrm{onlineController}(\{s^{(m)}_{t-1}\},\pi)\)</div>
+  <div class="i3">\(\{s^{(m)}_t\}\leftarrow\mathcal{E}.\mathrm{step}(\mathbf{a}_t)\)</div>
+  <div class="i3">Compute BMU coords \(\mathbf{x}^{(m)}_t\) and \(\psi_t\) via (10–11)</div>
+  <div class="i3"><strong>if</strong> \(\mu^{(ss)}_t>\mu^{(ss)}_{t-1}\) and \(\psi_t>\psi^{\max}\) <strong>then</strong></div>
+  <div class="i4">\(\mathcal{T}\leftarrow\mathcal{T}\cup\{t\};\;\mathcal{D}\leftarrow\mathcal{D}\cup\{(\mathbf{s}^{(m)}_t)_m\};\;\psi^{\max}\leftarrow\psi_t\)</div>
+  <div class="i3"><strong>end if</strong></div>
+  <div class="i2"><strong>end for</strong></div>
+  <div class="i1"><strong>end for</strong></div>
+  <div class="i1 cm">// ─ Batch M-step across all modalities</div>
+  <div class="i1"><strong>for each</strong> \(m\in\mathcal{M}\) <strong>do</strong></div>
+  <div class="i2">Update \(W^{(m)}\) via (6) [or online form (9)], data \(\mathcal{D}\), anchor \(\hat{\mathbf{r}}_\pi\), rates \(\eta^u_j\), bandwidths \(\sigma^u_j\)</div>
+  <div class="i1"><strong>end for</strong></div>
+  <div class="i1">Update predictor \(\hat{c}\) via (12)</div>
+  <div><strong>end while</strong></div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="s11">Convergence of alignment and semantic grounding</h2>
+
+<div class="prop block">
+  <div class="label">Proposition 2 — Alignment equilibrium</div>
+  <p>The algorithm reaches equilibrium when \(C_{\mathrm{tot}}\to 1\). At equilibrium, for any \(\mathbf{z}\in\mathcal{Z}\) and modality \(m\), the inverse mapping \(\hat{\mathbf{d}}^{(m)}(\mathbf{z})\) reconstructs a sensory state causally consistent with policy \(\hat{\pi}(\mathbf{z})\): executing \(\hat{\pi}(\mathbf{z})\) in the environment reliably produces sensory states whose point representations converge to \(\mathbf{z}\).</p>
+</div>
+
+<div class="def block">
+  <div class="label">Definition 8 — Grounding by convergence (success semantics)</div>
+  <p>A point \(\mathbf{z}\in\mathcal{Z}\) <em>refers to</em> environmental condition \(C\) iff:
+  \[C \text{ obtains} \;\Longleftrightarrow\; \psi_t\to 1 \text{ when the agent executes }\hat{\pi}(\mathbf{z})\]
+  The semantic content of \(\mathbf{z}\) is thus fixed entirely by the causal structure of agent–environment interaction as reflected in \(\psi_t\), with no appeal to further semantic notions.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="s12">The triadic goal structure and affordance space</h2>
+
+<p>Once all STMs are aligned, every point \(\mathbf{z}\in\mathcal{Z}\) simultaneously encodes three components recoverable via inverse mapping (8):</p>
+
+<div class="eq">
+  \[g(\mathbf{z}) = \Bigl(\underbrace{\hat{\mathbf{d}}^{(v)}(\mathbf{z})}_{\text{condition (vision)}},\quad \underbrace{\hat{\pi}(\mathbf{z})}_{\text{action (policy)}},\quad \underbrace{\hat{\mathbf{d}}^{(ss)}(\mathbf{z}),\;\hat{\mathbf{d}}^{(p)}(\mathbf{z})}_{\text{effect (touch + proprio)}}\Bigr)\]
+</div>
+
+<p>The full goal space is the image of \(\mathcal{Z}\) under this triadic mapping: \(\mathcal{G} = \{g(\mathbf{z}):\mathbf{z}\in\mathcal{Z}\}\).</p>
+
+<div class="prop block">
+  <div class="label">Proposition 3 — Topological alignment as affordance map</div>
+  <p>After convergence, \(\mathcal{G}\) constitutes a low-dimensional <em>manifold of possible interactions</em>. Each point \(g(\mathbf{z})\in\mathcal{G}\) encodes an affordance: a stable relational structure between a perceptual condition, an executable action, and a predictable sensorimotor effect. Neighbouring points in \(\mathcal{Z}\) encode structurally similar affordances, by the topology-preserving property of STMs.</p>
+</div>
+
+<div class="rem block">
+  <div class="label">Necessity of action coupling — formal content of the yoked-control result</div>
+  <p>A passive (parasite) agent receiving the same sensory stream \(\{s^{(m)}_t\}\) as an active agent can achieve \(C_{\mathrm{tot}}\to 1\): the energy \(E(W)\) decreases regardless of whether the anchor \(\hat{\mathbf{x}}_\pi\) is causally linked to sensory effects. However, since the parasite's policy is decoupled from those effects, the success condition \(\psi_t\to 1\) does not imply that executing \(\hat{\pi}_{\mathrm{par}}(\mathbf{z})\) reproduces the corresponding effect in the environment. Alignment without active policy coupling is therefore sufficient for energy minimisation but insufficient for the emergence of \(\mathcal{G}\) as a genuine affordance map. This is the formal content of Result 2 (Zubek et al., 2024).</p>
+</div>
+
+<hr>
+
+<p style="font-size:0.88rem; color:var(--text-secondary); margin-bottom:0.6rem;"><strong style="color:var(--text);">Symbol glossary</strong></p>
+<table>
+  <thead><tr><th>Symbol</th><th>Meaning</th></tr></thead>
+  <tbody>
+    <tr><td>\(\mathcal{M}\)</td><td>set of modalities \(\{v,\,ss,\,p,\,\pi\}\)</td></tr>
+    <tr><td>\(\mathcal{Z}\subset\mathbb{R}^2\)</td><td>shared internal representation space (2D grid)</td></tr>
+    <tr><td>\(K\)</td><td>number of nodes in the grid</td></tr>
+    <tr><td>\(W^{(m)}\in\mathbb{R}^{K\times D_m}\)</td><td>prototype matrix for modality \(m\)</td></tr>
+    <tr><td>\(r_i(W)\)</td><td>BMU index for input \(i\) — piecewise-constant in \(W\)</td></tr>
+    <tr><td>\(t_i\in\{1,\ldots,K\}\)</td><td>anchor index (shared across all modalities in one episode)</td></tr>
+    <tr><td>\(\phi^{\mathrm{STM}}_{i,j}\)</td><td>WTA operator: product of neighbourhood and anchor Gaussians</td></tr>
+    <tr><td>\(\sigma_r\)</td><td>neighbourhood bandwidth (annealed)</td></tr>
+    <tr><td>\(\sigma_t\)</td><td>anchor bandwidth (fixed)</td></tr>
+    <tr><td>\(\Psi_i(k)\)</td><td>\(\phi\)-weighted reconstruction error for candidate winner \(k\) in exact E-step</td></tr>
+    <tr><td>\(\psi_t\)</td><td>overall internal match at timestep \(t\)</td></tr>
+    <tr><td>\(C_{\mathrm{tot}}\)</td><td>global competence — mean predicted match over the grid</td></tr>
+    <tr><td>\(\eta^u_j,\;\sigma^u_j,\;\sigma^n_j\)</td><td>local learning rate, update bandwidth, exploration noise \(\sigma\) for node \(j\)</td></tr>
+    <tr><td>\(\mathcal{G}\)</td><td>affordance space — image of \(\mathcal{Z}\) under the triadic mapping \(g\)</td></tr>
+    <tr><td>\(E^*\)</td><td>energy limit point guaranteed by Corollary 1</td></tr>
+  </tbody>
+</table>
+
+<footer>
+  Mannella F. (2020) <em>Supervised Topological Maps</em>, arXiv:2008.06395 &middot;
+  Mannella F. &amp; Tummolini L. (2023) <em>Phil. Trans. R. Soc. B</em> 378: 20210370 &middot;
+  Zubek J., Mannella F. &amp; Tummolini L. (2024) preprint &middot;
+  <em>STM Energy Function — Complete Formalisation</em> (2024, companion document)
+</footer>
+
+</div>
+</body>
+</html>

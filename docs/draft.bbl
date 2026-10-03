@@ -1,0 +1,54 @@
+\begin{thebibliography}{7}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Bridgeman et~al.(1975)Bridgeman, Hendry, and Stark]{bridgemanFailureDetectDisplacement1975}
+Bruce Bridgeman, Derek Hendry, and Lawrence Stark.
+\newblock Failure to detect displacement of the visual world during saccadic eye movements.
+\newblock \emph{Vision Research}, 15\penalty0 (6):\penalty0 719--722, June 1975.
+\newblock ISSN 0042-6989.
+\newblock \doi{10.1016/0042-6989(75)90290-4}.
+
+\bibitem[Burr et~al.(1994)Burr, Morrone, and Ross]{burrSelectiveSuppressionMagnocellular1994}
+David~C. Burr, M.~Concetta Morrone, and John Ross.
+\newblock Selective suppression of the magnocellular visual pathway during saccadic eye movements.
+\newblock \emph{Nature}, 371\penalty0 (6497):\penalty0 511--513, October 1994.
+\newblock ISSN 1476-4687.
+\newblock \doi{10.1038/371511a0}.
+
+\bibitem[Binda and Morrone(2018)]{bindaVisionSaccadicEye2018}
+Paola Binda and Maria~Concetta Morrone.
+\newblock Vision {{During Saccadic Eye Movements}}.
+\newblock September 2018.
+\newblock \doi{10.1146/annurev-vision-091517-034317}.
+
+\bibitem[Sommer and Wurtz(2004)]{sommerWhatBrainStem2004}
+Marc~A. Sommer and Robert~H. Wurtz.
+\newblock What the {{Brain Stem Tells}} the {{Frontal Cortex}}. {{I}}. {{Oculomotor Signals Sent From Superior Colliculus}} to {{Frontal Eye Field Via Mediodorsal Thalamus}}.
+\newblock \emph{Journal of Neurophysiology}, 91\penalty0 (3):\penalty0 1381--1402, March 2004.
+\newblock ISSN 0022-3077.
+\newblock \doi{10.1152/jn.00738.2003}.
+
+\bibitem[Sun and Goldberg(2016)]{sunCorollaryDischargeOculomotor2016}
+Linus~D. Sun and Michael~E. Goldberg.
+\newblock Corollary {{Discharge}} and {{Oculomotor Proprioception}}: {{Cortical Mechanisms}} for {{Spatially Accurate Vision}}.
+\newblock October 2016.
+\newblock \doi{10.1146/annurev-vision-082114-035407}.
+
+\bibitem[Cavanaugh et~al.(2016)Cavanaugh, Berman, Joiner, and Wurtz]{cavanaughSaccadicCorollaryDischarge2016}
+James Cavanaugh, Rebecca~A. Berman, Wilsaan~M. Joiner, and Robert~H. Wurtz.
+\newblock Saccadic {{Corollary Discharge Underlies Stable Visual Perception}}.
+\newblock \emph{Journal of Neuroscience}, 36\penalty0 (1):\penalty0 31--42, January 2016.
+
+\bibitem[Herwig et~al.()Herwig, Weiß, and Schneider]{herwigWhenCirclesBecome2015}
+Arvid Herwig, Katharina Weiß, and Werner~X. Schneider.
+\newblock When circles become triangular: How transsaccadic predictions shape the perception of shape.
+\newblock 1339\penalty0 (1):\penalty0 97--105.
+\newblock ISSN 1749-6632.
+\newblock \doi{10.1111/nyas.12672}.
+\newblock URL \url{https://onlinelibrary.wiley.com/doi/abs/10.1111/nyas.12672}.
+
+\end{thebibliography}

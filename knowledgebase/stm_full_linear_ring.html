@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STM Alignment — Linear Manifold + Ring Anchors</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#f8f8f6;color:#2c2c2a;padding:1.5rem}
+h1{font-size:1.1rem;font-weight:500;margin-bottom:1rem;color:#2c2c2a}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(80px,1fr));gap:8px;margin-bottom:12px}
+.mc{background:#f1efe8;border-radius:8px;padding:.6rem .75rem}
+.mc-l{font-size:11px;color:#888780;margin-bottom:2px}
+.mc-v{font-size:18px;font-weight:500;color:#2c2c2a}
+.section{background:#fff;border:0.5px solid rgba(44,44,42,0.15);border-radius:12px;padding:.75rem;margin-bottom:10px}
+.sec-title{font-size:11px;color:#888780;margin-bottom:8px;font-weight:500}
+.ctrl{display:flex;align-items:center;gap:8px;margin-bottom:7px;flex-wrap:wrap}
+.cl{font-size:12px;color:#888780;min-width:118px}
+.cv{font-size:12px;font-weight:500;color:#2c2c2a;min-width:38px;text-align:right}
+.two-panels{display:flex;gap:8px;margin-bottom:10px}
+.panel{flex:1;min-width:0;background:#fff;border:0.5px solid rgba(44,44,42,0.15);border-radius:12px;padding:.6rem}
+.panel-title{font-size:11px;color:#888780;margin-bottom:6px}
+.grids{display:flex;gap:8px;margin-bottom:10px}
+.gbox{flex:1;min-width:0}
+.gbox-title{font-size:11px;color:#888780;margin-bottom:4px}
+canvas.gc{display:block;width:100%;image-rendering:pixelated;border-radius:4px}
+.btn-row{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.anneal-row{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.anneal-box{flex:1;min-width:90px;background:#f1efe8;border-radius:8px;padding:.5rem .6rem}
+.ab-label{font-size:11px;color:#888780;margin-bottom:2px}
+.ab-bar-wrap{height:6px;background:rgba(44,44,42,0.15);border-radius:3px;overflow:hidden;margin-bottom:3px}
+.ab-bar{height:100%;border-radius:3px;transition:width .15s}
+.ab-val{font-size:12px;font-weight:500}
+button{cursor:pointer;background:transparent;border:0.5px solid rgba(44,44,42,0.3);border-radius:8px;padding:6px 14px;font-size:13px;color:#2c2c2a}
+button:hover{background:#f1efe8}
+input[type=range]{cursor:pointer;flex:1;max-width:140px}
+</style>
+</head>
+<body>
+<h1>STM Topological Alignment — Linear Manifold (s = π = λ) · Ring Anchors in Grid Space</h1>
+
+<div class="metrics">
+  <div class="mc"><div class="mc-l">Epoch</div><div class="mc-v" id="mEp">0</div></div>
+  <div class="mc"><div class="mc-l">C_tot</div><div class="mc-v" id="mC">0.000</div></div>
+  <div class="mc"><div class="mc-l">E sensory</div><div class="mc-v" id="mEs">—</div></div>
+  <div class="mc"><div class="mc-l">E policy</div><div class="mc-v" id="mEp2">—</div></div>
+  <div class="mc"><div class="mc-l">ΔE</div><div class="mc-v" id="mDE">—</div></div>
+</div>
+
+<div class="anneal-row">
+  <div class="anneal-box">
+    <div class="ab-label">σ_r (neighbourhood)</div>
+    <div class="ab-bar-wrap"><div class="ab-bar" id="barSr" style="background:#378ADD;width:100%"></div></div>
+    <div class="ab-val" id="valSr" style="color:#378ADD">—</div>
+  </div>
+  <div class="anneal-box">
+    <div class="ab-label">σ_t (anchor)</div>
+    <div class="ab-bar-wrap"><div class="ab-bar" id="barSt" style="background:#D4537E;width:100%"></div></div>
+    <div class="ab-val" id="valSt" style="color:#D4537E">—</div>
+  </div>
+  <div class="anneal-box">
+    <div class="ab-label">η (learning rate)</div>
+    <div class="ab-bar-wrap"><div class="ab-bar" id="barEta" style="background:#1D9E75;width:100%"></div></div>
+    <div class="ab-val" id="valEta" style="color:#1D9E75">—</div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-title">Ring &amp; noise parameters</div>
+  <div class="ctrl">
+    <span class="cl">Ring radius (grid)</span>
+    <input type="range" min="0.15" max="0.49" value="0.38" step="0.01" id="ringR">
+    <span class="cv" id="vringR">0.38</span>
+  </div>
+  <div class="ctrl">
+    <span class="cl">Manifold noise σ</span>
+    <input type="range" min="0" max="0.12" value="0.025" step="0.005" id="mNoise">
+    <span class="cv" id="vmNoise">0.025</span>
+  </div>
+  <div class="ctrl">
+    <span class="cl">N samples / epoch</span>
+    <input type="range" min="20" max="300" value="120" step="10" id="nSamp">
+    <span class="cv" id="vnSamp">120</span>
+  </div>
+  <div class="ctrl">
+    <span class="cl">Grid K×K</span>
+    <input type="range" min="4" max="14" value="8" step="1" id="Kslider">
+    <span class="cv" id="vK">8</span>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-title">Annealing</div>
+  <div class="ctrl">
+    <span class="cl">σ_r₀ / min</span>
+    <input type="range" min="1" max="8" value="4" step="0.5" id="sr0" style="flex:1;max-width:110px">
+    <span class="cv" id="vsr0">4.0</span>
+    <input type="range" min="0.2" max="2" value="0.5" step="0.1" id="srMin" style="flex:1;max-width:110px">
+    <span class="cv" id="vsrMin">0.5</span>
+  </div>
+  <div class="ctrl">
+    <span class="cl">σ_t₀ / min</span>
+    <input type="range" min="0.5" max="6" value="3" step="0.5" id="st0" style="flex:1;max-width:110px">
+    <span class="cv" id="vst0">3.0</span>
+    <input type="range" min="0.2" max="2" value="0.8" step="0.1" id="stMin" style="flex:1;max-width:110px">
+    <span class="cv" id="vstMin">0.8</span>
+  </div>
+  <div class="ctrl">
+    <span class="cl">η₀ / min</span>
+    <input type="range" min="0.05" max="1" value="0.5" step="0.05" id="eta0" style="flex:1;max-width:110px">
+    <span class="cv" id="veta0">0.50</span>
+    <input type="range" min="0.005" max="0.2" value="0.02" step="0.005" id="etaMin" style="flex:1;max-width:110px">
+    <span class="cv" id="vetaMin">0.020</span>
+  </div>
+  <div class="ctrl">
+    <span class="cl">Decay γ</span>
+    <input type="range" min="0.85" max="0.999" value="0.95" step="0.005" id="gamma">
+    <span class="cv" id="vgamma">0.950</span>
+  </div>
+</div>
+
+<div class="btn-row">
+  <button onclick="runEpoch()">▶ Step</button>
+  <button id="btnAuto" onclick="toggleAuto()">⟳ Auto-run</button>
+  <button onclick="resetSim()">↺ Reset</button>
+</div>
+
+<div class="two-panels">
+  <div class="panel">
+    <div class="panel-title">Data space — s = λ, π = λ · both span [0,1] · colour = λ</div>
+    <div style="position:relative;height:200px"><canvas id="cCont" role="img" aria-label="Fully linear manifold diagonal in sensory-policy space">Linear manifold</canvas></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">Grid space — ring of anchors in Z · colour = λ</div>
+    <canvas id="cAnchorGrid" style="display:block;width:100%;image-rendering:pixelated;border-radius:4px" height="200"></canvas>
+  </div>
+</div>
+
+<div class="grids">
+  <div class="gbox">
+    <div class="gbox-title">Sensory STM — W^(s)</div>
+    <canvas id="cS" class="gc" height="150"></canvas>
+  </div>
+  <div class="gbox">
+    <div class="gbox-title">Policy STM — W^(π)</div>
+    <canvas id="cP" class="gc" height="150"></canvas>
+  </div>
+  <div class="gbox">
+    <div class="gbox-title">Misalignment |W^s − W^π|</div>
+    <canvas id="cA" class="gc" height="150"></canvas>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-title">Energy E_total log (orange) · C_tot (green)</div>
+  <div style="position:relative;height:120px"><canvas id="cHist" role="img" aria-label="Convergence history">Convergence</canvas></div>
+</div>
+
+<div class="section">
+  <div class="sec-title">Annealing — σ_r blue · σ_t pink · η green</div>
+  <div style="position:relative;height:100px"><canvas id="cAnn" role="img" aria-label="Annealing schedules">Annealing</canvas></div>
+</div>
+
+<script>
+let K=8,epoch=0,autoTimer=null;
+let sigR,sigT,eta,sigR0,sigRMin,sigT0,sigTMin,eta0,etaMin,gamma,N,mNoise,ringR;
+let Ws,Wp,ringNodes=[],anchorMap=[];
+let histE=[],histC=[],histSr=[],histSt=[],histEta=[];
+let histChart=null,annChart=null,contChart=null;
+let prevE=null;
+
+function rp(id){return parseFloat(document.getElementById(id).value);}
+function ri(id){return parseInt(document.getElementById(id).value);}
+
+function readParams(){
+  sigR0=rp('sr0');sigRMin=rp('srMin');
+  sigT0=rp('st0');sigTMin=rp('stMin');
+  eta0=rp('eta0');etaMin=rp('etaMin');
+  gamma=rp('gamma');N=ri('nSamp');K=ri('Kslider');
+  mNoise=rp('mNoise');ringR=rp('ringR');
+}
+
+function manifoldPoint(lambda){return {s:lambda,p:lambda};}
+
+function buildAnchorRing(){
+  readParams();
+  const nRing=K*K;
+  const cx=(K-1)/2,cy=(K-1)/2;
+  const gridRadius=ringR*(K-1);
+  ringNodes=[];
+  for(let i=0;i<nRing;i++){
+    const angle=-Math.PI/2+(i/nRing)*2*Math.PI;
+    const col=cx+gridRadius*Math.cos(angle);
+    const row=cy+gridRadius*Math.sin(angle);
+    const lambda=i/nRing;
+    const pt=manifoldPoint(lambda);
+    ringNodes.push({angle,col,row,lambda,sVal:pt.s,pVal:pt.p});
+  }
+  anchorMap=[];
+  for(let j=0;j<K*K;j++){
+    const jRow=Math.floor(j/K),jCol=j%K;
+    let bestDist=1e9,bestIdx=0;
+    for(let i=0;i<nRing;i++){
+      const rn=ringNodes[i];
+      const d=(jCol-rn.col)**2+(jRow-rn.row)**2;
+      if(d<bestDist){bestDist=d;bestIdx=i;}
+    }
+    const rn=ringNodes[bestIdx];
+    anchorMap.push({lambda:rn.lambda,sVal:rn.sVal,pVal:rn.pVal,ringIdx:bestIdx});
+  }
+}
+
+function sampleFromAnchor(j){
+  const am=anchorMap[j];
+  return {
+    sVal:Math.min(1,Math.max(0,am.sVal+(Math.random()-0.5)*2*mNoise)),
+    pVal:Math.min(1,Math.max(0,am.pVal+(Math.random()-0.5)*2*mNoise)),
+    anchor:j
+  };
+}
+
+function generateData(){
+  const xs=[],xp=[];
+  for(let i=0;i<N;i++){
+    const j=Math.floor(Math.random()*K*K);
+    const smp=sampleFromAnchor(j);
+    xs.push({v:smp.sVal,anchor:j});
+    xp.push({v:smp.pVal,anchor:j});
+  }
+  return {xs,xp};
+}
+
+function anneal(v0,vMin,g,ep){return Math.max(vMin,v0*Math.pow(g,ep));}
+function dist2(a,b){const ar=Math.floor(a/K),ac=a%K,br=Math.floor(b/K),bc=b%K;return (ar-br)**2+(ac-bc)**2;}
+function phi(j,bmu,anchor,sr,st){return Math.exp(-dist2(j,bmu)/(2*sr*sr))*Math.exp(-dist2(j,anchor)/(2*st*st));}
+
+function mStepOnline(W,data,sr,st,lr){
+  let E=0;const Wn=W.slice();
+  for(const d of data){
+    let bmu=0,best=1e9;
+    for(let j=0;j<K*K;j++){const dd=(d.v-Wn[j])**2;if(dd<best){best=dd;bmu=j;}}
+    for(let j=0;j<K*K;j++){const w=phi(j,bmu,d.anchor,sr,st);Wn[j]+=lr*w*(d.v-Wn[j]);E+=0.5*w*(d.v-Wn[j])**2;}
+  }
+  return {W:Wn,E};
+}
+
+function computeCtot(Ws,Wp){
+  let s=0;for(let j=0;j<K*K;j++){const d=Math.abs(Ws[j]-Wp[j]);s+=Math.exp(-d*d*8);}return s/(K*K);
+}
+
+function lambdaColor(t){
+  const a=t*2*Math.PI;
+  const r=Math.min(255,Math.max(0,Math.round(128+110*Math.cos(a))));
+  const g=Math.min(255,Math.max(0,Math.round(128+110*Math.cos(a-2.094))));
+  const b=Math.min(255,Math.max(0,Math.round(128+110*Math.cos(a-4.189))));
+  return `rgb(${r},${g},${b})`;
+}
+function lambdaHex(t){
+  const a=t*2*Math.PI;
+  const r=Math.min(255,Math.max(0,Math.round(128+110*Math.cos(a))));
+  const g=Math.min(255,Math.max(0,Math.round(128+110*Math.cos(a-2.094))));
+  const b=Math.min(255,Math.max(0,Math.round(128+110*Math.cos(a-4.189))));
+  return '#'+[r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('');
+}
+function lerpCol(a,b,t){
+  const pa=parseInt(a.replace('#',''),16),pb=parseInt(b.replace('#',''),16);
+  const ar=(pa>>16)&0xff,ag=(pa>>8)&0xff,ab=pa&0xff;
+  const br=(pb>>16)&0xff,bg=(pb>>8)&0xff,bb=pb&0xff;
+  return `rgb(${Math.round(ar+(br-ar)*t)},${Math.round(ag+(bg-ag)*t)},${Math.round(ab+(bb-ab)*t)})`;
+}
+
+function resetSim(){
+  if(autoTimer){clearInterval(autoTimer);autoTimer=null;document.getElementById('btnAuto').textContent='⟳ Auto-run';}
+  readParams();epoch=0;prevE=null;sigR=sigR0;sigT=sigT0;eta=eta0;
+  histE=[];histC=[];histSr=[];histSt=[];histEta=[];
+  Ws=Array.from({length:K*K},()=>Math.random());
+  Wp=Array.from({length:K*K},()=>Math.random());
+  buildAnchorRing();
+  updateAnnealBars();updateMetrics(0,0,0,0,null);
+  drawAnchorGrid();drawGrid('cS',Ws);drawGrid('cP',Wp);drawDiff();
+  if(histChart){histChart.destroy();histChart=null;}
+  if(annChart){annChart.destroy();annChart=null;}
+  if(contChart){contChart.destroy();contChart=null;}
+  initCharts();drawManifoldChart();
+}
+
+function runEpoch(){
+  if(!Ws)resetSim();
+  sigR=anneal(sigR0,sigRMin,gamma,epoch);sigT=anneal(sigT0,sigTMin,gamma,epoch);eta=anneal(eta0,etaMin,gamma,epoch);
+  const {xs,xp}=generateData();
+  const rs2=mStepOnline(Ws,xs,sigR,sigT,eta);const rp2=mStepOnline(Wp,xp,sigR,sigT,eta);
+  Ws=rs2.W;Wp=rp2.W;epoch++;
+  const Etot=rs2.E+rp2.E,ctot=computeCtot(Ws,Wp),dE=prevE!=null?Etot-prevE:null;prevE=Etot;
+  histE.push(Math.max(Etot,1e-6));histC.push(ctot);histSr.push(sigR);histSt.push(sigT);histEta.push(eta);
+  updateAnnealBars();updateMetrics(epoch,ctot,rs2.E,rp2.E,dE);
+  drawGrid('cS',Ws);drawGrid('cP',Wp);drawDiff();updateCharts();
+}
+
+function drawAnchorGrid(){
+  const canvas=document.getElementById('cAnchorGrid');
+  const cw=canvas.clientWidth||200;canvas.width=cw;canvas.height=200;
+  const ctx=canvas.getContext('2d');
+  const cell=Math.floor(Math.min(cw/K,200/K));
+  const offX=Math.floor((cw-cell*K)/2),offY=Math.floor((200-cell*K)/2);
+  for(let j=0;j<K*K;j++){
+    const row=Math.floor(j/K),col=j%K;
+    ctx.fillStyle=lambdaColor(anchorMap[j].lambda);
+    ctx.fillRect(offX+col*cell,offY+row*cell,cell-1,cell-1);
+    if(cell>=20){
+      ctx.fillStyle='rgba(255,255,255,0.9)';ctx.font=`${Math.max(7,Math.floor(cell*0.28))}px sans-serif`;
+      ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(anchorMap[j].lambda.toFixed(2),offX+col*cell+cell/2,offY+row*cell+cell/2);
+    }
+  }
+  const cx2=offX+K*cell/2,cy2=offY+K*cell/2,gridRadiusPx=ringR*(K-1)*cell;
+  ctx.beginPath();ctx.arc(cx2,cy2,gridRadiusPx,0,2*Math.PI);
+  ctx.strokeStyle='rgba(255,255,255,0.5)';ctx.lineWidth=1.5;ctx.setLineDash([4,3]);ctx.stroke();ctx.setLineDash([]);
+  ringNodes.forEach(rn=>{
+    ctx.beginPath();ctx.arc(offX+rn.col*cell+cell/2,offY+rn.row*cell+cell/2,2.2,0,2*Math.PI);
+    ctx.fillStyle='rgba(255,255,255,0.75)';ctx.fill();
+  });
+}
+
+function drawGrid(id,W){
+  const canvas=document.getElementById(id);const cw=canvas.clientWidth||150;
+  canvas.width=cw;canvas.height=150;const ctx=canvas.getContext('2d');
+  const cell=Math.floor(Math.min(cw,150)/K);const mn=Math.min(...W),mx=Math.max(...W),rng=mx-mn||1;
+  for(let j=0;j<K*K;j++){const row=Math.floor(j/K),col=j%K;ctx.fillStyle=lerpCol('#1a1a2e','#E1F5EE',(W[j]-mn)/rng);ctx.fillRect(col*cell,row*cell,cell-1,cell-1);}
+  for(let j=0;j<K*K;j++){const row=Math.floor(j/K),col=j%K;ctx.strokeStyle=lambdaColor(anchorMap[j].lambda);ctx.lineWidth=1.2;ctx.strokeRect(col*cell+1,row*cell+1,cell-3,cell-3);}
+}
+
+function drawDiff(){
+  const canvas=document.getElementById('cA');const cw=canvas.clientWidth||150;
+  canvas.width=cw;canvas.height=150;const ctx=canvas.getContext('2d');
+  const cell=Math.floor(Math.min(cw,150)/K);const diff=Ws.map((v,i)=>Math.abs(v-Wp[i]));const mx2=Math.max(...diff)||1;
+  for(let j=0;j<K*K;j++){const row=Math.floor(j/K),col=j%K;ctx.fillStyle=lerpCol('#E1F5EE','#D85A30',diff[j]/mx2);ctx.fillRect(col*cell,row*cell,cell-1,cell-1);}
+  for(let j=0;j<K*K;j++){const row=Math.floor(j/K),col=j%K;ctx.strokeStyle=lambdaColor(anchorMap[j].lambda);ctx.lineWidth=1.2;ctx.strokeRect(col*cell+1,row*cell+1,cell-3,cell-3);}
+}
+
+function drawManifoldChart(){
+  if(contChart){contChart.destroy();contChart=null;}
+  const curveData=[];for(let i=0;i<=100;i++){const lam=i/100;curveData.push({x:parseFloat(lam.toFixed(4)),y:parseFloat(lam.toFixed(4))});}
+  const anchorPts=ringNodes.map(rn=>({x:parseFloat(rn.sVal.toFixed(4)),y:parseFloat(rn.pVal.toFixed(4)),lambda:rn.lambda}));
+  const noisePts=[];
+  for(const rn of ringNodes){for(let k=0;k<3;k++){const s=Math.min(1,Math.max(0,rn.sVal+(Math.random()-0.5)*2*mNoise));const p=Math.min(1,Math.max(0,rn.pVal+(Math.random()-0.5)*2*mNoise));noisePts.push({x:parseFloat(s.toFixed(4)),y:parseFloat(p.toFixed(4)),lambda:rn.lambda});}}
+  const ctx=document.getElementById('cCont').getContext('2d');
+  contChart=new Chart(ctx,{type:'scatter',data:{datasets:[
+    {label:'line',data:curveData,borderColor:'rgba(136,135,128,0.5)',backgroundColor:'transparent',showLine:true,pointRadius:0,borderWidth:2,tension:0,order:3},
+    {label:'noise',data:noisePts,backgroundColor:noisePts.map(p=>lambdaHex(p.lambda)+'66'),pointRadius:2.5,order:2},
+    {label:'anchors',data:anchorPts,backgroundColor:anchorPts.map(p=>lambdaHex(p.lambda)),pointRadius:5,pointStyle:'rectRot',order:1}
+  ]},options:{responsive:true,maintainAspectRatio:false,animation:{duration:0},plugins:{legend:{display:false}},
+    scales:{x:{min:0,max:1,title:{display:true,text:'s (sensory, 0→1)',font:{size:10},color:'#888780'},ticks:{color:'#888780',font:{size:10},maxTicksLimit:6}},
+      y:{min:0,max:1,title:{display:true,text:'π (policy, 0→1)',font:{size:10},color:'#888780'},ticks:{color:'#888780',font:{size:10},maxTicksLimit:6}}}}});
+}
+
+function updateAnnealBars(){
+  const pSr=Math.max(0,(sigR-sigRMin)/(sigR0-sigRMin||1));
+  const pSt=Math.max(0,(sigT-sigTMin)/(sigT0-sigTMin||1));
+  const pEta=Math.max(0,(eta-etaMin)/(eta0-etaMin||1));
+  document.getElementById('barSr').style.width=(pSr*100).toFixed(1)+'%';
+  document.getElementById('barSt').style.width=(pSt*100).toFixed(1)+'%';
+  document.getElementById('barEta').style.width=(pEta*100).toFixed(1)+'%';
+  document.getElementById('valSr').textContent=sigR.toFixed(3);
+  document.getElementById('valSt').textContent=sigT.toFixed(3);
+  document.getElementById('valEta').textContent=eta.toFixed(4);
+}
+
+function updateMetrics(ep,ctot,es,ep2,dE){
+  document.getElementById('mEp').textContent=ep;
+  document.getElementById('mC').textContent=ctot.toFixed(3);
+  document.getElementById('mEs').textContent=es==='—'?'—':es.toFixed(3);
+  document.getElementById('mEp2').textContent=ep2==='—'?'—':ep2.toFixed(3);
+  if(dE===null){document.getElementById('mDE').textContent='—';}
+  else{const sg=dE>=0?'+':'';document.getElementById('mDE').textContent=sg+dE.toFixed(4);document.getElementById('mDE').style.color=dE>0.001?'#D85A30':dE<-0.001?'#1D9E75':'#2c2c2a';}
+}
+
+function initCharts(){
+  const c1=document.getElementById('cHist').getContext('2d');
+  histChart=new Chart(c1,{type:'line',data:{labels:[],datasets:[
+    {label:'E',data:[],borderColor:'#D85A30',borderWidth:1.5,pointRadius:0,yAxisID:'y',tension:0.3,borderDash:[4,2]},
+    {label:'C',data:[],borderColor:'#1D9E75',borderWidth:1.5,pointRadius:0,yAxisID:'y2',tension:0.3}
+  ]},options:{responsive:true,maintainAspectRatio:false,animation:{duration:0},plugins:{legend:{display:false}},
+    scales:{x:{ticks:{maxTicksLimit:8,color:'#888780',font:{size:10}},grid:{color:'rgba(136,135,128,0.12)'}},
+      y:{type:'logarithmic',position:'left',ticks:{color:'#D85A30',font:{size:10}},title:{display:true,text:'E (log)',color:'#D85A30',font:{size:10}}},
+      y2:{type:'linear',position:'right',min:0,max:1,ticks:{color:'#1D9E75',font:{size:10}},title:{display:true,text:'C_tot',color:'#1D9E75',font:{size:10}},grid:{drawOnChartArea:false}}}}});
+  const c2=document.getElementById('cAnn').getContext('2d');
+  annChart=new Chart(c2,{type:'line',data:{labels:[],datasets:[
+    {label:'σ_r',data:[],borderColor:'#378ADD',borderWidth:1.5,pointRadius:0,tension:0.3},
+    {label:'σ_t',data:[],borderColor:'#D4537E',borderWidth:1.5,pointRadius:0,tension:0.3,borderDash:[3,2]},
+    {label:'η',data:[],borderColor:'#1D9E75',borderWidth:1.5,pointRadius:0,tension:0.3,borderDash:[6,3]}
+  ]},options:{responsive:true,maintainAspectRatio:false,animation:{duration:0},plugins:{legend:{display:false}},
+    scales:{x:{ticks:{maxTicksLimit:8,color:'#888780',font:{size:10}},grid:{color:'rgba(136,135,128,0.12)'}},y:{min:0,ticks:{color:'#888780',font:{size:10}}}}}});
+}
+
+function updateCharts(){
+  if(!histChart||!annChart)return;
+  const labels=histE.map((_,i)=>i+1);
+  histChart.data.labels=labels;histChart.data.datasets[0].data=histE;histChart.data.datasets[1].data=histC;histChart.update('none');
+  annChart.data.labels=labels;annChart.data.datasets[0].data=histSr;annChart.data.datasets[1].data=histSt;annChart.data.datasets[2].data=histEta;annChart.update('none');
+}
+
+function toggleAuto(){
+  if(autoTimer){clearInterval(autoTimer);autoTimer=null;document.getElementById('btnAuto').textContent='⟳ Auto-run';}
+  else{document.getElementById('btnAuto').textContent='■ Stop';autoTimer=setInterval(()=>{runEpoch();if((sigR<=sigRMin+0.01&&eta<=etaMin+0.001)||epoch>=300){clearInterval(autoTimer);autoTimer=null;document.getElementById('btnAuto').textContent='⟳ Auto-run';}},120);}
+}
+
+function bindSlider(id,outId,dec,cb){
+  document.getElementById(id).oninput=function(){document.getElementById(outId).textContent=parseFloat(this.value).toFixed(dec);if(cb)cb();};
+}
+bindSlider('sr0','vsr0',1);bindSlider('srMin','vsrMin',1);
+bindSlider('st0','vst0',1);bindSlider('stMin','vstMin',1);
+bindSlider('eta0','veta0',2);bindSlider('etaMin','vetaMin',3);
+bindSlider('gamma','vgamma',3);bindSlider('nSamp','vnSamp',0);
+bindSlider('ringR','vringR',2,()=>{buildAnchorRing();drawAnchorGrid();drawManifoldChart();drawGrid('cS',Ws);drawGrid('cP',Wp);drawDiff();});
+bindSlider('mNoise','vmNoise',3,()=>{drawManifoldChart();});
+document.getElementById('Kslider').oninput=function(){document.getElementById('vK').textContent=this.value;resetSim();};
+
+resetSim();
+</script>
+</body>
+</html>

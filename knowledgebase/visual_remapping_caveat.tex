@@ -1,0 +1,109 @@
+% Discussion subsection: Visual remapping and the emergence of local retinotopy
+% For LearningFlexibleActionControl paper
+% ~800-1200 words
+
+\subsection{Local retinotopy in non-retinotopic maps: a caveat for visual remapping}
+
+A key implication of our framework concerns the interpretation of retinotopic
+signals in cortical areas that are not primarily organized around spatial position.
+Visual remapping---the predictive updating of receptive fields in anticipation of
+saccades---was first described in LIP neurons \citep{duhamel1992} and has since been
+observed across a broad network of areas including the frontal eye field (FEF)
+\citep{umeno1997}, superior colliculus \citep{walker1995}, area V4
+\citep{neupane2016}, and even early visual cortex \citep{nakamura2002}. The standard
+interpretation of remapping relies on an assumption that is rarely made explicit:
+that the areas exhibiting remapping maintain a well-defined retinotopic map whose
+coordinates can be predictively updated by a corollary discharge signal
+\citep{sommer2006, marino2021}. However, recent evidence of pervasive retinotopic
+organization in areas traditionally considered non-retinotopic---including
+inferotemporal cortex \citep{arcaro2017}, scene-selective regions, and face patches
+\citep{arcaro2017}---raises the question of what \emph{kind} of spatial organization
+is needed to support remapping-like phenomena.
+
+Our topological alignment framework, together with a complementary computational
+analysis, suggests that this assumption deserves careful scrutiny. In a separate
+analysis, we trained a standard self-organizing map (SOM) on a dataset of colored
+rectangles varying along multiple dimensions---shape, orientation, size, aspect
+ratio, position, and color. The map was thus driven to organize itself around the
+manifold of shape features, not around spatial position per se. Yet, when probed
+with localized stimuli (Gaussian peaks at known spatial positions), the trained
+network revealed statistically overwhelming spatial smoothness: nearby units in the
+grid responded to stimuli at similar retinal positions (Spearman $\rho \approx 0.5$,
+$Z > 17$), despite the fact that the absolute range of receptive field centers was
+tiny---a fraction of the image extent. In other words, the map exhibited
+\emph{local} retinotopic structure without being \emph{globally} retinotopic.
+
+This finding has a straightforward geometric explanation. A self-organizing map
+preserves the topology of its training manifold: nearby units encode nearby regions
+of the input space. When the input data has spatial structure---as any visual input
+inevitably does, since objects occupy positions on the retina---spatial position
+becomes one embedded dimension among many in the learned manifold. The topographic
+constraint of the SOM ensures that this spatial dimension is represented smoothly
+across the grid, even when other dimensions (shape, color) dominate the
+organization. Local retinotopy is thus not a dedicated map of space; it is a
+\emph{geometric byproduct} of topographic learning on spatially structured input.
+
+This observation has direct implications for how we interpret retinotopic signals
+in the parietal and frontal cortex. As one ascends the visual hierarchy into
+posterior parietal cortex (IPS0--IPS4) and beyond, receptive fields become
+progressively larger and more feature-selective
+\citep{swisher2007, arcaro2020}. Retinotopic organization
+in these regions is coarser than in V1, with maps that are increasingly dominated by
+task-relevant features such as attention priority, motor intention, and object
+identity. This is precisely the regime our SOM analysis models: a map that has
+organized itself around non-spatial features but retains a residual spatial signal
+that is weak in absolute terms yet robust when assessed at the population level.
+
+The caveat for visual remapping is this: the finding of spatially organized
+responses in an area does not, by itself, demonstrate that the area maintains a
+strict retinotopic coordinate system that is updated by a saccadic corollary
+discharge. An alternative possibility is that the spatial signal reflects residual
+local retinotopy within a map organized around other features---and that the
+``remapping'' observed in such areas is better understood as a consequence of
+topographic continuity rather than as evidence for a dedicated spatial coordinate
+transformation. In our SOM analysis, the spatial signal was undetectable with
+hard winner-take-all readout (activating only a handful of units) but became
+strongly significant with soft population readout. This methodological point
+parallels a well-known challenge in neurophysiology: single-neuron recordings in
+parietal cortex may fail to reveal spatial selectivity because individual neurons
+have large receptive fields dominated by non-spatial features, whereas
+population-level analyses can recover the spatial structure hidden in the
+distributed response \citep{sereno2001}.
+
+This perspective connects directly to the topological alignment mechanism presented
+in this paper. Our model's visual map---a supervised topological map (STM)
+organizing retinal inputs within a shared internal space---is not built to be
+retinotopic. It is built to align with somatosensory, proprioceptive, and policy
+maps so that a common point in the internal space encodes a coherent sensorimotor
+contingency. Yet, precisely because the visual input is spatially structured,
+the visual STM will inevitably retain local spatial organization. Far from being
+a nuisance or a vestige, this residual retinotopy is what makes cross-modal
+alignment possible: if a visual map organized around object features completely
+lost spatial information, it could not be aligned with the inherently spatial
+maps of proprioception and touch. The residual spatial scaffold is a
+\emph{necessary condition} for the alignment to succeed.
+
+In summary, we suggest that the presence of retinotopic-like signals in areas
+beyond early visual cortex should not be taken as evidence that these areas
+function as spatial maps in the same sense as V1. Rather, local retinotopy may
+be an intrinsic geometric property of any topographic representation trained
+on spatially structured visual input. This does not diminish the functional
+significance of these signals---on the contrary, it suggests that residual
+spatial organization serves as the geometric scaffold enabling the cross-modal
+alignment that our framework identifies as the basis for goal-directed action
+control. Parietal areas are not retinotopic \emph{despite} processing shapes
+and actions; they retain spatial structure \emph{because} the topology of visual
+input, from which shapes and actions are learned, is itself spatial.
+
+% References to add:
+% \bibitem{duhamel1992} Duhamel, Colby, Goldberg (1992). Science.
+% \bibitem{umeno1997} Umeno, Goldberg (1997). J Neurophysiol.
+% \bibitem{walker1995} Walker, Fitzgibbon, Goldberg (1995). J Neurophysiol.
+% \bibitem{neupane2016} Neupane, Guitton, Pack (2016). PNAS.
+% \bibitem{nakamura2002} Nakamura, Colby (2002). PNAS.
+% \bibitem{sommer2006} Sommer, Wurtz (2006). Brain Res Rev.
+% \bibitem{marino2021} Marino, Mazer (2021). Annu Rev Vis Sci.
+% \bibitem{arcaro2017} Arcaro, Livingstone (2017). J Neurosci.
+% \bibitem{arcaro2020} Arcaro, Honey, Mruczek, Kastner, Hasson (2015). Cereb Cortex.
+% \bibitem{swisher2007} Swisher, Halko, Merabet, McMains, Somers (2007). J Neurosci.
+% \bibitem{sereno2001} Sereno, Pitzalis, Martinez (2001). Science.

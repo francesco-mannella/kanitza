@@ -1,0 +1,206 @@
+\documentclass[14pt]{article} 
+
+\usepackage[lmargin=0.3in, rmargin=0.3in, tmargin=0.3in, bmargin=0.3in]{geometry}
+\usepackage[english]{babel} 
+\usepackage{lipsum} 
+\usepackage{verbatim}
+\usepackage{graphicx}
+\graphicspath{{figures/}}
+\usepackage{natbib} 
+
+
+% Sans-serif Schriften (Helvetica)
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage{helvet}
+\usepackage{cmbright}
+
+\newcommand\wordcount{
+  \immediate\write18{texcount -inc -tex  -sub=section draft.tex | cut -c -70 - > words.sum }
+  \verbatiminput{words.sum} 
+}
+
+
+
+\usepackage{hyperref} 
+
+\hypersetup{
+	hidelinks,
+	breaklinks=true,
+	bookmarksopen=false,
+	pdftitle={Title},
+	pdfauthor={Author},
+}
+
+
+
+\title{Active Vision: How Eye Movements Shape What We See} 
+
+\author{Francesco Mannella\textsuperscript{1}*, Andrea Mattera\textsuperscript{1}*, Luca Tummolini\textsuperscript{1}*\\
+    \textsuperscript{1}\textit{Consiglio Nazionale delle Ricerche}\\
+Istituto di scienze e tecnologie della Cognizione\\
+Roma, Italia} % Author affiliation
+% \affiliation{*\textbf{Corresponding author}: francesco.mannella@cnr.it} % Corresponding author
+
+
+
+
+\begin{document}
+%TC:ignore
+ \wordcount
+%TC:endignore
+\maketitle
+
+%TC:break abstract
+\begin{abstract}
+
+\normalsize
+Our eyes are always moving, constantly shifting what we see on our retina.
+Nevertheless we perceive a seamless visual world.
+
+Two main hypotheses explain how we perceive a stable visual world despite constant eye movements: retinotopic updating and spatiotopic updating.
+Retinotopic updating suggests that our brains continuously adjust our perception based on changes happening directly on the retina.
+Spatiotopic updating also proposes that our brains build a stable, "world-centered" map of our surroundings, keeping our perception consistent regardless of where our eyes are looking.
+However, recent evidence increasingly favors the retinotopic hypothesis over the spatiotopic one.
+Adopting a retinotopic updating perspective, we propose an ideomotor explanation wherein visual stability is predicated on aligned action-perception interactions.
+This framework integrates saccades and pre- and post-saccadic retinal states into an ideomotor schema, conceptualizing them as actions, conditions, and effects.
+Retinal states serve to anticipate effects and initiate saccades; upon achievement, these effects become the conditions for subsequent saccades.
+Acquired ideomotor chains reflect the affordances inherent within experienced visual scenes.
+Stable perception emerges from the confirmation of congruence between saccades and visual outcomes; the alignment of motor commands and resultant sensory inputs reflects the interactive possibilities within the visual environment.
+Critically, feedback correction is not necessary for this process.
+We hypothesize that this ideomotor schema is neurally instantiated through the alignment of brain regions governing eye movements with those processing visual information, forming an ideomotor internal space.
+Within this neural space, an action, its prompting conditions, and its anticipated visual outcome converge into a unique neural assembly spanning the eye-movement and visual regions.
+These neural assemblies represent specific prototypes of retino-saccadic contingency patterns.
+Similar contingency patterns are clustered within the space, such that both the saccadic and visual neural components maintain a common topology.
+To demonstrate the functional validity of this mechanism, we present a computational model of voluntary saccades operating within simplified simulated visual environments.
+This model effectively reproduces key features of voluntary oculomotor behavior and establishes a functional link to the influence of the fronto-parietal network, specifically the frontal eye fields (FEF) and the lateral intraparietal cortex (LIP), on the superior colliculus (SC) in humans and primates.
+\end{abstract}
+
+\tableofcontents
+
+\section{Introduction}
+\paragraph{Visual perception is based on saccades.} 
+Our brains do not passively record a continuous ``video'' of what we see.
+Instead, we actively build our visual experience from snippets of information gathered through rapid eye movements.
+Imagine you're looking at a painting in a museum: you don't just stare blankly at the center.
+Instead, your eyes are constantly jumping from one detail to another – the artist's signature in the corner, a particular face in a crowd scene, a splash of color in the background.
+Each of these jumps is a saccade.
+Each time your eyes land on a new point, the light reflecting off that part of the painting stimulates your retina, sending a new burst of information to your brain.
+You don't consciously perceive the gaps or the blurriness that occur during those saccades \citep{bridgemanFailureDetectDisplacement1975,burrSelectiveSuppressionMagnocellular1994,bindaVisionSaccadicEye2018}.
+Why? Does your brain cleverly stitch together snapshots to create a complete, detailed picture? Does it generate missing visual information, simulating a ``video'' recording?  This is the explanation preferred by one prevalent and widely accepted theory, which posits that our brains actively compensate for the constant shifts in our gaze \citep{sommerWhatBrainStem2004,sunCorollaryDischargeOculomotor2016, cavanaughSaccadicCorollaryDischarge2016}.
+This theory suggests that we don't just receive visual information; instead, our visual system uses predictions generated by an internal model based on our voluntary eye movements to correct and stabilize the incoming visual input.
+Essentially, as our eyes move, our brain uses the information about these movements and adjusts what we perceive, allowing us to experience a stable and continuous visual world even though the raw retinal image is constantly changing.
+
+% \paragraph{Scan-path theory.
+} Alternative views consider visual perception as a process which integrates the sequence of visual changes from saccades and the motor programs that produce that sequence.
+The Scan-path Theory highlights that visual perception is an active process, involving purposeful eye movements that are guided by internal cognitive models and goals.
+
+\paragraph{Spatiotopic vs retinotopic hypotheses}
+
+
+\paragraph{Location-based remapping vs feature-based remapping}
+\citep{herwigWhenCirclesBecome2015}
+A model which interprets both location-based remapping and feature-based remapping
+
+The standard retinotopic hypothesis assumes that a retinotopic spatial representation is updated in order to compensate for retinal displacement.
+In this view, predictive remapping of receptive fields (Duhamel et al 1992) or attentional pointers (Cavanagh et al 2010) keeps track of the location of objects in retinotopic space.
+ 
+
+Here we propose instead that ...
+
+
+\paragraph{Stable perception test} Once topological alignment is acquired, a following reinforcement learning discrimination paradigm based on rewarding a specific area of the visualised object (es.
+upper corner of a triangle).
+The ability to foveate the target despite changes in the starting condition of foveal stimulation is considered an operational definition of stability in spatial perception (Cf Rao et al 2016).
+
+
+ 
+\paragraph{Topological Alignment hypothesis.} This hypothesis explains how goals guide the selection of saccadic eye movements within an ideomotor framework.
+Its core idea is that we learn an internal neural space made of aligned maps where each aligned subregion encodes: a prototypical retinal state during fixation, a prototypical retinal state representing the visual effect of a saccade, and the motor command for that saccade.
+This internal space is learned through an open-ended process guided by the  offered by experienced visual environments.
+During this learning, bottom-up salience guides the formation of connections between specific visual events, the subsequent saccadic movements, and the resulting retinal activities after the saccades.
+The topological nature of this internal representation enables generalization and interpolation across various sensory and motor options.
+As a result this topological neural system approximates a continuous map of all possible contingencies between oculomotor movements and retinal effects.
+
+
+
+\paragraph{Description of the following sections.}
+
+
+\section{Neural substrates of visual perception
+}
+\begin{itemize}
+    \item Top-down / bottom-up overt attention
+    \begin{itemize}
+        \item SC-FEF circuit for the interaction of top-down and bottom-up attention.
+        \begin{itemize}
+            \item     V1 salience information to SC
+            \item FEF direct pathway to SC
+            \item SC indirect pathway to FEF
+
+        \end{itemize}
+        \begin{itemize}
+        \item     Remapping of FEF receptive fields.
+    \end{itemize}
+    \end{itemize}
+    \item LIP is involved in visual attention.
+    \begin{itemize}
+        \item Remapping of LIP receptive fields.
+    \end{itemize}
+
+\end{itemize}
+ 
+\section{Topological Alignment}
+
+\subsection{Topological Alignment as a functional hypothesis}
+
+\subsection{Topological Alignment as a neural hypothesis}
+
+\subsection{Topological Alignment as a computational hypothesis}
+
+\section{A computational model of visual attention based on Topological Alignment}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{meccanism}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\subsection{The model}
+
+\subsubsection{Architecture}
+
+\subsubsection{Learning}
+
+\subsubsection{Algorithm}
+
+\subsection{Simulation setup}
+
+\subsection{Behavior of the model}
+
+\section{Discussion}
+
+TA is not limited to the visual attention - oculomotor domain
+
+TA is a general structure at least in fronto-parietal domains
+
+TA is ideomotor anticipation of effects -- goals
+
+TA in fromto-parietal loops produces neural representations which are grounded
+
+%------------------------------------------------
+
+\section*{Acknowledgments} % The \section*{} command stops section numbering
+
+
+So long and thanks for all the fish.
+
+\section{Appendix}
+\subsection{Model implementation}
+
+\bibliographystyle{unsrtnat}
+\bibliography{draft}
+
+%----------------------------------------------------------------------------------------
+
+\end{document}
