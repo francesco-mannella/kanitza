@@ -1,0 +1,655 @@
+<rdf:RDF
+ xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+ xmlns:z="http://www.zotero.org/namespaces/export#"
+ xmlns:dcterms="http://purl.org/dc/terms/"
+ xmlns:dc="http://purl.org/dc/elements/1.1/"
+ xmlns:prism="http://prismstandard.org/namespaces/1.2/basic/"
+ xmlns:bib="http://purl.org/net/biblio#"
+ xmlns:foaf="http://xmlns.com/foaf/0.1/"
+ xmlns:link="http://purl.org/rss/1.0/modules/link/">
+    <bib:Article rdf:about="https://www.science.org/doi/10.1126/science.1553535">
+        <z:itemType>journalArticle</z:itemType>
+        <dcterms:isPartOf>
+            <bib:Journal>
+                <dc:identifier>DOI 10.1126/science.1553535</dc:identifier>
+                <prism:volume>255</prism:volume>
+                <dc:title>Science</dc:title>
+                <prism:number>5040</prism:number>
+            </bib:Journal>
+        </dcterms:isPartOf>
+        <dc:publisher>
+            <foaf:Organization>
+                <foaf:name>American Association for the Advancement of Science</foaf:name>
+            </foaf:Organization>
+        </dc:publisher>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Duhamel</foaf:surname>
+                        <foaf:givenName>Jean-René</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Colby</foaf:surname>
+                        <foaf:givenName>Carol L.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Goldberg</foaf:surname>
+                        <foaf:givenName>Michael E.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <link:link rdf:resource="#item_452"/>
+        <link:link rdf:resource="#item_453"/>
+        <dc:subject>spatiotopic updating hypothesis</dc:subject>
+        <dc:title>The Updating of the Representation of Visual Space in Parietal Cortex by Intended Eye Movements</dc:title>
+        <dcterms:abstract>Every eye movement produces a shift in the visual image on the retina. The receptive field, or retinal response area, of an individual visual neuron moves with the eyes so that after an eye movement it covers a new portion of visual space. For some parietal neurons, the location of the receptive field is shown to shift transiently before an eye movement. In addition, nearly all parietal neurons respond when an eye movement brings the site of a previously flashed stimulus into the receptive field. Parietal cortex both anticipates the retinal consequences of eye movements and updates the retinal coordinates of remembered stimuli to generate a continuously accurate representation of visual space.</dcterms:abstract>
+        <dc:date>1992-01-03</dc:date>
+        <z:citationKey>duhamelUpdatingRepresentationVisual1992</z:citationKey>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.science.org/doi/10.1126/science.1553535</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2025-05-26 11:42:26</dcterms:dateSubmitted>
+        <z:libraryCatalog>science.org (Atypon)</z:libraryCatalog>
+        <bib:pages>90-92</bib:pages>
+    </bib:Article>
+    <z:Attachment rdf:about="#item_452">
+        <z:itemType>attachment</z:itemType>
+        <z:path rdf:resource="files/452/Duhamel et al. - 1992 - The Updating of the Representation of Visual Space in Parietal Cortex by Intended Eye Movements.pdf"/>
+        <dc:title>PDF</dc:title>
+        <link:type>application/pdf</link:type>
+    </z:Attachment>
+    <z:Attachment rdf:about="#item_453">
+        <z:itemType>attachment</z:itemType>
+        <z:path rdf:resource="files/453/1553535.html"/>
+        <dc:title>Snapshot</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+               <rdf:value>https://pubmed.ncbi.nlm.nih.gov/1553535/</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2025-05-26 10:13:54</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>text/html</link:type>
+    </z:Attachment>
+    <bib:Article rdf:about="https://www.annualreviews.org/content/journals/10.1146/annurev-vision-091517-034317">
+        <z:itemType>journalArticle</z:itemType>
+        <dcterms:isPartOf>
+            <bib:Journal>
+                <dc:identifier>DOI 10.1146/annurev-vision-091517-034317</dc:identifier>
+            </bib:Journal>
+        </dcterms:isPartOf>
+        <dc:publisher>
+            <foaf:Organization>
+               <foaf:name>Annual Reviews</foaf:name>
+            </foaf:Organization>
+        </dc:publisher>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Binda</foaf:surname>
+                        <foaf:givenName>Paola</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Morrone</foaf:surname>
+                        <foaf:givenName>Maria Concetta</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <link:link rdf:resource="#item_498"/>
+        <link:link rdf:resource="#item_454"/>
+        <dc:subject>spatiotopic updating hypothesis</dc:subject>
+        <dc:title>Vision During Saccadic Eye Movements</dc:title>
+        <dcterms:abstract>The perceptual consequences of eye movements are manifold: Each large saccade is accompanied by a drop of sensitivity to luminance-contrast, low-frequency stimuli, impacting both conscious vision and involuntary responses, including pupillary constrictions. They also produce transient distortions of space, time, and number, which cannot be attributed to the mere motion on the retinae. All these are signs that the visual system evokes active processes to predict and counteract the consequences of saccades. We propose that a key mechanism is the reorganization of spatiotemporal visual fields, which transiently increases the temporal and spatial uncertainty of visual representations just before and during saccades. On one hand, this accounts for the spatiotemporal distortions of visual perception; on the other hand, it implements a mechanism for fusing pre- and postsaccadic stimuli. This, together with the active suppression of motion signals, ensures the stability and continuity of our visual experience.</dcterms:abstract>
+        <dc:date>2018/09/15</dc:date>
+        <z:citationKey>bindaVisionSaccadicEye2018</z:citationKey>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.annualreviews.org/content/journals/10.1146/annurev-vision-091517-034317</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2025-06-18 12:37:17</dcterms:dateSubmitted>
+        <z:language>en</z:language>
+        <z:libraryCatalog>www.annualreviews.org</z:libraryCatalog>
+    </bib:Article>
+    <z:Attachment rdf:about="#item_498">
+        <z:itemType>attachment</z:itemType>
+        <z:path rdf:resource="files/498/Binda e Morrone - 2018 - Vision During Saccadic Eye Movements.pdf"/>
+        <dc:title>Full text</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.annualreviews.org/doi/pdf/10.1146/annurev-vision-091517-034317</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2025-06-18 12:37:20</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>application/pdf</link:type>
+    </z:Attachment>
+    <z:Attachment rdf:about="#item_454">
+        <z:itemType>attachment</z:itemType>
+        <z:path rdf:resource="files/454/annurev-vision-091517-034317.html"/>
+        <dc:title>Snapshot</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.annualreviews.org/content/journals/10.1146/annurev-vision-091517-034317</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2025-06-18 12:37:24</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>text/html</link:type>
+    </z:Attachment>
+    <bib:Article rdf:about="https://www.science.org/doi/10.1126/science.6612334">
+        <z:itemType>journalArticle</z:itemType>
+        <dcterms:isPartOf>
+            <bib:Journal>
+                <dc:identifier>DOI 10.1126/science.6612334</dc:identifier>
+                <prism:volume>221</prism:volume>
+                <dc:title>Science</dc:title>
+                <prism:number>4616</prism:number>
+            </bib:Journal>
+        </dcterms:isPartOf>
+        <dc:publisher>
+            <foaf:Organization>
+                <foaf:name>American Association for the Advancement of Science</foaf:name>
+            </foaf:Organization>
+        </dc:publisher>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Guthrie</foaf:surname>
+                        <foaf:givenName>Barton L.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Porter</foaf:surname>
+                        <foaf:givenName>John D.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Sparks</foaf:surname>
+                        <foaf:givenName>David L.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <link:link rdf:resource="#item_536"/>
+        <dc:subject>spatiotopic updating hypothesis</dc:subject>
+        <dc:title>Corollary Discharge Provides Accurate Eye Position Information to the Oculomotor System</dc:title>
+        <dcterms:abstract>The saccadic system accurately compensates for perturbations of eye position produced by microstimulation of the superior colliculus. This requires that information about the stimulation-induced change in eye position be provided by an extraretinal source—either proprioceptive endings in extraocular muscles or a centrally generated corollary discharge. It is shown that compensation remains intact after elimination of extraocular muscle proprioception, demonstrating that corollary discharge provides accurate eye position information.</dcterms:abstract>
+        <dc:date>1983-09-16</dc:date>
+        <z:citationKey>guthrieCorollaryDischargeProvides1983</z:citationKey>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.science.org/doi/10.1126/science.6612334</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2025-06-18 13:24:26</dcterms:dateSubmitted>
+        <z:libraryCatalog>science.org (Atypon)</z:libraryCatalog>
+        <bib:pages>1193-1195</bib:pages>
+    </bib:Article>
+    <z:Attachment rdf:about="#item_536">
+        <z:itemType>attachment</z:itemType>
+        <z:path rdf:resource="files/536/Guthrie et al. - 1983 - Corollary Discharge Provides Accurate Eye Position Information to the Oculomotor System.pdf"/>
+        <dc:title>PDF</dc:title>
+        <link:type>application/pdf</link:type>
+    </z:Attachment>
+    <bib:Article rdf:about="https://www.annualreviews.org/doi/10.1146/annurev.neuro.22.1.319">
+        <z:itemType>journalArticle</z:itemType>
+        <dcterms:isPartOf rdf:resource="urn:issn:0147-006X,%201545-4126"/>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Colby</foaf:surname>
+                        <foaf:givenName>Carol L.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Goldberg</foaf:surname>
+                        <foaf:givenName>Michael E.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <link:link rdf:resource="#item_686"/>
+        <dc:subject>spatiotopic</dc:subject>
+        <dc:title>Space and attention in parietal cortex</dc:title>
+        <dcterms:abstract>The space around us is represented not once but many times in parietal cortex. These multiple representations encode locations and objects of interest in several egocentric reference frames. Stimulus representations are transformed from the coordinates of receptor surfaces, such as the retina or the cochlea, into the coordinates of effectors, such as the eye, head, or hand. The transformation is accomplished by dynamic updating of spatial representations in conjunction with voluntary movements. This direct sensory-to-motor coordinate transformation obviates the need for a single representation of space in environmental coordinates. In addition to representing object locations in motoric coordinates, parietal neurons exhibit strong modulation by attention. Both topdown and bottom-up mechanisms of attention contribute to the enhancement of visual responses. The saliance of a stimulus is the primary factor in determining the neural response to it. Although parietal neurons represent objects in motor coordinates, visual responses are independent of the intention to perform speciﬁc motor acts.</dcterms:abstract>
+        <dc:date>03/1999</dc:date>
+        <z:citationKey>colbySpaceAttentionParietal1999a</z:citationKey>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.annualreviews.org/doi/10.1146/annurev.neuro.22.1.319</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2025-05-26 12:02:34</dcterms:dateSubmitted>
+        <z:language>en</z:language>
+        <z:libraryCatalog>DOI.org (Crossref)</z:libraryCatalog>
+        <bib:pages>319-349</bib:pages>
+    </bib:Article>
+    <bib:Journal rdf:about="urn:issn:0147-006X,%201545-4126">
+        <dc:identifier>DOI 10.1146/annurev.neuro.22.1.319</dc:identifier>
+        <prism:volume>22</prism:volume>
+        <dc:title>Annual Review of Neuroscience</dc:title>
+        <dc:identifier>ISSN 0147-006X, 1545-4126</dc:identifier>
+        <prism:number>1</prism:number>
+        <dcterms:alternative>Annu. Rev. Neurosci.</dcterms:alternative>
+    </bib:Journal>
+    <z:Attachment rdf:about="#item_686">
+        <z:itemType>attachment</z:itemType>
+        <z:path rdf:resource="files/686/Colby e Goldberg - 1999 - SPACE AND ATTENTION IN PARIETAL CORTEX.pdf"/>
+        <dc:title>PDF</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.annualreviews.org/docserver/fulltext/neuro/22/1/annurev.neuro.22.1.319.pdf?expires=1748261849&amp;id=id&amp;accname=ar-107608&amp;checksum=152CFE265CA0BF1110EB430EEE3FCC59</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2025-05-26 12:02:32</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>application/pdf</link:type>
+    </z:Attachment>
+    <bib:Article rdf:about="https://www.sciencedirect.com/science/article/pii/S0896627304003319">
+        <z:itemType>journalArticle</z:itemType>
+        <dcterms:isPartOf rdf:resource="urn:issn:0896-6273"/>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Ilg</foaf:surname>
+                        <foaf:givenName>Uwe J</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Schumann</foaf:surname>
+                        <foaf:givenName>Stefan</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Thier</foaf:surname>
+                        <foaf:givenName>Peter</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <link:link rdf:resource="#item_559"/>
+        <link:link rdf:resource="#item_560"/>
+        <dc:subject>spatiotopic</dc:subject>
+        <dc:title>Posterior Parietal Cortex Neurons Encode Target Motion in World-Centered Coordinates</dc:title>
+        <dcterms:abstract>The motion areas of posterior parietal cortex extract information on visual motion for perception as well as for the guidance of movement. It is usually assumed that neurons in posterior parietal cortex represent visual motion relative to the retina. Current models describing action guided by moving objects work successfully based on this assumption. However, here we show that the pursuit-related responses of a distinct group of neurons in area MST of monkeys are at odds with this view. Rather than signaling object image motion on the retina, they represent object motion in world-centered coordinates. This representation may simplify the coordination of object-directed action and ego motion-invariant visual perception.</dcterms:abstract>
+        <dc:date>2004-07-08</dc:date>
+        <z:citationKey>ilgPosteriorParietalCortex2004</z:citationKey>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.sciencedirect.com/science/article/pii/S0896627304003319</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2025-07-07 10:28:27</dcterms:dateSubmitted>
+        <z:libraryCatalog>ScienceDirect</z:libraryCatalog>
+        <bib:pages>145-151</bib:pages>
+    </bib:Article>
+    <bib:Journal rdf:about="urn:issn:0896-6273">
+        <dc:identifier>DOI 10.1016/j.neuron.2004.06.006</dc:identifier>
+        <prism:volume>43</prism:volume>
+        <dc:title>Neuron</dc:title>
+        <dc:identifier>ISSN 0896-6273</dc:identifier>
+        <prism:number>1</prism:number>
+        <dcterms:alternative>Neuron</dcterms:alternative>
+    </bib:Journal>
+    <z:Attachment rdf:about="#item_559">
+        <z:itemType>attachment</z:itemType>
+        <z:path rdf:resource="files/559/Ilg et al. - 2004 - Posterior Parietal Cortex Neurons Encode Target Motion in World-Centered Coordinates.pdf"/>
+        <dc:title>ScienceDirect Full Text PDF</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://pdf.sciencedirectassets.com/272195/1-s2.0-S0896627300X02334/1-s2.0-S0896627304003319/main.pdf?X-Amz-Security-Token=IQoJb3JpZ2luX2VjEGoaCXVzLWVhc3QtMSJIMEYCIQDhSo8TUjpW3PbHKxsz4qHZZmxlFVUHJwmZg%2FpRtQApdgIhAPMbu3qZT2MnMQkL74bkB4TlQ70bqBYKkUGDn5PLJ2YaKrMFCHMQBRoMMDU5MDAzNTQ2ODY1Igz8I4a9ekywvthMuXgqkAV2HwwyfWY9qYx38Ov%2F%2B89hxVt%2FogmXtVuotiqY8Oxi%2B0exFJBrCM3h8On%2FhyB85h8r%2BUmmLf6qPwtNh2s2QhLQWmuOrAjXyO76CocNFoSu3%2B6oWzc6zYK60g2mxlc90RDunZrEYWwyUiCARcr6XJeGdnu4ID%2BV4%2FsVrztX27RxAvBpPOaVavJHF51y3%2FJd8UiZ2q7OezndfVgoyPOX82cb550RIO7BKEx%2FibhOVoSftzph6hMBuUb%2BRQtnox8vNFqVhoW%2F7lwy0%2ByAY5HtbFeM8Pog6KKlml4WhccneV8RdKq7SOkUOtFIgvsRsWJEU2vcz64z3LqjbzS7XNY7BFILO2bnZp%2FhPvbdTVyXzr%2Fm1FcI%2Ft50j7GqDVzGrzFLwdBuJO5jpRRE6yKd9xrUBHgHA4bMXrnNw%2BlOQabe6zldAJCjUDC2UbJHv%2F7FLwEcCjhEwI4XRhZaOdD9CpBKSJl2wAlv24LLX8ZSyUhbCLEkGn%2F%2Brk4z0GibnMfccr9QzmDKnctn6aEiWmI%2B4FDiNjsdusRiZKV1OWYyMEJhnRgL%2BeYy3%2B%2FjuBu5Ky4HE7PEGu%2BTdpaVu93EWEcIzkXSP0bdjlMlAMoDnDrtEqynQRF1mz91Ofe5klGmi5RHewpOmxGZCtJofAB3o8U%2FIqofGgZJyJn6%2B%2BB8bC7eTYyGPB365rgAYmnuhrwbBqA0NgS7bpIigXPsSzZxueZR3yi1kaRxvJ%2BSnBbVTi%2FkVR4NhtVcruS9tghwY58moVIji6RmTih0Y0FGjzwXGK9FVpa2zachWFT57JKCSbilX5ve3GkgSipR5cztgXVMkyyUK%2BsPePMIQNXRKxCEYM8n5NRJ%2B9YJiP0ZPFEXgpBnyeT1qSWvXzD9qq7DBjqwARDNca1C1KHmhxDUraC3bilNPySUdT19nFEUHnIwKvQwFhX9RKZgKJRfuH93VlGa26Uspu2Gyysz945N%2FLQISf8WRd0OEY1MCbHiP004QPiBXfqgRek6luPwVDA9AR9kHsM1eHB9gz%2FyVT2le%2BOUJRSW5Y5pSo3PFuUkze7LyyEZbSYwK%2Bv%2FAy3VMYLzBkUu2hh25aJG3SuiTyqDa1AgfFxB9dPi9KZ8d9tbfibHPFlq&amp;X-Amz-Algorithm=AWS4-HMAC-SHA256&amp;X-Amz-Date=20250707T102833Z&amp;X-Amz-SignedHeaders=host&amp;X-Amz-Expires=300&amp;X-Amz-Credential=ASIAQ3PHCVTY4CLJT5T7%2F20250707%2Fus-east-1%2Fs3%2Faws4_request&amp;X-Amz-Signature=b28b307d4d7c2d40f7f03d23ed73c266dc538583113b8684deabb3fa10a45cb6&amp;hash=33ffc716112e891c7bdbd3ef7b0c706f468a40a97673d170d5364af7f3bcde13&amp;host=68042c943591013ac2b2430a89b270f6af2c76d8dfd086a07176afe7c76c2c61&amp;pii=S0896627304003319&amp;tid=spdf-38ea916e-24d7-4ebe-b345-94c63700449d&amp;sid=4b9353f67bed9646fc486337c5491926e01fgxrqb&amp;type=client&amp;download=true&amp;tsoh=d3d3LnNjaWVuY2VkaXJlY3QuY29t&amp;rh=d3d3LnNjaWVuY2VkaXJlY3QuY29t&amp;ua=13115957055906540101&amp;rr=95b6a7da18308bf9&amp;cc=it</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2025-07-07 10:28:34</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>application/pdf</link:type>
+    </z:Attachment>
+    <z:Attachment rdf:about="#item_560">
+        <z:itemType>attachment</z:itemType>
+        <z:path rdf:resource="files/560/S0896627304003319.html"/>
+        <dc:title>ScienceDirect Snapshot</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.sciencedirect.com/science/article/pii/S0896627304003319</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2025-07-07 10:28:32</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>text/html</link:type>
+    </z:Attachment>
+    <bib:Article rdf:about="https://www.nature.com/articles/39865">
+        <z:itemType>journalArticle</z:itemType>
+        <dcterms:isPartOf rdf:resource="urn:issn:1476-4687"/>
+        <dc:publisher>
+            <foaf:Organization>
+               <foaf:name>Nature Publishing Group</foaf:name>
+            </foaf:Organization>
+        </dc:publisher>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Duhamel</foaf:surname>
+                        <foaf:givenName>Jean-René</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Bremmer</foaf:surname>
+                        <foaf:givenName>Frank</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Ben Hamed</foaf:surname>
+                        <foaf:givenName>Suliann</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Graf</foaf:surname>
+                        <foaf:givenName>Werner</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <link:link rdf:resource="#item_561"/>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>Humanities and Social Sciences</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>multidisciplinary</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>Science</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>Spatiotopic</dc:subject>
+        <dc:title>Spatial invariance of visual receptive fields in parietal cortex neurons</dc:title>
+        <dcterms:abstract>Spatial information is conveyed to the primary visual cortex in retinal coordinates. Movement trajectory programming, however, requires a transformation from this sensory frame of reference into a frame appropriate for the selected part of the body, such as the eye, head or arms1,2,3,4. To achieve this transformation, visual information must be combined with information from other sources: for instance, the location of an object of interest can be defined with respect to the observer's head if the position of the eyes in the orbit is known and is added to the object's retinal coordinates. Here we show that in a subdivision of the monkey parietal lobe, the ventral intraparietal area (VIP), the activity of visual neurons is modulated by eye-position signals, as in many other areas of the cortical visual system5,6,7,8,9,10. We find that individual receptive fields of a population of VIP neurons are organized along a continuum, from eye to head coordinates. In the latter case, neurons encode the azimuth and/or elevation of a visual stimulus, independently of the direction in which the eyes are looking, thus representing spatial locations explicitly in at least a head-centred frame of reference.</dcterms:abstract>
+        <dc:date>1997-10</dc:date>
+        <z:citationKey>duhamelSpatialInvarianceVisual1997</z:citationKey>
+        <dc:identifier>
+            <dcterms:URI>
+               <rdf:value>https://www.nature.com/articles/39865</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2025-07-07 10:23:57</dcterms:dateSubmitted>
+        <z:language>en</z:language>
+        <z:libraryCatalog>www.nature.com</z:libraryCatalog>
+        <dc:rights>1997 Macmillan Magazines Ltd.</dc:rights>
+        <bib:pages>845-848</bib:pages>
+    </bib:Article>
+    <bib:Journal rdf:about="urn:issn:1476-4687">
+        <dc:identifier>DOI 10.1038/39865</dc:identifier>
+        <prism:volume>389</prism:volume>
+        <dc:title>Nature</dc:title>
+        <dc:identifier>ISSN 1476-4687</dc:identifier>
+        <prism:number>6653</prism:number>
+    </bib:Journal>
+    <z:Attachment rdf:about="#item_561">
+        <z:itemType>attachment</z:itemType>
+        <z:path rdf:resource="files/561/Duhamel et al. - 1997 - Spatial invariance of visual receptive fields in parietal cortex neurons.pdf"/>
+        <dc:title>Full Text PDF</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+               <rdf:value>https://www.nature.com/articles/39865.pdf</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2025-07-07 10:23:58</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>application/pdf</link:type>
+    </z:Attachment>
+    <bib:Article rdf:about="https://www.pnas.org/doi/10.1073/pnas.1812210116">
+        <z:itemType>journalArticle</z:itemType>
+        <dcterms:isPartOf>
+            <bib:Journal>
+                <dc:identifier>DOI 10.1073/pnas.1812210116</dc:identifier>
+                <prism:volume>116</prism:volume>
+                <dc:title>Proceedings of the National Academy of Sciences</dc:title>
+                <prism:number>6</prism:number>
+            </bib:Journal>
+        </dcterms:isPartOf>
+        <dc:publisher>
+            <foaf:Organization>
+                <foaf:name>Proceedings of the National Academy of Sciences</foaf:name>
+            </foaf:Organization>
+        </dc:publisher>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Fabius</foaf:surname>
+                        <foaf:givenName>Jasper H.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Fracasso</foaf:surname>
+                        <foaf:givenName>Alessio</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Nijboer</foaf:surname>
+                        <foaf:givenName>Tanja C. W.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Van der Stigchel</foaf:surname>
+                        <foaf:givenName>Stefan</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <link:link rdf:resource="#item_572"/>
+        <dc:subject>spatiotopic</dc:subject>
+        <dc:title>Time course of spatiotopic updating across saccades</dc:title>
+        <dcterms:abstract>Humans move their eyes several times per second, yet we perceive the outside world as continuous despite the sudden disruptions created by each eye movement. To date, the mechanism that the brain employs to achieve visual continuity across eye movements remains unclear. While it has been proposed that the oculomotor system quickly updates and informs the visual system about the upcoming eye movement, behavioral studies investigating the time course of this updating suggest the involvement of a slow mechanism, estimated to take more than 500 ms to operate effectively. This is a surprisingly slow estimate, because both the visual system and the oculomotor system process information faster. If spatiotopic updating is indeed this slow, it cannot contribute to perceptual continuity, because it is outside the temporal regime of typical oculomotor behavior. Here, we argue that the behavioral paradigms that have been used previously are suboptimal to measure the speed of spatiotopic updating. In this study, we used a fast gaze-contingent paradigm, using high phi as a continuous stimulus across eye movements. We observed fast spatiotopic updating within 150 ms after stimulus onset. The results suggest the involvement of a fast updating mechanism that predictively influences visual perception after an eye movement. The temporal characteristics of this mechanism are compatible with the rate at which saccadic eye movements are typically observed in natural viewing.</dcterms:abstract>
+        <dc:date>2019-02-05</dc:date>
+        <z:citationKey>fabiusTimeCourseSpatiotopic2019</z:citationKey>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.pnas.org/doi/10.1073/pnas.1812210116</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2025-06-30 15:29:56</dcterms:dateSubmitted>
+        <z:libraryCatalog>pnas.org (Atypon)</z:libraryCatalog>
+        <bib:pages>2027-2032</bib:pages>
+    </bib:Article>
+    <z:Attachment rdf:about="#item_572">
+        <z:itemType>attachment</z:itemType>
+        <z:path rdf:resource="files/572/Fabius et al. - 2019 - Time course of spatiotopic updating across saccades.pdf"/>
+        <dc:title>Full Text PDF</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.pnas.org/doi/pdf/10.1073/pnas.1812210116</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2025-06-30 15:29:58</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>application/pdf</link:type>
+    </z:Attachment>
+    <bib:Article rdf:about="https://www.sciencedirect.com/science/article/pii/S1053811916306899">
+        <z:itemType>journalArticle</z:itemType>
+        <dcterms:isPartOf rdf:resource="urn:issn:1053-8119"/>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Fairhall</foaf:surname>
+                        <foaf:givenName>Scott L.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Schwarzbach</foaf:surname>
+                        <foaf:givenName>Jens</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Lingnau</foaf:surname>
+                        <foaf:givenName>Angelika</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Van Koningsbruggen</foaf:surname>
+                        <foaf:givenName>Martijn Gerbrand</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Melcher</foaf:surname>
+                        <foaf:givenName>David</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <link:link rdf:resource="#item_576"/>
+        <link:link rdf:resource="#item_575"/>
+        <dc:subject>spatiotopic updating hypothesis</dc:subject>
+        <dc:title>Spatiotopic updating across saccades revealed by spatially-specific fMRI adaptation</dc:title>
+        <dcterms:abstract>Brain representations of visual space are predominantly eye-centred (retinotopic) yet our experience of the world is largely world-centred (spatiotopic). A long-standing question is how the brain creates continuity between these reference frames across successive eye movements (saccades). Here we use functional magnetic resonance imaging (fMRI) to address whether spatially specific repetition suppression (RS) is evident during trans-saccadic perception. We presented two successive Gabor patches (S1 and S2) in either the upper or lower visual field, left or right of fixation. Spatial congruency was manipulated by having S1 and S2 occur in the same or different upper/lower visual field. On half the trials, a saccade was cued between S1 and S2, placing spatiotopic and retinotopic reference frames in opposition. Equivalent RS was observed in the posterior parietal cortex and frontal eye fields when S1-S2 were spatiotopically congruent, irrespective of whether retinotopic and spatiotopic coordinates were in accord or were placed in opposition by a saccade. Additionally the post-saccadic response to S2 demonstrated spatially-specific RS in retinotopic visual regions, with stronger RS in extrastriate than striate cortex. Collectively, these results are consistent with a robust trans-saccadic spatial updating mechanism for object position that directly influences even the earliest levels of visual processing.</dcterms:abstract>
+        <dc:date>2017-02-15</dc:date>
+        <z:citationKey>fairhallSpatiotopicUpdatingSaccades2017</z:citationKey>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.sciencedirect.com/science/article/pii/S1053811916306899</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2025-06-30 15:27:24</dcterms:dateSubmitted>
+        <z:libraryCatalog>ScienceDirect</z:libraryCatalog>
+        <bib:pages>339-345</bib:pages>
+    </bib:Article>
+    <bib:Journal rdf:about="urn:issn:1053-8119">
+        <dc:identifier>DOI 10.1016/j.neuroimage.2016.11.071</dc:identifier>
+        <prism:volume>147</prism:volume>
+        <dc:title>NeuroImage</dc:title>
+        <dc:identifier>ISSN 1053-8119</dc:identifier>
+        <dcterms:alternative>NeuroImage</dcterms:alternative>
+    </bib:Journal>
+    <z:Attachment rdf:about="#item_576">
+        <z:itemType>attachment</z:itemType>
+        <z:path rdf:resource="files/576/Fairhall et al. - 2017 - Spatiotopic updating across saccades revealed by spatially-specific fMRI adaptation.pdf"/>
+        <dc:title>ScienceDirect Full Text PDF</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://pdf.sciencedirectassets.com/272508/1-s2.0-S1053811916X00213/1-s2.0-S1053811916306899/main.pdf?X-Amz-Security-Token=IQoJb3JpZ2luX2VjEMf%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMSJIMEYCIQDIRV8ast0pij0HSYW1Aer1UUdpzswXp2WidhlmTZjgQwIhALWgN61PfNbYIjxhu%2FjzlxP0RwExSZMvr08TZXzye9PXKrsFCMD%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEQBRoMMDU5MDAzNTQ2ODY1Igx1dcVhmILyIOX6TRYqjwWEwfpUh4rTELSvRXuToiwK7r4H0HJBOp1533f%2BEb%2FOhweshvxKe99WTfr8tH%2BHTCsIc4xYST8lNiDOvK8Xnhh5VTmCe1iz%2BkAc9CAZVyVQbaoirKXXDcZ0XRg22s%2FkrL5W6mMKWSLkuQAEhGqAM32meuWcG6TdjPSBZ4Xd%2BbcyiE33UwpizxMQ7IzIR1ByObXVBEY4KUqtbRyDkAOffd2uVlD%2BqWPfvAHvX8%2B%2B7g7ygpzSHRmCXenZsq1iXZPTXxolxdM7nZZ4A7SHNDjUeLDR4x3KLjP0tM5aAy0qGt5NNP6DtkK5OVBguLJ9EBV6zWTF6GkecF%2Fe0Po5X9iMM5rAqE1G8ErrsiipmUIDWLkLxDzi5UARE41PjlHmQexeYkE6bCJ1vdWGmvGawpApXldCcrr8tzM8RSI7PalCszZHmeUeYMcx4WPiiXd7a5sGjw8Xgw2ql2h1yGDoPYxKBUcclvM1wK8jGUwBqzjWzNLN9EmC%2FBayrOgrFfXB2%2FldVGXTdXI0ImMkYzOXJAfrxycC4nfkauiuBZUy4oAgKrZJ71%2ByUJ%2F1bqrZBIcWVVHd273mqxfTU6Da5ir%2BB30hr0ULbIpzQjN2eUjGVd0toUUtELLf%2FmjY4LI%2FfSLaH00EsYFTIiJqbneSLOzACmL9uk4OA5fFzoRoijNTK1QwUOSGSOYUIHTwxItIdEph%2FLzZDe31LBcX8TJh02MBj%2BIp6%2Bes%2ByojcbmOkAiGE4Hl%2BQ0WAklXmXZf%2BiozM3t16%2Bb5zA0M9YgqwzDFWchMeMCdG7WyxVYlWnh9Rjy5EPyd5GpbTE%2F2Qci3%2Bb8vB2liTNYtZbsMuXLBC8cU%2Fajr%2FXdWoQ7%2BKoChWIdp03wqqarNNmFSMNjGisMGOrABf0LfzyfPMeTIU7ipjAdWfU%2Fu7boYmR%2FYhH1LMn9m0QQh4BosKxy%2FwFUvq9IG4ZsYLOTWqO%2FAa1zSGFc0y0mPFHTHJ5NRoXadphW9jzuyOrYJJbbqPl44zXISYHojnuhrxkEtXS7OwwQqXybX%2B58PaPbPJkedodkjp8P1lgUG9%2BLxu%2BZe%2F2pmyzLpAose9ySdwv96SGXutkEGWbwwC7%2BcP%2FyveP62dM9piur4tIdpFXc%3D&amp;X-Amz-Algorithm=AWS4-HMAC-SHA256&amp;X-Amz-Date=20250630T152725Z&amp;X-Amz-SignedHeaders=host&amp;X-Amz-Expires=300&amp;X-Amz-Credential=ASIAQ3PHCVTY3OOBRWWT%2F20250630%2Fus-east-1%2Fs3%2Faws4_request&amp;X-Amz-Signature=90ae4f714795097860bc981b30e6ffb457741915dc3565533929d2f288846a03&amp;hash=057346816528a1358b421811a7e9e429aa0ab3f9042f49ad04d2c1ad05f6f794&amp;host=68042c943591013ac2b2430a89b270f6af2c76d8dfd086a07176afe7c76c2c61&amp;pii=S1053811916306899&amp;tid=spdf-17856825-62af-419f-a71c-6af5cbba0963&amp;sid=1bee4d172bc5a745724bc5441a4ef546993egxrqb&amp;type=client&amp;download=true&amp;tsoh=d3d3LnNjaWVuY2VkaXJlY3QuY29t&amp;rh=d3d3LnNjaWVuY2VkaXJlY3QuY29t&amp;ua=13175654540104545350&amp;rr=957eb0071bf0ea37&amp;cc=it</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2025-06-30 15:27:27</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>application/pdf</link:type>
+    </z:Attachment>
+    <z:Attachment rdf:about="#item_575">
+        <z:itemType>attachment</z:itemType>
+        <z:path rdf:resource="files/575/S1053811916306899.html"/>
+        <dc:title>ScienceDirect Snapshot</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.sciencedirect.com/science/article/pii/S1053811916306899</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2025-06-30 15:27:30</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>text/html</link:type>
+    </z:Attachment>
+    <bib:Article rdf:about="https://royalsocietypublishing.org/doi/10.1098/rspb.2012.0637">
+        <z:itemType>journalArticle</z:itemType>
+        <dcterms:isPartOf>
+            <bib:Journal>
+                <dc:identifier>DOI 10.1098/rspb.2012.0637</dc:identifier>
+                <prism:volume>279</prism:volume>
+                <dc:title>Proceedings of the Royal Society B: Biological Sciences</dc:title>
+                <prism:number>1740</prism:number>
+            </bib:Journal>
+        </dcterms:isPartOf>
+        <dc:publisher>
+            <foaf:Organization>
+               <foaf:name>Royal Society</foaf:name>
+            </foaf:Organization>
+        </dc:publisher>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Turi</foaf:surname>
+                        <foaf:givenName>Marco</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Burr</foaf:surname>
+                        <foaf:givenName>David</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <link:link rdf:resource="#item_577"/>
+        <dc:subject>spatiotopic updating hypothesis</dc:subject>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>perception</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>spatial vision</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>visual stability</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:title>Spatiotopic perceptual maps in humans: evidence from motion adaptation</dc:title>
+        <dcterms:abstract>How our perceptual experience of the world remains stable and continuous despite the frequent repositioning eye movements remains very much a mystery. One possibility is that our brain actively constructs a spatiotopic representation of the world, which is anchored in external—or at least head-centred—coordinates. In this study, we show that the positional motion aftereffect (the change in apparent position after adaptation to motion) is spatially selective in external rather than retinal coordinates, whereas the classic motion aftereffect (the illusion of motion after prolonged inspection of a moving source) is selective in retinotopic coordinates. The results provide clear evidence for a spatiotopic map in humans: one which can be influenced by image motion.</dcterms:abstract>
+        <dc:date>2012-04-25</dc:date>
+        <z:citationKey>turiSpatiotopicPerceptualMaps2012</z:citationKey>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://royalsocietypublishing.org/doi/10.1098/rspb.2012.0637</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2025-06-30 15:10:23</dcterms:dateSubmitted>
+        <z:shortTitle>Spatiotopic perceptual maps in humans</z:shortTitle>
+        <z:libraryCatalog>royalsocietypublishing.org (Atypon)</z:libraryCatalog>
+        <bib:pages>3091-3097</bib:pages>
+    </bib:Article>
+    <z:Attachment rdf:about="#item_577">
+        <z:itemType>attachment</z:itemType>
+        <z:path rdf:resource="files/577/Turi e Burr - 2012 - Spatiotopic perceptual maps in humans evidence from motion adaptation.pdf"/>
+        <dc:title>Full Text PDF</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://royalsocietypublishing.org/doi/pdf/10.1098/rspb.2012.0637</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2025-06-30 15:10:24</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>application/pdf</link:type>
+    </z:Attachment>
+</rdf:RDF>
