@@ -1,0 +1,110 @@
+# Predictive remapping: retinotopy in the real trained runs, then remapping on the learned maps
+
+## Context
+
+The earlier staged plan (six tests from Section 7 of `docs/model_vs_views.tex`) is closed. What it left:
+- `scripts/exp_common.py`: harness that loads a trained run and replays the `src/test.py` loop (it reproduced `src/test.py` goals exactly on 2 runs). Reused below.
+- E1a (`scripts/exp_start_offsets.py`): the model's scanpath invariance to retina start offsets (0.78) did not beat a salience-only control (0.91); rule failed. It is a stability result, outside the two phases below; keep it as a reported pilot.
+- E3 (`scripts/exp_predictive_field.py`): a forward-direction cosine passed in 4 of 5 runs with mean readout and 2 of 5 with peak readouts; the shift magnitude (slope 0.01 to 0.08) is near zero. Treated as a pilot that Phase 2 supersedes.
+- `scripts/probe_retinotopy.py` and `scripts/indirect_retinotopy_test.py`: spot-probe protocol with a shuffled-layout control, reference SOMs, plots. Reused in Phase 1.
+
+The new programme has two phases (user decisions: analyse all current-code 1000-epoch runs; Phase 2 is map-level remapping only, no feature-swap paradigm and no time axis; about 20 retrained runs allowed, about 87 min each, 7 in parallel).
+
+## Rules of method (carried over)
+
+1. Write each decision rule into the script's `--help` before running; label any later change as post hoc.
+2. Every statistic gets a control that removes the mechanism: shuffled pixel layout, shuffled labels, untrained maps, retrained controls.
+3. Seed spread is as large as many effects; report per-run values and effect size against seed spread; no significance claims from n=3.
+4. Opt-in switches only; defaults reproduce current behaviour (pattern of `hold_fixation`; `src/params.py`).
+5. Outputs under dated folders in `tests/` (`/home/fmannella/tmp/kanizsa_saliences/<name>_<date>/`); ask before any commit.
+
+---
+
+## Phase 1: retinotopy and indirect retinotopy in the real trained experiments
+
+Question: in the maps the model really learns, is retinotopy present, how strong, where does it come from (input, alignment), and is it "indirect" (found by black-box probing although the organisation is by global view content)?
+
+**1.0 Run manifest (`scripts/run_manifest.py`).** List trained runs with `off_control_store` that are fully trained (stored epoch 1000), trained with current code, and not copies. Exclude `tests/old`, `replay_old_*`, `test_*`, `retest_*`, `scanpath_*`, `*_verify`, `hparam_screen` (300 epochs), `hparam_refine` and the 500-epoch runs of `hparam_round3`, and `old_fovea_*` (`test_fovea` True). Tag each run with sweep, seed, anchor_std, baseline, goal_inhibition, hold_fixation, orienting_saccade, exclude_fixation, attention_max_variance (from `final_parameters`). Expected about 130 runs: round3 to round6, ior, ior_strength, ior_memstd, attvar, hold, orient, orient_confirm, exclfix. The comparable subset for hyperparameter comparisons is exclfix, orient, hold, ior_memstd and attvar (same epochs, seeds, base parameters). Output `manifest.csv`.
+
+**1.1 Labelled foveas (`scripts/exp_labelled_foveas.py`).** Training does not store pose or retina position, so regenerate labelled data with the environment, as `scripts/evaluate_runs.py::visual_probes` does (set pose with `init_world(object_params)`, `reset`, move the retina with `env.step(target - env.retina_sim_pos)`, take `agent.get_fovea`, divide by 255). Two sets, cached per fovea setup (identical across runs):
+- Grid set: both objects, 9 rotations, a 9x9 grid of retina offsets around the object (about 1458 foveas), each labelled with world, rotation, retinal offset of the object relative to the fovea.
+- Experienced set: replay each run's own behaviour with `Run.test(..., on_step=...)` and log fovea, `env.info["position"] - env.retina_sim_pos`, rotation, world at every step.
+
+**1.2 Ground-truth organisation of each map.** Assign each labelled fovea to its winner on the visual-conditions and visual-effects maps. For unit pairs, compute Spearman correlations between lattice distance and the distance between unit-mean labels: rho_off (retinal offset), rho_rot (rotation), rho_world; also the data-side variance share of the foveas explained by offset, rotation and world (regression on the leading principal components). Null: shuffle labels. Controls: untrained maps (controller built without loading), and a batch SOM trained on the same real foveas without anchor (reuse `train_som` from `scripts/indirect_retinotopy_test.py`).
+
+**1.3 Black-box probe across the manifest.** Reuse `blackbox()` and `spots`, `activations` (`indirect_retinotopy_test.py`, `probe_retinotopy.py`): spot widths 2, 3, 4; soft and hard readout; z by unit permutation; gain and p against 100 shuffled pixel layouts; RF range and participation ratio reported but not used as criteria (soft readout compresses range).
+Add a field-standard mapping (`scripts/probe_phase_encoded.py`): present a bar sweeping horizontally and vertically and an expanding ring as frame sequences; take each unit's soft response over time, extract the Fourier phase at the sweep frequency as preferred x and y (the logic of phase-encoded fMRI mapping), and compute rho between lattice distance and phase-derived position distance. Compare phase-derived centres with the spot RF centres (correlation across units).
+
+**1.4 Where retinotopy comes from.**
+- Alignment route: correlation between each cell's conditions-unit RF centre and the saccade vector of the attention prototype at that cell (reuse `rf_centres`, `statistics` from `scripts/exp_predictive_field.py`), against a null that shuffles cells.
+- Controls: untrained maps; the SOM trained on real foveas (input route only); retrained anchor ablation (`anchor_std` 40, 3 runs, via `scripts/grid_search.py --variants`, in `tests/anchor_ablation_<date>/`) to see what remains without alignment.
+- Hyperparameter dependence: group means and spread of the metrics across the manifest by setting (anchor, baseline, inhibition, hold, orient, exclfix); descriptive.
+
+**1.5 Decision rule (revised 2026-10-08, replaces the proper/indirect/topography classes and the 80% cutoff).** The maps are trained on view content, never on retinotopic differences, so any retinotopy the black-box probe finds is indirect by construction; Phase 1 only tests whether it is found. Ground-truth rho_off/rho_rot/rho_world are not used for the claim (the offset is a function of the fovea image, so they cannot separate position from content; kept in `retinotopy_runs.csv` as descriptive only). Population: the champion configuration (`champion.md`), 5 existing plus 15 new seeds (`tests/champion_seeds_2026-10-08`), no other sweeps in the claim. Per map, retinotopy is found if the spot-probe z (soft readout, width 3, unit permutation) exceeds 3. Report per seed the probe rho and z (and phase-encoded rho as a second probe), the median and spread of rho and z, and the share of maps with z > 3. Phase 1 is supported if z > 3 in every champion map, with rho reported against the seed spread (champion SD 0.098 at n=5). Untrained maps are a pre-training reference (rho near 0), not a classified control. The gain p against shuffled layouts is reported but not used (it failed in 3 of 5 existing champion runs and is noisy at 100 shuffles).
+
+**1.6 Phase 1 outputs.** `tests/retinotopy_runs_<date>/` (per-run CSV, classification counts, figures: ground-truth versus black-box scatter, class counts by setting); update Section 6 and the abstract of `docs/topological_stability.tex` with the real-run results and state what remains untested.
+
+---
+
+## Phase 2: predictive-remapping paradigm on the learned aligned maps, compared with the literature
+
+Question: if the aligned maps (conditions, effects, attention) are tested with a predictive-remapping paradigm, are the results comparable to physiological findings? Scope: map-level only; no latency comparison because the model has no time axis (stated in the report).
+
+**2.0 Benchmarks (`benchmarks.csv`, each with a quote and source).** From papers already read or saved:
+Read in full (Zotero group library Topological_Vision, id 6015798, except Zirnsak and Rao 2016 NN in the personal library). Each number is tagged with its criterion, because the criteria differ and only the Neupane one is expressible at map level.
+- Neupane et al. 2016 (`Q87K6474`), the only quantitative benchmark used in the comparison. Table 1, remapping-vector angle within 20 deg of the saccade axis = FF, more than 20 deg upward = ST. Away saccades: FF 82% / ST 7% at 150 ms after saccade offset (n=46), FF 66% / ST 8% at 300 ms (n=57). Toward saccades: FF 52% / ST 34% at 150 ms (n=23), FF 27% / ST 55% at 300 ms (n=36). FF and ST responses are post-saccadic memory-trace responses to probes flashed before the saccade (FF peaks 150 to 300 ms after offset), not anticipatory.
+- Context only, not used in C1-C3 (latency or trace criteria, no time axis in the model):
+  - Duhamel et al. 1992 (`TYA9FH5D`): 16 of 36 (44%) LIP neurons predictive (latency shorter than visual latency, t-test on 16-trial blocks; response begins 80 ms before saccade, visual latency 70 ms); 22 of 23 (96%) respond to the trace of a stimulus flashed 50 ms and gone at least 150 ms before the saccade; trace amplitude about half the visual response; traces from flashes under 50 ms up to 1 s before the saccade.
+  - Nakamura and Colby 2002 (`ET4C7476`): trace in the new RF, V3A 40/77 (52%), V3 8/23 (35%), V2 5/46 (11%), V1 1/64 (2%); before saccade onset V3A 16%, V3 9%, V2 2%, V1 0 (LIP 35%); trace amplitude 75.3% of the visual response; 20 deg saccades.
+  - Sommer and Wurtz 2006 (`LX88ZT5Y`): 43/71 (61%) FEF neurons shift RFs (14/43 complete RF-to-FF, 29/43 add the FF and keep the RF); inactivating the thalamic corollary-discharge relay reduces the shift.
+  - Zirnsak and Moore 2014 (`4WDUMBPN`): FEF RFs converge on the saccade target instead of shifting to the future field (review; no proportions). The model's ST type is the analogue.
+  - Rao et al. 2016 (`T7Z5NMTW` review, `BB4NACZF` map-based network model): model-side references, not benchmarks (only skimmed).
+
+**2.1 Feasibility check (before building the paradigm).** The model sees only a 16x16 central crop (`fovea_scale` [16,16] equals `fovea_size`), while attention prototypes give saccade vectors up to about 40 px. A future field (current RF plus saccade vector) therefore usually falls outside the model's input window. Measure per run the distribution of saccade amplitudes (attention prototypes, and executed amplitudes from replay) and the fraction of units whose forward-predicted future field lies inside the window (testable fraction). Rule: if the testable fraction is below 30% in the reference runs, build the wider-window variants of 2.3 before drawing any comparison; otherwise proceed with the current runs.
+
+**2.1 result (2026-10-08, `scripts/exp_remap_feasibility.py`; CSVs `tests/remapping_paradigm_2026-10-08/feasibility.csv` and `tests/wider_window_2026-10-08/feasibility_fov{48,64}.csv`).** CRF is the effects-unit field (plan 2.2); a first version used the conditions-unit field by mistake and was corrected before the paradigm was interpreted. 20 champion runs (16 px window): attention-prototype amplitudes 26 to 32 retina px, testable fraction 0.00 to 0.02 (median 0.00) against the 0.30 rule: FAIL, so 2.3 is required. Launched (user decision) [48,48] and [64,64], 3 seeds each (14142, 17320, 22360; `tests/wider_window_2026-10-08`); [32,32] skipped (geometric projection 13%). Wide runs: testable 0.65, 0.42, 0.32 at [48,48] (median 0.42) and 0.93, 0.68, 0.72 at [64,64] (median 0.72): PASS at both. Competence over the last 50 epochs 0.73 to 0.81, against 0.64 to 0.75 for three champion runs. Budget: 15 + 6 = 21 new runs; a `shuffle_effects` retrain is not done (the shuffled-pairing control below is post hoc on the trained maps).
+
+**2.2 and 2.4 result (`scripts/exp_remapping_paradigm.py`, `tests/wider_window_2026-10-08/remapping_manifest_fov{48,64}.csv`).** `--verify` PASS after two design changes made before any real run (P1 made self-normalised; synthetic |d| 3.5 to 4.5 px). Per run, FF-type fraction among testable cells, trained / shuffled-pairing control (mean of 50) : [48,48] 0.37/0.40, 0.60/0.74, 0.48/0.64; [64,64] 0.69/0.72, 0.30/0.49, 0.58/0.64. P1 remapping proportion, trained / shuffled: [48,48] 0.18/0.21, 0.47/0.52, 0.14/0.33; [64,64] 0.34/0.45, 0.28/0.32, 0.39/0.48. Untrained maps: FF-type 0.00 to 0.15, P1 0.00 to 0.18. C1: FF-type medians 0.48 ([48]) and 0.58 ([64]) lie inside the Neupane span 0.27 to 0.82 but are below the shuffled-pairing control in 6 of 6 runs: FAIL. C2: toward cells (CRF on the side of the saccade) are rare because CRF_j tends to lie opposite d(j); [48,48] has fewer than 5 toward cells in all runs (not testable), [64,64] gives away minus toward FF 0.32 and toward minus away ST 0.31 but the shuffled control shows the same sign (away FF above toward FF in 3 of 3), so it is not attributable to the pairing: not supported. Caveat: the FF-type fraction is partly geometric (with |d| of 8 to 11 fovea px against a window half-width of 7.5, only cells whose CRF lies opposite d are testable, which aligns the remapping vector with d); the shuffled control absorbs this. Conclusion under the plan's rule: the model does not reproduce predictive remapping at map level beyond a shuffled-pairing control. P2 holds by construction and is not evidence.
+
+**2.2 Paradigms at map level (`scripts/exp_remapping_paradigm.py`, reusing `rf_centres`, `spots`, `activations`).**
+For each lattice cell j (a column: conditions unit j, effects unit j, saccade vector d(j) from the attention prototype):
+- Post-saccadic field QF_j(p): direct soft response of effects unit j to a spot at position p (current RF, CRF, is its centre).
+- Pre-saccadic field PF_j(p): response of effects unit j before the saccade through the model's own read-out path, a Gaussian neighbourhood on the lattice around the conditions winner of the spot view (the only path by which the effects layer is driven at run time).
+- Forward-predicted future field FF_j = CRF_j + d(j); saccade target ST_j = d(j) (in the pre-saccadic frame).
+Paradigms and statistics, on testable units only:
+- P1 future-field (Duhamel): a unit "remaps" if its pre-saccadic response at FF_j is at least alpha times its pre-saccadic response at its own pre-saccadic field centre (alpha = 0.5) and higher than its pre-saccadic response at the CRF location. Revised 2026-10-08, before any real-run analysis: the first form compared PF with the post-saccadic QF at CRF, but the two read-outs (lattice kernel against soft response) have different scales, and the synthetic check gave 0.78 against the 0.9 rule. Fields are read at a location as probe responses averaged with a Gaussian of 1.5 px. The synthetic verify uses |d| 3.5 to 4.5 px because below about 1.5 px FF and CRF are not resolved by the lattice; thresholds unchanged. Report the proportion of remapping units.
+- P2 trace (Duhamel, Nakamura): probe present then removed before the saccade; in the model the effects activity is carried by the stored goal cell, so this holds by construction. Report the proportion and the trace/visual amplitude ratio, flagged non-diagnostic, and do not count them as evidence or compare them to the 96% (LIP) and 52% (V3A) trace figures.
+- P3 toward and away (Neupane): the model has no hemifields, so define direction by geometry: a unit's saccade is "toward" if the saccade target lies on the same side of the fovea as its CRF (positive dot product between d(j) and CRF_j), "away" otherwise. Classify each unit's pre-saccadic response by the angle of its remapping vector relative to the saccade axis, as Neupane does (within 20 deg = FF type, more than 20 deg off-axis towards the saccade target = ST type); report the fractions per direction.
+Controls: shuffled pairing of effects units across cells; untrained maps; maps retrained with effects paired with the wrong saccade (`shuffle_effects` opt-in flag in `src/params.py` and `OfflineController.update`, permuting `visual_effects` before `get_representations`, 3 runs).
+
+**2.3 Wider-window variants (conditional on 2.1).** Retrain with a larger `fovea_scale` (for example [32,32] and [48,48] resized to the same 16x16 `fovea_size`; a parameter change, no code change), 3 seeds per width, reference settings (`anchor_std` 4, baseline 0.5), through `scripts/grid_search.py --variants`. Rerun 2.2 on them. Check first that these runs reach competence comparable to the reference.
+
+**2.4 Comparison with the literature (rules fixed now).** The model's results are "comparable" if all hold:
+- C1: the proportion of FF-type remapping units among testable units lies within the Neupane et al. 2016 V4 span of future-field proportions (0.27 to 0.82, Table 1, all four direction/time cells), and exceeds every control by more than the seed spread. LIP 0.44, V3A 0.52 and the other proportions are context only: they use latency or trace criteria that the model cannot express;
+- C2: a toward and away asymmetry in the same direction as Neupane et al.: the future-field fraction is higher for away saccades and the saccade-target fraction higher for toward saccades, each by at least 0.15;
+- C3: results for the wider-window variants agree in sign with C1 and C2 if 2.3 was needed.
+Not testable and stated as such: latency before saccade onset, forward-then-convergent time course, response magnitude relative to the normal RF response (benchmarks exist for traces, about 0.5 and 0.75, but the trace holds by construction, see P2). The toward/away split in C2 uses a geometric stand-in for hemifield (see P3), a deviation from Neupane stated in the report. If C1 fails (including a testable fraction near zero for all window sizes), the report states that the model does not reproduce predictive remapping at map level.
+
+**2.5 Phase 2 outputs.** `tests/remapping_paradigm_<date>/`; update Section 7 of `docs/model_vs_views.tex` into "Tests and results" with the pilot results (E1a, E3) and the new ones; update its evidence tables and summary.
+
+---
+
+## Critical files
+
+- Reuse: `scripts/exp_common.py` (`Run`, `set_device`), `scripts/evaluate_runs.py` (`find_runs`, `load_params`, `grid_coords`, `pairwise`, `visual_probes` pattern), `scripts/probe_retinotopy.py` (`spots`, `activations`), `scripts/indirect_retinotopy_test.py` (`blackbox`, `train_som`, `rectangles`, `plot`), `scripts/exp_predictive_field.py` (`rf_centres`, `statistics`), `scripts/grid_search.py`, `src/model/topological_maps.py` (`backward`), `src/local_wandb.py`.
+- New: `scripts/run_manifest.py`, `scripts/exp_labelled_foveas.py`, `scripts/probe_phase_encoded.py`, `scripts/exp_retinotopy_runs.py` (driver for 1.2 to 1.5), `scripts/exp_remapping_paradigm.py`.
+- Modify (opt-in only): `src/params.py` and `src/model/offline_controller.py` (flag `shuffle_effects`).
+- Docs: `docs/topological_stability.tex` (Phase 1), `docs/model_vs_views.tex` (Phase 2), `SCRIPTS.md` (one row per new script).
+
+## Verification
+
+- Labelled dataset: render a sample of foveas with their labels and check them by eye; regenerate one with a fixed seed and confirm identical labels.
+- Classification sanity: the script must give "retinotopic-proper" for the position-only reference SOM, "topography only or indirect" for the global-shapes SOM, and "none" for untrained maps, before it is run on the manifest.
+- Harness: `Run.test` reproduces `src/test.py` goals (already checked on 2 runs); recheck after any change to the harness.
+- Phase 2 paradigm: on a synthetic aligned pair where the effects map is built to be exactly the conditions map shifted by the saccade vector, P1 must report near 100% remapping units; with a shuffled pairing it must report chance.
+- New flag `shuffle_effects` off: a short training run reproduces the committed code's outputs.
+- Recompile both `.tex` files; check every number against the CSVs; each script prints its rule and PASS or FAIL.
+
+## Cost and order
+
+Phase 1: coding and about 1 to 2 hours of compute (probes take seconds per run; labelled dataset generation about 30 minutes; 3 anchor-ablation runs, one batch of about 90 minutes). Phase 2: 2.1 and 2.2 take minutes after coding; retraining 3 `shuffle_effects` runs plus up to 6 wider-window runs, two batches of about 90 minutes. Total retraining at most 12 runs, within the 20-run budget. Stop at the end of each phase and review the rules before starting the next.
