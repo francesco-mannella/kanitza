@@ -59,6 +59,7 @@ Side branches:
 | `exp_start_offsets.py PATHS [--policies ...] [--csv FILE]` | E1a pilot: invariance of the scanpath (goal cells) to retina start offsets, for the model, a salience-only policy and a random policy. | any | run folders | stdout, CSV |
 | `exp_remap_feasibility.py --manifest FILE [--out DIR]` | Phase 2.1: share of cells whose forward-predicted future field (effects-unit field plus saccade vector) lies inside the fovea window, saccade amplitudes of the attention prototypes and executed amplitudes. Rule in the docstring (median testable fraction at least 0.30). | any | manifest, run folders | `feasibility.csv` |
 | `exp_remapping_paradigm.py --manifest FILE [--out DIR] \| --verify` | Phase 2.2: map-level predictive-remapping paradigm (P1 future-field remapping, P3 FF/ST types, toward and away) with shuffled-pairing and untrained controls and the C1/C2 summary; P2 holds by construction and is not computed. `--verify` runs the synthetic aligned pair. | any | manifest, run folders | `remapping_<manifest>.csv` |
+| `exp_pairing_regression.py --manifest FILE [--out DIR]` | Post hoc, after the paradigm: cosine between CRF_cond - CRF_eff and the saccade vector (null shuffles the vectors), cosine of CRF_cond with the vector, and the regression d ~ a CRF_cond + b CRF_eff (forward remapping: a = -b), for the mean and the peak readout. | any | manifest, run folders | `pairing_<manifest>.csv` |
 
 ## src/ entry points
 

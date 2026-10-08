@@ -392,6 +392,23 @@ vector with it, and the shuffled control absorbs this. The trace response (P2) h
 construction and is not evidence. The synthetic check passes (aligned pair P1 0.93, FF
 0.92; shuffled pairing P1 0.11).
 
+\emph{Post hoc: the pairing itself.} The two metrics above are computed on testable
+cells, a selection that already aligns the remapping vector with the saccade (the
+permuted pairing scores 0.4 to 0.73), so they separate the trained pairing from its
+control poorly. A direct statistic (\code{scripts/exp_pairing_regression.py}, no rule fixed
+beforehand) uses all cells: the cosine between $\mathrm{CRF}_{\mathrm{cond}}-\mathrm{CRF}_{\mathrm{eff}}$ and
+$d$ is 0.64 to 0.89 in the six wide runs and 0.28 to 0.95 (median 0.72) in the 20 champion
+runs, with $p=0.002$ against a shuffle of $d$ in all 26. But $d$ is already predicted by the
+conditions field alone (cosine of $\mathrm{CRF}_{\mathrm{cond}}$ with $d$: median 0.94 and 0.86): the saccade
+goes to where the conditions unit's field lies. Regressing $d\approx a\,\mathrm{CRF}_{\mathrm{cond}}+b\,\mathrm{CRF}_{\mathrm{eff}}$
+(forward remapping predicts $-b/a=1$), the peak-readout ratio $-b/a$ is 1.40, $-0.02$, 1.18,
+$-0.12$, $-0.09$, $-0.07$ in the wide runs and has median 0.16 in the champion runs (range
+$-0.18$ to 1.72, near 1 only in the two runs with the weakest retinotopy). A paired shift of
+about the full saccade therefore appears in 2 of 6 wide runs (both at window 48) and is not a
+reliable outcome of training; elsewhere the forward cosine is inherited from the conditions
+field. The champion runs have no testable cells, so their coefficients describe field geometry
+only.
+
 \emph{Limits.} Three seeds per window; the control permutes the trained maps instead of
 retraining with shuffled pairing; the toward/away split is a geometric stand-in for
 hemifield, a deviation from Neupane; receptive-field centres from the soft readout are
