@@ -1,6 +1,7 @@
 """Post hoc (2026-10-09), after the Phase 2 paradigm: does the effects region of the activated location follow the true landing?
 
 Usage:
+    python scripts/exp_stimulus_landing.py --verify
     python scripts/exp_stimulus_landing.py --manifest FILE [--out DIR]
 
 Per run, in fovea pixels: a stimulus at each place p of a 31x31 grid over the 16x16 window (step 0.5)
@@ -11,7 +12,11 @@ same location. Only places with q inside the window are testable.
   gap_shuf           gap_fwd with the effects units permuted over locations (mean of --perms)
   r, r_null, r_sd, p partial correlation between ce_j and q after removing the part of each that is
                      linear in p (mean over x and y), against the same permutation null
-No rule was fixed before running; this is descriptive and labelled post hoc.
+Rule for --verify (predictive_remapping.md 2.6, fixed before the confirmatory runs): on a synthetic map
+pair (100 locations on a grid, conditions field at c_u, saccade d_u of 3.5 to 4.5 px in a random direction,
+effects field exactly c_u - d_u) r must exceed 0.8; with the effects units permuted over locations, r must lie
+within 2 permutation SD of the permutation mean. PASS or FAIL per case.
+The first runs of this statistic (2026-10-09) had no rule fixed beforehand and are labelled post hoc.
 """
 import argparse
 import csv
@@ -42,16 +47,10 @@ def partial_r(ce, q, p):
     return np.mean([np.corrcoef(resid(ce[:, k], p), resid(q[:, k], p))[0, 1] for k in (0, 1)])
 
 
-def evaluate(path, args, rng):
-    store = torch.load(os.path.join(path, "off_control_store"), map_location="cpu", weights_only=False)
-    w = {n: store[f"{n}_map_state_dict"]["weights"].numpy().astype(float)
-         for n in ["visual_conditions", "visual_effects", "attention"]}
-    d = (w["attention"].T - 0.5) * args.retina_scale * args.fovea / load_params(path).fovea_scale[0]
-    j = activations(spot_images(P, np.percentile(w["visual_conditions"], 99)), w["visual_conditions"])["hard"].argmax(1)
-    ce = rf_centres(w["visual_effects"], 3.0, 3000, np.random.RandomState(1), 0.5)
+def landing(ce, j, d, args, rng):
     q = P - d[j]
     t = (np.abs(q) <= HALF).all(1)
-    row = dict(run=os.path.basename(path), testable=t.mean())
+    row = dict(testable=t.mean())
     if t.sum() < 20:
         return row
     gap = lambda c: np.linalg.norm(c - q, axis=1)[t].mean()
@@ -64,15 +63,48 @@ def evaluate(path, args, rng):
     return row
 
 
+def evaluate(path, args, rng):
+    store = torch.load(os.path.join(path, "off_control_store"), map_location="cpu", weights_only=False)
+    w = {n: store[f"{n}_map_state_dict"]["weights"].numpy().astype(float)
+         for n in ["visual_conditions", "visual_effects", "attention"]}
+    d = (w["attention"].T - 0.5) * args.retina_scale * args.fovea / load_params(path).fovea_scale[0]
+    j = activations(spot_images(P, np.percentile(w["visual_conditions"], 99)), w["visual_conditions"])["hard"].argmax(1)
+    ce = rf_centres(w["visual_effects"], 3.0, 3000, np.random.RandomState(1), 0.5)
+    return dict(run=os.path.basename(path), **landing(ce, j, d, args, rng))
+
+
+def verify(args):
+    rng = np.random.RandomState(0)
+    g = np.linspace(-HALF, HALF, 10)
+    c = np.array([(x, y) for y in g for x in g])
+    ang = rng.uniform(0, 2 * np.pi, 100)
+    d = rng.uniform(3.5, 4.5, 100)[:, None] * np.c_[np.cos(ang), np.sin(ang)]
+    j = ((P[:, None] - c[None]) ** 2).sum(2).argmin(1)
+    ce = c - d
+    fails = 0
+    r = landing(ce, j, d, args, rng)
+    ok = r["r"] > 0.8
+    fails += not ok
+    print(f"aligned pair   r {r['r']:5.2f} (null {r['r_null']:5.2f} sd {r['r_sd']:.2f}) {'PASS' if ok else 'FAIL'}")
+    r = landing(ce[rng.permutation(100)], j, d, args, rng)
+    ok = abs(r["r"] - r["r_null"]) < 2 * r["r_sd"]
+    fails += not ok
+    print(f"permuted pair  r {r['r']:5.2f} (null {r['r_null']:5.2f} sd {r['r_sd']:.2f}) {'PASS' if ok else 'FAIL'}")
+    print("VERIFY", "PASS" if not fails else "FAIL")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--manifest", required=True)
+    ap.add_argument("--verify", action="store_true")
+    ap.add_argument("--manifest")
     ap.add_argument("--out", default=".")
     ap.add_argument("--perms", type=int, default=300)
     ap.add_argument("--retina-scale", type=float, default=80)
     ap.add_argument("--fovea", type=float, default=16)
     args = ap.parse_args()
     warnings.simplefilter("ignore", RuntimeWarning)
+    if args.verify:
+        return verify(args)
     rng = np.random.RandomState(0)
     rows = [dict(seed=r["seed"], **evaluate(r["run"], args, rng)) for r in csv.DictReader(open(args.manifest))]
     for r in rows:

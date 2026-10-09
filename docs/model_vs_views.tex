@@ -45,10 +45,12 @@ black-box probe.
 
 \begin{itemize}[nosep]
   \item \textbf{The claim under test.} \code{docs/draft.tex}: the abstract (l.62--76)
-    describes visual stability as ``the alignment of motor commands and resultant
-    sensory inputs'', with retinal states that ``anticipate effects and initiate
-    saccades'', ``confirmation of congruence between saccades and visual outcomes'',
-    and no need for feedback correction; the stub on neural substrates lists
+    describes visual stability as resting on ``the congruence between saccades and
+    visual outcomes'', learned as ``an alignment of motor commands and resultant
+    sensory inputs'', with retinal states that ``select saccades and address the
+    effects'' they are expected to produce, and no need for feedback correction; it
+    states that the model gives the functional counterpart of remapping and not its
+    neural signatures; the stub on neural substrates lists
     remapping of FEF and LIP receptive fields. Figure~1 of the draft
     (\code{docs/figures/meccanism.png}, caption still empty) illustrates the mechanism.
   \item \textbf{The model.} \code{src/model/*.py}, read directly; results from
@@ -114,14 +116,14 @@ Three facts from the code bound the claim.
     (\code{offline_controller.py} l.482, l.510, l.547). At decision time the model
     reads the conditions winner and the attention prototype at that cell
     (\code{generate_saccade}, l.291; \code{get_action_from_condition}, l.671);
-    \code{test.py} never calls the effects map. So the ``confirmation of congruence''
+    \code{test.py} never calls the effects map. So the congruence
     of the draft is computed during training, not as a comparison at run time.
   \item \textbf{No receptive field moves.} Maps are fixed during a saccade and change
     only in the epoch update (l.369). The model does not shift receptive fields
     toward the saccade target and has no pre-saccadic response at a future field,
     the signatures reported in LIP and FEF (Duhamel et al., 1992; Zirnsak et al.,
     2014). The draft's neural-substrates stub lists remapping of FEF and LIP
-    receptive fields, which the model does not reproduce.
+    receptive fields, which the model does not reproduce, as its abstract now states.
 \end{enumerate}
 
 In the draft's terms the model therefore gives the \emph{functional} counterpart
@@ -171,16 +173,16 @@ lookups, or it predicts the effects away.
 \emph{Agreement.} The model uses an action-derived signal (the anchor) and an
 anticipated effect, and it names FEF and LIP, the areas where remapping is
 reported. It also keeps retina-centred inputs and actions. The draft's abstract
-describes the model as taking ``a retinotopic updating perspective'' (l.64).
+takes the retinotopic hypothesis as its starting point (l.64).
 
 \emph{Disagreement.} Remapping accounts shift activity or pointers to the
 post-saccadic location before the eye lands, and need a signal that says where each
 item will land. The model has neither: no receptive field moves, the effect is a
 learned lookup, and nothing computes a landing position. The anchor resembles a
 corollary discharge, but it addresses a lattice cell, not a retinal displacement.
-The draft's framing as ``retinotopic updating'' and the topological reading in
-\code{docs/topological_stability.tex} point in different directions, and the draft
-sentence would have to change.
+The draft therefore starts from the retinotopic hypothesis ``without shifting
+receptive fields'' (l.64), which agrees with the topological reading in
+\code{docs/topological_stability.tex}.
 
 \subsection{Against the deflationary view}
 
@@ -259,7 +261,7 @@ No test of stability
   & The stable-perception test, foveating the target from different starting views,
     is only proposed
   & Missing
-  & \code{docs/draft.tex} l.111 \\
+  & \code{docs/draft.tex} l.115 \\
 No remapping signature
   & No receptive-field shift, no pre-saccadic response at a future field; maps are
     fixed during the saccade. The map-level paradigm finds future-field responses no
@@ -269,11 +271,11 @@ No remapping signature
 The anticipated effect is not used at run time
   & The effects map enters only training and the match; congruence is not checked
     when the model acts
-  & Contradicts the draft's wording
+  & Limit; the draft states it as congruence learned in training
   & \code{offline_controller.py} l.482--547; \code{test.py} \\
 Retinotopic and global leftovers
   & Retina-normalised action space; retina-centred fovea; global competence
-    modulates learning for all samples; draft adopts a retinotopic perspective
+    modulates learning for all samples; draft starts from the retinotopic hypothesis
   & Conflict with the topological reading
   & \code{agent.py} l.221, l.264; \code{draft.tex} l.64 \\
 The control loop undoes goal saccades
@@ -438,7 +440,7 @@ beyond a shuffled-pairing control.
 
 \begin{enumerate}[nosep]
   \item \textbf{Run the stable-perception test.} Foveate a rewarded part of the object
-    from varied starting views (\code{draft.tex}, l.111). Without it the stability
+    from varied starting views (\code{draft.tex}, l.115). Without it the stability
     claim is not tested.
   \item \textbf{Read out the expected effect at run time.} Compare the effects-map
     prototype at the goal cell with the actual post-saccadic fovea and use the
