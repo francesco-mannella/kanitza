@@ -409,8 +409,22 @@ reliable outcome of training; elsewhere the forward cosine is inherited from the
 field. The champion runs have no testable cells, so their coefficients describe field geometry
 only.
 
-\emph{Limits.} Three seeds per window; the control permutes the trained maps instead of
-retraining with shuffled pairing; the toward/away split is a geometric stand-in for
+\emph{Post hoc: stimulus-centred landing and shuffled-pairing retrain.} Take a lattice cell as one
+location with conditions, effects and action faces. A stimulus at $p$ activates the conditions
+winner $j$, the saccade lands it at $q=p-d(j)$, and $\mathrm{CRF}_{\mathrm{eff}}(j)$ is where the
+location expects it. \code{scripts/exp_stimulus_landing.py} correlates the two after removing the
+part of each linear in $p$, over all testable places, against a permutation of the effects units.
+At window 48 the partial correlation is 0.46, 0.33, 0.55 ($p=0.003$ in all three seeds); at window 64 it
+is 0.19, 0.06, $-0.01$ ($p=0.04$, 0.26, 0.57). The effects field thus follows the landing
+beyond the stimulus's own place at window 48 only, and partially (gaps of 4 to 5 px remain). Retraining
+at window 48 with the effects states permuted across the batch (\code{shuffle\_effects}, so a
+location's conditions and effects no longer come from the same view) gives $-b/a=0.24$, 0.01, 0.15
+(unshuffled 1.40, $-0.02$, 1.18) and partial correlation 0.22, $-0.87$, 0.03: the full shift
+and the landing-following vanish, so at window 48 they come from the pairing in training. Part of
+the forward cosine survives (0.66, 0.01, 0.53) as it is inherited from the conditions field.
+Three seeds, one window, not a pre-stated rule.
+
+\emph{Limits.} Three seeds per window; the toward/away split is a geometric stand-in for
 hemifield, a deviation from Neupane; receptive-field centres from the soft readout are
 compressed toward the mean; no latency, time course or response magnitude is tested.
 Under the pre-stated rule the model does not reproduce predictive remapping at map level

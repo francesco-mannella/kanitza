@@ -118,6 +118,10 @@ class Parameters(ParameterManager):
             retina center) is set to zero before the saccade target is
             sampled, so a goal always moves the eye away from the current
             fixation.
+        shuffle_effects (bool): control for the pairing of conditions and
+            effects: during training the visual effects of the samples are
+            permuted across samples, so each condition and saccade is paired
+            with the effect of another sample.
     """
 
     def __init__(
@@ -180,6 +184,7 @@ class Parameters(ParameterManager):
         hold_fixation=False,
         orienting_saccade=False,
         exclude_fixation=False,
+        shuffle_effects=False,
     ):
         self.project_name = project_name
         self.entity_name = entity_name
@@ -241,5 +246,6 @@ class Parameters(ParameterManager):
         self.hold_fixation = hold_fixation
         self.orienting_saccade = orienting_saccade
         self.exclude_fixation = exclude_fixation
+        self.shuffle_effects = shuffle_effects
 
         super(Parameters, self).__init__()

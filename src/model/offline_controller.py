@@ -405,6 +405,8 @@ class OfflineController:
         attention_states = get_state_data(self.attention_states, offset=offset)
         visual_conditions = get_state_data(self.visual_states, offset=-offset)
         visual_effects = get_state_data(self.visual_states, offset=offset)
+        if self.params.shuffle_effects:
+            visual_effects = visual_effects[torch.randperm(len(visual_effects))]
         competences = get_state_data(self.timestep_competences, offset=offset)
 
         # Retrieve representations
