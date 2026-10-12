@@ -75,22 +75,25 @@ def plot_chain(ax, mean, std, color):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("simulation_dir", help="a single simulation folder containing goals-*.npy files")
+    parser.add_argument("--shapes", nargs="+", default=SHAPES)
+    parser.add_argument("--side", type=int, default=10, help="lattice side")
     args = parser.parse_args()
+    shapes = args.shapes
 
     sim_dir = Path(args.simulation_dir).resolve()
     if not sim_dir.is_dir():
         raise SystemExit(f"not a directory: {sim_dir}")
 
-    fig, axes = plt.subplots(len(ROTATIONS), len(SHAPES), figsize=(3 * len(SHAPES), 3 * len(ROTATIONS)))
+    fig, axes = plt.subplots(len(ROTATIONS), len(shapes), figsize=(3 * len(shapes), 3 * len(ROTATIONS)))
     cmap = plt.get_cmap("tab10")
 
     for row, rotation in enumerate(ROTATIONS):
-        for col, shape in enumerate(SHAPES):
+        for col, shape in enumerate(shapes):
             ax = axes[row][col]
-            ax.set_xlim(-0.5, 9.5)
-            ax.set_ylim(-0.5, 9.5)
-            ax.set_xticks(range(10))
-            ax.set_yticks(range(10))
+            ax.set_xlim(-0.5, args.side - 0.5)
+            ax.set_ylim(-0.5, args.side - 0.5)
+            ax.set_xticks(range(0, args.side, max(1, args.side // 10)))
+            ax.set_yticks(range(0, args.side, max(1, args.side // 10)))
             ax.tick_params(labelsize=6)
             if row == 0:
                 ax.set_title(shape, fontsize=8)
