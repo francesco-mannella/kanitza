@@ -22,12 +22,30 @@
 
 Voluntary saccades, about 3 to 4 per second, shift the retinal image of the whole scene each time, yet the world looks stable; two families of explanation compete over where and how the brain compensates.
 
-Each saccade (typically 200 to 300 ms apart) moves every object to a new retinal location, and the early visual system is retinotopic (\href{https://www.pnas.org/doi/10.1073/pnas.1812210116}{Fabius et al., 2019}). Perception, by contrast, is largely world-centred (\href{https://www.sciencedirect.com/science/article/pii/S1053811916306899}{Fairhall et al., 2017}). Two lines of explanation structure the field:
+Each saccade (typically 200 to 300 ms apart) moves every object to a new retinal location, and the early visual system is retinotopic (\href{https://www.pnas.org/doi/10.1073/pnas.1812210116}{Fabius et al., 2019}). Perception, by contrast, is largely world-centred (\href{https://www.sciencedirect.com/science/article/pii/S1053811916306899}{Fairhall et al., 2017}). Two lines of explanation structure the field. They answer the same question, which coordinate frame carries the stable percept and what has to be updated at each saccade, and they differ in three things: the frame of the representation, what the eye-movement signal is used for, and what a neuron or a percept does when a saccade puts the two frames in opposition (Section~3 and Section~4 give the evidence and the critiques).
 
-\begin{itemize}[itemsep=2pt,topsep=2pt]
-\item \textbf{Spatiotopic (world- or head-centred) line.} The brain builds explicit maps in external coordinates by combining retinal position with eye-position signals (gain fields), and perception reads from them.
-\item \textbf{Retinotopic (remapping) line.} Representations stay eye-centred. A corollary discharge of the saccade command shifts activity, or attention pointers, to the post-saccadic retinal location. Stability is bookkeeping, not a map.
+\begin{itemize}[itemsep=4pt,topsep=2pt]
+\item \textbf{Spatiotopic (world- or head-centred) line.} \emph{Frame:} position is coded independently of where the eyes point, in head-, body- or world-centred coordinates. \emph{Mechanism:} retinal position is combined with an eye-position signal. The gaze angle modulates, in a graded way, the responses of parietal neurons whose receptive fields are retinotopic (\href{https://doi.org/10.1523/JNEUROSCI.03-03-00532.1983}{Andersen and Mountcastle, 1983}), so a population could read out head-centred position. Area VIP contains receptive fields along a continuum from eye- to head-centred (\href{https://www.nature.com/articles/39865}{Duhamel et al., 1997}), and MST neurons signal target motion in world coordinates during pursuit (\href{https://www.sciencedirect.com/science/article/pii/S0896627304003319}{Ilg et al., 2004}). \emph{What is stable:} the map itself. Stability is a property of the representation, and perception reads from it, so nothing has to be shifted at each saccade beyond the eye-position signal. \emph{Signature:} after a saccade that separates the frames, the response follows the stimulus's position in the world, not on the retina, as for the positional motion aftereffect (\href{https://royalsocietypublishing.org/doi/10.1098/rspb.2012.0637}{Turi and Burr, 2012}) and for fMRI repetition suppression in parietal cortex and frontal eye fields (\href{https://www.sciencedirect.com/science/article/pii/S1053811916306899}{Fairhall et al., 2017}).
+\item \textbf{Retinotopic (remapping) line.} \emph{Frame:} representations stay eye-centred; there is no map of the world. \emph{Mechanism:} a corollary discharge (CD) of the saccade command shifts activity, or a few attention pointers, to the post-saccadic retinal location before the eye lands. LIP neurons respond to a stimulus placed where their receptive field will be after the saccade (\href{https://www.science.org/doi/10.1126/science.1553535}{Duhamel et al., 1992}), attention shifts predictively to the post-saccadic location (\href{https://doi.org/10.1038/nn.2711}{Rolfs et al., 2011}), and attention pointers track a handful of locations (\href{https://doi.org/10.1016/j.tics.2010.01.007}{Cavanagh et al., 2010}). \emph{What is stable:} the bookkeeping. Stability is the continuous updating of where things are in retinal coordinates, not a representation in external coordinates. \emph{Signature:} the response and attention follow the retinal location of the stimulus, with predictive shifts before the saccade; the classic motion aftereffect stays retinotopic (\href{https://royalsocietypublishing.org/doi/10.1098/rspb.2012.0637}{Turi and Burr, 2012}) and higher visual cortex codes location retinotopically (\href{https://doi.org/10.1093/cercor/bhr357}{Golomb and Kanwisher, 2012}).
 \end{itemize}
+
+\begin{table}[h]
+\centering\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{2.6cm}>{\raggedright\arraybackslash}p{6.4cm}>{\raggedright\arraybackslash}p{6.4cm}@{}}
+\toprule
+ & Spatiotopic line & Retinotopic (remapping) line \\
+\midrule
+Frame of the representation & Head, body or world & Eye (retina) \\
+Signal used & Eye position, combined with retinal position & Copy of the saccade command (CD) \\
+What carries stability & A map in external coordinates & Updating of retinotopic activity or pointers \\
+Response after a saccade that opposes the frames & Follows the position in the world & Follows the retinal location, with a predictive shift \\
+Main support & VIP, MST; positional motion aftereffect; fMRI adaptation & LIP, FEF and V4 remapping; predictive attention \\
+Main limit & Eye-position signals are unreliable after saccades; few spatiotopic neurons; slow in some paradigms & Remapping is transient, shifts toward the target, and carries no persistent world-centred signal \\
+\bottomrule
+\end{tabular}
+\caption{The two lines compared.}
+\end{table}
 
 A third, deflationary view holds that little is carried across saccades at all and the world serves as its own memory; it is treated in the synthesis.
 
@@ -57,7 +75,7 @@ Predictive remapping & Shifts receptive fields to the post-saccadic retinal loca
 \addlinespace[2pt]
 Attention pointers & Updates a handful of attended locations, not a map & Predictive attention shifts (\href{https://doi.org/10.1016/j.tics.2010.01.007}{Cavanagh et al., 2010}; \href{https://doi.org/10.1038/nn.2711}{Rolfs et al., 2011}) & Needs a separate account of the unattended background & Retinotopic \\
 \addlinespace[2pt]
-Eye-position (gain-field) update & Updates an eye-position signal that scales retinotopic responses, giving head- or world-centred coding & Gain fields (\href{https://doi.org/10.1523/JNEUROSCI.03-03-00532.1983}{Andersen and Mountcastle, 1983}); VIP (\href{https://www.nature.com/articles/39865}{Duhamel et al., 1997}); human spatiotopic effects (\href{https://doi.org/10.1098/rstb.2010.0244}{Burr and Morrone, 2011}; \href{https://royalsocietypublishing.org/doi/10.1098/rspb.2012.0637}{Turi and Burr, 2012}) & Post-saccadic eye-position signals are unreliable and lag (\href{https://doi.org/10.1016/j.neuron.2012.10.034}{Xu et al., 2012}; \href{https://doi.org/10.1016/j.cub.2011.12.032}{Morris et al., 2012}); few neurons are spatiotopic & Spatiotopic \\
+Eye-position (gain-field) update & Updates an eye-position signal that modulates retinotopic responses, giving head- or world-centred coding & Gaze-angle modulation of parietal neurons with retinotopic receptive fields, a gain-field effect (\href{https://doi.org/10.1523/JNEUROSCI.03-03-00532.1983}{Andersen and Mountcastle, 1983}); VIP (\href{https://www.nature.com/articles/39865}{Duhamel et al., 1997}); human spatiotopic effects (\href{https://doi.org/10.1098/rstb.2010.0244}{Burr and Morrone, 2011}; \href{https://royalsocietypublishing.org/doi/10.1098/rspb.2012.0637}{Turi and Burr, 2012}) & Post-saccadic eye-position signals are unreliable and lag (\href{https://doi.org/10.1016/j.neuron.2012.10.034}{Xu et al., 2012}; \href{https://doi.org/10.1016/j.cub.2011.12.032}{Morris et al., 2012}); few neurons are spatiotopic & Spatiotopic \\
 \addlinespace[2pt]
 Proprioception plus CD & Eye proprioception supplies a slower eye-position signal that works with the CD & Proprioceptive eye-position signal in primary somatosensory cortex (\href{https://doi.org/10.1038/nn1878}{Wang et al., 2007}); review: \href{https://doi.org/10.1146/annurev-vision-082114-035407}{Sun and Goldberg, 2016} & Too slow for saccade-by-saccade use; its role in perception is not settled & Hybrid \\
 \addlinespace[2pt]
@@ -77,7 +95,7 @@ The spatiotopic account holds that the brain explicitly encodes position in head
 \begin{itemize}[itemsep=2pt,topsep=2pt]
 \item \href{https://www.nature.com/articles/39865}{Duhamel et al. (1997)}: in monkey area VIP, receptive fields lie on a continuum from eye- to head-centred, and some neurons encode azimuth and elevation independently of gaze.
 \item \href{https://www.sciencedirect.com/science/article/pii/S0896627304003319}{Ilg, Schumann and Thier (2004)}: MST neurons signal target motion in world-centred coordinates during pursuit.
-\item Earlier gain-field work (\href{https://doi.org/10.1523/JNEUROSCI.03-03-00532.1983}{Andersen and Mountcastle, 1983}) gives the substrate: eye position multiplicatively scales retinotopic responses, so a population can read out head-centred position.
+\item Earlier gain-field work (\href{https://doi.org/10.1523/JNEUROSCI.03-03-00532.1983}{Andersen and Mountcastle, 1983}) gives the substrate: the angle of gaze modulates, in a graded way, the responses of parietal neurons whose receptive fields are retinotopic, and only during directed attention, so a population of such neurons could in principle read out head-centred position.
 \end{itemize}
 
 \textbf{Human evidence.}
@@ -189,7 +207,7 @@ The field moves from signal (CD) to neurons (remapping, gain fields) to a human 
 \textbf{Year} & \textbf{Paper} & \textbf{Line} & \textbf{Paradigm} & \textbf{Finding} & \textbf{In lib.} \\
 \midrule
 \endhead
-1983 & Andersen and Mountcastle & Spatiotopic & Monkey parietal single units, eye-position gain & Eye position multiplicatively scales visual responses (gain fields) & No \\
+1983 & Andersen and Mountcastle & Spatiotopic & Monkey parietal single units, gaze-angle variation & Gaze angle modulates responses of neurons with retinotopic receptive fields in a graded way (later called gain fields) & No \\
 \addlinespace[2pt]
 1983 & \href{https://www.jstor.org/stable/1690996}{Guthrie, Porter, Sparks} & CD & Collicular microstimulation perturbs a saccade, proprioception eliminated & Eye-position information is internal, not reafferent & Yes \\
 \addlinespace[2pt]
@@ -242,8 +260,6 @@ The two lines now look complementary more than rival: fast, predictive, retinoto
 \item \textbf{Deflationary alternative.} O'Regan and Noe (2001) and Irwin (1991) argue that trans-saccadic memory is small and the scene is re-sampled, so stability needs no map. Cavanagh et al.'s attention pointers are a middle way: a few tracked locations.
 \item \textbf{Open.} Whether remapping carries feature content or only location, how the world-centred signal is read out, and how voluntary and reflexive saccades differ.
 \end{itemize}
-
-\textbf{For the Kanizsa saliences model.} A voluntary-saccade model faces the same choice: keep representations retinotopic and shift them with the planned saccade (line B), or maintain a world-centred salience map (line A). The project's own finding that the saccade reset mask is nearly flat, so salience saccades undo goal saccades, is the model-side analogue of a remapping signal that does not carry what was already attended; a CD-style, saccade-aware shift is the biologically motivated fix, with a slower spatiotopic store as a second option.
 
 \section*{References}
 \addcontentsline{toc}{section}{References}

@@ -5,6 +5,7 @@
 \usepackage{lipsum} 
 \usepackage{verbatim}
 \usepackage{amsmath}
+\usepackage{array}
 \usepackage{tikz}
 \usetikzlibrary{positioning,arrows.meta,calc}
 \usepackage{graphicx}
@@ -133,29 +134,84 @@ As a result this topological neural system approximates a continuous map of all 
 \paragraph{Description of the following sections.}
 
 
-\section{Neural substrates of visual perception
-}
-\begin{itemize}
-    \item Top-down / bottom-up overt attention
-    \begin{itemize}
-        \item SC-FEF circuit for the interaction of top-down and bottom-up attention.
-        \begin{itemize}
-            \item     V1 salience information to SC
-            \item FEF direct pathway to SC
-            \item SC indirect pathway to FEF
+\section{Visual stability across saccades: accounts and neural substrates}
+\label{sec:substrates}
 
-        \end{itemize}
-        \begin{itemize}
-        \item     Remapping of FEF receptive fields.
-    \end{itemize}
-    \end{itemize}
-    \item LIP is involved in visual attention.
-    \begin{itemize}
-        \item Remapping of LIP receptive fields.
-    \end{itemize}
+\subsection{The problem and the machinery shared by the accounts}
 
-\end{itemize}
- 
+Each saccade, typically every 200 to 300 ms, moves every object to a new retinal location.
+The early visual system is retinotopic, whereas perception is largely world-centred \citep{fabiusTimeCourseSpatiotopic2019,fairhallSpatiotopicUpdatingSaccades2017}.
+Two lines of explanation structure the field and a third deflates the problem.
+They differ in the frame of the representation, in what the eye-movement signal is used for, and in what a neuron or a percept does when a saccade puts the frames in opposition.
+
+Both lines rely on a copy of the saccade command, the corollary discharge (CD).
+Eye-position information survives the loss of extraocular proprioception, so it is internal and not reafferent \citep{guthrieCorollaryDischargeProvides1983}.
+In the monkey the copy runs from the superior colliculus (SC) through the mediodorsal thalamus (MD) to the frontal eye field (FEF) \citep{sommerPathwayPrimateBrain2002,sommerWhatBrainStem2004,sommerInfluenceThalamusSpatial2006}; reviews are \citet{crapseCorollaryDischargeAnimal2008} and \citet{sunCorollaryDischargeOculomotor2016}.
+Sensitivity falls around saccades and perisaccadic stimuli are mislocalised toward the target; suppression hides the smear but does not by itself restore position \citep{rossChangesVisualPerception2001,bindaVisionSaccadicEye2018}.
+Most remapping data use a voluntary, planned saccade whose command is available before the eye moves, which is what lets the CD act predictively.
+The open question is what the CD does downstream: shift receptive fields, update a world-centred frame, or only correct the visual estimate.
+
+\subsection{Spatiotopic representations}
+
+The spatiotopic account holds that position is coded in head- or world-centred coordinates, so stability is a property of the map.
+The substrate is the gain field: the angle of gaze modulates, in a graded way, the responses of parietal neurons whose receptive fields are retinotopic, so that a population could read out head-centred position \citep{andersenInfluenceAngleGaze1983}.
+Area VIP contains receptive fields on a continuum from eye- to head-centred \citep{duhamelSpatialInvarianceVisual1997}, and MST neurons signal target motion in world coordinates \citep{ilgPosteriorParietalCortex2004}.
+In humans the positional motion aftereffect is selective in external coordinates after a saccade while the classic aftereffect stays retinotopic \citep{turiSpatiotopicPerceptualMaps2012}, repetition suppression in parietal cortex and FEF is spatiotopic \citep{fairhallSpatiotopicUpdatingSaccades2017}, and spatiotopic updating can appear within 150 ms \citep{fabiusTimeCourseSpatiotopic2019}.
+The critiques are that only a minority of neurons is spatiotopic, that post-saccadic eye-position signals are unreliable and slow \citep{xuPostsaccadicUnreliabilityGain2012,morrisDynamicsEyepositionSignals2012}, that behavioural effects take hundreds of milliseconds to build \citep{zimmermannSpatiotopicNeuralRepresentations2013}, and that higher visual cortex codes location retinotopically \citep{golombHigherLevelVisual2012}.
+The timing critique is answered by \citet{fabiusTimeCourseSpatiotopic2019}.
+
+\subsection{Retinotopic remapping}
+
+The remapping account keeps everything eye-centred and uses the CD to shift activity to where the stimulus will land, so no explicit world map is needed.
+In monkey LIP, neurons respond to a stimulus placed where their receptive field will be after the saccade, before the eye moves, and to the trace of a stimulus that was extinguished before the saccade \citep{duhamelUpdatingRepresentationVisual1992}; LIP is read as a salience map updated by the intended movement \citep{colbySpaceAttentionParietal1999}.
+In FEF the remapping depends on the collicular, thalamic CD pathway, as shown by inactivating the thalamus \citep{sommerInfluenceThalamusSpatial2006}.
+Remapping is found in V3A (52\% of neurons), V3 and V2 and is very rare in V1 \citep{nakamuraUpdatingVisualRepresentation2002}, and in V4 it comes in two types, a response at the future field and a response at the saccade target \citep{neupaneTwoDistinctTypes2016}.
+Behaviourally, attention shifts predictively to the post-saccadic retinotopic location \citep{rolfsPredictiveRemappingAttention2011}, and a handful of attention pointers, not a map, may be what is updated \citep{cavanaghVisualStabilityBased2010}.
+The critiques are that in later FEF data receptive fields converge on the saccade target instead of shifting forward \citep{zirnsakVisualSpaceCompressed2014}, and that remapping is transient, so it does not by itself produce persistent world-centred perception.
+
+\subsection{Neural substrates}
+
+Table~\ref{tab:substrates} lists the regions with evidence in this literature.
+A midbrain, thalamic and frontal route carries the CD in monkeys, and a parietal and visual-cortex network is where updating or spatiotopic coding is claimed.
+Topographic maps with confluent foveae are found in human frontal and parietal cortex, where they carry attention, working-memory and saccade signals \citep{silverTopographicMapsHuman2009,mackeyVisualFieldMap2017}.
+
+\begin{table}[h]
+\centering\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{3.1cm}>{\raggedright\arraybackslash}p{6.2cm}>{\raggedright\arraybackslash}p{6.3cm}@{}}
+\hline
+Region & Hypothesised role & Evidence (monkey unless stated) \\
+\hline
+SC & Source of the saccade command and of the CD; some neurons anticipate the visual result of the saccade & \citet{walkerNeuronsMonkeySuperior1995} \\
+MD thalamus & Relay of the CD from SC to FEF; in humans needed for perceptual stability & \citet{sommerInfluenceThalamusSpatial2006}; human lesions \citet{ostendorfHumanThalamusContributes2010} \\
+FEF & Receives the CD; predictive visual responses, remapping or convergence on the target & \citet{umenoSpatialProcessingMonkey1997,zirnsakVisualSpaceCompressed2014}; human fMRI \citet{fairhallSpatiotopicUpdatingSaccades2017} \\
+LIP & Eye-centred salience map updated by the intended saccade & \citet{duhamelUpdatingRepresentationVisual1992,colbySpaceAttentionParietal1999} \\
+VIP, MST, V6A & Eye-to-head or world-centred coding in a minority of neurons & \citet{duhamelSpatialInvarianceVisual1997,ilgPosteriorParietalCortex2004} \\
+V2, V3, V3A & Remapping, rarer at earlier stages & \citet{nakamuraUpdatingVisualRepresentation2002} \\
+V4 & Receptive-field changes around saccades, with two types of remapping & \citet{neupaneTwoDistinctTypes2016} \\
+V1 & Retinotopic input stage; remapping very rare & \citet{nakamuraUpdatingVisualRepresentation2002} \\
+Human parietal cortex & Gaze-centred updating of remembered locations; spatiotopic repetition suppression & \citet{medendorpGazecenteredUpdatingVisual2003,merriamSpatialUpdatingHuman2003,fairhallSpatiotopicUpdatingSaccades2017} \\
+\hline
+\end{tabular}
+\caption{Regions with evidence for the transmission of the saccade copy, remapping or spatiotopic coding.}
+\label{tab:substrates}
+\end{table}
+
+\subsection{Reconciliation, the deflationary view and what stays open}
+
+The two lines now look complementary more than rival: fast, predictive, retinotopic remapping covers the saccade itself, and a slower, sparser spatiotopic signal builds afterwards.
+Timing helps to reconcile them, since spatiotopic effects were measured as slow until a continuous gaze-contingent probe found them within 150 ms, so the paradigm, not only the brain, set the estimate.
+Spatiotopy may also be partial, and the task and the stimulus seem to decide which frame wins.
+A deflationary view holds that little is carried across saccades and the world serves as its own memory: displacements go undetected during saccades \citep{bridgemanFailureDetectDisplacement1975}, blanking the target restores detection \citep{deubelPostsaccadicTargetBlanking1996}, and pre- and post-saccadic information are combined statistically \citep{niemeierOptimalTranssaccadicIntegration2003}; vision is then the mastery of sensorimotor contingencies \citep{oreganSensorimotorAccountVision2001} with a small transsaccadic memory \citep{irwinInformationIntegrationSaccadic1991}.
+This view does not explain predictive remapping neurons or fast spatiotopic effects.
+
+Three points stay open and bear on what follows.
+First, whether remapping carries feature content or only location.
+Transsaccadic predictions are learned from experience and bias peripheral perception toward the feature that the saccade has previously brought to the fovea \citep{herwigWhenCirclesBecome2015}, which a pure location shift does not predict.
+Second, how the world-centred signal is read out.
+Third, how single-neuron remapping, which differs among areas and in the later data converges on the target, relates to the perceptual stability that it is supposed to support.
+The proposal of the next section starts from the retinotopic line but replaces the shift of receptive fields by a learned relation among a view, a saccade and its effect.
+
 \section{Topological Alignment}
 \label{sec:ta}
 
@@ -251,7 +307,7 @@ The maps are organised by the global content of the views and by their alignment
 We call this retinotopy indirect.
 Second, what looks like remapping, a cell responding at its future field before the saccade and at its current field after it, can result from the pairing of two stable retinal regions at one location, without any receptive field shifting.
 We claim this as a possible alternative to the shifting of receptive fields, not as the only one.
-It predicts that (i) the layout of a map follows the statistics of the views it is trained on, (ii) the effect region of a location follows the landing place of the stimulus that activates the location, and this relation disappears if the pairing between conditions and effects is broken in training, and (iii) lesions of a neighbourhood displace a goal to neighbouring locations rather than to a wrong coordinate.
+It predicts that (i) the layout of a map follows the statistics of the views it is trained on, (ii) the effect region of a location follows the landing place of the stimulus that activates the location, and this relation is reduced if the pairing between conditions and effects is broken in training, and (iii) lesions of a neighbourhood displace a goal to neighbouring locations rather than to a wrong coordinate.
 Section~\ref{sec:model} tests (ii); (i) and (iii) are not tested.
 
 \subsection{Formal level: a lattice of aligned prototypes}
@@ -297,6 +353,36 @@ The offline controller holds three topological maps on a common $10\times10$ lat
 The winner of the conditions map for the current view is the goal; the saccade is the attention prototype at the goal.
 Position in the external world is not available to the controller, and neither is eye position: the fovea is retina-centred and the action is a retinal vector.
 
+\subsubsection{Visual system, salience encoding and attentional filtering}
+\label{sec:visual-system}
+
+\paragraph{Retina and fovea.}
+The agent sees an $80\times80$ pixel retinal image centred on its gaze; the objects are filled red or blue shapes on a white background.
+The visual input of the maps is not the image but the fovea: the colour saliency of the central $64\times64$ pixels, resized to $16\times16$ (Figure~\ref{fig:visual-system}f).
+
+\paragraph{Salience encoding.}
+The retina is projected on eight colour masks (red minus green, green minus red, blue minus green, green minus blue, blue minus red, red minus blue, brightness and inverted brightness) and each projection is filtered by a bank of Gabor kernels (spatial frequency 0.09 cycles per pixel, four orientations, one scale of 1 pixel, kernels of $5\times5$ pixels, phase $-\pi/2$).
+The responses are rectified and summed over orientations into three colour-opponent channels and a brightness channel, jointly scaled to $[0,1]$.
+Because of the odd phase the filters respond to edges whatever their polarity, so the maxima of the salience lie on the contours of the objects and not inside them (Figure~\ref{fig:visual-system}b,c); a uniform region gives no response.
+The salience used to choose a saccade is the mean of the colour-opponent channels; the brightness channel has weight zero in the runs reported here, so a spot that differs from its background only in brightness, such as a white spot on a black retina, is invisible to the agent.
+The same colour-opponent channels, multiplied by a gain of $10^4$, form the fovea.
+
+\paragraph{Attentional filtering.}
+The salience map is divided by its maximum, with a small offset (1\%) so that a blank retina gives a uniform map, and multiplied by a Gaussian attentional mask centred on a retinal point $c$ (Figure~\ref{fig:visual-system}d,e).
+The point $c$ is the centre commanded by the controller: the attention prototype of the winning location, or a random point during exploration.
+The mask is broad, with a standard deviation of 22 pixels for a centre at the middle of the retina and 13 pixels for a centre more than 32 pixels from it, and it is flat when no centre is commanded.
+The next gaze position is the pixel where the product is maximal (it is sampled with a probability proportional to the part of each value above 99.9999\% of the maximum, which is the maximum in practice); the action is the displacement from the current gaze to this pixel.
+The mask therefore filters the salience instead of fixing the target: a command selects, among the salient points, the one closest to $c$, and the executed saccade lands on a contour near the commanded centre and not on $c$ itself.
+With a flat mask the saccade goes to the global maximum of the salience, which is the bottom-up behaviour that drives exploration at first.
+In the champion runs the executed saccade has the direction of the commanded one (cosine 0.92 to 1.00).
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.85\textwidth]{visual_system.pdf}
+    \caption{The visual system for one decision (triangle at 0.8 rad, run 014142, first decision of an episode, trained controller). \textbf{a}, the retina, with the $64\times64$ pixel window of the fovea (dashed) and the gaze (cross). \textbf{b}, the colour-opponent responses of the Gabor bank (red minus green, green minus blue and blue minus red shown as red, green and blue). \textbf{c}, the salience map used to choose the saccade. \textbf{d}, the Gaussian attentional mask centred on the point commanded by the controller (cross). \textbf{e}, the product of the salience and the mask: its maximum (circle) is the target of the saccade (arrow), on the contour of the object near the commanded centre. \textbf{f}, the fovea, the input of the maps: the colour salience of the window resized to $16\times16$ pixels.}
+    \label{fig:visual-system}
+\end{figure}
+
 \subsubsection{Learning}
 
 Learning is offline, at the end of each epoch.
@@ -317,7 +403,7 @@ Three opt-in mechanisms, all part of the configuration used below, make the exec
     \item hold fixation zeroes the gaze displacement on all steps except the decision step, so that each goal produces exactly one saccade and no salience-driven saccade undoes it;
     \item the orienting saccade adds one salience saccade with a uniform mask at the start of each episode, so that the first goal depends on the object's orientation.
 \end{itemize}
-At test time the learned model acts without exploration, always using the attention prototype at the winner, and the saliency inside the fovea is zeroed on decision steps so that a goal always moves the eye.
+At test time the learned model acts without exploration, always using the attention prototype at the winner; hold fixation makes each goal produce one saccade, and the salience is not zeroed inside the fovea.
 
 \begin{figure}
     \centering
@@ -339,12 +425,13 @@ At test time the learned model acts without exploration, always using the attent
 
 \subsection{Simulation setup}
 
-Reference parameters: lattice of 100 locations, fovea $16\times16$ pixels, anchor width 4, neighbourhood baseline 0.5, $\sigma_\mu=10$, 1000 epochs of 20 episodes of 10 saccades.
+Reference parameters: lattice of 100 locations, anchor width 4, neighbourhood baseline 0.5, $\sigma_\mu=10$, 1000 epochs of 20 episodes of 10 saccades.
+The fovea samples a retinal window of $64\times64$ pixels resized to a $16\times16$ input.
+The Gabor filters of the saliency front end have a phase offset of exactly $-\pi/2$, so that edge saliency does not depend on edge polarity.
 The world alternates by epoch between the triangle and the square, so each update sees one object.
-The configuration was selected on five seeds by the criteria that the goals of the two objects occupy separate regions of the conditions map, that scanpaths of different rotations share no goals, and that every goal saccade is executed.
+The configuration (goal inhibition, hold fixation and an orienting saccade at the start of each episode) was selected by the criteria that the goals of the two objects occupy separate regions of the conditions map, that scanpaths of different rotations share no goals, and that every goal saccade is executed.
 We call it the champion; the choice is provisional.
-Twenty champion runs (five from the selection and fifteen new seeds) were trained for the analysis of retinotopy.
-For the remapping analysis the fovea sampled a wider retinal window, $48\times48$ or $64\times64$ pixels resized to the same $16\times16$ input, with three seeds each, because at $16\times16$ the saccade vectors of the attention prototypes (26 to 32 retinal pixels) leave the window.
+Three champion runs were trained (seeds 014142, 017320 and 022360), and the same seeds again with the effects states permuted across the batch (shuffled pairing) as a control.
 Tests present each object at nine rotations (0 to 1.6 rad in steps of 0.2).
 Scanpath measures: kNN purity (share of goals whose nearest goal in another test belongs to the same object), the share of test pairs with a common goal (rotations equivalent under the object's symmetry excluded), and the number of distinct goals per test.
 Retinotopy is measured with a black-box spot probe, as an experimenter would map receptive fields: Gaussian spots at known positions, soft readout, a receptive-field centre per unit, and the rank correlation $\rho$ between lattice distance and receptive-field distance, with $z$ against permutations of the centres and a control with shuffled pixel layouts.
@@ -355,18 +442,15 @@ Rules were fixed before the runs where stated; analyses without a prior rule are
 
 \subsubsection{Aligned maps and scanpaths}
 
-With the reference parameters (no inhibition or hold fixation, three seeds) the maps are well ordered in prototype space (Spearman correlation between lattice and prototype distance 0.89 on the conditions map, attention-map topographic error 0.07) and competence is about 0.73 to 0.78, with a seed spread as large as the differences among most hyperparameter settings (competence $0.727\pm0.063$ over five seeds).
-The attention map is the weakest: 44 to 64\% of its units never win.
-The first scanpaths locked onto 2 to 3 goals.
-Goal inhibition lengthened them to 5 or 6, and exposed a failure of the control loop: after each decision the attention mask resets to a nearly flat distribution, so the next salience-driven saccade undid 33 to 43\% of the goal saccades, and the recorded effect was not the effect of the addressed saccade.
-Hold fixation removed the reversals but made all scanpaths start from one shared goal (pairs sharing 0.68), and the orienting saccade removed the shared start (10 to 13 distinct first goals instead of 1 to 4).
-In the champion configuration, objects are separated (purity 0.94), 5.4 distinct goals are visited per test, 20\% of test pairs share a goal (against 23\% in the earlier reference), every goal saccade is executed and no salience saccade follows it.
-The earlier reference executed no saccade for 18\% of the goals and showed 25\% of salience saccades.
+Three elements of the control loop were needed.
+Without goal inhibition the first scanpaths locked onto two or three goals.
+After each decision the attention mask resets to a nearly flat distribution, so the next salience-driven saccade could undo the goal saccade and the recorded effect was not the effect of the addressed saccade; hold fixation removes these reversals but makes all scanpaths start from one shared goal, which the orienting saccade removes.
+In the three champion runs objects occupy separate regions of the conditions map (kNN purity 0.92 to 0.98, mean 0.95), 7.7 distinct goals are visited per test (6.1 to 9.2), 33\% of test pairs of distinct shapes share a goal (27 to 39\%), the tests start from 14 to 17 distinct first goals, competence is 0.76 to 0.89 (mean 0.84), and the executed saccade has the direction of the one the location commands (cosine 0.92 to 1.00).
 
 \begin{figure}
     \centering
-    \includegraphics[width=\textwidth]{maps_champion.pdf}
-    \caption{Learned maps of one run with the $48\times48$ window after 1000 epochs (seed 014142), on the $10\times10$ lattice. Left: prototypes of the conditions map, the view before the saccade, each tile the $48\times48$ window resized to $16\times16$. Centre: prototypes of the effects map, the view after the saccade, on the same grey scale. Right: the attention map, the retinal centre of the saccade at each location, linked by lattice adjacency. The dot of a location has the same colour in the three maps. The three maps share one lattice, so a location pairs a view, a saccade and the view after it. The run was chosen among the three runs of this window for the best worst case of three measures: ordering of the conditions map (Spearman correlation between lattice and prototype distance 0.76), ordering of the effects map (0.76) and agreement between the two layouts (0.66).}
+    \includegraphics[width=0.85\textwidth]{maps_champion.pdf}
+    \caption{Learned maps of one run with the $64\times64$ window after 1000 epochs (seed 014142), on the $10\times10$ lattice. Top left: prototypes of the conditions map, the view before the saccade, each tile the $64\times64$ window resized to $16\times16$. Top right: prototypes of the effects map, the view after the saccade, on the same grey scale (raised to the power 0.5 to show the dim prototypes). Bottom left: the attention map, the retinal centre of the saccade at each location, linked by lattice adjacency. Bottom right: colour key of the lattice; the dot of a location has the colour of its lattice position in the three maps. The three maps share one lattice, so a location pairs a view, a saccade and the view after it. The run was chosen among the three runs of this window for the best worst case of three measures: ordering of the conditions map (Spearman correlation between lattice and prototype distance 0.85), ordering of the effects map (0.82) and agreement between the two layouts (0.91).}
     \label{fig:maps}
 \end{figure}
 
@@ -380,15 +464,15 @@ The earlier reference executed no saccade for 18\% of the goals and showed 25\% 
 \begin{figure}
     \centering
     \includegraphics[width=\textwidth]{scanpath_champion.pdf}
-    \caption{Executed fixations of one champion run (seed 031415) on each object at the nine test rotations, in task-space coordinates. Dots are the fixations at the 16 decision steps, coloured from first (dark, circled) to last (yellow); arrows are the saccades, each produced by one goal. At small rotations the fixations run along one edge of the object; from about 1 rad they move between the vertices or corners, and the path differs for each rotation. The run was chosen among the five champion runs with test scanpaths for legible paths (kNN purity 0.99, 5.2 goals per test); the run with the highest purity, seed 039973, produced paths of two or three fixations.}
+    \caption{Executed fixations of one champion run ($64\times64$ window, seed 014142) on each object at the nine test rotations, in task-space coordinates. Dots are the fixations at the 16 decision steps, coloured from first (dark, circled) to last (yellow); arrows are the saccades, each produced by one goal. The run is the one shown in the map figure. The executed saccade has the direction of the commanded one (cosine 1.00) and the share of goals already used earlier in the same test is 0.84, so the path moves repeatedly between a few fixations.}
     \label{fig:scanpath}
 \end{figure}
 
 \subsubsection{Indirect retinotopy of the maps}
 
-The maps are trained on view content only, with no positional label, and the probe nevertheless finds retinotopy in all of them: $z>3$ in 40 of 40 maps of the 20 champion runs (median $\rho$ 0.82 for the conditions maps and 0.76 for the effects maps; median $z$ 45.9 and 40.2), and the phase-encoded probe agrees ($z>3$ in 40 of 40, median $\rho$ 0.54 and 0.58).
-The order exceeds that of shuffled pixel layouts in 32 of 40 maps; in the other eight, all with low $\rho$, it is closer to prototype topography.
-The run-to-run spread is large (conditions $\rho$ 0.55 to 0.87).
+The maps are trained on view content only, with no positional label, and the probe nevertheless finds retinotopy in all of them: $z>3$ in 6 of 6 maps of the three champion runs (median $\rho$ 0.83 for the conditions maps and 0.77 for the effects maps; median $z$ 48.5 and 41.9), and the phase-encoded probe agrees ($z>3$ in 6 of 6, median $\rho$ 0.75 and 0.71).
+The order exceeds that of shuffled pixel layouts in all 22 maps ($p\le0.03$).
+The run-to-run spread is moderate (conditions $\rho$ 0.51 to 0.84).
 The probe cannot separate position from content in these views, so this result shows that spatial order is found, not how it arises.
 
 \begin{figure}
@@ -398,33 +482,111 @@ The probe cannot separate position from content in these views, so this result s
     \label{fig:probe}
 \end{figure}
 
-\subsubsection{Remapping-like structure without shifting fields}
+\subsubsection{A two-spot remapping paradigm without shifting fields}
 
-No field shifts in the model, since the maps are fixed during a saccade; the question is whether the pairing leaves a remapping-like signature at map level.
-For each location, the post-saccadic field is the field of its effects unit and the saccade vector is the attention prototype.
-With the $16\times16$ window the paradigm cannot be run (fraction of testable locations 0.00 to 0.02 against a minimum of 0.30), hence the wider windows (testable fraction 0.32 to 0.65 at 48 and 0.68 to 0.93 at 64, competence comparable to the narrow window).
-Under the rule fixed beforehand, which compares the share of future-field responses among testable locations with the physiological range (0.27 to 0.82, Neupane et al. 2016) and with a control that permutes the effects units, the model does not reproduce predictive remapping: the shares (median 0.48 and 0.58) fall inside the range but are below the shuffled-pairing control in six of six runs, because the selection of testable locations aligns the response with the saccade whatever the pairing.
-A statistic that tests the pairing directly, fixed after these results (post hoc), is the partial correlation between the effects field of the location activated by a spot and the place where the spot lands after the saccade, after removing the part of each that is linear in the spot's position, against a permutation of the effects units over locations.
-At 48 pixels it is 0.46, 0.33 and 0.55 in three seeds ($p=0.003$, the smallest value possible with 300 permutations), and at 64 pixels 0.19, 0.06 and $-0.01$.
-Retraining at 48 pixels with the effects states permuted across the batch, so that the condition and the effect of a location no longer come from the same view, gives 0.22, $-0.87$ and 0.03, and removes the full-size shift between the conditions and effects fields (regression ratio near 1 in two of the three unshuffled seeds, 0.24, 0.01 and 0.15 after shuffling).
-At 48 pixels, therefore, the effects face of a location follows the landing of the stimulus that activates it, and this comes from the pairing in training, not from the lattice or from the read-out; at 64 pixels there is nothing to remove.
-The effect is partial (the field centre stays 4 to 5 pixels from the landing place), and part of the forward relation between the fields is inherited from the conditions field alone.
-A confirmatory test with five new seeds, paired and shuffled-pairing runs trained from the same seed, and its rules fixed before the runs, is in progress; the above is a pilot on three seeds per window.
-The time course, latency and magnitude of remapping are not modelled.
+\paragraph{The classic experiments.}
+Predictive remapping is defined by a geometric relation.
+A neuron has a receptive field at a fixed retinal place $c$, its current field.
+When the eye makes a saccade of vector $s$, a stimulus that is at retinal place $x$ before the saccade is at $x-s$ after it, so the place that will fall on the receptive field is $c+s$ in the pre-saccadic frame: the future field.
+In the original experiments in monkey LIP the receptive field is first mapped during fixation; then, in a saccade task, a stimulus is flashed briefly just before the saccade at the place that the saccade will bring into the receptive field.
+The neuron responds although the stimulus is outside its current field at that moment, and it does not respond to the same stimulus in a fixation control with no saccade; it also responds to the trace of a stimulus extinguished before the saccade \citep{duhamelUpdatingRepresentationVisual1992,colbySpaceAttentionParietal1999}.
+The effect has been found in V3A, V3 and V2 and is rare in V1 \citep{nakamuraUpdatingVisualRepresentation2002}, and in FEF, where later data showed receptive fields converging on the saccade target \citep{umenoSpatialProcessingMonkey1997,zirnsakVisualSpaceCompressed2014}.
+The most explicit measurement in space and time is that of \citet{neupaneTwoDistinctTypes2016} in V4.
+Monkeys make visually guided horizontal saccades from a fixation point to a continuously lit target, towards or away from the hemifield of the receptive field, while brief probes are flashed at random places of a $10\times10$ grid spanning $40^{\circ}$: one during fixation (P1), one just before the saccade (P2) and one after it (P3).
+The centre of the receptive field is the centre of mass of the responses over the grid, estimated at successive times after the probe: the current field is seen at about 75 ms, and a shifted field at 150 to 300 ms.
+The shift is called future-field (FF) remapping if the vector from the first to the later centre is within $20^{\circ}$ of the saccade direction, and saccade-target (ST) remapping if it points to the target, and neurons are classified by type.
+Three elements make these experiments tests of prediction and not of vision: the saccade vector is set relative to the receptive field, the probe is flashed before the saccade, and the response is compared with a fixation control and followed in time.
+
+\paragraph{What the simulation shares with them.}
+The simulation keeps the stimulus sequence and the logic of the mapping, and replaces the neuron by a location of the lattice.
+A first spot $F$ at the fixation point and a second spot $T$ at the target define the saccade vector $v=T-F$, as the fixation point and the target define $s$.
+A probe is flashed at the places of a grid covering the retina, as in the probe grid, and the receptive field of a face of the location is read from the responses, as the receptive field of the neuron is read from the responses over the grid.
+The geometry is that of the experiments: before the saccade $F$ is at the centre of the retina and $T$ at $v$; after it $T$ is at the centre and $F$ at $-v$, so each stimulus is displaced by $-v$ on the retina.
+Chance is estimated by shuffling the saccade vectors across displays, which plays the role of the comparison with chance of the experiments.
+The correspondence is therefore: fixation point, $F$; saccade target, $T$; saccade vector, $v$; probe grid, lone probes on a grid; receptive field of the neuron, receptive field of a face of the recruited location; classification of neurons, a statistic compared with shuffled saccade vectors.
+
+\paragraph{The simulated paradigm.}
+(1) A spot $F$ is shown at the centre of the retina and a spot $T$ at an offset $v$ from it.
+Both are red Gaussian blobs (sigma 3 pixels) on the white retina, drawn through the Gabor front end like the objects of training (Section~\ref{sec:visual-system}).
+$T$ is drawn from a probability map, the mean of the conditions prototypes of the run read as a map over the fovea; offsets under 16 pixels from $F$ are redrawn.
+(2) The view with both spots recruits a location of the lattice: the conditions prototype nearest to it wins and a Gaussian on the lattice around the winner spreads its activity to the neighbouring units.
+(3) A lone probe spot is flashed at the places of a grid covering the retina in steps of 4 pixels.
+Presented to a map, the probe is won by one unit; the recruited location responds as far as that unit lies in its lattice neighbourhood, so the probe drives the location only inside the receptive field of the face that is read.
+Probes more than 28 pixels from the gaze are left out, because a spot near the edge of the 64-pixel window leaves an almost blank view.
+The response of the location at a place is expressed as its percentile rank among all the probed places of the map (1 is the strongest, 0.5 a random place).
+(4) Displays enter the statistics if both maps respond somewhere and $|v|$ is at most 28 pixels on each axis.
+The mean percentile is computed over the testable displays with a 95\% interval over the recruited cells, since displays share cells; for the places that depend on $v$, chance is the same mean with the saccade vectors shuffled across displays (500 shuffles).
+The readout was checked on hand-built maps whose receptive fields lie at known places: it recovers them within 1 pixel, and with spots planted at $0$, $v$ and $-v$ the percentile at the planted place is 0.99 against 0.72 for shuffled saccade vectors.
+
+\paragraph{The narrative: the attentional filter and the two faces.}
+In the model the saccade is chosen by a Gaussian attentional filter that multiplies the salience map (Section~\ref{sec:visual-system}).
+Before the saccade the filter is centred on the fixation point $F$: this is the current attentional field, and the view at that moment, with $F$ at the centre and $T$ at $v$, is what the conditions prototype of the recruited location holds.
+The saccade is the movement of the filter to $T$; after it $T$ is at the centre and $F$ at $-v$, and the field has changed: this view is what the effects prototype of the same location holds.
+The two faces are therefore the same location seen with the filter on $F$ and with the filter on $T$, and the effects face is pre-activated because the filter has not yet moved to $T$.
+This gives four expected places (Figure~\ref{fig:twospot-trial}).
+The conditions face should respond at $F$ and at $T$ before the shift, and the effects face at $T$ and at $F$ after it.
+The place $0$ (the place of $F$ before the shift and of $T$ after it) is shared by the prototypes of all locations, so a lone probe there is won by one arbitrary unit and the place is not selective; the informative places are $v$ for the conditions face and $-v$ for the effects face, and the conditions face at $-v$ and the effects face at $v$ are the specificity checks.
+The effects face responding at $-v$ is the model's version of the anticipation of the classic experiments: before the filter moves, the location already responds at the place that the first spot, the stimulus that now holds attention, will have after the move.
+
+\begin{table}[h]
+\centering\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lcccccc@{}}
+\hline
+ & \multicolumn{2}{c}{Run 014142} & \multicolumn{2}{c}{Run 017320} & \multicolumn{2}{c}{Run 022360} \\
+Face and place & rank & shuffled & rank & shuffled & rank & shuffled \\
+\hline
+Conditions, $F$ before (0) & 0.56 [0.41, 0.72] & & 0.82 [0.71, 0.87] & & 0.61 [0.45, 0.74] & \\
+Conditions, $T$ before ($v$) & 0.88 [0.80, 0.95] & 0.56 (0.002) & 0.91 [0.88, 0.94] & 0.67 (0.002) & 0.90 [0.84, 0.95] & 0.56 (0.002) \\
+Conditions, $F$ after ($-v$) & 0.38 [0.28, 0.45] & 0.51 (1.000) & 0.28 [0.17, 0.43] & 0.35 (1.000) & 0.56 [0.46, 0.67] & 0.53 (0.080) \\
+Effects, $T$ after (0) & 0.60 [0.41, 0.78] & & 0.70 [0.64, 0.79] & & 0.69 [0.62, 0.74] & \\
+Effects, $F$ after ($-v$) & 0.69 [0.59, 0.82] & 0.51 (0.002) & 0.81 [0.70, 0.89] & 0.65 (0.002) & 0.61 [0.55, 0.71] & 0.60 (0.198) \\
+Effects, $T$ before ($v$) & 0.35 [0.23, 0.46] & 0.53 (1.000) & 0.31 [0.19, 0.46] & 0.40 (1.000) & 0.50 [0.37, 0.61] & 0.60 (1.000) \\
+Effects minus conditions at $-v$ & 0.31 [0.18, 0.50] & & 0.53 [0.30, 0.70] & & 0.05 [$-0.05$, 0.20] & \\
+\hline
+\end{tabular}
+\caption{Response of the recruited location at the places of the two spots, as the mean percentile rank among the probed places (95\% interval over recruited cells), and the same mean with the saccade vectors shuffled across displays (shuffle $p$ in brackets). Displays: 161, 111 and 102 testable displays in the three runs with the $64\times64$ window, 300 displays each.}
+\label{tab:twospot}
+\end{table}
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.85\textwidth]{landing_pairing.pdf}
-    \caption{Partial correlation between the effects field of the activated location and the landing place of the stimulus, per seed (lines join runs of the same seed). Blue: normal training. Orange: effects states permuted across the batch in training, which breaks the pairing. At 48 px the correlation is positive in all three seeds and disappears with shuffling; at 64 px it is near zero and shuffling does not remove it.}
-    \label{fig:landing}
+    \includegraphics[width=0.85\textwidth]{two_spot_trial.pdf}
+    \caption{One display of the two-spot paradigm (display 33 of run 014142), on the black retina; the spots are drawn as white Gaussian light, whereas the model sees red Gaussian spots on a white retina. Left, before the attentional shift: the attentional filter is on the first spot $F$, the target $T$ is at offset $v$ (arrow), and the conditions face of the recruited location responds at the places shown (blue, brighter is a stronger response). Right, after the shift, with the filter on $T$: $T$ is at the centre and $F$ at $-v$ (dashed circles), and the effects face of the same location, already pre-activated, responds at the places shown (orange). The numbers are the percentile ranks of the response at each place among all probed places of the map (1 is the strongest, 0.5 a random place). Dashed square: the 64-pixel window of the model. The display was chosen as a clear example, with the highest ranks at the expected places.}
+    \label{fig:twospot-trial}
 \end{figure}
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.6\textwidth]{landing_example.pdf}
-    \caption{Remapping-like structure in one run at window 48 (seed 022360). Top: three stimulus places (circles), selected as the places of the paired run whose landing is closest to the effects field of the location they activate (different locations, at least 4 px apart); the same places are shown for the run trained with shuffled effects. The saccade of the activated location takes each stimulus to its landing place (star), and the diamond is the effects field of that location. With paired training the diamonds lie within about 1 px of the stars; with shuffled effects the distances are 8.5, 5.5 and 1.2 px. The selection favours the paired run, so the typical case is in the bottom row: effects field centre against landing (x coordinate) over all testable places, with the line as equality. Over all testable places the mean distance between the effects field and the landing is 5.1 px for the paired run and 7.0 px for the shuffled run. No field moves in either run.}
-    \label{fig:landing-example}
+    \includegraphics[width=0.95\textwidth]{two_spot_places.pdf}
+    \caption{Response of the recruited location at the places of the two spots, in the three runs: percentile rank of the response among the probed places of the map (1 is the strongest, 0.5 a random place), mean over the testable displays with a 95\% interval over recruited cells. Blue: conditions face; orange: effects face. Filled: the places expected from the narrative (conditions face at $T$ before the shift, effects face at $F$ after it, with the shuffle $p$); open: the place 0, which all prototypes share, and the specificity places (conditions face at $F$ after, effects face at $T$ before). Black ticks: mean of the same percentile with the saccade vectors shuffled across displays.}
+    \label{fig:twospot-places}
 \end{figure}
+
+\paragraph{Results.}
+The two spots recruit 18 to 23 of the 100 locations per run, and the recruited location holds a saccade 13 to 15 pixels from the displayed one, so recruitment by the two-blob view is rough.
+The conditions face responds at the place of the target before the shift in all three runs (rank 0.88 to 0.91, above the shuffled value, $p=0.002$); this is the least informative result, since the location was recruited by a view that contains $T$.
+The effects face responds at the place where the first spot will be after the shift in two runs (rank 0.69 and 0.81, against 0.51 and 0.65 for shuffled vectors, $p=0.002$) and shows the dissociation expected of the narrative: the conditions face is low at $-v$ (0.38 and 0.28) and the effects face is low at $v$ (0.35 and 0.31).
+The contrast between the two faces at $-v$ is clearly positive in these runs (0.31 and 0.53) and not in the third (0.05); in the third run the effects face is above 0.5 at $-v$ (0.61) but not above its shuffled value (0.60), so the anticipation of the first spot is not selective there.
+The test of the classic relation fails.
+If the receptive field of the effects face were the future field of the conditions field, its centre would lie at the landing of the centre of the conditions field; its displacement from the conditions centre was no closer to $-v$ than chance (error 21 to 23 pixels against 22 to 25 pixels for shuffled vectors), and classifying the displays, in earlier versions of the readout, by the nearest of the future field, the saccade target and the current field gave a future-field share of 0.00 to 0.13.
+The centres of the two fields give the same picture as the ranks: the centre of the conditions field is 7 to 9 pixels from $T$, against 22 to 27 pixels for chance, and the centre of the effects field is 11 to 19 pixels from the new place of $F$ in two runs, against 25 to 32 pixels.
+
+\paragraph{Differences from the classic experiments.}
+No receptive field shifts in the model: the three maps are fixed during the saccade, and the two receptive fields compared are those of two maps, the conditions map and the effects map, not two states of one neuron.
+There is no time axis, so the model has no probe flashed just before the saccade, no fixation control, no latency and no time course, and the classic test (a response at $c+s$ that is absent in fixation and appears over time) cannot be run.
+The unit is not fixed: in the experiments the neuron and its field are given and the saccade is set relative to them, whereas here the displayed spots select the location, and the relation between the field and the saccade is tested afterwards against shuffled vectors.
+Recruitment by two blobs is rough, the stimuli differ from the training stimuli (a spot of colour on white, since the front end is colour-opponent and a spot of white light on black gives a blank fovea), the probe is a static lone spot read by a winner-based map, and the statistics rest on three runs whose displays share 18 to 23 locations and are not independent, whereas the experiments count tens to hundreds of independent neurons.
+The result is therefore not predictive remapping in the physiological sense, and it is not offered as such.
+
+\paragraph{Link to the hypothesis.}
+The central hypothesis of the paper is that a location of the lattice is one location with three faces, a condition, an action and an effect, learned from paired saccades.
+Within it the remapping-like behaviour is a consequence of the pairing and not of a moving field.
+The effects face holds the expected view after the saccade, including the new place of the stimulus that holds attention; because the location is recruited by the view before the saccade, that expected view is available in advance, which is what the response of the effects face at $-v$ shows.
+A shift of a receptive field is then the physiological reading of a pairing that is fixed: the same two faces, read at different times, would look like a field that moves.
+The simulation supports the pairing in two of three runs, as a moderate, selective effect that does not hold in the third.
+The supplementary analysis (Section~\ref{sec:supp-pairing}) tests the pairing directly with single spots and a control trained with shuffled pairs.
+What would turn the analogy into a test of a shifting field is a time axis: the two faces weighted over time around the saccade, with a fixation control and the classification of the shifts into future-field and saccade-target types as in V4.
 
 \subsubsection{Stability}
 
@@ -443,8 +605,8 @@ TA is ideomotor anticipation of effects -- goals
 TA in fromto-parietal loops produces neural representations which are grounded
 
 \paragraph{Evidence and limits of the alternative to receptive-field shifting.}
-In the trained maps, the retinal region of the effect of the location activated by a stimulus follows the place where the stimulus lands after the saccade, beyond what its pre-saccadic position alone predicts (partial correlation 0.33 to 0.55 in three runs with a 48 px retinal window); when the pairing between conditions and effects is broken during training, this relation disappears.
-It is not found with a 64 px window, and it cannot be tested with a window of 16 px, where the landing falls outside the fovea.
+In a two-spot paradigm run on the trained maps, with the attentional filter first on the fixation spot and then on the target, the conditions face of the recruited location responds at the place of the target before the shift and, in two of three runs, the effects face responds at the place where the first spot will be after the shift, selectively (percentile rank 0.69 and 0.81 against 0.51 and 0.65 for shuffled saccade vectors); the third run shows no selective response.
+A single-spot analysis in the supplementary material shows that the effects face of a location follows the landing of the stimulus that activates its condition, and that this depends on the pairing in training in two of three runs.
 The effect is partial.
 This may reflect the capacity of the model, namely the number of units of the topology and the near-linear decoder from a location to a retinal prototype, which limit how sharply a location can pre-activate a retinal region; this has not been separated from the mechanism itself.
 The time course, latency and response magnitude of remapping are abstracted away and are not addressed by the model.
@@ -458,6 +620,48 @@ The model shows that remapping signatures can arise without shifting receptive f
 So long and thanks for all the fish.
 
 \section{Appendix}
+\subsection{Supplementary analysis: learned pairing of conditions and effects}
+\label{sec:supp-pairing}
+
+The central hypothesis is that a location of the lattice binds a condition, an action and its effect: training on paired saccades should tune the effects face of a location to where the stimulus that activates its condition lands after the saccade.
+We tested this relation directly, with single spots, in the three runs with the $64\times64$ window.
+
+\paragraph{Method.}
+A spot is shown at each place $p$ of a grid over the fovea; the conditions map picks the activated location $j$, and the saccade $d(j)$ stored in it takes the spot to the landing place $q=p-d(j)$.
+The effects field of $j$ is the centre of the region of the fovea where a spot activates its effects unit (spot width 3, peak read-out 0.5).
+The statistic is the partial correlation, over the places whose landing is inside the fovea, between the effects field and $q$ after removing from each the part that is linear in $p$, averaged over the two coordinates, against a permutation of the effects units over locations.
+As a control the effects states were permuted across the training batch (shuffled pairing), so that the condition and the effect of a location no longer come from the same view.
+
+\paragraph{Results.}
+The partial correlation is 0.72, 0.84 and 0.55 in the three runs (permutation $p=0.003$, the smallest value possible with 300 permutations).
+With the shuffled pairing it falls to $-0.71$, $-0.05$ and 0.29, and the full-size shift between the conditions and the effects fields (regression ratio 0.26, 0.46 and 0.28, median 0.28) falls to a median of 0.01.
+In two of the three runs the relation therefore depends on the pairing in training and not on the lattice or the read-out; in the third a part of it remains (0.29), so the pairing is not the only source in every run.
+The scanpaths of the shuffled runs show the same dependence (same tests): objects are less separated on the conditions map (kNN purity 0.81 on average, range 0.62 to 0.91, against 0.95), competence is lower (0.57 against 0.84), and the effects prototype of the goal predicts the view after the saccade better than the conditions prototype in 64\% of the saccades instead of 89\%, with a median rank of 61 instead of 20 among the hundred units, while the executed saccade still follows the commanded one in two runs (cosine 0.97 and 0.98, amplitude 27 and 28 pixels against 29 and 27 pixels in the normal runs).
+The run that keeps part of the relation after shuffling (022360) executes short saccades (11 pixels against 12 pixels commanded and 22 pixels in the normal run, cosine 0.73) and has competence 0.38.
+
+\paragraph{Limits.}
+The relation is partial: the field centre stays 3 to 4 fovea pixels (about 12 to 16 retinal pixels) from the landing place, and the absolute distance to the landing is only slightly smaller than for permuted units (3.8 against 4.2 fovea pixels in the run of Figure~\ref{fig:landing-example}); what the partial correlation shows is that the effects field varies with the landing beyond what the position alone predicts, not that it sits at the landing.
+In the two-spot paradigm of the main text the effects receptive field was not found at the landing of the conditions receptive field, so this relation should be read as a pairing between the faces of a location, not as a displacement of a field.
+A test borrowed from the physiology of remapping, the share of locations whose pre-saccadic response lies at the predicted future field, did not separate the trained maps from a permutation control (median share 0.74 against 0.69) and is not used here.
+Only three runs were analysed, and one keeps part of the relation after shuffling.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.85\textwidth]{landing_pairing.pdf}
+    \caption{Partial correlation between the effects field of the activated location and the landing place of the stimulus, per seed (lines join runs of the same seed), at the $64\times64$ window. Blue: normal training. Orange: effects states permuted across the batch in training, which breaks the pairing. Shuffling lowers the correlation in every seed; in one seed a part remains.}
+    \label{fig:landing}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.62\textwidth]{landing_example.pdf}
+
+    \includegraphics[width=0.62\textwidth]{landing_regression.pdf}
+    \caption{Effects field and landing place of the stimulus in one run at window 64 (seed 014142), with the run trained with shuffled effects beside it. \textbf{a}, three stimulus places (circles), selected as the places of the paired run whose landing is closest to the effects field of the location they activate (different locations, at least 4 px apart; the same places for the shuffled run). The saccade of the activated location takes each stimulus to its landing place (star), and the diamond is the effects field of that location. With paired training the diamonds lie within 0.2 to 1.1 px of the stars; with shuffled effects the distances are 6.0, 1.3 and 4.6 px. The selection favours the paired run. \textbf{b}, the typical case: over all testable places, the effects field of the activated location (vertical) against the landing of the stimulus (horizontal), for the x coordinate (blue) and the y coordinate (orange), each after removing the part linear in the stimulus place. Dots are places, markers are means in eight bins of the landing; the r of each coordinate is in the legend and their mean is the partial correlation in the title. Over all testable places the mean distance between the effects field and the landing is 3.8 px for the paired run and 4.2 px for the shuffled run.}
+    \label{fig:landing-example}
+\end{figure}
+
+
 \subsection{Model implementation}
 
 \bibliographystyle{unsrtnat}

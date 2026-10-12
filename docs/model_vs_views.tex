@@ -35,10 +35,13 @@ against the model from the project's own results and from the literature. The
 model is closest to a contingency-based account of stability, and only partly
 an account of remapping: its anticipation is an address on a lattice, not a shift
 of receptive fields, and the anticipated effect is not read out at run time.
-Stability across starting positions has not been tested. A map-level
-predictive-remapping paradigm on wider-window runs finds future-field responses no more
-than a shuffled-pairing control does, and the maps show indirect retinotopy in a
-black-box probe.
+Stability across starting positions has not been tested. In a two-spot remapping
+paradigm run on the three standard-window runs, with the attentional filter first on the
+fixation spot and then on the target, the conditions face of the recruited location responds
+at the target before the shift and, in two of three runs, the effects face responds, selectively,
+at the place where the first spot will be after the shift; the effects field of a location also
+follows the landing of a single stimulus as a trained pairing (supporting analysis), and the
+maps show indirect retinotopy in a black-box probe.
 \end{abstract}
 
 \section{Scope and sources}
@@ -228,8 +231,8 @@ Stability requires pairing the address with its real effect
   & Indirect
   & \code{docs/report.tex} l.376--500 \\
 Retinotopy can be found without a retinotopic organisation
-  & Spot probe: all 10 visual maps show significant retinotopy ($\rho$ 0.68--0.84,
-    $z$ 26--41); 9 of 10 beat a shuffled-layout control (gain 0.14--0.27)
+  & Spot probe: all 6 visual maps of three runs show significant retinotopy (median
+    $\rho$ 0.77--0.83, median $z$ 42--49); all 6 beat a shuffled-layout control
   & Indirect, for the topological reading
   & \code{docs/topological_stability.tex}, Section on the probe \\
 The layout fits neural data on maps in frontoparietal cortex
@@ -264,8 +267,11 @@ No test of stability
   & \code{docs/draft.tex} l.115 \\
 No remapping signature
   & No receptive-field shift, no pre-saccadic response at a future field; maps are
-    fixed during the saccade. The map-level paradigm finds future-field responses no
-    more than a shuffled-pairing control does (Section~\ref{sec:results})
+    fixed during the saccade. In a two-spot paradigm the effects face responds, selectively, at the
+    new place of the first spot in two of three runs; the classic relation (a field at the
+    landing of the conditions field) is not found; the earlier single-spot test of future-field
+    responses did not separate the trained maps from a shuffled-pairing control
+    (Section~\ref{sec:results})
   & Missing
   & \code{offline_controller.py} l.369 \\
 The anticipated effect is not used at run time
@@ -305,7 +311,7 @@ Remapping data do not match a lookup
   & Possible conflict
   & Zirnsak et al. (2014) \\
 Simple scenes and a small fovea
-  & Simulated objects, a $16\times16$ fovea and episodic goals, with no natural
+  & Simulated objects, a 64 px retinal window resized to $16\times16$ and episodic goals, with no natural
     scenes or multiple objects
   & Scope
   & \code{docs/report.tex}, \code{agent.py} \\
@@ -334,12 +340,119 @@ readout and in 2 of 5 with peak readouts, and the shift magnitude was near zero
 (slope 0.01 to 0.08). Superseded by the paradigm below.
 
 \paragraph{Retinotopy of the maps (Phase 1).} Reported in
-\code{docs/topological_stability.tex}. In 20 runs of the champion configuration
-(\code{champion.md}) the black-box spot probe gives $z>3$ in 40 of 40 maps (median
-$\rho$ 0.82 for conditions, 0.76 for effects), although the maps are trained on view
-content only: the retinotopy is indirect.
+\code{docs/topological_stability.tex}. In three runs of the standard configuration
+(\code{champion.md}: 64 px window) the black-box spot probe gives
+$z>3$ in 6 of 6 maps (median $\rho$ 0.83 for conditions, 0.77 for effects, median $z$ 48.5
+and 41.9) and exceeds a shuffled-pixel-layout control in 6 of 6; the
+phase-encoded probe gives $z>3$ in 6 of 6 (median $\rho$ 0.75 and 0.71). The maps are trained
+on view content only: the retinotopy is indirect.
 
-\paragraph{Predictive-remapping paradigm at map level (Phase 2).}
+\paragraph{Two-spot remapping paradigm (Phase 2).}
+\code{scripts/exp_two_spot_paradigm.py}, \code{scripts/fig_two_spot.py}; plan in \code{predictive_remapping.md}, Section 2.7;
+main text in \code{draft.tex}, Section 4.3.3.
+
+\emph{The classic experiments.} A neuron has a receptive field at a fixed retinal place $c$; for a saccade of vector $s$,
+a stimulus at retinal place $x$ is at $x-s$ afterwards, so the place that will fall on the field is $c+s$ (the future field).
+In monkey LIP the field is mapped in fixation, then a stimulus is flashed just before a saccade at the place the saccade will
+bring into the field; the neuron responds although the stimulus is outside the field at that moment, and not in a fixation
+control (Duhamel et al., 1992; Colby and Goldberg, 1999; the control and the trace response are from the draft's review, the
+original paper is not in the repository). Neupane et al. (2016, in the repository, methods read) map V4 with probes at random
+places of a $10\times10$ grid over $40^\circ$ while monkeys make horizontal saccades from a fixation point to a lit target (towards
+or away from the field): P1 in fixation, P2 just before the saccade, P3 after it; the field centre is the centre of mass of the
+responses at about 75 ms (current field) and at 150 to 300 ms (shifted), and a shift within $20^\circ$ of the saccade
+direction is future-field (FF) remapping, a shift to the target saccade-target (ST) remapping. The tests are the saccade
+vector set relative to the field, the probe flashed before the saccade, and the fixation control and time course.
+
+\emph{What the simulation shares.} The first spot $F$ is the fixation point, the second spot $T$ the target, $v=T-F$ the saccade
+vector, a lone probe on a grid the probe grid, the receptive field of a face of the recruited location the receptive field of
+the neuron, and a statistic against shuffled saccade vectors the comparison with chance. Before the saccade $F$ is at the centre
+of the retina and $T$ at $v$; after it $T$ is at the centre and $F$ at $-v$, each stimulus displaced by $-v$.
+
+\emph{Paradigm.} Three trained runs with the $64\times64$ window (\code{tests/phase_fixed_pilot_2026-10-10}), no further
+learning, 300 displays per run. $F$ and $T$ are red Gaussian blobs (sigma 3 px) on the white retina through the Gabor front end;
+$T$ is drawn from the mean of the conditions prototypes read as a map over the fovea (offsets under 16 px redrawn). The view with
+both spots recruits a location: the nearest conditions prototype wins and a Gaussian on the lattice spreads its activity. A lone
+probe is flashed at the places of a grid over the retina (4 px steps); it is won by one unit of a map and the recruited location
+responds as far as that unit lies in its lattice neighbourhood, so the probe drives it only inside the receptive field of the face
+read. Probes more than 28 px from the gaze are left out (a spot near the window edge leaves a blank view won by one fixed unit).
+The response at a place is its percentile rank among the probed places of the map (1 strongest, 0.5 a random place).
+
+\emph{Narrative with the attentional filter.} The saccade is chosen by a Gaussian attentional filter that multiplies the salience
+map (Section 4.1.2 of the draft). Before the saccade the filter is on $F$: the view then, with $F$ at the centre and $T$ at $v$,
+is what the conditions prototype of the location holds. The saccade moves the filter to $T$: $T$ is at the centre and $F$ at $-v$,
+the view the effects prototype holds, and the effects face is pre-activated because the filter has not yet moved. Expected: the
+conditions face responds at $T$ before the shift ($v$) and the effects face at $F$ after it ($-v$); the conditions face at $-v$ and
+the effects face at $v$ are specificity checks; the place 0 is shared by all prototypes (all hold $F$ before and $T$ after at the
+centre), so under the winner read-out it is not selective and has no criterion.
+
+\emph{Statistics.} Mean percentile over the testable displays (both maps defined, $|v|\le28$ px per axis) with a 95\% bootstrap
+interval over the recruited cells (displays share cells); for the places that depend on $v$, chance is the same mean with the
+saccade vectors shuffled across displays (500 shuffles), $p$ = share of shuffles at least as high ($p=0.002$ is the floor).
+The statistics were defined after earlier ones failed (post hoc). Readout check on hand-built maps: fields recovered within 1 px;
+with spots planted at 0, $v$ and $-v$ the percentile at the planted place is 0.99 against 0.72 for shuffled vectors (criterion:
+at least 0.9 and above the shuffled mean with $p\le0.02$; the first criterion, shuffled mean at most 0.6, failed because tied
+near-zero responses raise every percentile, and was replaced).
+
+\begin{table}[h]
+\centering\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+ & \multicolumn{2}{c}{Run 014142} & \multicolumn{2}{c}{Run 017320} & \multicolumn{2}{c}{Run 022360} \\
+Face and place & rank & shuffled & rank & shuffled & rank & shuffled \\
+\midrule
+Conditions, $F$ before (0) & 0.56 [0.41, 0.72] & & 0.82 [0.71, 0.87] & & 0.61 [0.45, 0.74] & \\
+Conditions, $T$ before ($v$) & 0.88 [0.80, 0.95] & 0.56 (0.002) & 0.91 [0.88, 0.94] & 0.67 (0.002) & 0.90 [0.84, 0.95] & 0.56 (0.002) \\
+Conditions, $F$ after ($-v$) & 0.38 [0.28, 0.45] & 0.51 (1.000) & 0.28 [0.17, 0.43] & 0.35 (1.000) & 0.56 [0.46, 0.67] & 0.53 (0.080) \\
+Effects, $T$ after (0) & 0.60 [0.41, 0.78] & & 0.70 [0.64, 0.79] & & 0.69 [0.62, 0.74] & \\
+Effects, $F$ after ($-v$) & 0.69 [0.59, 0.82] & 0.51 (0.002) & 0.81 [0.70, 0.89] & 0.65 (0.002) & 0.61 [0.55, 0.71] & 0.60 (0.198) \\
+Effects, $T$ before ($v$) & 0.35 [0.23, 0.46] & 0.53 (1.000) & 0.31 [0.19, 0.46] & 0.40 (1.000) & 0.50 [0.37, 0.61] & 0.60 (1.000) \\
+Effects minus conditions at $-v$ & 0.31 [0.18, 0.50] & & 0.53 [0.30, 0.70] & & 0.05 [$-0.05$, 0.20] & \\
+\bottomrule
+\end{tabular}
+\caption{Two-spot paradigm: mean percentile rank of the response of the recruited location at the places of the two
+spots (95\% interval over recruited cells) and the same mean with shuffled saccade vectors (shuffle $p$ in brackets); 161, 111
+and 102 testable displays.}
+\label{tab:twospot}
+\end{table}
+
+\emph{Result.} The two spots recruit 18 to 23 of the 100 locations per run, and the recruited location holds a saccade 13 to
+15 px from the displayed one, so recruitment by the two-blob view is rough. The conditions face responds at $T$ before the shift
+in all runs (0.88 to 0.91, $p=0.002$), the least informative result because recruitment uses a view that contains $T$. The
+effects face responds at $F$ after the shift in two runs (0.69 and 0.81 against 0.51 and 0.65, $p=0.002$), with the
+dissociation expected (conditions face low at $-v$, 0.38 and 0.28; effects face low at $v$, 0.35 and 0.31) and a clear
+contrast at $-v$ (0.31 and 0.53); in the third run the effects face is above 0.5 at $-v$ (0.61) but not above its shuffled value
+(0.60), so the anticipation is not selective. The classic relation fails: the displacement of the effects field from the
+conditions field was no closer to $-v$ than chance (error 21 to 23 px against 22 to 25 px), and classifying displays by
+the nearest of future field, saccade target and current field gave a future-field share of 0.00 to 0.13 in earlier versions of
+the readout. The field centres agree with the ranks (conditions centre 7 to 9 px from $T$ against 22 to 27 px for chance; effects
+centre 11 to 19 px from the new place of $F$ in two runs against 25 to 32 px). Using the saccade stored in the recruited cell
+instead of $v$, the partial correlation of the effects field with the landing of the conditions field is 0.32, 0.10 and
+0.00 and the shift fraction 0.25, 0.45 and 0.36, within the permutation null.
+
+\emph{Differences from the classic experiments.} No receptive field shifts: the maps are fixed during the saccade and the two
+fields compared belong to two maps, not to two states of one neuron. There is no time axis, hence no probe just before the
+saccade, no fixation control, no latency or time course, and the classic test (a response at $c+s$ absent in fixation and
+appearing over time) cannot be run. The unit is not fixed: the displayed spots select the location and the relation to the saccade
+is tested afterwards. Recruitment by two blobs is rough; the stimuli are a colour spot on white (a white spot on black gives a
+blank fovea in this colour-opponent front end); the probe is a static lone spot read by a winner-based map; three runs with
+displays sharing 18 to 23 locations, against tens to hundreds of independent neurons. The result is not predictive remapping in
+the physiological sense.
+
+\emph{Link to the hypothesis.} A location of the lattice is one location with a condition, an action and an effect face
+learned from paired saccades. The remapping-like behaviour is a consequence of the pairing, not of a moving field: the effects
+face holds the expected view after the saccade, including the new place of the stimulus that holds attention, and since the
+location is recruited by the view before the saccade, that view is available in advance. A shift of a field would be the
+physiological reading of a fixed pairing read at different times. The simulation supports the pairing in two of three runs;
+the supporting analysis below tests it with single spots and a control trained with shuffled pairs. A time axis (the two faces
+weighted over time, a fixation control, FF and ST classification as in V4) would turn the analogy into a test of a shifting
+field. Earlier versions of the paradigm (direct recruitment, winner-take-all recruitment on the whole retina, a
+baseline-subtracted probe, an effects readout shifted by $-v$) gave no future-field response and had read-out artefacts (blank views
+outside the window); they are recorded in \code{predictive_remapping.md}.
+
+\paragraph{Earlier single-spot paradigm and the learned pairing (supporting analysis).} The analyses
+below were run first, with single spots; they test the pairing hypothesis (the effects face of a location is tuned to the
+landing of the stimulus that activates its condition) and are the supporting analysis of \code{draft.tex}.
 \code{scripts/exp_remap_feasibility.py} and \code{scripts/exp_remapping_paradigm.py};
 rules fixed in \code{predictive_remapping.md}. For each cell $j$ the post-saccadic
 field (CRF) is the effects-unit field, the pre-saccadic field is the response of
@@ -351,29 +464,23 @@ share of future-field (FF) type remapping across V4 conditions is 0.27 to 0.82. 
 latency and trace figures of LIP, V3A and FEF cannot be expressed at map level (no time
 axis) and are not compared.
 
-\emph{Feasibility.} With the $16\times16$ window, saccade amplitudes of the attention
-prototypes are 26 to 32 retina pixels, and the testable fraction is 0.00 to 0.02 in all 20
-champion runs (rule: at least 0.30), so the paradigm cannot be run on them. With
-\code{fovea_scale} 48 and 64 (three seeds each, \code{tests/wider_window_2026-10-08}) the
-testable fraction is 0.32 to 0.65 and 0.68 to 0.93, and competence is comparable (0.73
-to 0.81 over the last 50 epochs).
+\emph{Feasibility.} In the three runs (\code{tests/phase_fixed_pilot_2026-10-10}) the
+testable fraction is 0.91 to 1.00 (rule: at least 0.30) and competence over the last 50 epochs
+is 0.76 to 0.89.
 
 \begin{table}[h]
 \centering\footnotesize
 \setlength{\tabcolsep}{4pt}
-\begin{tabular}{@{}llcccccc@{}}
+\begin{tabular}{@{}lcccccc@{}}
 \toprule
-Window & Seed & Testable & P1 trained & P1 shuffled & FF trained & FF shuffled & FF untrained \\
+Seed & Testable & P1 trained & P1 shuffled & FF trained & FF shuffled & FF untrained \\
 \midrule
-48 & 14142 & 65 & 0.18 & 0.21 & 0.37 & 0.40 & 0.00 \\
-48 & 17320 & 43 & 0.47 & 0.52 & 0.60 & 0.74 & 0.07 \\
-48 & 22360 & 29 & 0.14 & 0.33 & 0.48 & 0.64 & 0.00 \\
-64 & 14142 & 93 & 0.34 & 0.45 & 0.69 & 0.72 & 0.07 \\
-64 & 17320 & 69 & 0.28 & 0.32 & 0.30 & 0.49 & 0.12 \\
-64 & 22360 & 71 & 0.39 & 0.48 & 0.58 & 0.64 & 0.15 \\
+014142 & 100 & 0.57 & 0.62 & 0.74 & 0.71 & 0.03 \\
+017320 & 94 & 0.55 & 0.64 & 0.77 & 0.69 & 0.18 \\
+022360 & 91 & 0.48 & 0.45 & 0.48 & 0.45 & 0.08 \\
 \bottomrule
 \end{tabular}
-\caption{Remapping paradigm on the wider-window runs. Testable: cells (of 100) with FF
+\caption{Remapping paradigm on the three standard runs (64 px window). Testable: cells (of 100) with FF
 inside the window. P1: share of testable cells that remap (pre-saccadic response at FF at
 least half of that at the column's own pre-saccadic centre, and above that at CRF). FF:
 share of testable cells whose remapping vector lies within 20$^\circ$ of the saccade
@@ -381,59 +488,55 @@ axis. Shuffled: effects units permuted across cells (mean of 50 permutations).}
 \label{tab:remap}
 \end{table}
 
-\emph{Result.} The FF-type share (median 0.48 at window 48, 0.58 at window 64) lies inside the
-Neupane span, but it is below the shuffled-pairing control in 6 of 6 runs, and so is the
-P1 share. Untrained maps give 0.00 to 0.15. Condition C1 (inside the span and above every
+\emph{Result.} The FF-type share (median 0.74) lies inside the
+Neupane span, but it exceeds the shuffled-pairing control (0.69) by 0.03 to 0.08, less than the spread
+among seeds (FF-type 0.48 to 0.77), and the P1 share (median 0.55) does not exceed its control (0.62).
+Untrained maps give 0.03 to 0.18. Condition C1 (inside the span and above every
 control by more than the seed spread) fails. The toward/away asymmetry (C2) is not
-supported: at window 48 there are fewer than five toward cells in every run, and at window
-64 the asymmetry (away minus toward FF 0.32, toward minus away ST 0.31) has the same sign in
-the shuffled control, so it does not depend on the pairing. The FF-type share is partly
-geometric: with saccade vectors of 8 to 11 fovea pixels against a window half-width of 7.5
+supported: there are fewer than five toward cells in two of three runs, and the one run with
+more (seed 022360, 14 cells) has FF-type 0.14 for toward against 0.55 for away,
+with 0.41 and 0.48 in its shuffled control. The FF-type share is partly
+geometric: with saccade vectors of 6.5 to 8 fovea pixels against a window half-width of 7.5
 only cells whose field lies opposite the saccade are testable, which aligns the remapping
 vector with it, and the shuffled control absorbs this. The trace response (P2) holds by
 construction and is not evidence. The synthetic check passes (aligned pair P1 0.93, FF
 0.92; shuffled pairing P1 0.11).
 
 \emph{Post hoc: the pairing itself.} The two metrics above are computed on testable
-cells, a selection that already aligns the remapping vector with the saccade (the
-permuted pairing scores 0.4 to 0.73), so they separate the trained pairing from its
-control poorly. A direct statistic (\code{scripts/exp_pairing_regression.py}, no rule fixed
-beforehand) uses all cells: the cosine between $\mathrm{CRF}_{\mathrm{cond}}-\mathrm{CRF}_{\mathrm{eff}}$ and
-$d$ is 0.64 to 0.89 in the six wide runs and 0.28 to 0.95 (median 0.72) in the 20 champion
-runs, with $p=0.002$ against a shuffle of $d$ in all 26. But $d$ is already predicted by the
-conditions field alone (cosine of $\mathrm{CRF}_{\mathrm{cond}}$ with $d$: median 0.94 and 0.86): the saccade
-goes to where the conditions unit's field lies. Regressing $d\approx a\,\mathrm{CRF}_{\mathrm{cond}}+b\,\mathrm{CRF}_{\mathrm{eff}}$
-(forward remapping predicts $-b/a=1$), the peak-readout ratio $-b/a$ is 1.40, $-0.02$, 1.18,
-$-0.12$, $-0.09$, $-0.07$ in the wide runs and has median 0.16 in the champion runs (range
-$-0.18$ to 1.72, near 1 only in the two runs with the weakest retinotopy). A paired shift of
-about the full saccade therefore appears in 2 of 6 wide runs (both at window 48) and is not a
-reliable outcome of training; elsewhere the forward cosine is inherited from the conditions
-field. The champion runs have no testable cells, so their coefficients describe field geometry
-only.
+cells, a selection that already aligns the remapping vector with the saccade, so they separate
+the trained pairing from its control poorly. A direct statistic
+(\code{scripts/exp_pairing_regression.py}, no rule fixed beforehand) uses all cells: the cosine
+between $\mathrm{CRF}_{\mathrm{cond}}-\mathrm{CRF}_{\mathrm{eff}}$ and $d$ is 0.75 to 0.97
+in the three runs. But $d$ is already predicted
+by the conditions field alone: the saccade goes to where the conditions unit's field lies, so
+a forward cosine by itself is not evidence of a paired shift. Regressing
+$d\approx a\,\mathrm{CRF}_{\mathrm{cond}}+b\,\mathrm{CRF}_{\mathrm{eff}}$ (forward remapping predicts
+$-b/a=1$), the peak-readout ratio $-b/a$ is 0.26, 0.46 and 0.28 in the three seeds
+(median 0.28): the effects field is the conditions field shifted by
+0.3 to 0.5 of the saccade. Field centres are compressed (mean-readout slopes below 1), so $-b/a$
+is a lower bound.
 
-\emph{Post hoc: stimulus-centred landing and shuffled-pairing retrain.} Take a lattice cell as one
+\emph{Stimulus-centred landing and shuffled-pairing retrain } Take a lattice cell as one
 location with conditions, effects and action faces. A stimulus at $p$ activates the conditions
 winner $j$, the saccade lands it at $q=p-d(j)$, and $\mathrm{CRF}_{\mathrm{eff}}(j)$ is where the
 location expects it. \code{scripts/exp_stimulus_landing.py} correlates the two after removing the
 part of each linear in $p$, over all testable places, against a permutation of the effects units.
-At window 48 the partial correlation is 0.46, 0.33, 0.55 ($p=0.003$ in all three seeds); at window 64 it
-is 0.19, 0.06, $-0.01$ ($p=0.04$, 0.26, 0.57). The effects field thus follows the landing
-beyond the stimulus's own place at window 48 only, and partially (gaps of 4 to 5 px remain). Retraining
-at window 48 with the effects states permuted across the batch (\code{shuffle\_effects}, so a
-location's conditions and effects no longer come from the same view) gives $-b/a=0.24$, 0.01, 0.15
-(unshuffled 1.40, $-0.02$, 1.18) and partial correlation 0.22, $-0.87$, 0.03: the full shift
-and the landing-following vanish, so at window 48 they come from the pairing in training. Part of
-the forward cosine survives (0.66, 0.01, 0.53) as it is inherited from the conditions field.
-The same retrain at window 64 gives partial correlation $-0.80$, $-0.89$, $-0.08$ (unshuffled 0.19, 0.06, $-0.01$)
-and $-b/a=-0.26$, 0.05, $-0.10$ (unshuffled $-0.12$, $-0.09$, $-0.07$): there is no landing-following to remove, and
-shuffling instead moves the effects field toward the stimulus place in two of three seeds and lowers the forward cosine
-to 0.20, 0.31, 0.59 (unshuffled 0.89, 0.68, 0.64). Three seeds per window, not a pre-stated rule.
+The partial correlation is 0.72, 0.84 and 0.55 in the three seeds
+($p=0.003$ in all). The effects field thus follows the landing
+beyond the stimulus's own place, partially (gaps of 3 to 4 px remain). Retraining
+with the effects states permuted across the batch (\code{shuffle\_effects}, so a
+location's conditions and effects no longer come from the same view) gives
+$-0.71$, $-0.05$ and 0.29, and the median $-b/a$ falls from 0.28 to 0.01. In all three seeds
+$r$ is significant with $r\ge0.2$ when trained normally and lower after shuffling (median $-0.05$
+against 0.72), but in one (seed 022360) part of it remains, which is unexplained.
 
-\emph{Limits.} Three seeds per window; the toward/away split is a geometric stand-in for
+\emph{Limits.} Three runs; the toward/away split is a geometric stand-in for
 hemifield, a deviation from Neupane; receptive-field centres from the soft readout are
-compressed toward the mean; no latency, time course or response magnitude is tested.
-Under the pre-stated rule the model does not reproduce predictive remapping at map level
-beyond a shuffled-pairing control.
+compressed toward the mean; no latency, time course or response magnitude is tested. The landing
+relation shows that the pairing in training produces an effects face at the landing of the
+activating stimulus; it does not show that the nervous system does this, and a two-field cell
+cannot be separated from a shifting field without the time course. Under the pre-stated
+paradigm the model does not reproduce predictive remapping at map level beyond a shuffled-pairing control.
 
 \section{What would settle it}
 \label{sec:tests}
@@ -447,9 +550,9 @@ beyond a shuffled-pairing control.
     mismatch; compare with and without it, to see whether anticipation changes
     behaviour.
   \item \textbf{Look for remapping signatures in the model.} Done at map level
-    (Section~\ref{sec:results}): no signature beyond a shuffled-pairing control. Still open:
-    a version with a time axis (latency before saccade onset) and a retrain with shuffled
-    pairing.
+    (Section~\ref{sec:results}) with a two-spot paradigm: the effects face responds, selectively, at the new place of the
+    first spot in two of three runs, and the classic relation is not found. Still open: a version with a time axis (latency before
+    saccade onset), and more runs.
   \item \textbf{Oppose the frames.} Simulate the spatiotopic paradigms (a saccade
     separating the retinal and world positions of a stimulus) and compare the
     model's behaviour with the human data.
@@ -470,7 +573,7 @@ beyond a shuffled-pairing control.
 View & What the model shares & What it lacks or contradicts \\
 \midrule
 Spatiotopic & Spatiotopic cells are rare and eye position is unreliable & No world-centred map; spatiotopic effects not simulated \\
-Retinotopic remapping & Action-derived signal; anticipated effect; FEF and LIP & No receptive-field shift, no landing signal, effect not read out at run time \\
+Retinotopic remapping & Action-derived signal; anticipated effect; FEF and LIP & No receptive-field shift, no time axis; the effects face responds at the new place of the first spot, selectively in two of three runs of a two-spot paradigm, and follows the landing as a trained pairing, and the effect is not read out at run time \\
 Deflationary & Contingency triples, no predictive model of space, no feedback correction & Stores explicit maps; no landmarks or displacement suppression \\
 \bottomrule
 \end{tabular}

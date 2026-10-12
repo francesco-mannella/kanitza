@@ -1,4 +1,4 @@
-\begin{thebibliography}{7}
+\begin{thebibliography}{40}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -22,7 +22,7 @@ David~C. Burr, M.~Concetta Morrone, and John Ross.
 \bibitem[Binda and Morrone(2018)]{bindaVisionSaccadicEye2018}
 Paola Binda and Maria~Concetta Morrone.
 \newblock Vision {{During Saccadic Eye Movements}}.
-\newblock September 2018.
+\newblock \emph{Annual Review of Vision Science}, 4:\penalty0 193--213, September 2018.
 \newblock \doi{10.1146/annurev-vision-091517-034317}.
 
 \bibitem[Sommer and Wurtz(2004)]{sommerWhatBrainStem2004}
@@ -35,7 +35,7 @@ Marc~A. Sommer and Robert~H. Wurtz.
 \bibitem[Sun and Goldberg(2016)]{sunCorollaryDischargeOculomotor2016}
 Linus~D. Sun and Michael~E. Goldberg.
 \newblock Corollary {{Discharge}} and {{Oculomotor Proprioception}}: {{Cortical Mechanisms}} for {{Spatially Accurate Vision}}.
-\newblock October 2016.
+\newblock \emph{Annual Review of Vision Science}, 2:\penalty0 61--84, October 2016.
 \newblock \doi{10.1146/annurev-vision-082114-035407}.
 
 \bibitem[Cavanaugh et~al.(2016)Cavanaugh, Berman, Joiner, and Wurtz]{cavanaughSaccadicCorollaryDischarge2016}
@@ -43,12 +43,210 @@ James Cavanaugh, Rebecca~A. Berman, Wilsaan~M. Joiner, and Robert~H. Wurtz.
 \newblock Saccadic {{Corollary Discharge Underlies Stable Visual Perception}}.
 \newblock \emph{Journal of Neuroscience}, 36\penalty0 (1):\penalty0 31--42, January 2016.
 
-\bibitem[Herwig et~al.()Herwig, Weiß, and Schneider]{herwigWhenCirclesBecome2015}
+\bibitem[Herwig et~al.(2015)Herwig, Weiß, and Schneider]{herwigWhenCirclesBecome2015}
 Arvid Herwig, Katharina Weiß, and Werner~X. Schneider.
 \newblock When circles become triangular: How transsaccadic predictions shape the perception of shape.
-\newblock 1339\penalty0 (1):\penalty0 97--105.
+\newblock \emph{Annals of the New York Academy of Sciences}, 1339\penalty0 (1):\penalty0 97--105, 2015.
 \newblock ISSN 1749-6632.
 \newblock \doi{10.1111/nyas.12672}.
 \newblock URL \url{https://onlinelibrary.wiley.com/doi/abs/10.1111/nyas.12672}.
+
+\bibitem[Fabius et~al.(2019)Fabius, Fracasso, Nijboer, and Van~der Stigchel]{fabiusTimeCourseSpatiotopic2019}
+Jasper~H. Fabius, Alessio Fracasso, Tanja C.~W. Nijboer, and Stefan Van~der Stigchel.
+\newblock Time course of spatiotopic updating across saccades.
+\newblock \emph{Proceedings of the National Academy of Sciences}, 116:\penalty0 2027--2032, 2019.
+\newblock \doi{10.1073/pnas.1812210116}.
+
+\bibitem[Fairhall et~al.(2017)Fairhall, Schwarzbach, Lingnau, Van~Koningsbruggen, and Melcher]{fairhallSpatiotopicUpdatingSaccades2017}
+Scott~L. Fairhall, Jens Schwarzbach, Angelika Lingnau, Martijn~G. Van~Koningsbruggen, and David Melcher.
+\newblock Spatiotopic updating across saccades revealed by spatially-specific {{fMRI}} adaptation.
+\newblock \emph{NeuroImage}, 147:\penalty0 339--345, 2017.
+\newblock \doi{10.1016/j.neuroimage.2016.11.071}.
+
+\bibitem[Guthrie et~al.(1983)Guthrie, Porter, and Sparks]{guthrieCorollaryDischargeProvides1983}
+B.~L. Guthrie, J.~D. Porter, and D.~L. Sparks.
+\newblock Corollary discharge provides accurate eye position information to the oculomotor system.
+\newblock \emph{Science}, 221:\penalty0 1193--1195, 1983.
+\newblock \doi{10.1126/science.6612334}.
+
+\bibitem[Sommer and Wurtz(2002)]{sommerPathwayPrimateBrain2002}
+Marc~A. Sommer and Robert~H. Wurtz.
+\newblock A pathway in primate brain for internal monitoring of movements.
+\newblock \emph{Science}, 296:\penalty0 1480--1482, 2002.
+\newblock \doi{10.1126/science.1069590}.
+
+\bibitem[Sommer and Wurtz(2006)]{sommerInfluenceThalamusSpatial2006}
+Marc~A. Sommer and Robert~H. Wurtz.
+\newblock Influence of the thalamus on spatial visual processing in frontal cortex.
+\newblock \emph{Nature}, 444:\penalty0 374--377, 2006.
+\newblock \doi{10.1038/nature05279}.
+
+\bibitem[Crapse and Sommer(2008)]{crapseCorollaryDischargeAnimal2008}
+Trinity~B. Crapse and Marc~A. Sommer.
+\newblock Corollary discharge across the animal kingdom.
+\newblock \emph{Nature Reviews Neuroscience}, 9:\penalty0 587--600, 2008.
+\newblock \doi{10.1038/nrn2457}.
+
+\bibitem[Ross et~al.(2001)Ross, Morrone, Goldberg, and Burr]{rossChangesVisualPerception2001}
+John Ross, M.~Concetta Morrone, Michael~E. Goldberg, and David~C. Burr.
+\newblock Changes in visual perception at the time of saccades.
+\newblock \emph{Trends in Neurosciences}, 24:\penalty0 113--121, 2001.
+\newblock \doi{10.1016/S0166-2236(00)01685-4}.
+
+\bibitem[Andersen and Mountcastle(1983)]{andersenInfluenceAngleGaze1983}
+R.~A. Andersen and V.~B. Mountcastle.
+\newblock The influence of the angle of gaze upon the excitability of the light-sensitive neurons of the posterior parietal cortex.
+\newblock \emph{Journal of Neuroscience}, 3:\penalty0 532--548, 1983.
+\newblock \doi{10.1523/JNEUROSCI.03-03-00532.1983}.
+
+\bibitem[Duhamel et~al.(1997)Duhamel, Bremmer, BenHamed, and Graf]{duhamelSpatialInvarianceVisual1997}
+Jean-Ren{\'e} Duhamel, Frank Bremmer, Suliann BenHamed, and Werner Graf.
+\newblock Spatial invariance of visual receptive fields in parietal cortex neurons.
+\newblock \emph{Nature}, 389, 1997.
+\newblock \doi{10.1038/39865}.
+
+\bibitem[Ilg et~al.(2004)Ilg, Schumann, and Thier]{ilgPosteriorParietalCortex2004}
+Uwe~J. Ilg, Stefan Schumann, and Peter Thier.
+\newblock Posterior parietal cortex neurons encode target motion in world-centered coordinates.
+\newblock \emph{Neuron}, 43:\penalty0 145--151, 2004.
+\newblock \doi{10.1016/j.neuron.2004.06.006}.
+
+\bibitem[Turi and Burr(2012)]{turiSpatiotopicPerceptualMaps2012}
+Marco Turi and David Burr.
+\newblock Spatiotopic perceptual maps in humans: Evidence from motion adaptation.
+\newblock \emph{Proceedings of the Royal Society B}, 279:\penalty0 3091--3097, 2012.
+\newblock \doi{10.1098/rspb.2012.0637}.
+
+\bibitem[Xu et~al.(2012)Xu, Karachi, and Goldberg]{xuPostsaccadicUnreliabilityGain2012}
+Benjamin~Y. Xu, Carine Karachi, and Michael~E. Goldberg.
+\newblock The postsaccadic unreliability of gain fields renders it unlikely that the motor system can use them to calculate target position in space.
+\newblock \emph{Neuron}, 76:\penalty0 1201--1209, 2012.
+\newblock \doi{10.1016/j.neuron.2012.10.034}.
+
+\bibitem[Morris et~al.(2012)Morris, Kubischik, Hoffmann, Krekelberg, and Bremmer]{morrisDynamicsEyepositionSignals2012}
+Adam~P. Morris, Michael Kubischik, Klaus-Peter Hoffmann, Bart Krekelberg, and Frank Bremmer.
+\newblock Dynamics of eye-position signals in the dorsal visual system.
+\newblock \emph{Current Biology}, 22:\penalty0 173--179, 2012.
+\newblock \doi{10.1016/j.cub.2011.12.032}.
+
+\bibitem[Zimmermann et~al.(2013)Zimmermann, Morrone, Fink, and Burr]{zimmermannSpatiotopicNeuralRepresentations2013}
+Eckart Zimmermann, M.~Concetta Morrone, Gereon~R. Fink, and David Burr.
+\newblock Spatiotopic neural representations develop slowly across saccades.
+\newblock \emph{Current Biology}, 23:\penalty0 R193--R194, 2013.
+\newblock \doi{10.1016/j.cub.2013.01.065}.
+
+\bibitem[Golomb and Kanwisher(2012)]{golombHigherLevelVisual2012}
+Julie~D. Golomb and Nancy Kanwisher.
+\newblock Higher level visual cortex represents retinotopic, not spatiotopic, object location.
+\newblock \emph{Cerebral Cortex}, 22:\penalty0 2794--2810, 2012.
+\newblock \doi{10.1093/cercor/bhr357}.
+
+\bibitem[Duhamel et~al.(1992)Duhamel, Colby, and Goldberg]{duhamelUpdatingRepresentationVisual1992}
+Jean-Ren{\'e} Duhamel, Carol~L. Colby, and Michael~E. Goldberg.
+\newblock The updating of the representation of visual space in parietal cortex by intended eye movements.
+\newblock \emph{Science}, 255:\penalty0 90--92, 1992.
+\newblock \doi{10.1126/science.1553535}.
+
+\bibitem[Colby and Goldberg(1999)]{colbySpaceAttentionParietal1999}
+Carol~L. Colby and Michael~E. Goldberg.
+\newblock Space and attention in parietal cortex.
+\newblock \emph{Annual Review of Neuroscience}, 22, 1999.
+\newblock \doi{10.1146/annurev.neuro.22.1.319}.
+
+\bibitem[Nakamura and Colby(2002)]{nakamuraUpdatingVisualRepresentation2002}
+Kae Nakamura and Carol~L. Colby.
+\newblock Updating of the visual representation in monkey striate and extrastriate cortex during saccades.
+\newblock \emph{Proceedings of the National Academy of Sciences}, 99:\penalty0 4026--4031, 2002.
+\newblock \doi{10.1073/pnas.052379899}.
+
+\bibitem[Neupane et~al.(2016)Neupane, Guitton, and Pack]{neupaneTwoDistinctTypes2016}
+Sujaya Neupane, Daniel Guitton, and Christopher~C. Pack.
+\newblock Two distinct types of remapping in primate cortical area {{V4}}.
+\newblock \emph{Nature Communications}, 7:\penalty0 10402, 2016.
+\newblock \doi{10.1038/ncomms10402}.
+
+\bibitem[Rolfs et~al.(2011)Rolfs, Jonikaitis, Deubel, and Cavanagh]{rolfsPredictiveRemappingAttention2011}
+Martin Rolfs, Donatas Jonikaitis, Heiner Deubel, and Patrick Cavanagh.
+\newblock Predictive remapping of attention across eye movements.
+\newblock \emph{Nature Neuroscience}, 14:\penalty0 252--256, 2011.
+\newblock \doi{10.1038/nn.2711}.
+
+\bibitem[Cavanagh et~al.(2010)Cavanagh, Hunt, Afraz, and Rolfs]{cavanaghVisualStabilityBased2010}
+Patrick Cavanagh, Amelia~R. Hunt, Arash Afraz, and Martin Rolfs.
+\newblock Visual stability based on remapping of attention pointers.
+\newblock \emph{Trends in Cognitive Sciences}, 14:\penalty0 147--153, 2010.
+\newblock \doi{10.1016/j.tics.2010.01.007}.
+
+\bibitem[Zirnsak et~al.(2014)Zirnsak, Steinmetz, Noudoost, Xu, and Moore]{zirnsakVisualSpaceCompressed2014}
+Marc Zirnsak, Nicholas~A. Steinmetz, Behrad Noudoost, Kitty~Z. Xu, and Tirin Moore.
+\newblock Visual space is compressed in prefrontal cortex before eye movements.
+\newblock \emph{Nature}, 507:\penalty0 504--507, 2014.
+\newblock \doi{10.1038/nature13149}.
+
+\bibitem[Silver and Kastner(2009)]{silverTopographicMapsHuman2009}
+Michael~A. Silver and Sabine Kastner.
+\newblock Topographic maps in human frontal and parietal cortex.
+\newblock \emph{Trends in Cognitive Sciences}, 13:\penalty0 488--495, 2009.
+\newblock \doi{10.1016/j.tics.2009.08.005}.
+
+\bibitem[Mackey et~al.(2017)Mackey, Winawer, and Curtis]{mackeyVisualFieldMap2017}
+Wayne~E. Mackey, Jonathan Winawer, and Clayton~E. Curtis.
+\newblock Visual field map clusters in human frontoparietal cortex.
+\newblock \emph{eLife}, 6, 2017.
+\newblock \doi{10.7554/eLife.22974}.
+
+\bibitem[Walker et~al.(1995)Walker, Fitzgibbon, and Goldberg]{walkerNeuronsMonkeySuperior1995}
+Mark~F. Walker, Edmond~J. Fitzgibbon, and Michael~E. Goldberg.
+\newblock Neurons in the monkey superior colliculus predict the visual result of impending saccadic eye movements.
+\newblock \emph{Journal of Neurophysiology}, 73:\penalty0 1988--2003, 1995.
+\newblock \doi{10.1152/jn.1995.73.5.1988}.
+
+\bibitem[Ostendorf et~al.(2010)Ostendorf, Liebermann, and Ploner]{ostendorfHumanThalamusContributes2010}
+Florian Ostendorf, Daniela Liebermann, and Christoph~J. Ploner.
+\newblock Human thalamus contributes to perceptual stability across eye movements.
+\newblock \emph{Proceedings of the National Academy of Sciences}, 107:\penalty0 1229--1234, 2010.
+\newblock \doi{10.1073/pnas.0910742107}.
+
+\bibitem[Umeno and Goldberg(1997)]{umenoSpatialProcessingMonkey1997}
+Maureen~M. Umeno and Michael~E. Goldberg.
+\newblock Spatial processing in the monkey frontal eye field. {{I}}. predictive visual responses.
+\newblock \emph{Journal of Neurophysiology}, 78:\penalty0 1373--1383, 1997.
+\newblock \doi{10.1152/jn.1997.78.3.1373}.
+
+\bibitem[Medendorp et~al.(2003)Medendorp, Goltz, Vilis, and Crawford]{medendorpGazecenteredUpdatingVisual2003}
+W.~P. Medendorp, H.~C. Goltz, T.~Vilis, and J.~D. Crawford.
+\newblock Gaze-centered updating of visual space in human parietal cortex.
+\newblock \emph{Journal of Neuroscience}, 23:\penalty0 6209--6214, 2003.
+\newblock \doi{10.1523/JNEUROSCI.23-15-06209.2003}.
+
+\bibitem[Merriam et~al.(2003)Merriam, Genovese, and Colby]{merriamSpatialUpdatingHuman2003}
+Elisha~P. Merriam, Christopher~R. Genovese, and Carol~L. Colby.
+\newblock Spatial updating in human parietal cortex.
+\newblock \emph{Neuron}, 39:\penalty0 361--373, 2003.
+\newblock \doi{10.1016/S0896-6273(03)00393-3}.
+
+\bibitem[Deubel et~al.(1996)Deubel, Schneider, and Bridgeman]{deubelPostsaccadicTargetBlanking1996}
+Heiner Deubel, Werner~X. Schneider, and Bruce Bridgeman.
+\newblock Postsaccadic target blanking prevents saccadic suppression of image displacement.
+\newblock \emph{Vision Research}, 36:\penalty0 985--996, 1996.
+\newblock \doi{10.1016/0042-6989(95)00203-0}.
+
+\bibitem[Niemeier et~al.(2003)Niemeier, Crawford, and Tweed]{niemeierOptimalTranssaccadicIntegration2003}
+Matthias Niemeier, J.~Douglas Crawford, and Douglas~B. Tweed.
+\newblock Optimal transsaccadic integration explains distorted spatial perception.
+\newblock \emph{Nature}, 422:\penalty0 76--80, 2003.
+\newblock \doi{10.1038/nature01439}.
+
+\bibitem[O'Regan and No{\"e}(2001)]{oreganSensorimotorAccountVision2001}
+J.~Kevin O'Regan and Alva No{\"e}.
+\newblock A sensorimotor account of vision and visual consciousness.
+\newblock \emph{Behavioral and Brain Sciences}, 24:\penalty0 939--973, 2001.
+\newblock \doi{10.1017/S0140525X01000115}.
+
+\bibitem[Irwin(1991)]{irwinInformationIntegrationSaccadic1991}
+David~E. Irwin.
+\newblock Information integration across saccadic eye movements.
+\newblock \emph{Cognitive Psychology}, 23:\penalty0 420--456, 1991.
+\newblock \doi{10.1016/0010-0285(91)90015-G}.
 
 \end{thebibliography}
