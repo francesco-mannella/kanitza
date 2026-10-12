@@ -5,7 +5,9 @@ Reconstructed from the sweep history (`docs/report.tex`, memory notes, `tests/hp
 ## Choice
 
 **Training**: `orientT_ior`: reference parameters (anchor_std 4, neighborhood baseline 0.5) with goal inhibition, `hold_fixation` and `orienting_saccade`, both on in training.
-**Test time**: `exclude_fixation` on (applied to the trained runs; it is not stored in `final_parameters`).
+**Test time**: `exclude_fixation` off (the run's own setting). With the 48 and 64 px windows its radius (`fovea_scale`/2, 24 and 32 retina px) would blank most of the retina and the saccade would leave the object (6% of steps more than 2 px off at 64 px); with `hold_fixation` no goal saccade is undone without it, and purity is as high as with a radius of 8 px (`tests/scanpath_B_2026-10-10`).
+**Window**: the standard retinal window is 48x48 or 64x64 px (resized to the same 16x16 `fovea_size`), no longer 16x16; the analyses are reported at both.
+**Front end**: `gabor_phase_offset` = -pi/2 (now also the default in `src/params.py`). The evidence table, the runs and the seed-variance section below were obtained before this setting; the champion runs under it are in `tests/phase_offset_2026-10-10`, `tests/phase_fixed_*_2026-10-10`, and the difference is recorded in `phase-shift.md`.
 
 Evidence (mean over seeds; `tests/hparam_exclfix_2026-10-02/exclfix_summary.csv`, `tests/hparam_orient_confirm_2026-10-01/confirm_summary.csv`, `tests/hparam_orient_2026-10-01/orientT_summary.csv`):
 
@@ -31,16 +33,17 @@ Reasons: it is the only row with purity as high as the reference (0.94), no more
 | saccade_threshold, agent_sampling_precision | 12.0, 0.999999 |
 | predictor_learning_rate, maps_lr_decay | 0.01, 0.0 |
 | attention_max_variance, fixed prop, distance prop, slope | 6.0, 0.3, 0.7, 2.0 |
-| fovea_scale, fovea_size, fovea_gain, test_fovea | [16, 16], [16, 16], 10000, False |
+| fovea_scale, fovea_size, fovea_gain, test_fovea | **[48, 48] or [64, 64]** (both standard), [16, 16], 10000, False |
 | retina_scale, taskspace | [80, 80], [0, 80] x [0, 80] |
 | gabor scales, orientation bins, kernel size, frequency | [1.0], 5, 5, 0.09 |
+| gabor_phase_offset | -pi/2 (exactly odd kernels, polarity-symmetric edge saliency) |
 | gabor_rgb_prop, gabor_bright_prop | 10.0, 0.0 |
 | triangles_percent, colors | 50.0, True |
 | random_saccade | "ring" |
 | **goal_inhibition, memory, std** | **1.0, 3, 0.5** |
 | **hold_fixation** | **True** |
 | **orienting_saccade** | **True** |
-| exclude_fixation | False in training; **True at test** |
+| exclude_fixation | False in training and at test |
 
 ## Runs (five seeds)
 
