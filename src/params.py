@@ -60,6 +60,10 @@ class Parameters(ParameterManager):
             per-sample (local) competence.
         triangles_percent (float): epochs with epoch % 100 below this value
             use world 0 (triangle), the others world 1 (square).
+        train_worlds (list): world indices cycled through in training: epoch
+            % 100 is split into len(train_worlds) equal parts, one world each
+            (0 triangle, 1 square, 3 small triangle, 4 small square); empty:
+            the triangles_percent rule.
         colors (bool): unused (the env always uses the colored objects).
         magnitude_decay (float): unused.
         attention_max_variance (float): attentional Gaussian variance as a
@@ -122,6 +126,12 @@ class Parameters(ParameterManager):
             effects: during training the visual effects of the samples are
             permuted across samples, so each condition and saccade is paired
             with the effect of another sample.
+        log_displacement (bool): log, at every epoch update, the commanded
+            saccade (attention state), the executed action and the
+            displacement of the fovea content between condition and effect of
+            the trained samples: displacement_log.csv (per-epoch summary) and
+            displacement_<epoch>.npz (samples, at the plotting epochs) in the
+            working folder. Does not change training.
     """
 
     def __init__(
@@ -160,6 +170,7 @@ class Parameters(ParameterManager):
         decaying_speed=3.0,
         local_decaying_speed=1.0,
         triangles_percent=50.0,
+        train_worlds=[],
         colors=True,
         magnitude_decay=1e-10,
         attention_max_variance=6.0,
@@ -169,7 +180,7 @@ class Parameters(ParameterManager):
         gabor_scales=[8.0],
         gabor_orientation_bins=10,
         gabor_frequency=0.09,
-        gabor_phase_offset=-3.141592653589793 * (0.5 - 8e-2),
+        gabor_phase_offset=-3.141592653589793 / 2,
         gabor_kernel_size=9,
         gabor_sigma_y_multiplier=6.0,
         gabor_rgb_prop=1.0,
@@ -185,6 +196,7 @@ class Parameters(ParameterManager):
         orienting_saccade=False,
         exclude_fixation=False,
         shuffle_effects=False,
+        log_displacement=False,
     ):
         self.project_name = project_name
         self.entity_name = entity_name
@@ -220,6 +232,7 @@ class Parameters(ParameterManager):
         self.decaying_speed = decaying_speed
         self.local_decaying_speed = local_decaying_speed
         self.triangles_percent = triangles_percent
+        self.train_worlds = train_worlds
         self.colors = colors
         self.magnitude_decay = magnitude_decay
         self.attention_max_variance = attention_max_variance
@@ -247,5 +260,6 @@ class Parameters(ParameterManager):
         self.orienting_saccade = orienting_saccade
         self.exclude_fixation = exclude_fixation
         self.shuffle_effects = shuffle_effects
+        self.log_displacement = log_displacement
 
         super(Parameters, self).__init__()

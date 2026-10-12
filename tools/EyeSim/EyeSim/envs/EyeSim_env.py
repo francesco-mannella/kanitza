@@ -1,4 +1,5 @@
 """Gymnasium environment: a moving retina over a 2D scene of polygons."""
+import copy
 import os
 from importlib import resources
 
@@ -73,7 +74,7 @@ class EyeSimEnv(gym.Env):
 
         self.retina_sim = None
         self.retina_sim_pos = None
-        self.world_labels = ["triangle", "square", "circle"]
+        self.world_labels = ["triangle", "square", "circle", "triangle_small", "square_small"]
         self.world_files = [
             "worlds.json",
         ]
@@ -81,7 +82,10 @@ class EyeSimEnv(gym.Env):
             "red_triangle",
             "blue_square",
             "green_circle",
+            "red_triangle",
+            "blue_square",
         ]
+        self.world_scales = [1.0, 1.0, 1.0, 0.5, 0.5]
 
         self.world = 0
 
@@ -123,6 +127,25 @@ class EyeSimEnv(gym.Env):
         self.world_file = get_resource("EyeSim", "models", self.world_files[0])
         self.world_dict = Sim.loadWorldJson(self.world_file)
         self.object_params = object_params
+
+    def scaled_world_dict(self):
+        """World dict with the selected object scaled about its bounding-box centre.
+
+        The scale is world_scales[world]; the shape keeps its centre, so the
+        small and the large version sit at the same place for the same pose.
+        """
+        scale = self.world_scales[self.world]
+        if scale == 1.0:
+            return self.world_dict
+        world_dict = copy.deepcopy(self.world_dict)
+        for body in world_dict["body"]:
+            if body["name"] == self.world_objects[self.world]:
+                for fixture in body["fixture"]:
+                    v = fixture["polygon"]["vertices"]
+                    cx, cy = (max(v["x"]) + min(v["x"])) / 2, (max(v["y"]) + min(v["y"])) / 2
+                    v["x"] = [cx + scale * (x - cx) for x in v["x"]]
+                    v["y"] = [cy + scale * (y - cy) for y in v["y"]]
+        return world_dict
 
     def set_seed(self, seed=None):
         """Seed self.rng (random seed from os.urandom if None)."""
@@ -223,7 +246,7 @@ class EyeSimEnv(gym.Env):
         """
         super().reset(seed=seed)
 
-        self.sim = Sim(world_dict=self.world_dict)
+        self.sim = Sim(world_dict=self.scaled_world_dict())
 
         # Generate a random angle between 0 and 2π radians
         angle = (

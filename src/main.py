@@ -180,8 +180,11 @@ class Main:
         Returns:
             Information about the environment state after the episode.
         """
+        worlds = self.params.train_worlds
         self.env.init_world(
-            world=0 if epoch % 100 < self.params.triangles_percent else 1,
+            world=worlds[(epoch % 100) * len(worlds) // 100]
+            if worlds
+            else (0 if epoch % 100 < self.params.triangles_percent else 1),
         )
         observation, env_info = self.env.reset()
         if self.params.orienting_saccade:
@@ -315,9 +318,9 @@ class Main:
             world_dict = {"triangle": 0, "square": 0}
             for idx in np.array(self.off_control.filtered_idcs).T:
                 world = int(self.off_control.world_states[idx[0], idx[1], idx[2]][0])
-                if self.env.world_labels[world] == "triangle":
+                if self.env.world_labels[world].startswith("triangle"):
                     world_dict["triangle"] += 1
-                elif self.env.world_labels[world] == "square":
+                elif self.env.world_labels[world].startswith("square"):
                     world_dict["square"] += 1
 
             self.main_log(

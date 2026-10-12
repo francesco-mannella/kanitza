@@ -202,6 +202,8 @@ class MapsPlotter:
 
         self.side = int(np.sqrt(self.params.maps_output_size))
         self.fovea_size = env.fovea_size[0]
+        self.pad = 2
+        self.block = self.fovea_size + 2 * self.pad
 
         self.palette = self._create_palette()
         self.att_palette = self._create_palette(True)
@@ -210,7 +212,7 @@ class MapsPlotter:
             self.visual_conditions_map_ax,
             self.visual_effects_map_ax,
             self.attention_map_ax,
-        ) = plt.subplots(1, 3, figsize=(9, 3))
+        ) = plt.subplots(1, 3, figsize=(12, 4.2))
 
         self.vm = vidManager(
             self.fig, name="maps", dirname=".", duration=video_frame_duration
@@ -259,53 +261,56 @@ class MapsPlotter:
         self._initialize_attention_map_traces()
         self._set_axis()
 
+    def _frame_tiles(self, image):
+        """Surround every prototype tile with a frame in the colour of its location.
+
+        The colour key sits in the frame, outside the prototype, so that it
+        does not cover the image.
+
+        Parameters:
+        - image (np.array): (side * fovea, side * fovea, channels) tiles.
+
+        Returns:
+        - np.array: (side * block, side * block, 3) image with frames.
+        """
+        f, p, s = self.fovea_size, self.pad, self.side
+        tiles = image.reshape(s, f, s, f, -1)
+        if tiles.shape[-1] == 1:
+            tiles = np.repeat(tiles, 3, axis=-1)
+        framed = np.zeros((s, self.block, s, self.block, 3))
+        for a in range(s):
+            for b in range(s):
+                framed[a, :, b, :, :] = self.att_palette[a * s + b][:3]
+        framed[:, p : p + f, :, p : p + f, :] = tiles[..., :3]
+        return framed.reshape(s * self.block, s * self.block, 3)
+
+    def _initialize_map_image(self, ax, weights):
+        """Create the framed image of a visual map and set the axis limits."""
+        shape = self._frame_tiles(np.zeros_like(self.reshape_visual_weights(weights))).shape
+        im = ax.imshow(np.zeros(shape), vmin=0, vmax=1, zorder=0)
+        ax.set_xlim(0, self.side * self.block)
+        ax.set_ylim(0, self.side * self.block)
+        focus = plt.Rectangle((1e100, 1e100), self.block, self.block, fill=False, ec="#d00", lw=2.5, zorder=2)
+        ax.add_patch(focus)
+        return im, focus
+
     def _initialize_visual_conditions_map(self):
         """Initialize the visual conditions map image."""
-        initial_shape = self.reshape_visual_weights(
-            self.controller.visual_conditions_map.weights
-        ).shape
-        self.visual_conditions_map_im = self.visual_conditions_map_ax.imshow(
-            np.zeros(initial_shape), vmin=0, vmax=1, zorder=0
-        )
-        self.visual_conditions_map_ax.set_xlim(0, self.side * self.fovea_size)
-        self.visual_conditions_map_ax.set_ylim(0, self.side * self.fovea_size)
-        self.visual_conditions_map_states = (
-            self.visual_conditions_map_ax.scatter(
-                *self.grid, s=30, fc=self.palette, ec="#000", zorder=1
-            )
-        )
-        self.visual_conditions_map_focus = self._create_focus_scatter(
-            self.visual_conditions_map_ax
-        )
-
-    def _create_focus_scatter(self, ax):
-        """Create a scatter plot to indicate saccade."""
-        return ax.scatter(
-            1e100, 1e100, linewidth=6, s=120, fc="#fff0", ec="#a00f", zorder=1
+        self.visual_conditions_map_im, self.visual_conditions_map_focus = self._initialize_map_image(
+            self.visual_conditions_map_ax, self.controller.visual_conditions_map.weights
         )
 
     def _initialize_visual_effects_map(self):
         """Initialize the visual effects map image."""
-        initial_shape = self.reshape_visual_weights(
-            self.controller.visual_effects_map.weights
-        ).shape
-        self.visual_effects_map_im = self.visual_effects_map_ax.imshow(
-            np.zeros(initial_shape), vmin=0, vmax=1, zorder=0
-        )
-        self.visual_effects_map_ax.set_xlim(0, self.side * self.fovea_size)
-        self.visual_effects_map_ax.set_ylim(0, self.side * self.fovea_size)
-        self.visual_effects_map_states = self.visual_effects_map_ax.scatter(
-            *self.grid, s=30, fc=self.palette, ec="#000", zorder=1
-        )
-        self.visual_effects_map_focus = self._create_focus_scatter(
-            self.visual_effects_map_ax
+        self.visual_effects_map_im, self.visual_effects_map_focus = self._initialize_map_image(
+            self.visual_effects_map_ax, self.controller.visual_effects_map.weights
         )
 
     def _initialize_attention_map_traces(self):
         """Initialize traces for the attention map."""
         initial_shape = self.controller.attention_map.weights.shape
         self.attention_map_im = self.attention_map_ax.scatter(
-            *np.zeros(initial_shape), c=self.att_palette, s=120, zorder=1
+            *np.zeros(initial_shape), c=self.att_palette, s=min(120, 12000 / self.params.maps_output_size), zorder=1
         )
         self.attention_map_focus = self.attention_map_ax.scatter(
             1e100, 1e100, s=40, ec="black", fc="#ffff", lw=3
@@ -360,7 +365,7 @@ class MapsPlotter:
 
         if np.min(weights) != np.max(weights):
             self.visual_conditions_map_im.set_data(
-                self._normalize_weights(weights)
+                self._frame_tiles(self._normalize_weights(weights))
             )
 
         self._update_focus(self.visual_conditions_map_focus)
@@ -373,21 +378,20 @@ class MapsPlotter:
 
         if np.min(weights) != np.max(weights):
             self.visual_effects_map_im.set_data(
-                self._normalize_weights(weights)
+                self._frame_tiles(self._normalize_weights(weights))
             )
 
         self._update_focus(self.visual_effects_map_focus)
 
     def _update_focus(self, saccade_pointer):
-        """
-        Update the saccade pointer position based on current saccade data.
-        """
-        saccade = self.saccade
-        if saccade is None:
-            saccade = 1e100 * np.ones(2)
-        saccade = saccade.ravel()
-        saccade = self.fovea_size * (0.2 + np.array([saccade[1], saccade[0]]))
-        saccade_pointer.set_offsets(saccade)
+        """Frame the tile of the goal location in the current saccade."""
+        if self.saccade is None:
+            saccade_pointer.set_xy((1e100, 1e100))
+            return
+        saccade = self.saccade.ravel()
+        saccade_pointer.set_xy(
+            (saccade[1] * self.block - 0.5, saccade[0] * self.block - 0.5)
+        )
 
     def _update_attention_map_weights(self):
         """Update attention map weights."""

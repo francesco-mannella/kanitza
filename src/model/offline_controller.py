@@ -8,6 +8,8 @@ visual-conditions winner (the goal); a logistic predictor learns how close
 the attention and visual-effects winners fall to the goal (competence),
 which in turn modulates plasticity.
 """
+import csv
+import os
 from collections import deque
 
 import numpy as np
@@ -408,6 +410,8 @@ class OfflineController:
         if self.params.shuffle_effects:
             visual_effects = visual_effects[torch.randperm(len(visual_effects))]
         competences = get_state_data(self.timestep_competences, offset=offset)
+        if self.params.log_displacement:
+            self._log_displacement(idcs, attention_states, visual_conditions, visual_effects)
 
         # Retrieve representations
         representations = self.get_representations(
@@ -432,6 +436,42 @@ class OfflineController:
         self._update_predictor()
 
         self.weight_change = self.compute_weight_change()
+
+    def _log_displacement(self, idcs, attention_states, visual_conditions, visual_effects):
+        """Log commanded (attention) and executed (action) saccades and the
+        displacement of the fovea content (brightness centroid, fovea
+        pixels, x then y) between condition and effect of the trained samples."""
+        side = int(round(np.sqrt(visual_effects.shape[1] / 3)))
+        ax = np.arange(side) - (side - 1) / 2
+
+        def centroid(v):
+            im = v.cpu().numpy().reshape(-1, side, side, 3).sum(3).clip(0, None)
+            im = im - im.min((1, 2), keepdims=True)
+            m = im.sum((1, 2)) + 1e-9
+            return np.stack([(im * ax[None, None, :]).sum((1, 2)) / m, (im * ax[None, :, None]).sum((1, 2)) / m], 1)
+
+        att = attention_states.cpu().numpy() - 0.5
+        act = self.action_states[idcs[0], idcs[1], idcs[2]]
+        dcom = centroid(visual_effects) - centroid(visual_conditions)
+        corr = lambda a, b: float(np.corrcoef(a, b)[0, 1]) if a.std() > 0 and b.std() > 0 else float("nan")
+        row = dict(epoch=self.epoch, n=len(att))
+        for k, name in enumerate("xy"):
+            row.update({f"att_{name}": np.abs(att[:, k]).mean(), f"act_{name}": np.abs(act[:, k]).mean(),
+                        f"dcom_{name}": np.abs(dcom[:, k]).mean(),
+                        f"blocked_{name}": float((np.abs(act[:, k]) < 1e-6).mean()),
+                        f"corr_att_act_{name}": corr(att[:, k], act[:, k]),
+                        f"corr_att_dcom_{name}": corr(att[:, k], dcom[:, k]),
+                        f"corr_act_dcom_{name}": corr(act[:, k], dcom[:, k])})
+        path = "displacement_log.csv"
+        new = not os.path.exists(path)
+        with open(path, "a", newline="") as f:
+            w = csv.DictWriter(f, fieldnames=list(row))
+            if new:
+                w.writeheader()
+            w.writerow(row)
+        if self.epoch % self.params.plotting_epochs_interval == 0 or self.epoch == self.params.epochs - 1:
+            np.savez_compressed(f"displacement_{self.epoch:04d}.npz", att=att, act=act, dcom=dcom,
+                                episode=idcs[0], saccade=idcs[1], ts=idcs[2])
 
     def get_map_representations(self, map, norms, std_baseline, grid=True):
         """
