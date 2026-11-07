@@ -79,29 +79,33 @@ GX = GY = np.arange(-38, 39, 4).astype(float)
 S_GRID = np.stack(np.meshgrid(GX, GY, indexing="xy"), -1).reshape(-1, 2)
 SIGMA = 3.0
 LIM = 74
+PROBE_SIGMA = SIGMA
+SPOT_SIGMA = SIGMA
+MASK_SD_SCALE = 1.0
+FACE_GAIN = 1.0
 WIN = 28
 YY, XX = np.mgrid[0:80, 0:80]
 
 
-def render(spots):
+def render(spots, sigma=SIGMA):
     g = np.zeros((80, 80))
     for x, y in spots:
-        g += np.exp(-((XX - 40 - x) ** 2 + (YY - 40 - y) ** 2) / (2 * SIGMA**2))
+        g += np.exp(-((XX - 40 - x) ** 2 + (YY - 40 - y) ** 2) / (2 * sigma**2))
     img = np.full((80, 80, 3), 255.0)
     img[..., 1] = img[..., 2] = 255 * (1 - np.clip(g, 0, 1))
     return img.astype(np.uint8)
 
 
-def fovea(agent, spots):
-    return agent.get_fovea({"RETINA": render(spots)}).reshape(-1).astype(np.float32) / 255.0
+def fovea(agent, spots, sigma=SIGMA):
+    return agent.get_fovea({"RETINA": render(spots, sigma)}).reshape(-1).astype(np.float32) / 255.0
 
 
-def spot_table(agent):
+def spot_table(agent, sigma=SIGMA):
     n = 2 * LIM + 1
     out = np.empty((n, n, 768), np.float32)
     for iy in range(n):
         for ix in range(n):
-            out[iy, ix] = fovea(agent, [(ix - LIM, iy - LIM)])
+            out[iy, ix] = fovea(agent, [(ix - LIM, iy - LIM)], sigma)
     return out
 
 
@@ -142,7 +146,15 @@ def centre(r):
     return (w[:, None] * S_GRID).sum(0) / w.sum()
 
 
+def pick(m, i):
+    return m[i] if isinstance(m, list) else m
+
+
 def field(kern, j, win_map, shift):
+    if win_map.ndim == 1:
+        r = kern[j, win_map].copy()
+        r[(np.abs(S_GRID - shift) > WIN).any(1)] = 0
+        return r, (centre(r) if r.max() >= 0.5 * kern[j].max() else np.full(2, np.nan))
     xs = (S_GRID[:, 0] - shift[0]).astype(int) + LIM
     ys = (S_GRID[:, 1] - shift[1]).astype(int) + LIM
     r = kern[j, win_map[ys, xs]]
@@ -151,11 +163,15 @@ def field(kern, j, win_map, shift):
 
 
 def place_stat(wc, we, win, v_list, kern, nperm, rng):
-    c1 = np.array([field(kern, j, wc, (0, 0))[1] for j in win])
-    c2 = np.array([field(kern, j, we, (0, 0))[1] for j in win])
+    c1 = np.array([field(kern, j, pick(wc, i), (0, 0))[1] for i, j in enumerate(win)])
+    c2 = np.array([field(kern, j, pick(we, i), (0, 0))[1] for i, j in enumerate(win)])
     ok = ~(np.isnan(c1).any(1) | np.isnan(c2).any(1)) & (np.abs(v_list) <= WIN).all(1)
     c1, c2, v = c1[ok], c2[ok], v_list[ok]
     out = dict(n_test=int(ok.sum()))
+    if not ok.any():
+        for name in "12":
+            out.update({f"e{name}": np.nan, f"null{name}": np.nan, f"index{name}": np.nan, f"p{name}": np.nan})
+        return out
     for name, c, sign in (("1", c1, 1), ("2", c2, -1)):
         err = lambda vv: np.median(np.linalg.norm(c - sign * vv, axis=1))
         e = err(v)
@@ -184,19 +200,29 @@ def place_percentiles(r1, r2, v):
 
 
 def place_data(wc, we, win, v_list, kern):
-    r1 = np.array([field(kern, j, wc, (0, 0))[0] for j in win])
-    r2 = np.array([field(kern, j, we, (0, 0))[0] for j in win])
-    c1 = np.array([field(kern, j, wc, (0, 0))[1] for j in win])
-    c2 = np.array([field(kern, j, we, (0, 0))[1] for j in win])
+    r1 = np.array([field(kern, j, pick(wc, i), (0, 0))[0] for i, j in enumerate(win)])
+    r2 = np.array([field(kern, j, pick(we, i), (0, 0))[0] for i, j in enumerate(win)])
+    c1 = np.array([field(kern, j, pick(wc, i), (0, 0))[1] for i, j in enumerate(win)])
+    c2 = np.array([field(kern, j, pick(we, i), (0, 0))[1] for i, j in enumerate(win)])
     ok = ~(np.isnan(c1).any(1) | np.isnan(c2).any(1)) & (np.abs(v_list) <= WIN).all(1)
     return r1, r2, ok
 
 
 def place_response(wc, we, win, v_list, kern, nperm, nboot, rng):
     r1, r2, ok = place_data(wc, we, win, v_list, kern)
+    return place_response_from(r1, r2, ok, win, v_list, nperm, nboot, rng)
+
+
+def place_response_from(r1, r2, ok, win, v_list, nperm, nboot, rng):
     r1, r2, v, cells = r1[ok], r2[ok], v_list[ok], np.asarray(win)[ok]
     cols = place_percentiles(r1, r2, v)
     out = dict(n_test=int(ok.sum()))
+    if not ok.any():
+        for k in cols:
+            out.update({f"pr_{k}": np.nan, f"pr_{k}_lo": np.nan, f"pr_{k}_hi": np.nan})
+        for k in ("cond_v", "cond_mv", "eff_v", "eff_mv", "cond_0", "eff_0"):
+            out.update({f"pr_{k}_null": np.nan, f"pr_{k}_p": np.nan, f"pr_{k}_plo": np.nan})
+        return out
     uc = np.unique(cells)
     idx = [np.where(cells == c)[0] for c in uc]
     for k, x in cols.items():
@@ -212,26 +238,188 @@ def place_response(wc, we, win, v_list, kern, nperm, nboot, rng):
     for k, nl in nulls.items():
         out[f"pr_{k}_null"] = np.mean(nl)
         out[f"pr_{k}_p"] = (1 + (np.array(nl) >= cols[k].mean()).sum()) / (1 + nperm)
+        out[f"pr_{k}_plo"] = (1 + (np.array(nl) <= cols[k].mean()).sum()) / (1 + nperm)
+    rs, rr = S_GRID[VALID], np.random.RandomState(3)
+    for k, r in (("cond_0", r1), ("eff_0", r2)):
+        nl = np.array([place_pct(r, rs[rr.randint(len(rs), size=len(v))]).mean() for _ in range(nperm)])
+        out[f"pr_{k}_null"] = nl.mean()
+        out[f"pr_{k}_p"] = (1 + (nl >= cols[k].mean()).sum()) / (1 + nperm)
+        out[f"pr_{k}_plo"] = (1 + (nl <= cols[k].mean()).sum()) / (1 + nperm)
     return out
 
 
-def paradigm(w_cond, w_eff, d, pre, post, v_list, std, table, win=None, nperm=500, max_act_err=None, nboot=1000):
+def paradigm(w_cond, w_eff, d, pre, post, v_list, std, table, win=None, nperm=500, max_act_err=None, nboot=1000, wc=None, we=None):
     kern = kernel(std, w_cond.shape[1])
-    wc, we = winners(table, w_cond), winners(table, w_eff)
+    if wc is None:
+        wc, we = winners(table, w_cond), winners(table, w_eff)
     if win is None:
         win = distances(pre, w_cond).argmin(-1)
     n_fields = 0
     for i, j in enumerate(win):
-        c1 = field(kern, j, wc, (0, 0))[1]
-        c2 = field(kern, j, we, (0, 0))[1]
+        c1 = field(kern, j, pick(wc, i), (0, 0))[1]
+        c2 = field(kern, j, pick(we, i), (0, 0))[1]
         n_fields += not (np.isnan(c1).any() or np.isnan(c2).any())
     out = dict(n_displays=len(win), n_recruited=len(set(win)), n_fields=n_fields,
                act_err=np.median(np.linalg.norm(d[win] - v_list, axis=1)))
     keep = np.ones(len(win), bool) if max_act_err is None else np.linalg.norm(d[win] - v_list, axis=1) <= max_act_err
     out["n_kept"] = int(keep.sum())
-    out.update(place_stat(wc, we, win[keep], v_list[keep], kern, nperm, np.random.RandomState(1)))
-    out.update(place_response(wc, we, win[keep], v_list[keep], kern, nperm, nboot, np.random.RandomState(2)))
+    kept = np.nonzero(keep)[0]
+    wc_k = [wc[i] for i in kept] if isinstance(wc, list) else wc
+    we_k = [we[i] for i in kept] if isinstance(we, list) else we
+    out.update(place_stat(wc_k, we_k, win[keep], v_list[keep], kern, nperm, np.random.RandomState(1)))
+    out.update(place_response(wc_k, we_k, win[keep], v_list[keep], kern, nperm, nboot, np.random.RandomState(2)))
     return out
+
+
+def probe_saliency(agent, sigma=SIGMA):
+    return np.stack([agent._saliency(render([tuple(s)], sigma))[0] for s in S_GRID])
+
+
+def mask_at(agent, d_px, scale=None):
+    agent.set_parameters(0.5 + np.asarray(d_px, float) / 80)
+    return agent.attentional_mask.copy() ** (1 / (MASK_SD_SCALE if scale is None else scale) ** 2)
+
+
+def masked_fovea(agent, sal, mask):
+    return np.stack([agent._fovea({}, x * mask[..., None]).reshape(-1) for x in sal]).astype(np.float32) * FACE_GAIN / 255.0
+
+
+def masked_views(agent, w, d, v_list, mode="split"):
+    """Views through the attentional filter. Recruitment always uses the filter at fixation. split: conditions probes at
+    fixation, effects probes at the attention prototype nearest to T; before: all probes at fixation; after: all probes
+    at that prototype."""
+    sal = probe_saliency(agent, PROBE_SIGMA)
+    near = np.linalg.norm(d[None] - v_list[:, None], axis=2).argmin(1)
+    key_c = np.full(len(v_list), -1) if mode in ("split", "before") else near
+    key_e = near if mode in ("split", "after") else np.full(len(v_list), -1)
+    centre = lambda k: (0, 0) if k < 0 else d[k]
+    pairs = [agent._saliency(render([(0, 0), tuple(v)]))[0] for v in v_list]
+    pre = np.stack([masked_fovea(agent, [pairs[i]], mask_at(agent, (0, 0)))[0] for i in range(len(v_list))])
+    cache = {}
+    for name, keys, wm in (("c", key_c, w["visual_conditions"]), ("e", key_e, w["visual_effects"])):
+        for k in np.unique(keys):
+            cache[name, k] = distances(masked_fovea(agent, sal, mask_at(agent, centre(k))), wm).argmin(-1)
+    return pre, [cache["c", k] for k in key_c], [cache["e", k] for k in key_e]
+
+
+BLANK_FLOOR = 0.25
+NOFILTER = -2
+FIELD_MIN_V = 16
+
+
+def recruit(agent, w_cond, v_list):
+    pairs = [agent._saliency(render([(0, 0), tuple(v)], SPOT_SIGMA))[0] for v in v_list]
+    pre = np.stack([masked_fovea(agent, [p], mask_at(agent, (0, 0), 1.0))[0] for p in pairs])
+    pre0 = np.stack([masked_fovea(agent, [p], np.ones((80, 80)))[0] for p in pairs])
+    pre = pre / np.maximum(np.linalg.norm(pre, axis=1, keepdims=True), 1e-9) * np.linalg.norm(pre0, axis=1, keepdims=True)
+    return distances(pre, w_cond).argmin(-1)
+
+
+def probe_views(agent, sal, d, key, w_cond, n0, readout):
+    """Probe views of the conditions map through the filter at key (-1: fixation, k: attention prototype k, NOFILTER: none).
+    soft: overlap of each view with every prototype, divided by the norm of the unfiltered probe view and of the prototype, so the
+    attenuation by the filter is kept. winner: nearest prototype of the view rescaled to the unfiltered norm; -1 if the view is
+    below BLANK_FLOOR of that norm."""
+    mask = np.ones((80, 80)) if key == NOFILTER else mask_at(agent, (0, 0) if key < 0 else d[key])
+    x = masked_fovea(agent, sal, mask)
+    if readout == "soft":
+        return (x @ w_cond) / np.maximum(n0, 1e-9)[:, None] / np.linalg.norm(w_cond, axis=0)
+    nx = np.linalg.norm(x, axis=1)
+    win = distances(x / np.maximum(nx, 1e-9)[:, None] * n0[:, None], w_cond).argmin(-1)
+    win[nx < BLANK_FLOOR * n0] = -1
+    return win
+
+
+def response(views, j, kern, readout):
+    if readout == "soft":
+        r = views @ kern[j]
+    else:
+        r = kern[j, np.where(views < 0, 0, views)]
+        r[views < 0] = 0
+    r[~VALID] = 0
+    return r
+
+
+def field_centre(r, j, kern, readout):
+    if readout == "soft":
+        z = np.where(VALID, r - np.median(r[VALID]), 0)
+        return centre(np.where(z >= 0.5 * z.max(), z, 0)) if z.max() > 0 else np.full(2, np.nan)
+    return centre(r) if r.max() >= 0.5 * kern[j].max() else np.full(2, np.nan)
+
+
+def conditions_rows(path, args, agent):
+    std = args.std or load_params(path).neighborhood_modulation_baseline
+    store = torch.load(os.path.join(path, "off_control_store"), map_location="cpu", weights_only=False)
+    w_cond = store["visual_conditions_map_state_dict"]["weights"].numpy().astype(float)
+    w_eff = store["visual_effects_map_state_dict"]["weights"].numpy().astype(float)
+    d = (store["attention_map_state_dict"]["weights"].numpy().astype(float).T - 0.5) * 80
+    kern = kernel(std, w_cond.shape[1])
+    v_list = sample_targets(w_cond, args.displays, np.random.RandomState(0))
+    sal = probe_saliency(agent, PROBE_SIGMA)
+    n0 = np.linalg.norm(masked_fovea(agent, sal, np.ones((80, 80))), axis=1)
+    win = recruit(agent, w_cond, v_list)
+    near = np.linalg.norm(d[None] - v_list[:, None], axis=2).argmin(1)
+    base = dict(run=os.path.basename(path), readout=args.readout, scale=MASK_SD_SCALE, n_displays=len(win),
+                n_recruited=len(set(win)), act_err=np.median(np.linalg.norm(d[win] - v_list, axis=1)))
+    rows, centres = [], {}
+    for state, keys in (("off", np.full(len(win), NOFILTER)), ("before", np.full(len(win), -1)), ("after", near)):
+        cache = {k: probe_views(agent, sal, d, k, w_cond, n0, args.readout) for k in np.unique(keys)}
+        r = np.stack([response(cache[k], j, kern, args.readout) for k, j in zip(keys, win)])
+        r2 = r
+        if args.effects:
+            cache_e = {k: probe_views(agent, sal, d, k, w_eff, n0, args.readout) for k in np.unique(keys)}
+            r2 = np.stack([response(cache_e[k], j, kern, args.readout) for k, j in zip(keys, win)])
+        c = np.array([field_centre(ri, j, kern, args.readout) for ri, j in zip(r, win)])
+        centres[state] = c
+        ok = ~np.isnan(c).any(1) & (np.abs(v_list) <= WIN).all(1)
+        pr = place_response_from(r, r2, ok, win, v_list, args.perms, args.boots, np.random.RandomState(2))
+        if not args.effects:
+            pr = {k: x for k, x in pr.items() if "eff" not in k and "contrast" not in k}
+        rows.append(dict(base, state=state, **pr))
+    far = (np.linalg.norm(v_list, axis=1) >= FIELD_MIN_V) & ~np.isnan(centres["before"]).any(1) & ~np.isnan(centres["after"]).any(1)
+    cb, ca, v = centres["before"][far], centres["after"][far], v_list[far]
+    move = dict(n_move=int(far.sum()), b_to_F=np.median(np.linalg.norm(cb, axis=1)), a_to_T=np.median(np.linalg.norm(ca - v, axis=1)),
+                closer_T_after=(np.linalg.norm(ca - v, axis=1) < np.linalg.norm(cb - v, axis=1)).mean(),
+                F_then_T=((np.linalg.norm(cb, axis=1) < np.linalg.norm(cb - v, axis=1)) & (np.linalg.norm(ca - v, axis=1) < np.linalg.norm(ca, axis=1))).mean())
+    for row in rows:
+        row.update(move if row["state"] == "after" else {k: np.nan for k in move})
+    return rows
+
+
+def verify_conditions(args, agent):
+    global MASK_SD_SCALE
+    ax = GX[5:15]
+    c = np.stack(np.meshgrid(ax, ax, indexing="ij"), -1).reshape(100, 2)
+    kern = kernel(0.3)
+    sal = probe_saliency(agent, PROBE_SIGMA)
+    n0 = np.linalg.norm(masked_fovea(agent, sal, np.ones((80, 80))), axis=1)
+    w = np.stack([fovea(agent, [tuple(c[j])], PROBE_SIGMA) for j in range(100)], 1).astype(float)
+    views = probe_views(agent, sal, None, NOFILTER, w, n0, "soft")
+    e = np.array([np.linalg.norm(field_centre(response(views, j, kern, "soft"), j, kern, "soft") - c[j]) for j in range(100)])
+    inner = np.array([(abs(c[j]) <= ax[-2]).all() for j in range(100)])
+    print(f"soft readout: centre within 1 px of c_j in {(e[inner] <= 1).mean():.2f} of {inner.sum()} interior cells")
+    ok1 = (e[inner] <= 1).mean() >= 0.95
+    pts = np.array([(x, y) for x in range(-6, 7) for y in range(-6, 7)]) * 4.0
+    v = pts[np.random.RandomState(0).choice(len(pts), 100, replace=False)]
+    w2 = np.stack([fovea(agent, [(0, 0), tuple(v[j])], PROBE_SIGMA) for j in range(100)], 1).astype(float)
+    allok = np.ones(100, bool)
+    MASK_SD_SCALE = args.mask_sd_scale
+    res = {}
+    for state, keyf in (("off", lambda j: NOFILTER), ("before", lambda j: -1), ("after", lambda j: j)):
+        cache = {}
+        r = []
+        for j in range(100):
+            k = keyf(j)
+            if k not in cache:
+                cache[k] = probe_views(agent, sal, v, k, w2, n0, "soft")
+            r.append(response(cache[k], j, kern, "soft"))
+        res[state] = place_response_from(np.stack(r), np.stack(r), allok, np.arange(100), v, 100, 200, np.random.RandomState(2))
+        print(f"planted two-spot maps, filter {state:6s}: place 0 {res[state]['pr_cond_0']:.2f}, place v {res[state]['pr_cond_v']:.2f} "
+              f"(shuffled {res[state]['pr_cond_v_null']:.2f}, p {res[state]['pr_cond_v_p']:.3f}), place -v {res[state]['pr_cond_mv']:.2f}")
+    ok2 = res["off"]["pr_cond_v"] >= 0.9 and res["off"]["pr_cond_v_p"] <= 0.02
+    ok3 = (res["before"]["pr_cond_0"] >= 0.9 and res["before"]["pr_cond_v"] <= res["before"]["pr_cond_v_null"] + 0.05
+           and res["after"]["pr_cond_v"] >= 0.9 and res["after"]["pr_cond_0"] <= res["before"]["pr_cond_0"] - 0.2)
+    print("VERIFY", "PASS" if ok1 and ok2 and ok3 else "FAIL")
 
 
 def run_row(path, args, agent, table):
@@ -241,9 +429,14 @@ def run_row(path, args, agent, table):
          for k in ["visual_conditions", "visual_effects", "attention"]}
     d = (w["attention"].T - 0.5) * 80
     v_list = sample_targets(w["visual_conditions"], args.displays, np.random.RandomState(0))
-    pre, post = pair_views(agent, v_list)
+    if args.filter != "off":
+        pre, wc, we = masked_views(agent, w, d, v_list, {"on": "split"}.get(args.filter, args.filter))
+        post = None
+    else:
+        pre, post = pair_views(agent, v_list)
+        wc = we = None
     row = paradigm(w["visual_conditions"], w["visual_effects"], d, pre, post, v_list, std, table, nperm=args.perms,
-                   max_act_err=args.max_act_err, nboot=args.boots)
+                   max_act_err=args.max_act_err, nboot=args.boots, wc=wc, we=we)
     return [dict(run=os.path.basename(path), **row)]
 
 
@@ -273,7 +466,20 @@ def verify(args, agent, table):
     ok3 = pr["pr_cond_v"] >= 0.9 and pr["pr_eff_mv"] >= 0.9 and pr["pr_cond_v_p"] <= 0.02 and pr["pr_eff_mv_p"] <= 0.02
     print(f"place percentiles: conditions at v {pr['pr_cond_v']:.2f} (shuffled {pr['pr_cond_v_null']:.2f}), effects at -v "
           f"{pr['pr_eff_mv']:.2f} (shuffled {pr['pr_eff_mv_null']:.2f}); at 0: conditions {pr['pr_cond_0']:.2f}, effects {pr['pr_eff_0']:.2f}")
-    print("VERIFY", "PASS" if ok and ok2 and ok3 else "FAIL")
+    ones = masked_fovea(agent, probe_saliency(agent), np.ones((80, 80)))
+    same = np.allclose(ones, table[(S_GRID[:, 1] + LIM).astype(int), (S_GRID[:, 0] + LIM).astype(int)], atol=1e-5)
+    print(f"uniform mask reproduces the unmasked probe views: {same}")
+    ok4 = same
+    if args.filter == "on":
+        sal = probe_saliency(agent)
+        fix = mask_at(agent, (0, 0))
+        wc = distances(masked_fovea(agent, sal, fix), wcv).argmin(-1)
+        we = [distances(masked_fovea(agent, sal, mask_at(agent, v[j])), wev).argmin(-1) for j in range(100)]
+        pm = place_response(wc, we, np.arange(100), v, kern, 100, 200, np.random.RandomState(2))
+        print(f"filtered planted maps: {pm['n_test']} testable; conditions at v {pm['pr_cond_v']:.2f} (shuffled "
+              f"{pm['pr_cond_v_null']:.2f}), effects at -v {pm['pr_eff_mv']:.2f} (shuffled {pm['pr_eff_mv_null']:.2f})")
+        ok4 = ok4 and pm["pr_cond_v"] >= 0.9 and pm["pr_eff_mv"] >= 0.9 and pm["pr_cond_v_p"] <= 0.02 and pm["pr_eff_mv_p"] <= 0.02
+    print("VERIFY", "PASS" if ok and ok2 and ok3 and ok4 else "FAIL")
 
 
 def main():
@@ -285,20 +491,40 @@ def main():
     ap.add_argument("--displays", type=int, default=300)
     ap.add_argument("--perms", type=int, default=500)
     ap.add_argument("--boots", type=int, default=1000)
+    ap.add_argument("--filter", choices=["on", "off", "before", "after"], default="off",
+                    help="on: views through the attentional filter (fixation for the conditions side, attention prototype nearest to T for the effects probes); before / after: every view through the filter at fixation / at that prototype")
+    ap.add_argument("--readout", choices=["soft", "winner", "legacy"], default="soft",
+                    help="soft / winner: conditions face only, filter states off, before and after (--filter is ignored); legacy: the earlier readout of both faces")
+    ap.add_argument("--effects", action="store_true", help="soft / winner readout: also read the effects face, through the same filter state")
+    ap.add_argument("--spot-sigma", type=float, default=SIGMA, help="sigma (px) of the spots F and T (soft / winner readouts)")
+    ap.add_argument("--probe-sigma", type=float, default=SIGMA, help="sigma (px) of the lone probe spot S; F and T keep sigma 3")
+    ap.add_argument("--mask-sd-scale", type=float, default=1.0, help="factor on the attentional mask sd (analysis only)")
+    ap.add_argument("--face-gain", type=float, default=1.0, help="factor on the masked fovea before recruitment and probing (analysis only)")
     ap.add_argument("--std", type=float, help="lattice neighbourhood std (default: the run's neighborhood_modulation_baseline)")
     ap.add_argument("--max-act-err", type=float, help="keep only displays whose recruited cell's saccade is within this many px of v")
     args = ap.parse_args()
     set_device()
     runs = [r["run"] for r in csv.DictReader(open(args.manifest))] if args.manifest else []
     agent = Run(args.agent_run or runs[0]).agent
-    table = spot_table(agent)
+    global PROBE_SIGMA, MASK_SD_SCALE, FACE_GAIN, SPOT_SIGMA
+    SPOT_SIGMA = args.spot_sigma
+    MASK_SD_SCALE, FACE_GAIN = args.mask_sd_scale, args.face_gain
+    PROBE_SIGMA = args.probe_sigma
+    legacy = args.readout == "legacy"
+    table = spot_table(agent, args.probe_sigma) if legacy and (args.filter == "off" or args.verify) else None
     if args.verify:
-        return verify(args, agent, table)
+        return verify(args, agent, table) if legacy else verify_conditions(args, agent)
     os.makedirs(args.out, exist_ok=True)
     rows = []
     for path in runs:
-        for row in run_row(path, args, agent, table):
+        for row in (run_row(path, args, agent, table) if legacy else conditions_rows(path, args, agent)):
             rows.append(row)
+            if not legacy:
+                print(f"{row['run']:22s} {row['state']:6s} recruited {row['n_recruited']:3d} saccade vs v {row['act_err']:5.1f} px | testable {row['n_test']:3d} | "
+                      + "; ".join(f"{k} {row['pr_' + k]:.2f} (shuffled {row['pr_' + k + '_null']:.2f}, p {row['pr_' + k + '_p']:.3f})"
+                                  for k in ("cond_0", "cond_v", "cond_mv")) + (f" | field: {row['n_move']} displays, centre {row['b_to_F']:.1f} px from F before, "
+                      f"{row['a_to_T']:.1f} px from T after, closer to T after {row['closer_T_after']:.2f}, F then T {row['F_then_T']:.2f}" if row["state"] == "after" else ""), flush=True)
+                continue
             print(f"{row['run']:22s} recruited {row['n_recruited']:3d} fields {row['n_fields']:3d} of {row['n_displays']} "
                   f"saccade vs v {row['act_err']:5.1f} px | kept {row['n_kept']:3d} testable {row['n_test']:3d} | c1 to v {row['e1']:5.1f} px "
                   f"(null {row['null1']:5.1f}, index {row['index1']:.2f}, p {row['p1']:.3f}) | c2 to -v {row['e2']:5.1f} px "
