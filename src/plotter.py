@@ -111,7 +111,9 @@ class FoveaPlotter(EyeSim.envs.Simulator.TestPlotter):
 
         self.saliency_image.set_array(saliency_map)
         if attentional_mask is not None:
-            self.attentional_mask.set_array(attentional_mask)
+            span = attentional_mask.max() - attentional_mask.min()
+            shown = (attentional_mask - attentional_mask.min()) / span if span > 0 else attentional_mask
+            self.attentional_mask.set_array(shown**3)
         self.highlight_dot.set_offsets(salient_point)
 
         x = color_saliency_map
@@ -202,7 +204,7 @@ class MapsPlotter:
 
         self.side = int(np.sqrt(self.params.maps_output_size))
         self.fovea_size = env.fovea_size[0]
-        self.pad = 2
+        self.pad = 0
         self.block = self.fovea_size + 2 * self.pad
 
         self.palette = self._create_palette()
@@ -262,27 +264,27 @@ class MapsPlotter:
         self._set_axis()
 
     def _frame_tiles(self, image):
-        """Surround every prototype tile with a frame in the colour of its location.
+        """Mark every prototype tile with a bottom-left corner in the colour of its location.
 
-        The colour key sits in the frame, outside the prototype, so that it
-        does not cover the image.
+        The corner is drawn inside the tile: a 1 px thick line with 3 px sides.
 
         Parameters:
         - image (np.array): (side * fovea, side * fovea, channels) tiles.
 
         Returns:
-        - np.array: (side * block, side * block, 3) image with frames.
+        - np.array: (side * fovea, side * fovea, 3) image with corners.
         """
-        f, p, s = self.fovea_size, self.pad, self.side
+        f, s = self.fovea_size, self.side
         tiles = image.reshape(s, f, s, f, -1)
         if tiles.shape[-1] == 1:
             tiles = np.repeat(tiles, 3, axis=-1)
-        framed = np.zeros((s, self.block, s, self.block, 3))
+        tiles = tiles[..., :3].copy()
         for a in range(s):
             for b in range(s):
-                framed[a, :, b, :, :] = self.att_palette[a * s + b][:3]
-        framed[:, p : p + f, :, p : p + f, :] = tiles[..., :3]
-        return framed.reshape(s * self.block, s * self.block, 3)
+                colour = self.att_palette[a * s + b][:3]
+                tiles[a, :1, b, :3] = colour
+                tiles[a, :3, b, :1] = colour
+        return tiles.reshape(s * f, s * f, 3)
 
     def _initialize_map_image(self, ax, weights):
         """Create the framed image of a visual map and set the axis limits."""
@@ -290,7 +292,7 @@ class MapsPlotter:
         im = ax.imshow(np.zeros(shape), vmin=0, vmax=1, zorder=0)
         ax.set_xlim(0, self.side * self.block)
         ax.set_ylim(0, self.side * self.block)
-        focus = plt.Rectangle((1e100, 1e100), self.block, self.block, fill=False, ec="#d00", lw=2.5, zorder=2)
+        focus = plt.Rectangle((1e100, 1e100), self.block, self.block, fill=False, ec="#d00", lw=1.2, zorder=2)
         ax.add_patch(focus)
         return im, focus
 
