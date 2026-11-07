@@ -21,7 +21,8 @@ class SaliencyMap:
             params (Parameters): provides gabor_scales,
                 gabor_orientation_bins, gabor_frequency, gabor_phase_offset,
                 gabor_kernel_size, gabor_sigma_y_multiplier, gabor_rgb_prop
-                and gabor_bright_prop.
+                gabor_bright_prop, gabor_corner_gain, gabor_border_dilation
+                and gabor_fill_prop.
         """
         scales = params.gabor_scales
         orientation_bins = params.gabor_orientation_bins
@@ -41,6 +42,9 @@ class SaliencyMap:
             sigma_y_multiplier=sigma_y_multiplier,
             rgb_prop=rgb_prop,
             bright_prop=bright_prop,
+            corner_gain=params.gabor_corner_gain,
+            border_dilation=params.gabor_border_dilation,
+            fill_prop=params.gabor_fill_prop,
         )
 
     def __call__(self, input_image):

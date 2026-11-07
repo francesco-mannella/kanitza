@@ -87,6 +87,12 @@ class Parameters(ParameterManager):
             the adjusted saliency.
         gabor_bright_prop (float): weight of the brightness channel in the
             adjusted saliency.
+        gabor_corner_gain (float): weight of the corner term added to the
+            edge responses (0 = off).
+        gabor_border_dilation (int): radius in pixels of the dilation of
+            the edge responses (0 = off).
+        gabor_fill_prop (float): weight of the color-opponent filling
+            signal added to the color saliency (0 = off).
         test_fovea (bool): if True the maps get the raw FOVEA observation
             instead of the color-saliency fovea.
         fovea_gain (float): factor applied to the color-saliency fovea
@@ -185,6 +191,9 @@ class Parameters(ParameterManager):
         gabor_sigma_y_multiplier=6.0,
         gabor_rgb_prop=1.0,
         gabor_bright_prop=1.0,
+        gabor_corner_gain=0.0,
+        gabor_border_dilation=0,
+        gabor_fill_prop=0.0,
         test_fovea=False,
         fovea_gain=1e4,
         maps_lr_decay=0.0,
@@ -249,6 +258,9 @@ class Parameters(ParameterManager):
         self.gabor_sigma_y_multiplier = gabor_sigma_y_multiplier
         self.gabor_rgb_prop = gabor_rgb_prop
         self.gabor_bright_prop = gabor_bright_prop
+        self.gabor_corner_gain = gabor_corner_gain
+        self.gabor_border_dilation = gabor_border_dilation
+        self.gabor_fill_prop = gabor_fill_prop
         self.test_fovea = test_fovea
         self.fovea_gain = fovea_gain
         self.maps_lr_decay = maps_lr_decay

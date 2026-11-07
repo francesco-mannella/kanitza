@@ -109,6 +109,14 @@ class ChannelGaborFilter:
         sigma_y_multiplier (float): Elongation factor for the kernel y-axis.
         rgb_prop (float): Proportion for RGB in adjusted output.
         bright_prop (float): Proportion for brightness in adjusted output.
+        corner_gain (float): Weight of the corner term: the geometric mean
+            of the responses at perpendicular orientations, which is large
+            only where two edges meet.
+        border_dilation (int): Radius in pixels of the grey dilation of the
+            edge and corner responses (thicker borders).
+        fill_prop (float): Weight of the positive color-opponent signal of
+            the image itself, added to the color channels so that the
+            fillings are not silent.
     """
 
     def __init__(
@@ -121,6 +129,9 @@ class ChannelGaborFilter:
         sigma_y_multiplier=5,
         rgb_prop=0.7,
         bright_prop=0.3,
+        corner_gain=0.0,
+        border_dilation=0,
+        fill_prop=0.0,
         device=None,
         dtype=torch.float32,
     ):
@@ -144,6 +155,9 @@ class ChannelGaborFilter:
         self.sigma_y_multiplier = sigma_y_multiplier
         self.rgb_prop = rgb_prop
         self.bright_prop = bright_prop
+        self.corner_gain = corner_gain
+        self.border_dilation = border_dilation
+        self.fill_prop = fill_prop
         self.device = device or torch.device("cpu")
         self.dtype = dtype
         self.mask_channel_weights = [
@@ -251,11 +265,34 @@ class ChannelGaborFilter:
             for k in range(filtered.shape[1]):
                 target += filtered[m : m + 1, k : k + 1]
 
+        if self.corner_gain > 0:
+            n_or = len(self.orientation_list)
+            by_orient = filtered.view(
+                filtered.shape[0], len(self.scale_list), n_or, h, w
+            )
+            perpendicular = by_orient.roll(n_or // 2, dims=2)
+            corner = (by_orient * perpendicular).sqrt().sum(dim=(1, 2))
+            for m, ch in enumerate(self.mask_targets):
+                target = output_t[:, ch:] if ch == -1 else output_t[:, ch : ch + 1]
+                target += self.corner_gain * corner[m : m + 1].unsqueeze(1)
+
+        if self.border_dilation > 0:
+            r = self.border_dilation
+            output_t = F.max_pool2d(output_t, 2 * r + 1, stride=1, padding=r)
+
         min_v = output_t.min()
         max_v = output_t.max()
         output_t = (output_t - min_v) / (max_v - min_v + 1e-12)
 
         filtered_rgb_t = output_t[:, :3]
+        if self.fill_prop > 0:
+            fill = torch.zeros_like(filtered_rgb_t)
+            for m, ch in enumerate(self.mask_targets):
+                if ch >= 0:
+                    fill[:, ch : ch + 1] += masked[m : m + 1].clamp(min=0)
+            filtered_rgb_t = (filtered_rgb_t + self.fill_prop * fill) / (
+                1 + self.fill_prop
+            )
         brightness_t = output_t[:, 3:4]
 
         adjusted_rgb_t = (

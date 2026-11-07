@@ -238,7 +238,9 @@ class Agent:
         end = start + fovea_scale
         crop = color_saliency[start[0] : end[0], start[1] : end[1], :]
         # cv2 takes the target size as (width, height)
-        fovea = cv2.resize(crop, (int(fovea_width), int(fovea_height)))
+        fovea = cv2.resize(
+            crop, (int(fovea_width), int(fovea_height)), interpolation=cv2.INTER_AREA
+        )
         fovea *= self.focus_params.fovea_gain
         return fovea
 
